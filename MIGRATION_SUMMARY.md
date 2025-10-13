@@ -264,7 +264,7 @@ cp -r /home/gerald/git/mycelium ~/.claude/plugins/mycelium
 
 ### Method 3: Git (Future)
 ```bash
-claude plugin install git+https://github.com/gerald/mycelium.git
+claude plugin install git+https://github.com/gsornsen/mycelium.git
 ```
 
 ## Verification
@@ -319,7 +319,7 @@ All executable files maintain correct permissions:
 
 4. **Setup Remote** (when ready):
    ```bash
-   git remote add origin https://github.com/gerald/mycelium.git
+   git remote add origin https://github.com/gsornsen/mycelium.git
    git push -u origin main
    ```
 
