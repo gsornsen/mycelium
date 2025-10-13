@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//home/gerald/.claude/plugins/**)",
+      "Bash(cat:*)",
+      "Bash(readlink:*)",
+      "Bash(test:*)",
+      "Read(//home/gerald/.claude/**)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

@@ -27,8 +27,5 @@
     "task-queue",
     "mcp",
     "automation"
-  ],
-  "agents": "./agents/",
-  "commands": "./commands/",
-  "hooks": "./hooks/hooks.json"
+  ]
 }
