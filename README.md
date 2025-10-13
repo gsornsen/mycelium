@@ -28,6 +28,33 @@ Mycelium is a comprehensive Claude Code plugin that provides:
 5. **Infrastructure Commands** - Health checks, status monitoring, pipeline integration
 6. **Event Hooks** - Automated validation and coordination
 
+## 🙏 Standing on the Shoulders of Giants
+
+Mycelium's foundation was seeded by the exceptional work of the **[VoltAgent community](https://github.com/VoltAgent/awesome-claude-code-subagents)** and their curated collection of Claude Code subagents. Like spores spreading through a forest floor, their agents provided the initial inoculation for this distributed intelligence network.
+
+### What VoltAgent Provided
+
+- 🎯 **High-quality specialist agents** - Expertly crafted subagent definitions across multiple domains
+- 🏗️ **Proven architecture patterns** - Battle-tested approaches to agent design and tool permissions
+- 🌟 **Community-driven excellence** - A collaborative approach that inspired this project's ecosystem mindset
+
+### What Mycelium Grew From That Foundation
+
+- 🍄 **Dual-mode coordination substrate** - Redis/TaskQueue/Markdown coordination with graceful degradation
+- 🔄 **Durable workflow orchestration** - Temporal-based workflow execution for complex multi-agent tasks
+- 📡 **Real-time pub/sub messaging** - Chemical-signal-like communication between agents
+- 🎭 **130+ specialized agents** - Expanded and enhanced agent ecosystem across 11 categories
+- 🛠️ **Production-ready infrastructure** - Health checks, monitoring, and operational commands
+- 🪝 **Event-driven automation** - Hook system for validation and coordination
+
+### The Mycelial Philosophy
+
+Just as mycelium in nature builds upon existing organic matter to create something greater, Mycelium extends VoltAgent's excellent work with coordination infrastructure that enables true distributed intelligence. Both projects share a vision of collaborative, specialized agents working together - we've simply added the substrate that connects them.
+
+**Huge gratitude to the VoltAgent community** for creating such an invaluable resource and fostering the Claude Code agent ecosystem. If you're exploring Claude Code subagents, their repository is an essential visit: **https://github.com/VoltAgent/awesome-claude-code-subagents**
+
+---
+
 ## Architecture
 
 ### The Mycelial Network Metaphor
@@ -732,12 +759,22 @@ Contributions welcome! Areas of focus:
 
 MIT License - see [LICENSE](LICENSE) file
 
-## Credits
+## Credits & Acknowledgments
 
-- **Mycelium Metaphor** - Inspired by natural mycelial networks
-- **Agent Architecture** - Claude Code subagent system
-- **Coordination Patterns** - Distributed systems best practices
-- **MCP Integration** - Model Context Protocol ecosystem
+### Core Inspiration
+
+**[VoltAgent Community](https://github.com/VoltAgent/awesome-claude-code-subagents)** - The initial spores that seeded this mycelial network. Their curated collection of Claude Code subagents provided the foundational agents and architectural patterns that Mycelium built upon.
+
+### Project Influences
+
+- **Mycelium Metaphor** - Inspired by natural mycelial networks and their distributed intelligence
+- **Agent Architecture** - Claude Code subagent system and best practices
+- **Coordination Patterns** - Distributed systems research and battle-tested infrastructure patterns
+- **MCP Integration** - Model Context Protocol ecosystem and community tools
+
+### Special Thanks
+
+A heartfelt thank you to the VoltAgent community for fostering an excellent ecosystem of Claude Code subagents and demonstrating the power of specialized agent collaboration. This project stands on their shoulders and extends their vision with coordination infrastructure.
 
 ## Support
 
