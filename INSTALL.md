@@ -28,7 +28,7 @@ claude plugin list | grep mycelium
 
 ```bash
 # When published to GitHub
-claude plugin install git+https://github.com/gerald/mycelium.git
+claude plugin install git+https://github.com/gsornsen/mycelium.git
 ```
 
 ## Verify Installation
@@ -430,8 +430,8 @@ rm .pipeline-status.sh
 ## Support
 
 - **Documentation**: [docs/](docs/)
-- **Issues**: https://github.com/gerald/mycelium/issues
-- **Discussions**: https://github.com/gerald/mycelium/discussions
+- **Issues**: https://github.com/gsornsen/mycelium/issues
+- **Discussions**: https://github.com/gsornsen/mycelium/discussions
 
 ---
 

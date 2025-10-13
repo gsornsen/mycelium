@@ -6,6 +6,44 @@
 
 > **Mycelium**: Like nature's mycelial networks that communicate through chemical signals, distribute resources efficiently, and exhibit emergent intelligence - this Claude Code plugin creates an ecosystem of expert subagents that collaborate in real-time.
 
+
+## Dual-Purpose Repository
+
+This repository serves two purposes:
+
+1. **Plugin Marketplace** - Discover and install Mycelium plugins and community contributions
+2. **Core Plugin** - The Mycelium distributed intelligence system (130+ agents, coordination infrastructure)
+
+### Quick Install: Marketplace + Core Plugin
+
+```bash
+# Add Mycelium marketplace to Claude Code
+/plugin marketplace add gsornsen/mycelium
+
+# Browse available plugins
+/plugin
+
+# Install the core plugin
+/plugin install mycelium-core@mycelium
+
+# Verify installation
+/infra-check
+```
+
+### Quick Install: Core Plugin Only
+
+```bash
+# Direct install from GitHub
+claude plugin install git+https://github.com/gsornsen/mycelium.git#plugins/mycelium-core
+
+# Or for local development
+git clone https://github.com/gsornsen/mycelium.git
+ln -s /path/to/mycelium/plugins/mycelium-core ~/.claude/plugins/mycelium-core
+```
+
+See [INSTALL.md](INSTALL.md) for detailed installation options and [CONTRIBUTING.md](CONTRIBUTING.md) for plugin submission guidelines.
+
+
 ## Why "Mycelium"?
 
 Mycelial networks in nature demonstrate remarkable distributed intelligence:
@@ -326,10 +364,10 @@ await wf.waitForCompletion(workflowId);
 
 ```bash
 # Clone repository
-git clone https://github.com/gerald/mycelium.git ~/.claude/plugins/mycelium
+git clone https://github.com/gsornsen/mycelium.git ~/.claude/plugins/mycelium
 
 # Or install as Claude Code plugin
-claude plugin install git+https://github.com/gerald/mycelium.git
+claude plugin install git+https://github.com/gsornsen/mycelium.git
 ```
 
 ### Option 2: Local Development
@@ -691,7 +729,7 @@ ls -la ~/.claude/plugins/mycelium
 
 # Reinstall if needed
 claude plugin uninstall mycelium
-claude plugin install git+https://github.com/gerald/mycelium.git
+claude plugin install git+https://github.com/gsornsen/mycelium.git
 ```
 
 ### Coordination Issues
@@ -779,8 +817,8 @@ A heartfelt thank you to the VoltAgent community for fostering an excellent ecos
 ## Support
 
 - **Documentation**: [docs/](docs/)
-- **Issues**: https://github.com/gerald/mycelium/issues
-- **Discussions**: https://github.com/gerald/mycelium/discussions
+- **Issues**: https://github.com/gsornsen/mycelium/issues
+- **Discussions**: https://github.com/gsornsen/mycelium/discussions
 
 ---
 

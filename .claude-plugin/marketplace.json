@@ -1,0 +1,46 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "mycelium",
+  "version": "1.0.0",
+  "description": "Distributed intelligence marketplace - 130+ expert agents, coordination infrastructure, and community plugins for Claude Code",
+  "owner": {
+    "name": "Gerald",
+    "email": "gerald@example.com"
+  },
+  "metadata": {
+    "repository": "https://github.com/gsornsen/mycelium",
+    "homepage": "https://github.com/gsornsen/mycelium",
+    "license": "MIT",
+    "documentation": "https://github.com/gsornsen/mycelium/blob/main/README.md"
+  },
+  "plugins": [
+    {
+      "name": "mycelium-core",
+      "description": "Mycelium distributed intelligence system with 130+ expert agents, dual-mode coordination (Redis/TaskQueue/Markdown), real-time pub/sub messaging, and durable workflows",
+      "source": "./plugins/mycelium-core",
+      "category": "orchestration",
+      "version": "1.0.0",
+      "author": {
+        "name": "Gerald",
+        "email": "gerald@example.com",
+        "url": "https://github.com/gsornsen/mycelium"
+      },
+      "license": "MIT",
+      "homepage": "https://github.com/gsornsen/mycelium",
+      "repository": "https://github.com/gsornsen/mycelium",
+      "keywords": [
+        "agents",
+        "coordination",
+        "orchestration",
+        "redis",
+        "temporal",
+        "workflow",
+        "distributed",
+        "intelligence",
+        "mycelium",
+        "pub-sub",
+        "multi-agent"
+      ]
+    }
+  ]
+}

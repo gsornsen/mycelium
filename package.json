@@ -1,12 +1,13 @@
 {
   "name": "mycelium",
   "version": "1.0.0",
-  "description": "Mycelium: A distributed intelligence network for Claude Code - expert subagents that collaborate through durable workflows, real-time pub/sub, and intelligent task distribution",
-  "main": "lib/index.js",
+  "description": "Mycelium: A distributed intelligence network for Claude Code - expert subagents that collaborate through durable workflows, real-time pub/sub, and intelligent task distribution. Includes plugin marketplace.",
+  "main": "plugins/mycelium-core/lib/index.js",
   "type": "module",
   "keywords": [
     "claude-code",
     "claude-code-plugin",
+    "claude-code-marketplace",
     "agents",
     "multi-agent",
     "coordination",
@@ -15,7 +16,8 @@
     "redis",
     "temporal",
     "task-queue",
-    "mycelium"
+    "mycelium",
+    "marketplace"
   ],
   "author": {
     "name": "Gerald",
@@ -24,27 +26,38 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/gerald/mycelium.git"
+    "url": "https://github.com/gsornsen/mycelium.git"
   },
-  "homepage": "https://github.com/gerald/mycelium#readme",
+  "homepage": "https://github.com/gsornsen/mycelium#readme",
   "bugs": {
-    "url": "https://github.com/gerald/mycelium/issues"
+    "url": "https://github.com/gsornsen/mycelium/issues"
   },
   "engines": {
     "node": ">=18.0.0"
   },
   "claudeCode": {
     "version": "1.0",
+    "repositoryType": "dual-purpose",
+    "marketplace": {
+      "enabled": true,
+      "metadata": "./.claude-plugin/marketplace.json"
+    },
+    "corePlugin": {
+      "name": "mycelium-core",
+      "path": "./plugins/mycelium-core",
+      "description": "Core distributed intelligence system"
+    },
     "pluginType": "ecosystem",
     "features": [
       "multi-agent-coordination",
       "durable-workflows",
       "real-time-messaging",
       "task-distribution",
-      "infrastructure-monitoring"
+      "infrastructure-monitoring",
+      "plugin-marketplace"
     ],
     "agents": {
-      "path": "agents",
+      "path": "plugins/mycelium-core/agents",
       "count": 130,
       "categories": [
         "core-development",
@@ -61,7 +74,7 @@
       ]
     },
     "commands": {
-      "path": "commands",
+      "path": "plugins/mycelium-core/commands",
       "included": [
         "infra-check",
         "pipeline-status",
@@ -69,7 +82,7 @@
       ]
     },
     "hooks": {
-      "path": "hooks",
+      "path": "plugins/mycelium-core/hooks",
       "included": [
         "pre-test-validation"
       ]
@@ -89,7 +102,7 @@
   },
   "scripts": {
     "install": "echo 'Mycelium plugin installed successfully'",
-    "test": "node tests/integration/test-coordination.js"
+    "test": "node plugins/mycelium-core/tests/integration/test-coordination.js"
   },
   "peerDependencies": {
     "redis": "^4.0.0",
