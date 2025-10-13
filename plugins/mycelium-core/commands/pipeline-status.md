@@ -1,5 +1,5 @@
 ---
-allowed-tools: Bash(*), Read
+allowed-tools: Bash(gh:*), Bash(glab:*), Bash(git:*), Bash(ls:*), Bash(cat:*), Read, Glob, mcp__github__*, mcp__temporal-mcp__*
 description: CI/CD pipeline status checker. Shows build, test, and deployment status. Configurable for GitHub Actions, GitLab CI, Jenkins, or custom pipelines via .pipeline-status.sh.
 argument-hint: [--detailed] [--watch]
 ---
@@ -12,48 +12,14 @@ Check the status of CI/CD pipelines for the current project.
 
 **Command arguments**: $ARGS
 
-**Detect pipeline system**:
-```bash
-!`
-# Auto-detect CI/CD system
-PIPELINE_SYSTEM="unknown"
+**Supported Pipeline Systems** (auto-detect):
+1. GitHub Actions - `.github/workflows/`
+2. GitLab CI - `.gitlab-ci.yml`
+3. Jenkins - `Jenkinsfile`
+4. Custom - `.pipeline-status.sh`
+5. Temporal - Workflow executions
 
-if [ -d ".github/workflows" ]; then
-    echo "Detected: GitHub Actions"
-    PIPELINE_SYSTEM="github"
-    echo "Workflows:"
-    ls -1 .github/workflows/*.yml .github/workflows/*.yaml 2>/dev/null | head -5
-elif [ -f ".gitlab-ci.yml" ]; then
-    echo "Detected: GitLab CI"
-    PIPELINE_SYSTEM="gitlab"
-elif [ -f "Jenkinsfile" ]; then
-    echo "Detected: Jenkins"
-    PIPELINE_SYSTEM="jenkins"
-elif [ -f ".pipeline-status.sh" ]; then
-    echo "Detected: Custom pipeline script"
-    PIPELINE_SYSTEM="custom"
-else
-    echo "No CI/CD system detected"
-fi
-
-echo "System: $PIPELINE_SYSTEM"
-
-# Check for local pipeline status script
-if [ -f ".pipeline-status.sh" ]; then
-    echo "Found custom status script: .pipeline-status.sh"
-fi
-`
-```
-
-**Repository info**:
-```bash
-!`
-# Get current branch and commit
-echo "Branch: $(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo 'N/A')"
-echo "Commit: $(git rev-parse --short HEAD 2>/dev/null || echo 'N/A')"
-echo "Remote: $(git config --get remote.origin.url 2>/dev/null || echo 'N/A')"
-`
-```
+**Repository Info** - Detect git branch, commit, and remote URL to contextualize pipeline runs.
 
 ## Your Task
 

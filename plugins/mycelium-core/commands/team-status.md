@@ -1,5 +1,5 @@
 ---
-allowed-tools: Bash(*), Read
+allowed-tools: Bash(redis-cli:*), Bash(npx:*), Bash(ls:*), Bash(cat:*), Read, Glob, mcp__RedisMCPServer__*, mcp__taskqueue__*
 description: Multi-agent coordination status check. Shows agent workload, active tasks, and team health. Uses Redis/TaskQueue when available, falls back to markdown coordination files.
 argument-hint: [agent-type] [--detailed]
 ---
@@ -12,38 +12,10 @@ Check current workload and coordination status of Claude Code subagents.
 
 **Command arguments**: $ARGS
 
-**Detect coordination method**:
-```bash
-!`
-# Check if MCP servers are available
-COORDINATION_METHOD="unknown"
-
-if command -v redis-cli &> /dev/null && redis-cli ping &> /dev/null 2>&1; then
-    echo "Coordination: Redis MCP (preferred)"
-    COORDINATION_METHOD="redis"
-elif command -v npx &> /dev/null; then
-    if npx -y taskqueue-mcp --version &> /dev/null 2>&1; then
-        echo "Coordination: TaskQueue MCP (preferred)"
-        COORDINATION_METHOD="taskqueue"
-    fi
-fi
-
-if [ "$COORDINATION_METHOD" = "unknown" ]; then
-    echo "Coordination: Markdown files (fallback)"
-    COORDINATION_METHOD="markdown"
-
-    # Check for coordination files
-    if [ -d ".claude/coordination" ]; then
-        echo "Found coordination directory: .claude/coordination/"
-        ls -1 .claude/coordination/*.md 2>/dev/null | head -5
-    else
-        echo "No coordination directory found"
-    fi
-fi
-
-echo "Method: $COORDINATION_METHOD"
-`
-```
+**Coordination Methods** (auto-detect in order):
+1. Redis MCP (preferred) - Real-time distributed coordination
+2. TaskQueue MCP (preferred) - Task-centric coordination
+3. Markdown files (fallback) - Zero-dependency coordination in `.claude/coordination/`
 
 ## Your Task
 

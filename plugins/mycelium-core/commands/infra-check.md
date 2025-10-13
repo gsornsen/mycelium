@@ -1,5 +1,5 @@
 ---
-allowed-tools: Bash(*)
+allowed-tools: Bash(cat:*), Bash(redis-cli:*), Bash(pg_isready:*), Bash(nvidia-smi:*), Bash(docker:*), Bash(kubectl:*), Read
 description: Generalized infrastructure health check for MCP servers, databases, and system dependencies. Configurable via .infra-check.json in project root.
 argument-hint: [--verbose] [--config <path>]
 ---
@@ -12,21 +12,10 @@ Run comprehensive health checks on all configured infrastructure components.
 
 **Command arguments**: $ARGS
 
-**Configuration loading**:
-```bash
-!`
-# Detect config file
-if [ -f ".infra-check.json" ]; then
-  echo "Using project config: .infra-check.json"
-  cat .infra-check.json
-elif [ -f "$HOME/.infra-check.json" ]; then
-  echo "Using user config: $HOME/.infra-check.json"
-  cat $HOME/.infra-check.json
-else
-  echo "No config found. Using defaults."
-fi
-`
-```
+First, check for configuration files and load the appropriate one:
+- Project config: `.infra-check.json`
+- User config: `~/.infra-check.json`
+- If neither exists, use default checks
 
 ## Your Task
 
