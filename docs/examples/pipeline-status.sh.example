@@ -1,0 +1,216 @@
+#!/bin/bash
+#
+# Example custom pipeline status script
+#
+# Copy this file to your project root as .pipeline-status.sh
+# and customize for your CI/CD system.
+#
+
+# Main pipeline status function
+# Called by /pipeline-status slash command
+get_pipeline_status() {
+    local detailed="${1:-false}"
+
+    echo "Pipeline Status Report"
+    echo "====================="
+    echo ""
+
+    # Git information
+    echo "Git Information:"
+    echo "  Branch: $(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo 'N/A')"
+    echo "  Commit: $(git rev-parse --short HEAD 2>/dev/null || echo 'N/A')"
+    echo "  Author: $(git log -1 --format='%an' 2>/dev/null || echo 'N/A')"
+    echo "  Message: $(git log -1 --format='%s' 2>/dev/null || echo 'N/A')"
+    echo ""
+
+    # Local build status
+    echo "Local Build Status:"
+    check_local_build
+
+    echo ""
+
+    # Local test status
+    echo "Local Test Status:"
+    check_local_tests
+
+    echo ""
+
+    # Deployment status
+    echo "Deployment Status:"
+    check_deployment_status
+
+    echo ""
+
+    # Additional details if requested
+    if [ "$detailed" = "true" ]; then
+        echo "=== Detailed Information ==="
+        echo ""
+        show_detailed_info
+    fi
+}
+
+# Check local build artifacts
+check_local_build() {
+    if [ -d "dist/" ]; then
+        local build_age=$(($(date +%s) - $(stat -c %Y dist/ 2>/dev/null || echo 0)))
+        local age_min=$((build_age / 60))
+
+        echo "  ✅ Build artifacts found (${age_min}m old)"
+        echo "     Location: dist/"
+        echo "     Size: $(du -sh dist/ 2>/dev/null | cut -f1)"
+
+        # Check if build is stale
+        if [ $build_age -gt 3600 ]; then
+            echo "     ⚠️  Build is older than 1 hour"
+            echo "     Consider rebuilding: uv run python -m build"
+        fi
+    else
+        echo "  ❌ No build artifacts found"
+        echo "     Run: uv run python -m build"
+    fi
+}
+
+# Check local test results
+check_local_tests() {
+    if [ -f ".test-results/last-run.json" ]; then
+        local test_age=$(($(date +%s) - $(stat -c %Y .test-results/last-run.json)))
+        local age_min=$((test_age / 60))
+
+        echo "  ✅ Test results found (${age_min}m old)"
+
+        # Parse test results (assumes pytest-json-report format)
+        if command -v jq &> /dev/null; then
+            local total=$(jq -r '.summary.total' .test-results/last-run.json 2>/dev/null)
+            local passed=$(jq -r '.summary.passed' .test-results/last-run.json 2>/dev/null)
+            local failed=$(jq -r '.summary.failed' .test-results/last-run.json 2>/dev/null)
+
+            echo "     Total: $total | Passed: $passed | Failed: $failed"
+
+            if [ "$failed" -gt 0 ]; then
+                echo "     ❌ ${failed} test(s) failed"
+                echo "     Review: .test-results/last-run.json"
+            fi
+        fi
+
+        # Check test coverage
+        if [ -f "coverage.json" ]; then
+            local coverage=$(jq -r '.totals.percent_covered' coverage.json 2>/dev/null | cut -d. -f1)
+            echo "     Coverage: ${coverage}%"
+
+            if [ "$coverage" -lt 80 ]; then
+                echo "     ⚠️  Coverage below 80% threshold"
+            fi
+        fi
+    else
+        echo "  ⚠️  No recent test results"
+        echo "     Run: uv run pytest --json-report"
+    fi
+}
+
+# Check deployment status
+check_deployment_status() {
+    # Check if local dev server is running
+    if curl -sf http://localhost:8000/health > /dev/null 2>&1; then
+        echo "  ✅ Local dev server running (http://localhost:8000)"
+
+        # Get health status
+        local health_status=$(curl -s http://localhost:8000/health | jq -r '.status' 2>/dev/null || echo "unknown")
+        echo "     Health: $health_status"
+    else
+        echo "  ⚠️  Local dev server not running"
+        echo "     Start: uv run python -m uvicorn app.main:app --reload"
+    fi
+
+    # Check if production deployment exists
+    if [ -f ".deploy/last-deployment.json" ]; then
+        local deploy_url=$(jq -r '.url' .deploy/last-deployment.json 2>/dev/null)
+        local deploy_time=$(jq -r '.deployed_at' .deploy/last-deployment.json 2>/dev/null)
+
+        echo ""
+        echo "  Last Production Deployment:"
+        echo "     URL: $deploy_url"
+        echo "     Time: $deploy_time"
+
+        # Check if production is healthy
+        if [ -n "$deploy_url" ] && curl -sf "$deploy_url/health" > /dev/null 2>&1; then
+            echo "     Status: ✅ HEALTHY"
+        else
+            echo "     Status: ❌ UNHEALTHY or unreachable"
+        fi
+    fi
+}
+
+# Show detailed information
+show_detailed_info() {
+    echo "Recent Commits (last 5):"
+    git log --oneline -5 2>/dev/null || echo "  Unable to retrieve git log"
+
+    echo ""
+    echo "Modified Files (uncommitted):"
+    if [ -n "$(git status --porcelain 2>/dev/null)" ]; then
+        git status --porcelain | head -10
+    else
+        echo "  No uncommitted changes"
+    fi
+
+    echo ""
+    echo "Dependencies Status:"
+    if command -v uv &> /dev/null; then
+        echo "  uv: $(uv --version | head -1)"
+        echo "  Python: $(python --version 2>&1)"
+
+        # Check for outdated packages
+        local outdated_count=$(uv pip list --outdated 2>/dev/null | wc -l)
+        if [ "$outdated_count" -gt 0 ]; then
+            echo "  ⚠️  $outdated_count package(s) have updates available"
+            echo "     Run: uv pip list --outdated"
+        fi
+    fi
+
+    echo ""
+    echo "Disk Usage:"
+    echo "  Project: $(du -sh . 2>/dev/null | cut -f1)"
+    echo "  Available: $(df -h . | tail -1 | awk '{print $4}')"
+
+    echo ""
+    echo "Process Status:"
+    if pgrep -f "python.*uvicorn" > /dev/null; then
+        echo "  ✅ Python web server running (PID: $(pgrep -f 'python.*uvicorn'))"
+    else
+        echo "  ⚠️  No Python web server detected"
+    fi
+
+    if pgrep -f "redis-server" > /dev/null; then
+        echo "  ✅ Redis server running (PID: $(pgrep -f 'redis-server'))"
+    else
+        echo "  ⚠️  No Redis server detected"
+    fi
+}
+
+# Watch mode (continuously poll for updates)
+watch_pipeline_status() {
+    local interval="${1:-30}"
+
+    echo "👀 Watching pipeline status (refresh every ${interval}s)"
+    echo "Press Ctrl+C to stop"
+    echo ""
+
+    while true; do
+        clear
+        get_pipeline_status
+        echo ""
+        echo "Next refresh in ${interval}s..."
+        sleep "$interval"
+    done
+}
+
+# If script is run directly (not sourced), execute status check
+if [ "${BASH_SOURCE[0]}" -eq "${0}" ]; then
+    if [ "$1" = "--watch" ]; then
+        watch_pipeline_status "${2:-30}"
+    elif [ "$1" = "--detailed" ]; then
+        get_pipeline_status true
+    else
+        get_pipeline_status false
+    fi
+fi

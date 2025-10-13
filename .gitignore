@@ -1,0 +1,64 @@
+# Node modules
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+yarn.lock
+
+# Coordination state (ephemeral)
+.claude/coordination/
+!.claude/coordination/.gitkeep
+
+# Build outputs
+dist/
+build/
+*.tsbuildinfo
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Logs
+logs/
+*.log
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Redis snapshots
+dump.rdb
+
+# Temporal data
+temporal-data/
+
+# Python (if using Python tools)
+__pycache__/
+*.py[cod]
+*.so
+.Python
+venv/
+ENV/
+
+# Credentials
+*.pem
+*.key
+credentials.json
+.credentials.json

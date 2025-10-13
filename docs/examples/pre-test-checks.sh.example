@@ -1,0 +1,163 @@
+#!/bin/bash
+#
+# Example project-specific pre-test checks
+#
+# Copy this file to your project root as .pre-test-checks.sh
+# and customize for your project's requirements.
+#
+
+# Main pre-test check function
+# Return 0 if all checks pass, 1 if any fail
+project_pre_test_checks() {
+    echo "Running project-specific pre-test checks..."
+    echo ""
+
+    local checks_passed=true
+
+    # Check 1: Python dependencies
+    echo -n "  Checking Python dependencies... "
+    if uv sync --check &> /dev/null; then
+        echo "✅ OK"
+    else
+        echo "❌ FAILED"
+        echo "     Run: uv sync"
+        checks_passed=false
+    fi
+
+    # Check 2: Database migrations
+    echo -n "  Checking database migrations... "
+    if [ -d "migrations/" ]; then
+        # Check if migrations need to be applied
+        if python -m alembic current &> /dev/null; then
+            echo "✅ OK"
+        else
+            echo "⚠️  WARNING (migrations may be pending)"
+            echo "     Run: python -m alembic upgrade head"
+        fi
+    else
+        echo "⏭️  SKIP (no migrations directory)"
+    fi
+
+    # Check 3: Test data exists
+    echo -n "  Checking test data... "
+    if [ -f "tests/fixtures/test_data.json" ]; then
+        echo "✅ OK"
+    else
+        echo "❌ FAILED"
+        echo "     Run: python scripts/generate_test_data.py"
+        checks_passed=false
+    fi
+
+    # Check 4: Environment variables
+    echo -n "  Checking environment variables... "
+    required_vars=("DATABASE_URL" "SECRET_KEY")
+    missing_vars=()
+
+    for var in "${required_vars[@]}"; do
+        if [ -z "${!var}" ]; then
+            missing_vars+=("$var")
+        fi
+    done
+
+    if [ ${#missing_vars[@]} -eq 0 ]; then
+        echo "✅ OK"
+    else
+        echo "❌ FAILED"
+        echo "     Missing: ${missing_vars[*]}"
+        echo "     Set in .env file or export manually"
+        checks_passed=false
+    fi
+
+    # Check 5: Model weights downloaded
+    echo -n "  Checking model weights... "
+    if [ -f "models/base/sesame-csm-1b/model.safetensors" ]; then
+        echo "✅ OK"
+    else
+        echo "⚠️  WARNING"
+        echo "     Models not downloaded. Some tests may be skipped."
+        echo "     Run: python scripts/download_models.py"
+    fi
+
+    # Check 6: GPU availability (if required)
+    if [ "${GPU_REQUIRED:-false}" = "true" ]; then
+        echo -n "  Checking GPU... "
+        if command -v nvidia-smi &> /dev/null && nvidia-smi &> /dev/null; then
+            gpu_temp=$(nvidia-smi --query-gpu=temperature.gpu --format=csv,noheader)
+            if [ "$gpu_temp" -lt 85 ]; then
+                echo "✅ OK (${gpu_temp}°C)"
+            else
+                echo "⚠️  WARNING (${gpu_temp}°C - high temperature)"
+            fi
+        else
+            echo "❌ FAILED"
+            echo "     GPU required but not available"
+            checks_passed=false
+        fi
+    fi
+
+    # Check 7: Port availability
+    echo -n "  Checking ports... "
+    required_ports=(8000 6379)
+    ports_in_use=()
+
+    for port in "${required_ports[@]}"; do
+        if lsof -Pi :$port -sTCP:LISTEN -t >/dev/null 2>&1; then
+            ports_in_use+=("$port")
+        fi
+    done
+
+    if [ ${#ports_in_use[@]} -eq 0 ]; then
+        echo "✅ OK (all ports available)"
+    else
+        echo "⚠️  WARNING"
+        echo "     Ports in use: ${ports_in_use[*]}"
+        echo "     Tests may fail if these conflict with test services"
+    fi
+
+    echo ""
+
+    if [ "$checks_passed" = true ]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+# Custom validation function (optional)
+# Add any additional custom checks here
+custom_validation() {
+    echo "Running custom validation..."
+
+    # Example: Check disk space
+    available_gb=$(df -BG . | tail -1 | awk '{print $4}' | sed 's/G//')
+    if [ "$available_gb" -lt 10 ]; then
+        echo "⚠️  WARNING: Low disk space (${available_gb}GB available)"
+        echo "   Recommendation: Free up at least 10GB before running tests"
+    fi
+
+    return 0
+}
+
+# Project-specific cleanup function (optional)
+# Called before tests to clean up stale resources
+pre_test_cleanup() {
+    echo "Running pre-test cleanup..."
+
+    # Clean up old test databases
+    rm -f tests/tmp/*.db 2>/dev/null
+
+    # Clean up old log files
+    find logs/ -name "*.log" -mtime +7 -delete 2>/dev/null
+
+    # Clean up __pycache__
+    find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null
+
+    echo "Cleanup complete."
+    return 0
+}
+
+# If script is run directly (not sourced), execute checks
+if [ "${BASH_SOURCE[0]}" -eq "${0}" ]; then
+    project_pre_test_checks
+    exit $?
+fi

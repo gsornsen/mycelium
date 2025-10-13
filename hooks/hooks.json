@@ -1,0 +1,20 @@
+{
+  "description": "Mycelium infrastructure validation and coordination hooks",
+  "version": "1.0",
+
+  "hooks": {
+    "PreToolUse": [
+      {
+        "description": "Validate infrastructure before running tests",
+        "matcher": "Bash.*pytest|Bash.*uv run pytest",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/pre-test-validation.sh",
+            "timeout": 60000
+          }
+        ]
+      }
+    ]
+  }
+}

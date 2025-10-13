@@ -1,0 +1,107 @@
+{
+  "name": "mycelium",
+  "version": "1.0.0",
+  "description": "Mycelium: A distributed intelligence network for Claude Code - expert subagents that collaborate through durable workflows, real-time pub/sub, and intelligent task distribution",
+  "main": "lib/index.js",
+  "type": "module",
+  "keywords": [
+    "claude-code",
+    "claude-code-plugin",
+    "agents",
+    "multi-agent",
+    "coordination",
+    "workflow",
+    "distributed-systems",
+    "redis",
+    "temporal",
+    "task-queue",
+    "mycelium"
+  ],
+  "author": {
+    "name": "Gerald",
+    "email": "gerald@example.com"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gerald/mycelium.git"
+  },
+  "homepage": "https://github.com/gerald/mycelium#readme",
+  "bugs": {
+    "url": "https://github.com/gerald/mycelium/issues"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "claudeCode": {
+    "version": "1.0",
+    "pluginType": "ecosystem",
+    "features": [
+      "multi-agent-coordination",
+      "durable-workflows",
+      "real-time-messaging",
+      "task-distribution",
+      "infrastructure-monitoring"
+    ],
+    "agents": {
+      "path": "agents",
+      "count": 130,
+      "categories": [
+        "core-development",
+        "language-specialists",
+        "infrastructure",
+        "quality-security",
+        "data-ai",
+        "developer-experience",
+        "specialized-domains",
+        "business-product",
+        "meta-orchestration",
+        "research-analysis",
+        "claude-code"
+      ]
+    },
+    "commands": {
+      "path": "commands",
+      "included": [
+        "infra-check",
+        "pipeline-status",
+        "team-status"
+      ]
+    },
+    "hooks": {
+      "path": "hooks",
+      "included": [
+        "pre-test-validation"
+      ]
+    },
+    "coordinationModes": [
+      "redis",
+      "taskqueue",
+      "markdown"
+    ],
+    "mcpIntegrations": [
+      "redis",
+      "temporal",
+      "taskqueue",
+      "github",
+      "hugging-face"
+    ]
+  },
+  "scripts": {
+    "install": "echo 'Mycelium plugin installed successfully'",
+    "test": "node tests/integration/test-coordination.js"
+  },
+  "peerDependencies": {
+    "redis": "^4.0.0",
+    "temporal-sdk-node": "^1.0.0"
+  },
+  "peerDependenciesMeta": {
+    "redis": {
+      "optional": true
+    },
+    "temporal-sdk-node": {
+      "optional": true
+    }
+  },
+  "devDependencies": {}
+}

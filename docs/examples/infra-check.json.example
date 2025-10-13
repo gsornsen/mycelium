@@ -1,0 +1,112 @@
+{
+  "$schema": "https://claude.ai/schemas/infra-check-v1.json",
+  "version": "1.0",
+  "description": "Infrastructure health check configuration for Claude Code projects",
+
+  "checks": {
+    "redis": {
+      "enabled": true,
+      "url": "redis://localhost:6379",
+      "timeout_seconds": 5,
+      "check_memory": true,
+      "check_clients": true
+    },
+
+    "temporal": {
+      "enabled": true,
+      "host": "localhost:7233",
+      "namespace": "default",
+      "check_workflows": true,
+      "check_workers": true
+    },
+
+    "taskqueue": {
+      "enabled": true,
+      "check_npm": true,
+      "check_package": true
+    },
+
+    "postgresql": {
+      "enabled": false,
+      "connection_string": "postgresql://localhost:5432/mydb",
+      "timeout_seconds": 5,
+      "check_tables": false
+    },
+
+    "mongodb": {
+      "enabled": false,
+      "url": "mongodb://localhost:27017",
+      "database": "mydb",
+      "timeout_seconds": 5
+    },
+
+    "mysql": {
+      "enabled": false,
+      "host": "localhost",
+      "port": 3306,
+      "database": "mydb",
+      "user": "root",
+      "password_env": "MYSQL_PASSWORD"
+    },
+
+    "gpu": {
+      "enabled": false,
+      "required_model": "RTX 4090",
+      "max_temperature": 85,
+      "min_memory_gb": 20,
+      "check_cuda": true
+    },
+
+    "docker": {
+      "enabled": false,
+      "check_daemon": true,
+      "required_containers": []
+    },
+
+    "kubernetes": {
+      "enabled": false,
+      "context": "local",
+      "namespace": "default",
+      "check_pods": false
+    },
+
+    "custom": [
+      {
+        "name": "API Health",
+        "check_command": "curl -sf http://localhost:8000/health",
+        "timeout_seconds": 3
+      },
+      {
+        "name": "Model Server",
+        "check_command": "curl -sf http://localhost:8080/v1/models",
+        "timeout_seconds": 5
+      }
+    ]
+  },
+
+  "output": {
+    "verbose": false,
+    "format": "standard",
+    "color": true,
+    "show_timestamps": false
+  },
+
+  "notifications": {
+    "enabled": false,
+    "on_failure_only": true,
+    "webhook_url": "",
+    "slack_channel": ""
+  },
+
+  "retry": {
+    "enabled": true,
+    "max_attempts": 3,
+    "delay_seconds": 2
+  },
+
+  "coordination": {
+    "publish_to_redis": true,
+    "redis_key_prefix": "health:components",
+    "ttl_seconds": 300
+  }
+}
