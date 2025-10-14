@@ -8,6 +8,12 @@ yarn.lock
 # Coordination state (ephemeral)
 .claude/coordination/
 !.claude/coordination/.gitkeep
+**/coordination/
+docs/design/
+TASK_1.2_IMPLEMENTATION_SUMMARY.md
+TASK_1.2_QUICK_START.md
+docs/*SUMMARY*.md
+docs/*M01*.md
 
 # Build outputs
 dist/
@@ -33,6 +39,7 @@ Thumbs.db
 # Test coverage
 coverage/
 .nyc_output/
+.coverage
 
 # Logs
 logs/
@@ -62,3 +69,4 @@ ENV/
 *.key
 credentials.json
 .credentials.json
+.envrc
