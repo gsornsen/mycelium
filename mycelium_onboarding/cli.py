@@ -1,16 +1,29 @@
 """Command-line interface for Mycelium onboarding.
 
 This module provides CLI commands for environment setup, direnv configuration,
-and system status checks. All commands validate the environment before execution
-to ensure proper activation.
+system status checks, and configuration management. All commands validate the
+environment before execution to ensure proper activation.
 """
 
 from __future__ import annotations
 
+import json
 import logging
 import sys
+from functools import reduce
 from pathlib import Path
+from typing import Any
 
+import click
+
+from mycelium_onboarding.config.manager import (
+    ConfigLoadError,
+    ConfigManager,
+    ConfigSaveError,
+    ConfigValidationError,
+)
+from mycelium_onboarding.config.schema import MyceliumConfig
+from mycelium_onboarding.config_loader import get_config_path
 from mycelium_onboarding.env_validator import (
     EnvironmentValidationError,
     get_environment_info,
@@ -29,7 +42,12 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Commands that don't require environment validation
-SKIP_VALIDATION_COMMANDS = {"help", "setup-direnv"}
+SKIP_VALIDATION_COMMANDS = {"help", "setup-direnv", "config"}
+
+
+# ============================================================================
+# Original Commands (preserved for compatibility)
+# ============================================================================
 
 
 def cmd_setup_direnv(_args: list[str]) -> int:
@@ -164,7 +182,16 @@ Usage: python -m mycelium_onboarding <command> [options]
 Commands:
   setup-direnv    Set up direnv integration for automatic environment activation
   status          Display environment and configuration status (validates environment)
+  config          Configuration management commands (see 'config --help')
   help            Show this help message
+
+Configuration Commands:
+  config show     Display current configuration
+  config init     Initialize default configuration
+  config get      Get configuration value
+  config set      Set configuration value
+  config validate Validate current configuration
+  config migrate  Migrate configuration to newer schema version
 
 Environment Validation:
   Most commands require a properly activated Mycelium environment.
@@ -177,11 +204,669 @@ Environment Validation:
 Examples:
   python -m mycelium_onboarding setup-direnv
   python -m mycelium_onboarding status
+  python -m mycelium_onboarding config show
+  python -m mycelium_onboarding config get services.redis.port
+  python -m mycelium_onboarding config migrate --target 1.2
 
 For more information, visit: https://github.com/gsornsen/mycelium
 """
     )
     return 0
+
+
+# ============================================================================
+# Click-based Configuration Commands
+# ============================================================================
+
+
+@click.group()
+def cli() -> None:
+    """Mycelium Onboarding CLI."""
+    pass
+
+
+@cli.group()
+def config() -> None:
+    """Configuration management commands."""
+    pass
+
+
+@config.command()
+@click.option(
+    "--path",
+    type=click.Path(exists=True, path_type=Path),
+    help="Config file path to display",
+)
+@click.option(
+    "--format",
+    type=click.Choice(["yaml", "json", "table"], case_sensitive=False),
+    default="yaml",
+    help="Output format (default: yaml)",
+)
+def show(path: Path | None, format: str) -> None:
+    """Display current configuration.
+
+    Shows the configuration with colorized, formatted output. Supports
+    YAML, JSON, and table formats.
+
+    Examples:
+        config show
+        config show --format json
+        config show --path /path/to/config.yaml
+    """
+    try:
+        if path:
+            manager = ConfigManager(config_path=path)
+            location = path
+        else:
+            manager = ConfigManager()
+            location = get_config_path(ConfigManager.CONFIG_FILENAME)
+
+        cfg = manager.load()
+
+        # Display location
+        exists = location.exists()
+        status = click.style("✓", fg="green") if exists else click.style("✗", fg="red")
+        click.echo(f"{status} Configuration: {location}")
+
+        if not exists:
+            click.echo(
+                click.style("  (using defaults - no file exists)", fg="yellow")
+            )
+
+        click.echo()
+
+        # Display configuration
+        if format == "yaml":
+            yaml_content = cfg.to_yaml(exclude_none=True)
+            # Simple colorization for YAML
+            for line in yaml_content.splitlines():
+                if line.strip().startswith("#"):
+                    click.echo(click.style(line, fg="bright_black"))
+                elif ":" in line:
+                    key, _, value = line.partition(":")
+                    click.echo(click.style(key, fg="cyan", bold=True) + ":" + value)
+                else:
+                    click.echo(line)
+        elif format == "json":
+            json_content = json.dumps(cfg.to_dict(exclude_none=True), indent=2)
+            click.echo(json_content)
+        else:  # table
+            _display_config_table(cfg)
+
+    except (ConfigLoadError, ConfigValidationError) as e:
+        click.echo(click.style(f"✗ Configuration error: {e}", fg="red"), err=True)
+        sys.exit(1)
+    except FileNotFoundError as e:
+        click.echo(click.style(f"✗ {e}", fg="red"), err=True)
+        sys.exit(1)
+    except Exception as e:
+        click.echo(click.style(f"✗ Error: {e}", fg="red"), err=True)
+        logger.exception("Failed to show configuration")
+        sys.exit(1)
+
+
+@config.command()
+@click.option(
+    "--output",
+    type=click.Path(path_type=Path),
+    help="Output file path (default: auto-detect)",
+)
+@click.option(
+    "--project-local",
+    is_flag=True,
+    help="Create project-local configuration",
+)
+@click.option(
+    "--force",
+    is_flag=True,
+    help="Overwrite existing configuration",
+)
+def init(output: Path | None, project_local: bool, force: bool) -> None:
+    """Initialize default configuration.
+
+    Creates a new configuration file with default values. By default,
+    creates user-global config unless --project-local is specified.
+
+    Examples:
+        config init
+        config init --project-local
+        config init --output /path/to/config.yaml --force
+    """
+    try:
+        if output:
+            location = output
+        else:
+            location = get_config_path(
+                ConfigManager.CONFIG_FILENAME,
+                prefer_project=project_local,
+            )
+
+        if location.exists() and not force:
+            click.echo(
+                click.style(f"✗ Configuration already exists: {location}", fg="red"),
+                err=True,
+            )
+            click.echo("Use --force to overwrite", err=True)
+            sys.exit(1)
+
+        # Confirm if overwriting
+        if location.exists() and force and not click.confirm(
+            click.style(
+                f"Overwrite existing configuration at {location}?",
+                fg="yellow",
+            )
+        ):
+            click.echo("Cancelled")
+            sys.exit(0)
+
+        # Create default configuration
+        cfg = MyceliumConfig()
+        manager = ConfigManager(config_path=location)
+
+        # Create parent directories
+        location.parent.mkdir(parents=True, exist_ok=True)
+
+        # Save
+        manager.save(cfg)
+
+        click.echo(click.style(f"✓ Created configuration: {location}", fg="green"))
+
+    except (ConfigSaveError, ConfigValidationError) as e:
+        click.echo(click.style(f"✗ Error: {e}", fg="red"), err=True)
+        logger.exception("Failed to initialize configuration")
+        sys.exit(1)
+    except Exception as e:
+        click.echo(click.style(f"✗ Error: {e}", fg="red"), err=True)
+        logger.exception("Failed to initialize configuration")
+        sys.exit(1)
+
+
+@config.command()
+@click.argument("key")
+@click.option(
+    "--path",
+    type=click.Path(exists=True, path_type=Path),
+    help="Config file path to query",
+)
+def get(key: str, path: Path | None) -> None:
+    """Get configuration value.
+
+    Retrieves a configuration value using dot notation for nested keys.
+
+    Examples:
+        config get services.redis.port
+        config get deployment.method
+        config get project_name
+    """
+    try:
+        manager = ConfigManager(config_path=path) if path else ConfigManager()
+
+        cfg = manager.load()
+
+        # Navigate nested keys using dot notation
+        value = _get_nested_value(cfg.to_dict(), key)
+
+        if value is None:
+            click.echo(
+                click.style(f"✗ Key not found: {key}", fg="red"),
+                err=True,
+            )
+            sys.exit(1)
+
+        # Format output
+        click.echo(f"{click.style(key, fg='cyan', bold=True)}: {value}")
+
+    except KeyError as e:
+        click.echo(
+            click.style(f"✗ Key not found: {key} ({e})", fg="red"),
+            err=True,
+        )
+        sys.exit(1)
+    except (ConfigLoadError, ConfigValidationError) as e:
+        click.echo(click.style(f"✗ Configuration error: {e}", fg="red"), err=True)
+        sys.exit(1)
+    except Exception as e:
+        click.echo(click.style(f"✗ Error: {e}", fg="red"), err=True)
+        logger.exception("Failed to get configuration value")
+        sys.exit(1)
+
+
+@config.command()
+@click.argument("key")
+@click.argument("value")
+@click.option(
+    "--project-local",
+    is_flag=True,
+    help="Save to project-local configuration",
+)
+def set(key: str, value: str, project_local: bool) -> None:
+    """Set configuration value.
+
+    Sets a configuration value using dot notation for nested keys.
+    The value is automatically converted to the appropriate type.
+
+    Examples:
+        config set services.redis.port 6380
+        config set deployment.method docker-compose
+        config set services.redis.enabled true
+    """
+    try:
+        # Load existing config
+        manager = ConfigManager()
+        cfg = manager.load()
+        cfg_dict = cfg.to_dict()
+
+        # Parse value (type-aware)
+        parsed_value = _parse_value(value)
+
+        # Set nested value
+        _set_nested_value(cfg_dict, key, parsed_value)
+
+        # Re-validate
+        new_cfg = MyceliumConfig.from_dict(cfg_dict)
+
+        # Determine save location
+        location = get_config_path(
+            ConfigManager.CONFIG_FILENAME,
+            prefer_project=project_local,
+        )
+
+        # Save with new location
+        save_manager = ConfigManager(config_path=location)
+        save_manager.save(new_cfg)
+
+        click.echo(click.style(f"✓ Set {key} = {parsed_value}", fg="green"))
+        click.echo(f"  Saved to: {location}")
+
+    except (KeyError, ValueError) as e:
+        click.echo(
+            click.style(f"✗ Invalid key or value: {e}", fg="red"),
+            err=True,
+        )
+        sys.exit(1)
+    except ConfigValidationError as e:
+        click.echo(
+            click.style(f"✗ Configuration validation failed: {e}", fg="red"),
+            err=True,
+        )
+        sys.exit(2)
+    except (ConfigLoadError, ConfigSaveError) as e:
+        click.echo(click.style(f"✗ Configuration error: {e}", fg="red"), err=True)
+        sys.exit(1)
+    except Exception as e:
+        click.echo(click.style(f"✗ Error: {e}", fg="red"), err=True)
+        logger.exception("Failed to set configuration value")
+        sys.exit(1)
+
+
+@config.command()
+@click.option(
+    "--path",
+    type=click.Path(exists=True, path_type=Path),
+    help="Config file path to validate",
+)
+def validate(path: Path | None) -> None:
+    """Validate current configuration.
+
+    Validates the configuration file and displays any errors or warnings.
+    Shows a summary of enabled services on success.
+
+    Examples:
+        config validate
+        config validate --path /path/to/config.yaml
+    """
+    try:
+        if path:
+            manager = ConfigManager(config_path=path)
+            location = path
+        else:
+            manager = ConfigManager()
+            location = get_config_path(ConfigManager.CONFIG_FILENAME)
+
+        cfg = manager.load()
+
+        # Validate
+        errors = manager.validate(cfg)
+
+        if errors:
+            click.echo(click.style("✗ Configuration invalid:", fg="red"), err=True)
+            for error in errors:
+                click.echo(f"  - {error}", err=True)
+            sys.exit(2)
+
+        click.echo(click.style(f"✓ Configuration valid: {location}", fg="green"))
+        click.echo()
+
+        # Show summary
+        click.echo(click.style("Configuration Summary:", bold=True))
+        click.echo(f"  Project: {cfg.project_name}")
+        click.echo(f"  Schema Version: {cfg.version}")
+        click.echo(f"  Deployment: {cfg.deployment.method.value}")
+
+        # Enabled services
+        enabled_services = []
+        if cfg.services.redis.enabled:
+            enabled_services.append(f"redis (port {cfg.services.redis.port})")
+        if cfg.services.postgres.enabled:
+            enabled_services.append(f"postgres (port {cfg.services.postgres.port})")
+        if cfg.services.temporal.enabled:
+            enabled_services.append(
+                f"temporal (UI: {cfg.services.temporal.ui_port}, "
+                f"gRPC: {cfg.services.temporal.frontend_port})"
+            )
+
+        click.echo(f"  Enabled Services: {', '.join(enabled_services)}")
+
+    except (ConfigLoadError, ConfigValidationError) as e:
+        click.echo(click.style("✗ Configuration error:", fg="red"), err=True)
+        click.echo(str(e), err=True)
+        sys.exit(2)
+    except FileNotFoundError as e:
+        click.echo(click.style(f"✗ {e}", fg="red"), err=True)
+        sys.exit(1)
+    except Exception as e:
+        click.echo(click.style(f"✗ Error: {e}", fg="red"), err=True)
+        logger.exception("Failed to validate configuration")
+        sys.exit(1)
+
+
+@config.command()
+@click.option(
+    "--target",
+    help="Target version to migrate to (default: latest)",
+)
+@click.option(
+    "--dry-run",
+    is_flag=True,
+    help="Preview migration changes without applying them",
+)
+@click.option(
+    "--path",
+    type=click.Path(exists=True, path_type=Path),
+    help="Config file path to migrate",
+)
+def migrate(target: str | None, dry_run: bool, path: Path | None) -> None:
+    """Migrate configuration to newer schema version.
+
+    Automatically discovers and applies the necessary migration chain
+    to upgrade your configuration to the target version. Creates a backup
+    before applying changes.
+
+    Use --dry-run to preview changes without applying them.
+
+    Examples:
+        config migrate
+        config migrate --target 1.2
+        config migrate --dry-run
+        config migrate --path /path/to/config.yaml --target 1.1
+    """
+    from mycelium_onboarding.config.migrations import (
+        MigrationError,
+        MigrationPathError,
+        get_default_registry,
+    )
+
+    try:
+        if path:
+            manager = ConfigManager(config_path=path)
+            location = path
+        else:
+            manager = ConfigManager()
+            location = get_config_path(ConfigManager.CONFIG_FILENAME)
+
+        # Check if config file exists
+        if not location.exists():
+            click.echo(
+                click.style(f"✗ Configuration file not found: {location}", fg="red"),
+                err=True,
+            )
+            click.echo("Run 'config init' to create a configuration file.", err=True)
+            sys.exit(1)
+
+        click.echo(f"Configuration: {location}")
+
+        # Load current config to check version
+        import yaml
+
+        with location.open("r", encoding="utf-8") as f:
+            config_dict = yaml.safe_load(f)
+
+        if config_dict is None:
+            click.echo(click.style("✗ Configuration file is empty", fg="red"), err=True)
+            sys.exit(1)
+
+        current_version = config_dict.get("version", "unknown")
+        click.echo(f"Current version: {click.style(current_version, fg='cyan')}")
+
+        # Determine target version
+        if target is None:
+            target = MyceliumConfig().version
+            click.echo(f"Target version: {click.style(target, fg='cyan')} (latest)")
+        else:
+            click.echo(f"Target version: {click.style(target, fg='cyan')}")
+
+        # Check if migration is needed
+        registry = get_default_registry()
+        if not registry.needs_migration(config_dict, target):
+            click.echo(
+                click.style("✓ Configuration is already up to date", fg="green")
+            )
+            sys.exit(0)
+
+        click.echo()
+
+        # Get migration path
+        try:
+            migrations = registry.get_migration_path(current_version, target)
+            click.echo(click.style("Migration Path:", bold=True))
+            click.echo(
+                "  "
+                + " -> ".join([current_version] + [m.to_version for m in migrations])
+            )
+            click.echo()
+
+            # Show migration details
+            for i, migration in enumerate(migrations, 1):
+                click.echo(
+                    f"  {i}. {click.style(migration.from_version, fg='yellow')} "
+                    f"-> {click.style(migration.to_version, fg='green')}"
+                )
+                click.echo(f"     {migration.description}")
+            click.echo()
+
+        except MigrationPathError as e:
+            click.echo(click.style(f"✗ {e}", fg="red"), err=True)
+            sys.exit(1)
+
+        # Preview changes
+        if dry_run:
+            click.echo(click.style("Preview Mode (dry-run):", bold=True))
+            click.echo()
+            preview = registry.preview_migration(config_dict, target)
+            click.echo(preview)
+            click.echo()
+            click.echo(
+                click.style(
+                    "No changes applied. Run without --dry-run to apply.", fg="yellow"
+                )
+            )
+            sys.exit(0)
+
+        # Confirm migration
+        if not click.confirm(
+            click.style(
+                f"Apply migration from {current_version} to {target}?", fg="yellow"
+            )
+        ):
+            click.echo("Migration cancelled")
+            sys.exit(0)
+
+        # Perform migration
+        click.echo()
+        click.echo(click.style("Applying migration...", bold=True))
+
+        try:
+            manager.load_and_migrate(target_version=target)
+
+            click.echo()
+            click.echo(
+                click.style(
+                    f"✓ Successfully migrated to version {target}", fg="green"
+                )
+            )
+            click.echo(f"  Backup created: {location}.backup")
+            click.echo(f"  Configuration updated: {location}")
+
+            # Show migration history
+            history = registry.get_history()
+            if history:
+                click.echo()
+                click.echo(click.style("Migration History:", bold=True))
+                for record in history:
+                    status = (
+                        click.style("✓", fg="green")
+                        if record.success
+                        else click.style("✗", fg="red")
+                    )
+                    click.echo(
+                        f"  {status} {record.from_version} -> {record.to_version}"
+                    )
+                    if record.error:
+                        click.echo(f"      Error: {record.error}")
+
+        except MigrationError as e:
+            click.echo()
+            click.echo(click.style(f"✗ Migration failed: {e}", fg="red"), err=True)
+            click.echo()
+            click.echo(
+                "The configuration was backed up and is still available at:",
+                err=True,
+            )
+            click.echo(f"  {location}.backup", err=True)
+            sys.exit(1)
+
+    except (ConfigLoadError, ConfigValidationError) as e:
+        click.echo(click.style(f"✗ Configuration error: {e}", fg="red"), err=True)
+        sys.exit(1)
+    except FileNotFoundError as e:
+        click.echo(click.style(f"✗ {e}", fg="red"), err=True)
+        sys.exit(1)
+    except Exception as e:
+        click.echo(click.style(f"✗ Error: {e}", fg="red"), err=True)
+        logger.exception("Failed to migrate configuration")
+        sys.exit(1)
+
+
+# ============================================================================
+# Helper Functions
+# ============================================================================
+
+
+def _display_config_table(cfg: MyceliumConfig) -> None:
+    """Display configuration as a formatted table."""
+    click.echo(click.style("Configuration", bold=True, underline=True))
+    click.echo()
+
+    # General
+    click.echo(click.style("General:", bold=True))
+    click.echo(f"  Project Name:      {cfg.project_name}")
+    click.echo(f"  Schema Version:    {cfg.version}")
+    click.echo()
+
+    # Deployment
+    click.echo(click.style("Deployment:", bold=True))
+    click.echo(f"  Method:            {cfg.deployment.method.value}")
+    click.echo(f"  Auto Start:        {cfg.deployment.auto_start}")
+    click.echo(f"  Health Timeout:    {cfg.deployment.healthcheck_timeout}s")
+    click.echo()
+
+    # Services
+    click.echo(click.style("Services:", bold=True))
+
+    # Redis
+    status = (
+        click.style("ENABLED", fg="green")
+        if cfg.services.redis.enabled
+        else click.style("DISABLED", fg="red")
+    )
+    click.echo(f"  Redis:             {status}")
+    if cfg.services.redis.enabled:
+        click.echo(f"    Port:            {cfg.services.redis.port}")
+        click.echo(f"    Persistence:     {cfg.services.redis.persistence}")
+        click.echo(f"    Max Memory:      {cfg.services.redis.max_memory}")
+
+    # PostgreSQL
+    status = (
+        click.style("ENABLED", fg="green")
+        if cfg.services.postgres.enabled
+        else click.style("DISABLED", fg="red")
+    )
+    click.echo(f"  PostgreSQL:        {status}")
+    if cfg.services.postgres.enabled:
+        click.echo(f"    Port:            {cfg.services.postgres.port}")
+        click.echo(f"    Database:        {cfg.services.postgres.database}")
+        click.echo(f"    Max Connections: {cfg.services.postgres.max_connections}")
+
+    # Temporal
+    status = (
+        click.style("ENABLED", fg="green")
+        if cfg.services.temporal.enabled
+        else click.style("DISABLED", fg="red")
+    )
+    click.echo(f"  Temporal:          {status}")
+    if cfg.services.temporal.enabled:
+        click.echo(f"    UI Port:         {cfg.services.temporal.ui_port}")
+        click.echo(f"    Frontend Port:   {cfg.services.temporal.frontend_port}")
+        click.echo(f"    Namespace:       {cfg.services.temporal.namespace}")
+
+
+def _get_nested_value(data: dict[str, Any], key: str) -> Any:
+    """Get nested value from dictionary using dot notation."""
+    keys = key.split(".")
+    try:
+        return reduce(lambda d, k: d[k], keys, data)
+    except (KeyError, TypeError):
+        raise KeyError(f"Key not found: {key}") from None
+
+
+def _set_nested_value(data: dict[str, Any], key: str, value: Any) -> None:
+    """Set nested value in dictionary using dot notation."""
+    keys = key.split(".")
+    for k in keys[:-1]:
+        if k not in data:
+            data[k] = {}
+        data = data[k]
+    data[keys[-1]] = value
+
+
+def _parse_value(value: str) -> Any:
+    """Parse string value to appropriate type."""
+    # Try boolean
+    if value.lower() in ("true", "yes", "1"):
+        return True
+    if value.lower() in ("false", "no", "0"):
+        return False
+
+    # Try integer
+    try:
+        return int(value)
+    except ValueError:
+        pass
+
+    # Try float
+    try:
+        return float(value)
+    except ValueError:
+        pass
+
+    # Return as string
+    return value
+
+
+# ============================================================================
+# Main Entry Point (legacy compatibility)
+# ============================================================================
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -205,6 +890,18 @@ def main(argv: list[str] | None = None) -> int:
 
     command = argv[0]
     args = argv[1:]
+
+    # Handle config command via Click
+    if command == "config":
+        try:
+            # Don't validate environment for config commands
+            cli(["config"] + args, standalone_mode=False)
+            return 0
+        except click.ClickException as e:
+            e.show()
+            return 1
+        except SystemExit as e:
+            return e.code if isinstance(e.code, int) else 1
 
     # Validate environment before running commands (unless skipped)
     if command not in SKIP_VALIDATION_COMMANDS:

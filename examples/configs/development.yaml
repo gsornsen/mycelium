@@ -1,0 +1,60 @@
+# Development Environment Configuration
+#
+# Optimized configuration for local development with fast startup times,
+# minimal resource usage, and developer-friendly settings. Ideal for
+# day-to-day development work.
+#
+# Use Case:
+# - Local development on laptop/desktop
+# - Fast iteration cycles
+# - Resource-constrained environments
+# - Learning and experimentation
+#
+# To use this configuration:
+#   cp examples/configs/development.yaml .mycelium/config.yaml
+#   mycelium config validate
+
+version: "1.0"
+
+# Development project identifier
+project_name: mycelium-dev
+
+# Docker Compose with fast startup
+deployment:
+  method: docker-compose
+  auto_start: true
+  healthcheck_timeout: 30      # Shorter for fast feedback
+
+# Services configuration
+services:
+  # Redis: Lightweight for development
+  redis:
+    enabled: true
+    port: 6379
+    persistence: false         # No persistence needed in dev
+    max_memory: "256mb"        # Minimal memory
+    custom_config:
+      maxmemory-policy: "allkeys-lru"
+
+  # PostgreSQL: Development database
+  postgres:
+    enabled: true
+    port: 5432
+    database: mycelium_dev     # Separate dev database
+    max_connections: 50        # Lower for single developer
+    custom_config:
+      # Minimal memory for development
+      shared_buffers: "128MB"
+      work_mem: "16MB"
+      maintenance_work_mem: "64MB"
+      # Fast settings (less durable, acceptable for dev)
+      synchronous_commit: "off"
+      fsync: "off"
+      full_page_writes: "off"
+
+  # Temporal: Development workflows
+  temporal:
+    enabled: true
+    ui_port: 8080              # Web UI for debugging
+    frontend_port: 7233
+    namespace: development     # Dev namespace

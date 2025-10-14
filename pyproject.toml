@@ -21,7 +21,12 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 
-dependencies = []
+dependencies = [
+    "pydantic>=2.12.1",
+    "pyyaml>=6.0.3",
+    "click>=8.1.0",
+    "packaging>=23.0",
+]
 
 [project.optional-dependencies]
 test = [
@@ -151,3 +156,8 @@ exclude_lines = [
 
 [tool.coverage.html]
 directory = "htmlcov"
+
+[dependency-groups]
+dev = [
+    "types-pyyaml>=6.0.12.20250915",
+]
