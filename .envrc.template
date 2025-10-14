@@ -1,0 +1,45 @@
+# Mycelium Environment Activation (direnv)
+# Version: 1.0
+#
+# This file is automatically sourced by direnv when you enter the project directory.
+# It sets up the Mycelium environment with proper isolation and XDG compliance.
+#
+# SECURITY NOTE: Review changes carefully before running 'direnv allow'
+# Never add secrets or API keys directly to this file
+
+# Detect project root (direnv sets PWD to .envrc location)
+export MYCELIUM_ROOT="$PWD"
+
+# Validate critical paths before proceeding
+if [ ! -f "$MYCELIUM_ROOT/pyproject.toml" ]; then
+    echo "Error: Not a Mycelium project (missing pyproject.toml)" >&2
+    return 1
+fi
+
+# Set XDG directories following the XDG Base Directory Specification
+# Respects existing XDG_* environment variables if set by user
+export MYCELIUM_CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/mycelium"
+export MYCELIUM_DATA_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/mycelium"
+export MYCELIUM_CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/mycelium"
+export MYCELIUM_STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/mycelium"
+
+# Set project-local directory
+export MYCELIUM_PROJECT_DIR="$MYCELIUM_ROOT/.mycelium"
+
+# Add project bin directory to PATH
+PATH_add "$MYCELIUM_ROOT/bin"
+
+# Activate uv virtual environment if it exists
+if [ -d "$MYCELIUM_ROOT/.venv" ]; then
+    # Use direnv's built-in virtual environment activation
+    source_env "$MYCELIUM_ROOT/.venv/bin/activate"
+elif [ -f "$MYCELIUM_ROOT/.venv/bin/activate" ]; then
+    # Fallback: direct source if source_env not available
+    source "$MYCELIUM_ROOT/.venv/bin/activate"
+fi
+
+# Mark environment as active
+export MYCELIUM_ENV_ACTIVE=1
+
+# Visual feedback (shown on activation)
+echo "✓ Mycelium environment activated (direnv)"

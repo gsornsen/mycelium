@@ -1,0 +1,18 @@
+#!/bin/bash
+# Mycelium Wrapper Script
+# Version: 1.0
+# Ensures environment is activated before running commands
+
+# Check if environment is active
+if [ -z "$MYCELIUM_ENV_ACTIVE" ] || [ "$MYCELIUM_ENV_ACTIVE" != "1" ]; then
+    echo "Error: Mycelium environment not active" >&2
+    echo "" >&2
+    echo "Activate the environment first:" >&2
+    echo "  With direnv: cd to project and run 'direnv allow'" >&2
+    echo "  Without direnv: run 'source bin/activate.sh'" >&2
+    echo "" >&2
+    exit 1
+fi
+
+# Environment is active, pass through to Python CLI
+exec python -m mycelium_onboarding "$@"

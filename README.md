@@ -26,8 +26,14 @@ This repository serves two purposes:
 # Install the core plugin
 /plugin install mycelium-core@mycelium
 
+# IMPORTANT: Restart Claude Code after installation
+# Exit Claude Code completely and restart to load all 130+ agents
+
 # Verify installation
 /infra-check
+
+# Check that agents are loaded (should see 119+ mycelium agents)
+/agents
 ```
 
 ### Quick Install: Core Plugin Only
@@ -39,7 +45,12 @@ claude plugin install git+https://github.com/gsornsen/mycelium.git#plugins/mycel
 # Or for local development
 git clone https://github.com/gsornsen/mycelium.git
 ln -s /path/to/mycelium/plugins/mycelium-core ~/.claude/plugins/mycelium-core
+
+# IMPORTANT: Restart Claude Code to load all agents
+# Exit completely and restart
 ```
+
+> **⚠️ Important:** After installing Mycelium, you must **restart Claude Code completely** for it to discover and load all 130+ agents. See [AGENT_STRUCTURE_CHANGE.md](AGENT_STRUCTURE_CHANGE.md) for technical details about the agent loading system.
 
 See [INSTALL.md](INSTALL.md) for detailed installation options and [CONTRIBUTING.md](CONTRIBUTING.md) for plugin submission guidelines.
 

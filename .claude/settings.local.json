@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//home/gerald/.claude/plugins/**)",
+      "Bash(cat:*)",
+      "Bash(readlink:*)",
+      "Bash(test:*)",
+      "Read(//home/gerald/.claude/**)",
+      "mcp__taskqueue__list_projects",
+      "mcp__RedisMCPServer__hgetall",
+      "mcp__RedisMCPServer__info",
+      "mcp__RedisMCPServer__scan_keys",
+      "mcp__RedisMCPServer__hset",
+      "Bash(uv run pytest:*)",
+      "Bash(uv sync:*)",
+      "Bash(uv run mypy:*)",
+      "Bash(uv run ruff:*)",
+      "Bash(uv run ruff format:*)",
+      "Bash(uv run coverage report:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

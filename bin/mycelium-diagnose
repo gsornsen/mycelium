@@ -1,0 +1,236 @@
+#!/bin/bash
+# Mycelium Environment Diagnostics
+# Version: 1.0
+# Comprehensive diagnostic tool for troubleshooting
+
+echo "=== Mycelium Environment Diagnostics ==="
+echo ""
+
+# 1. Shell Information
+echo "1. Shell Information"
+echo "  Current shell: $SHELL"
+if [ -n "$BASH_VERSION" ]; then
+    echo "  Bash version: $BASH_VERSION"
+elif [ -n "$ZSH_VERSION" ]; then
+    echo "  Zsh version: $ZSH_VERSION"
+else
+    echo "  Shell version: unknown"
+fi
+echo ""
+
+# 2. Environment Variables
+echo "2. Environment Variables"
+if env | grep -q MYCELIUM; then
+    env | grep MYCELIUM | sort | sed 's/^/  /'
+else
+    echo "  No MYCELIUM_* variables set"
+    echo "  Status: Environment not activated"
+fi
+echo ""
+
+# 3. Directory Status
+echo "3. Directory Status"
+declare -a dirs=(
+    "$MYCELIUM_ROOT"
+    "$MYCELIUM_CONFIG_DIR"
+    "$MYCELIUM_DATA_DIR"
+    "$MYCELIUM_CACHE_DIR"
+    "$MYCELIUM_STATE_DIR"
+    "$MYCELIUM_PROJECT_DIR"
+)
+
+for dir in "${dirs[@]}"; do
+    if [ -n "$dir" ]; then
+        if [ -d "$dir" ]; then
+            if command -v du &>/dev/null; then
+                size=$(du -sh "$dir" 2>/dev/null | cut -f1)
+            else
+                size="unknown"
+            fi
+            perms=$(ls -ld "$dir" 2>/dev/null | cut -d' ' -f1)
+            writable=""
+            if [ -w "$dir" ]; then
+                writable=" [writable]"
+            else
+                writable=" [NOT writable]"
+            fi
+            echo "  $dir"
+            echo "    exists: yes, size: $size, perms: $perms$writable"
+        else
+            echo "  $dir"
+            echo "    exists: NO (will be created on first use)"
+        fi
+    fi
+done
+echo ""
+
+# 4. PATH Check
+echo "4. PATH Check"
+if echo "$PATH" | grep -q mycelium; then
+    echo "$PATH" | tr ':' '\n' | grep mycelium | sed 's/^/  /'
+else
+    echo "  Mycelium not in PATH"
+fi
+echo ""
+
+# 5. Virtual Environment
+echo "5. Virtual Environment"
+if [ -n "$VIRTUAL_ENV" ]; then
+    echo "  Active: $VIRTUAL_ENV"
+    if command -v python &>/dev/null; then
+        python_version=$(python --version 2>&1)
+        python_path=$(which python)
+        echo "  Python: $python_version"
+        echo "  Location: $python_path"
+    fi
+else
+    echo "  No virtual environment active"
+    if [ -d "$MYCELIUM_ROOT/.venv" ]; then
+        echo "  Note: .venv exists but not activated"
+    else
+        echo "  Note: .venv not found - run 'uv sync' to create"
+    fi
+fi
+echo ""
+
+# 6. direnv Status
+echo "6. direnv Status"
+if command -v direnv &>/dev/null; then
+    direnv_version=$(direnv version 2>&1)
+    echo "  Installed: $direnv_version"
+
+    if [ -n "$MYCELIUM_ROOT" ] && [ -f "$MYCELIUM_ROOT/.envrc" ]; then
+        echo "  .envrc: exists"
+
+        # Check if allowed
+        if direnv status 2>&1 | grep -q "Found RC allowed true"; then
+            echo "  Status: allowed"
+        elif direnv status 2>&1 | grep -q "Found RC allowed false"; then
+            echo "  Status: BLOCKED - run 'direnv allow'"
+        else
+            echo "  Status: unknown"
+        fi
+    else
+        echo "  .envrc: not found"
+    fi
+else
+    echo "  Not installed"
+    echo "  Install from: https://direnv.net/"
+fi
+echo ""
+
+# 7. uv Status
+echo "7. uv Package Manager"
+if command -v uv &>/dev/null; then
+    uv_version=$(uv --version 2>&1)
+    echo "  Installed: $uv_version"
+else
+    echo "  Not installed"
+    echo "  Install from: https://github.com/astral-sh/uv"
+fi
+echo ""
+
+# 8. Git Repository
+echo "8. Git Repository"
+if [ -n "$MYCELIUM_ROOT" ] && [ -d "$MYCELIUM_ROOT/.git" ]; then
+    echo "  Status: valid git repository"
+    if command -v git &>/dev/null; then
+        branch=$(cd "$MYCELIUM_ROOT" && git branch --show-current 2>/dev/null)
+        echo "  Branch: $branch"
+    fi
+else
+    echo "  Status: NOT a git repository"
+    if [ -n "$MYCELIUM_ROOT" ]; then
+        echo "  Warning: MYCELIUM_ROOT may be incorrectly set"
+    fi
+fi
+echo ""
+
+# 9. Critical Files
+echo "9. Critical Files"
+if [ -n "$MYCELIUM_ROOT" ]; then
+    declare -a files=(
+        "pyproject.toml"
+        "bin/activate.sh"
+        "bin/mycelium"
+        ".envrc"
+    )
+
+    for file in "${files[@]}"; do
+        filepath="$MYCELIUM_ROOT/$file"
+        if [ -f "$filepath" ]; then
+            echo "  $file: exists"
+        else
+            echo "  $file: MISSING"
+        fi
+    done
+else
+    echo "  Cannot check (MYCELIUM_ROOT not set)"
+fi
+echo ""
+
+# 10. System Information
+echo "10. System Information"
+if [ -f /etc/os-release ]; then
+    os_name=$(grep "^NAME=" /etc/os-release | cut -d'"' -f2)
+    os_version=$(grep "^VERSION=" /etc/os-release | cut -d'"' -f2)
+    echo "  OS: $os_name $os_version"
+elif [ "$(uname)" = "Darwin" ]; then
+    echo "  OS: macOS $(sw_vers -productVersion 2>/dev/null)"
+else
+    echo "  OS: $(uname -s)"
+fi
+
+# WSL detection
+if [ -f /proc/version ] && grep -qi microsoft /proc/version 2>/dev/null; then
+    echo "  Platform: WSL2"
+    if [[ "$PWD" == /mnt/* ]]; then
+        echo "  Warning: In Windows filesystem (poor performance)"
+        echo "           Consider moving to WSL filesystem (~)"
+    fi
+else
+    echo "  Platform: Native"
+fi
+echo ""
+
+# 11. Recommendations
+echo "=== Recommendations ==="
+echo ""
+
+# Check activation status
+if [ -z "$MYCELIUM_ENV_ACTIVE" ] || [ "$MYCELIUM_ENV_ACTIVE" != "1" ]; then
+    echo "  [ACTION] Environment not activated"
+    echo "    -> Run: source bin/activate.sh"
+    echo ""
+fi
+
+# Check virtual environment
+if [ -z "$VIRTUAL_ENV" ]; then
+    if [ -n "$MYCELIUM_ROOT" ] && [ ! -d "$MYCELIUM_ROOT/.venv" ]; then
+        echo "  [ACTION] Virtual environment not created"
+        echo "    -> Run: uv sync"
+        echo ""
+    fi
+fi
+
+# Check direnv
+if ! command -v direnv &>/dev/null; then
+    echo "  [OPTIONAL] direnv not installed (provides automatic activation)"
+    echo "    -> Install from: https://direnv.net/"
+    echo ""
+fi
+
+# Check if .envrc needs allowing
+if [ -n "$MYCELIUM_ROOT" ] && [ -f "$MYCELIUM_ROOT/.envrc" ]; then
+    if command -v direnv &>/dev/null; then
+        if direnv status 2>&1 | grep -q "Found RC allowed false"; then
+            echo "  [ACTION] .envrc exists but not allowed"
+            echo "    -> Run: direnv allow"
+            echo ""
+        fi
+    fi
+fi
+
+echo "=== End of Diagnostics ==="
+echo ""
+echo "For more help, see: docs/manual-activation.md"
