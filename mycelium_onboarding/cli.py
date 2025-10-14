@@ -1,8 +1,8 @@
 """Command-line interface for Mycelium onboarding.
 
 This module provides CLI commands for environment setup, direnv configuration,
-system status checks, and configuration management. All commands validate the
-environment before execution to ensure proper activation.
+system status checks, configuration management, and service detection. All commands
+validate the environment before execution to ensure proper activation.
 """
 
 from __future__ import annotations
@@ -42,7 +42,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Commands that don't require environment validation
-SKIP_VALIDATION_COMMANDS = {"help", "setup-direnv", "config"}
+SKIP_VALIDATION_COMMANDS = {"help", "setup-direnv", "config", "detect"}
 
 
 # ============================================================================
@@ -183,6 +183,7 @@ Commands:
   setup-direnv    Set up direnv integration for automatic environment activation
   status          Display environment and configuration status (validates environment)
   config          Configuration management commands (see 'config --help')
+  detect          Service detection commands (see 'detect --help')
   help            Show this help message
 
 Configuration Commands:
@@ -192,6 +193,14 @@ Configuration Commands:
   config set      Set configuration value
   config validate Validate current configuration
   config migrate  Migrate configuration to newer schema version
+
+Detection Commands:
+  detect services Detect all available services (Docker, Redis, PostgreSQL, Temporal, GPU)
+  detect docker   Detect Docker daemon availability
+  detect redis    Detect Redis instances
+  detect postgres Detect PostgreSQL instances
+  detect temporal Detect Temporal server
+  detect gpu      Detect available GPUs
 
 Environment Validation:
   Most commands require a properly activated Mycelium environment.
@@ -207,6 +216,8 @@ Examples:
   python -m mycelium_onboarding config show
   python -m mycelium_onboarding config get services.redis.port
   python -m mycelium_onboarding config migrate --target 1.2
+  python -m mycelium_onboarding detect services
+  python -m mycelium_onboarding detect services --save-config
 
 For more information, visit: https://github.com/gsornsen/mycelium
 """
@@ -759,6 +770,254 @@ def migrate(target: str | None, dry_run: bool, path: Path | None) -> None:
 
 
 # ============================================================================
+# Detection Commands
+# ============================================================================
+
+
+@cli.group()
+def detect() -> None:
+    """Service detection commands."""
+    pass
+
+
+@detect.command()
+@click.option(
+    "--format",
+    type=click.Choice(["text", "json", "yaml"], case_sensitive=False),
+    default="text",
+    help="Output format (default: text)",
+)
+@click.option(
+    "--save-config",
+    is_flag=True,
+    help="Save detected settings to configuration",
+)
+def services(format: str, save_config: bool) -> None:
+    """Detect all available services (Docker, Redis, PostgreSQL, Temporal, GPU).
+
+    Examples:
+        detect services
+        detect services --format json
+        detect services --save-config
+    """
+    from mycelium_onboarding.detection.orchestrator import (
+        detect_all,
+        generate_detection_report,
+        update_config_from_detection,
+    )
+
+    try:
+        # Run detection with status indicator (only for text format)
+        if format == "text":
+            click.echo(click.style("Detecting services...", fg="blue", bold=True))
+        summary = detect_all()
+
+        # Display report
+        report = generate_detection_report(summary, format=format)
+
+        if format == "text":
+            click.echo()
+        click.echo(report)
+
+        # Optionally save to config
+        if save_config:
+            try:
+                manager = ConfigManager()
+                # Load existing config or use defaults
+                try:
+                    existing_config = manager.load()
+                except (ConfigLoadError, FileNotFoundError):
+                    existing_config = None
+
+                # Update config from detection
+                config = update_config_from_detection(summary, existing_config)
+
+                # Save config
+                location = get_config_path(ConfigManager.CONFIG_FILENAME)
+                location.parent.mkdir(parents=True, exist_ok=True)
+                save_manager = ConfigManager(config_path=location)
+                save_manager.save(config)
+
+                click.echo()
+                click.echo(
+                    click.style("✓ Configuration updated with detected settings", fg="green")
+                )
+                click.echo(f"  Saved to: {location}")
+
+            except Exception as e:
+                click.echo()
+                click.echo(
+                    click.style(f"✗ Failed to save configuration: {e}", fg="red"),
+                    err=True,
+                )
+                sys.exit(1)
+
+    except Exception as e:
+        click.echo(click.style(f"✗ Detection failed: {e}", fg="red"), err=True)
+        logger.exception("Service detection failed")
+        sys.exit(1)
+
+
+@detect.command()
+def docker() -> None:
+    """Detect Docker daemon availability."""
+    from mycelium_onboarding.detection.docker_detector import detect_docker
+
+    try:
+        click.echo(click.style("Detecting Docker...", fg="blue", bold=True))
+        result = detect_docker()
+
+        click.echo()
+        if result.available:
+            click.echo(click.style("✓ Docker Available", fg="green", bold=True))
+            click.echo(f"  Version: {result.version or 'unknown'}")
+            if result.socket_path:
+                click.echo(f"  Socket: {result.socket_path}")
+        else:
+            click.echo(click.style("✗ Docker Not Available", fg="red", bold=True))
+            if result.error_message:
+                click.echo(f"  Error: {result.error_message}")
+
+    except Exception as e:
+        click.echo(click.style(f"✗ Detection failed: {e}", fg="red"), err=True)
+        sys.exit(1)
+
+
+@detect.command()
+def redis() -> None:
+    """Detect Redis instances."""
+    from mycelium_onboarding.detection.redis_detector import scan_common_redis_ports
+
+    try:
+        click.echo(click.style("Detecting Redis instances...", fg="blue", bold=True))
+        results = scan_common_redis_ports()
+
+        click.echo()
+        if results:
+            click.echo(
+                click.style(f"✓ Found {len(results)} Redis instance(s)", fg="green", bold=True)
+            )
+            for i, redis in enumerate(results, 1):
+                click.echo(f"\n  Instance {i}:")
+                click.echo(f"    Host: {redis.host}")
+                click.echo(f"    Port: {redis.port}")
+                if redis.version:
+                    click.echo(f"    Version: {redis.version}")
+                if redis.password_required:
+                    click.echo(f"    Auth: Required")
+        else:
+            click.echo(click.style("✗ No Redis instances found", fg="yellow"))
+            click.echo("  Scanned ports: 6379, 6380, 6381")
+
+    except Exception as e:
+        click.echo(click.style(f"✗ Detection failed: {e}", fg="red"), err=True)
+        sys.exit(1)
+
+
+@detect.command()
+def postgres() -> None:
+    """Detect PostgreSQL instances."""
+    from mycelium_onboarding.detection.postgres_detector import (
+        scan_common_postgres_ports,
+    )
+
+    try:
+        click.echo(
+            click.style("Detecting PostgreSQL instances...", fg="blue", bold=True)
+        )
+        results = scan_common_postgres_ports()
+
+        click.echo()
+        if results:
+            click.echo(
+                click.style(
+                    f"✓ Found {len(results)} PostgreSQL instance(s)", fg="green", bold=True
+                )
+            )
+            for i, pg in enumerate(results, 1):
+                click.echo(f"\n  Instance {i}:")
+                click.echo(f"    Host: {pg.host}")
+                click.echo(f"    Port: {pg.port}")
+                if pg.version:
+                    click.echo(f"    Version: {pg.version}")
+                if pg.authentication_method:
+                    click.echo(f"    Auth Method: {pg.authentication_method}")
+        else:
+            click.echo(click.style("✗ No PostgreSQL instances found", fg="yellow"))
+            click.echo("  Scanned ports: 5432, 5433")
+
+    except Exception as e:
+        click.echo(click.style(f"✗ Detection failed: {e}", fg="red"), err=True)
+        sys.exit(1)
+
+
+@detect.command()
+def temporal() -> None:
+    """Detect Temporal server."""
+    from mycelium_onboarding.detection.temporal_detector import detect_temporal
+
+    try:
+        click.echo(click.style("Detecting Temporal server...", fg="blue", bold=True))
+        result = detect_temporal()
+
+        click.echo()
+        if result.available:
+            click.echo(click.style("✓ Temporal Available", fg="green", bold=True))
+            click.echo(f"  Frontend Port: {result.frontend_port}")
+            click.echo(f"  UI Port: {result.ui_port}")
+            if result.version:
+                click.echo(f"  Version: {result.version}")
+        else:
+            click.echo(click.style("✗ Temporal Not Available", fg="red", bold=True))
+            if result.error_message:
+                click.echo(f"  Error: {result.error_message}")
+
+    except Exception as e:
+        click.echo(click.style(f"✗ Detection failed: {e}", fg="red"), err=True)
+        sys.exit(1)
+
+
+@detect.command()
+def gpu() -> None:
+    """Detect available GPUs."""
+    from mycelium_onboarding.detection.gpu_detector import detect_gpus
+
+    try:
+        click.echo(click.style("Detecting GPUs...", fg="blue", bold=True))
+        result = detect_gpus()
+
+        click.echo()
+        if result.available:
+            click.echo(
+                click.style(
+                    f"✓ Found {len(result.gpus)} GPU(s)", fg="green", bold=True
+                )
+            )
+            click.echo(f"  Total Memory: {result.total_memory_mb} MB")
+
+            for i, gpu in enumerate(result.gpus, 1):
+                click.echo(f"\n  GPU {i}:")
+                click.echo(f"    Vendor: {gpu.vendor.value.upper()}")
+                click.echo(f"    Model: {gpu.model}")
+                if gpu.memory_mb:
+                    click.echo(f"    Memory: {gpu.memory_mb} MB")
+                if gpu.driver_version:
+                    click.echo(f"    Driver: {gpu.driver_version}")
+                if gpu.cuda_version:
+                    click.echo(f"    CUDA: {gpu.cuda_version}")
+                if gpu.rocm_version:
+                    click.echo(f"    ROCm: {gpu.rocm_version}")
+        else:
+            click.echo(click.style("✗ No GPUs detected", fg="yellow"))
+            if result.error_message:
+                click.echo(f"  Info: {result.error_message}")
+
+    except Exception as e:
+        click.echo(click.style(f"✗ Detection failed: {e}", fg="red"), err=True)
+        sys.exit(1)
+
+
+# ============================================================================
 # Helper Functions
 # ============================================================================
 
@@ -896,6 +1155,18 @@ def main(argv: list[str] | None = None) -> int:
         try:
             # Don't validate environment for config commands
             cli(["config"] + args, standalone_mode=False)
+            return 0
+        except click.ClickException as e:
+            e.show()
+            return 1
+        except SystemExit as e:
+            return e.code if isinstance(e.code, int) else 1
+
+    # Handle detect command via Click
+    if command == "detect":
+        try:
+            # Don't validate environment for detect commands
+            cli(["detect"] + args, standalone_mode=False)
             return 0
         except click.ClickException as e:
             e.show()

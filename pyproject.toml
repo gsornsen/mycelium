@@ -70,7 +70,7 @@ select = [
     "PTH",    # flake8-use-pathlib
     "RET",    # flake8-return
     "N",      # pep8-naming
-    "D",      # pydocstyle
+    "D",      # pydocstyle"
 ]
 ignore = [
     "D203",   # one-blank-line-before-class
@@ -128,6 +128,7 @@ markers = [
     "benchmark: marks tests as benchmarks (deselect with '-m \"not benchmark\"')",
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "integration: marks tests as integration tests",
+    "asyncio: marks tests as async tests",
 ]
 
 # Coverage configuration
@@ -159,5 +160,6 @@ directory = "htmlcov"
 
 [dependency-groups]
 dev = [
+    "pytest-asyncio>=1.2.0",
     "types-pyyaml>=6.0.12.20250915",
 ]
