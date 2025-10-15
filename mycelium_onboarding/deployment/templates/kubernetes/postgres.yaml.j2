@@ -1,0 +1,147 @@
+{% if config.services.postgres.enabled %}
+# PostgreSQL Deployment and Service for {{ config.project_name }}
+# Generated: {{ config.created_at.strftime('%Y-%m-%d %H:%M:%S') }}
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgres-secret
+  namespace: {{ config.project_name }}
+  labels:
+    app: postgres
+    component: database
+    project: {{ config.project_name }}
+type: Opaque
+stringData:
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: changeme  # SECURITY: Override this in production!
+  POSTGRES_DB: {{ config.services.postgres.database }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-config
+  namespace: {{ config.project_name }}
+  labels:
+    app: postgres
+    component: database
+    project: {{ config.project_name }}
+data:
+  POSTGRES_MAX_CONNECTIONS: "{{ config.services.postgres.max_connections }}"
+{% for key, value in config.services.postgres.custom_config.items() %}
+  {{ key }}: "{{ value }}"
+{% endfor %}
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+  namespace: {{ config.project_name }}
+  labels:
+    app: postgres
+    component: database
+    project: {{ config.project_name }}
+spec:
+  serviceName: postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+      project: {{ config.project_name }}
+  template:
+    metadata:
+      labels:
+        app: postgres
+        component: database
+        project: {{ config.project_name }}
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:{{ config.services.postgres.version or 'latest' }}
+        ports:
+        - containerPort: 5432
+          name: postgres
+          protocol: TCP
+        envFrom:
+        - secretRef:
+            name: postgres-secret
+        - configMapRef:
+            name: postgres-config
+        {% if config.services.postgres.custom_config %}
+        args:
+        {% for key, value in config.services.postgres.custom_config.items() %}
+        - -c
+        - {{ key }}={{ value }}
+        {% endfor %}
+        {% endif %}
+        volumeMounts:
+        - name: postgres-data
+          mountPath: /var/lib/postgresql/data
+          subPath: postgres
+        livenessProbe:
+          exec:
+            command:
+            - pg_isready
+            - -U
+            - postgres
+            - -d
+            - {{ config.services.postgres.database }}
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 5
+        readinessProbe:
+          exec:
+            command:
+            - pg_isready
+            - -U
+            - postgres
+            - -d
+            - {{ config.services.postgres.database }}
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 5
+          failureThreshold: 3
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+  volumeClaimTemplates:
+  - metadata:
+      name: postgres-data
+      labels:
+        app: postgres
+        component: database
+        project: {{ config.project_name }}
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 10Gi
+      storageClassName: standard
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: {{ config.project_name }}
+  labels:
+    app: postgres
+    component: database
+    project: {{ config.project_name }}
+spec:
+  selector:
+    app: postgres
+    project: {{ config.project_name }}
+  ports:
+  - port: 5432
+    targetPort: 5432
+    protocol: TCP
+    name: postgres
+  type: ClusterIP
+  clusterIP: None  # Headless service for StatefulSet
+{% endif %}

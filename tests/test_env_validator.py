@@ -408,6 +408,9 @@ class TestValidateEnvironment:
         for name in ["config", "data", "cache", "state"]:
             (tmp_path / name).mkdir()
 
+        # Ensure MYCELIUM_PROJECT_DIR is not set (in case environment already has it)
+        monkeypatch.delenv("MYCELIUM_PROJECT_DIR", raising=False)
+
         # Set all required vars except project dir
         monkeypatch.setenv("MYCELIUM_ROOT", str(project_root))
         monkeypatch.setenv("MYCELIUM_CONFIG_DIR", str(tmp_path / "config"))

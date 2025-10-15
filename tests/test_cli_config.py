@@ -19,8 +19,12 @@ from mycelium_onboarding.config.schema import MyceliumConfig
 
 @pytest.fixture
 def runner():
-    """Create Click test runner."""
-    return CliRunner()
+    """Create Click test runner with clean environment."""
+    # Create runner with isolated environment (no MYCELIUM_* vars)
+    return CliRunner(env={
+        k: v for k, v in __import__('os').environ.items()
+        if not k.startswith('MYCELIUM_')
+    })
 
 
 @pytest.fixture

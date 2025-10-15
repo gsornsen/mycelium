@@ -1,0 +1,91 @@
+# Docker Compose configuration for Mycelium
+# Generated from MyceliumConfig
+# Project: mycelium-demo
+# Generated: 2025-10-14 17:39:41
+
+version: '3.8'
+
+services:
+  redis:
+    image: redis:7.0
+    container_name: mycelium-demo-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command:
+      - --maxmemory
+      - "512mb"
+      - --maxmemory-policy
+      - allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    restart: always
+    networks:
+      - mycelium-network
+
+  postgres:
+    image: postgres:15
+    container_name: mycelium-demo-postgres
+    environment:
+      POSTGRES_DB: mycelium
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Please set POSTGRES_PASSWORD in .env file}
+      POSTGRES_MAX_CONNECTIONS: 100
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d mycelium"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: always
+    networks:
+      - mycelium-network
+
+  temporal:
+    image: temporalio/auto-setup:1.22.0
+    container_name: mycelium-demo-temporal
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - DB=postgresql
+      - DB_PORT=5432
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PWD=${POSTGRES_PASSWORD:?Please set POSTGRES_PASSWORD in .env file}
+      - POSTGRES_SEEDS=postgres
+      - DYNAMIC_CONFIG_FILE_PATH=config/dynamicconfig/development-sql.yaml
+      - ENABLE_ES=false
+      - DEFAULT_NAMESPACE=default
+      - TEMPORAL_CLI_ADDRESS=temporal:7233
+    ports:
+      - "7233:7233"
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "tctl", "--address", "temporal:7233", "cluster", "health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: always
+    networks:
+      - mycelium-network
+
+networks:
+  mycelium-network:
+    name: mycelium-demo-network
+    driver: bridge
+
+volumes:
+  redis-data:
+    name: mycelium-demo-redis-data
+  postgres-data:
+    name: mycelium-demo-postgres-data

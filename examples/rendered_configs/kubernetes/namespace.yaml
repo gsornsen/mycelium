@@ -1,0 +1,11 @@
+# Kubernetes Namespace for mycelium-demo
+# Generated: 2025-10-14 17:39:41
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mycelium-demo
+  labels:
+    app: mycelium
+    project: mycelium-demo
+    managed-by: mycelium-onboarding

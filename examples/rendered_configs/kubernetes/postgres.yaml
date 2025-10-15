@@ -1,0 +1,135 @@
+# PostgreSQL Deployment and Service for mycelium-demo
+# Generated: 2025-10-14 17:39:41
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgres-secret
+  namespace: mycelium-demo
+  labels:
+    app: postgres
+    component: database
+    project: mycelium-demo
+type: Opaque
+stringData:
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: changeme  # SECURITY: Override this in production!
+  POSTGRES_DB: mycelium
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-config
+  namespace: mycelium-demo
+  labels:
+    app: postgres
+    component: database
+    project: mycelium-demo
+data:
+  POSTGRES_MAX_CONNECTIONS: "100"
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+  namespace: mycelium-demo
+  labels:
+    app: postgres
+    component: database
+    project: mycelium-demo
+spec:
+  serviceName: postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+      project: mycelium-demo
+  template:
+    metadata:
+      labels:
+        app: postgres
+        component: database
+        project: mycelium-demo
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:15
+        ports:
+        - containerPort: 5432
+          name: postgres
+          protocol: TCP
+        envFrom:
+        - secretRef:
+            name: postgres-secret
+        - configMapRef:
+            name: postgres-config
+        volumeMounts:
+        - name: postgres-data
+          mountPath: /var/lib/postgresql/data
+          subPath: postgres
+        livenessProbe:
+          exec:
+            command:
+            - pg_isready
+            - -U
+            - postgres
+            - -d
+            - mycelium
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 5
+        readinessProbe:
+          exec:
+            command:
+            - pg_isready
+            - -U
+            - postgres
+            - -d
+            - mycelium
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 5
+          failureThreshold: 3
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+  volumeClaimTemplates:
+  - metadata:
+      name: postgres-data
+      labels:
+        app: postgres
+        component: database
+        project: mycelium-demo
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 10Gi
+      storageClassName: standard
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: mycelium-demo
+  labels:
+    app: postgres
+    component: database
+    project: mycelium-demo
+spec:
+  selector:
+    app: postgres
+    project: mycelium-demo
+  ports:
+  - port: 5432
+    targetPort: 5432
+    protocol: TCP
+    name: postgres
+  type: ClusterIP
+  clusterIP: None  # Headless service for StatefulSet

@@ -18,7 +18,8 @@
       "Bash(uv run ruff format:*)",
       "Bash(uv run coverage report:*)",
       "Bash(uv pip:*)",
-      "Bash(uv run:*)"
+      "Bash(uv run:*)",
+      "mcp__RedisMCPServer__scan_all_keys"
     ],
     "deny": [],
     "ask": []

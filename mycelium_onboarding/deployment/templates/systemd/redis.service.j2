@@ -1,0 +1,65 @@
+{% if config.services.redis.enabled %}
+# Redis systemd service for {{ config.project_name }}
+# Generated: {{ config.created_at.strftime('%Y-%m-%d %H:%M:%S') }}
+# Installation: sudo cp {{ config.project_name }}-redis.service /etc/systemd/system/
+#              sudo systemctl daemon-reload
+#              sudo systemctl enable {{ config.project_name }}-redis.service
+#              sudo systemctl start {{ config.project_name }}-redis.service
+
+[Unit]
+Description=Redis Server for {{ config.project_name }}
+After=network.target network-online.target
+Wants=network-online.target
+Documentation=https://redis.io/documentation
+
+[Service]
+Type=notify
+ExecStart=/usr/bin/redis-server \
+    --port {{ config.services.redis.port }} \
+    --supervised systemd \
+    --daemonize no \
+    {% if config.services.redis.persistence %}
+    --dir /var/lib/{{ config.project_name }}/redis \
+    --save 900 1 \
+    --save 300 10 \
+    --save 60 10000 \
+    {% else %}
+    --save "" \
+    {% endif %}
+    {% if config.services.redis.max_memory %}
+    --maxmemory {{ config.services.redis.max_memory }} \
+    --maxmemory-policy allkeys-lru \
+    {% endif %}
+    {% for key, value in config.services.redis.custom_config.items() %}
+    --{{ key }} {{ value }} \
+    {% endfor %}
+    --pidfile /var/run/{{ config.project_name }}-redis.pid
+
+# Security
+User=redis
+Group=redis
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/{{ config.project_name }}/redis
+ReadWritePaths=/var/run
+
+# Process management
+Restart={{ "always" if config.deployment.auto_start else "on-failure" }}
+RestartSec=5s
+TimeoutStartSec=0
+TimeoutStopSec=30s
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier={{ config.project_name }}-redis
+
+# Resource limits
+LimitNOFILE=10032
+
+[Install]
+WantedBy=multi-user.target
+{% endif %}

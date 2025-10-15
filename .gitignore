@@ -14,6 +14,7 @@ TASK_1.2_IMPLEMENTATION_SUMMARY.md
 TASK_1.2_QUICK_START.md
 docs/*SUMMARY*.md
 docs/*M01*.md
+M05*.md
 
 # Build outputs
 dist/

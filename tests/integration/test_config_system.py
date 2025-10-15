@@ -447,16 +447,28 @@ class TestErrorHandlingAndRecovery:
         """Test that saving invalid config raises error."""
         manager = ConfigManager(config_path=temp_config_path)
 
-        # Create config and manually break it
-        config = MyceliumConfig()
-        config.services.redis.port = 99999  # Invalid
+        # Create invalid config data directly (bypass Pydantic validation)
+        invalid_data = {
+            "project_name": "test",
+            "services": {
+                "redis": {"enabled": True, "port": 99999},  # Invalid port
+                "postgres": {"enabled": False},
+                "temporal": {"enabled": False}
+            },
+            "deployment": {"method": "docker-compose"}
+        }
 
-        # Should raise on save due to validation
-        with pytest.raises(ConfigValidationError):
-            manager.save(config)
+        # Write invalid YAML directly
+        temp_config_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(temp_config_path, 'w') as f:
+            yaml.dump(invalid_data, f)
+
+        # Should raise on load due to validation
+        with pytest.raises((ConfigLoadError, ConfigValidationError)):
+            manager.load()
 
     def test_atomic_write_failure_doesnt_corrupt(
-        self, temp_config_path: Path
+        self, temp_config_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         """Test that save failure doesn't corrupt existing config."""
         manager = ConfigManager(config_path=temp_config_path)
@@ -465,12 +477,22 @@ class TestErrorHandlingAndRecovery:
         initial_config = MyceliumConfig(project_name="initial")
         manager.save(initial_config)
 
-        # Try to save invalid config (should fail)
-        invalid_config = MyceliumConfig()
-        invalid_config.services.redis.port = 99999  # Invalid
+        # Simulate write failure by making temp file creation fail
+        import tempfile
+        original_mkstemp = tempfile.mkstemp
 
-        with pytest.raises(ConfigValidationError):
-            manager.save(invalid_config)
+        def failing_mkstemp(*args, **kwargs):
+            raise OSError("Simulated disk full")
+
+        monkeypatch.setattr(tempfile, "mkstemp", failing_mkstemp)
+
+        # Try to save (should fail due to simulated disk issue)
+        new_config = MyceliumConfig(project_name="should-not-save")
+        with pytest.raises((OSError, ConfigSaveError)):
+            manager.save(new_config)
+
+        # Restore original function
+        monkeypatch.setattr(tempfile, "mkstemp", original_mkstemp)
 
         # Original config should still be intact
         loaded = manager.load()

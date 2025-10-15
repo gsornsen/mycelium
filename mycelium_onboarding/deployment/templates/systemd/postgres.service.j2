@@ -1,0 +1,72 @@
+{% if config.services.postgres.enabled %}
+# PostgreSQL systemd service for {{ config.project_name }}
+# Generated: {{ config.created_at.strftime('%Y-%m-%d %H:%M:%S') }}
+# Installation: sudo cp {{ config.project_name }}-postgres.service /etc/systemd/system/
+#              sudo systemctl daemon-reload
+#              sudo systemctl enable {{ config.project_name }}-postgres.service
+#              sudo systemctl start {{ config.project_name }}-postgres.service
+
+[Unit]
+Description=PostgreSQL Database Server for {{ config.project_name }}
+After=network.target network-online.target
+Wants=network-online.target
+Documentation=https://www.postgresql.org/docs/
+
+[Service]
+Type=notify
+User=postgres
+Group=postgres
+
+# Environment
+Environment=PGDATA=/var/lib/{{ config.project_name }}/postgres
+Environment=POSTGRES_DB={{ config.services.postgres.database }}
+Environment=POSTGRES_PORT={{ config.services.postgres.port }}
+
+# Runtime directory
+RuntimeDirectory={{ config.project_name }}-postgres
+RuntimeDirectoryMode=0755
+
+# PostgreSQL commands
+ExecStartPre=/usr/bin/pg_ctl -D /var/lib/{{ config.project_name }}/postgres initdb || true
+ExecStart=/usr/bin/postgres \
+    -D /var/lib/{{ config.project_name }}/postgres \
+    -p {{ config.services.postgres.port }} \
+    {% if config.services.postgres.max_connections %}
+    -c max_connections={{ config.services.postgres.max_connections }} \
+    {% endif %}
+    {% for key, value in config.services.postgres.custom_config.items() %}
+    -c {{ key }}={{ value }} \
+    {% endfor %}
+    -c unix_socket_directories=/var/run/postgresql
+
+ExecReload=/bin/kill -HUP $MAINPID
+ExecStop=/usr/bin/pg_ctl -D /var/lib/{{ config.project_name }}/postgres stop -m fast
+
+# Security
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/{{ config.project_name }}/postgres
+ReadWritePaths=/var/run/postgresql
+
+# Process management
+KillMode=mixed
+KillSignal=SIGINT
+TimeoutSec=0
+Restart={{ "always" if config.deployment.auto_start else "on-failure" }}
+RestartSec=5s
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier={{ config.project_name }}-postgres
+
+# Resource limits
+LimitNOFILE=10000
+LimitNPROC=10000
+
+[Install]
+WantedBy=multi-user.target
+{% endif %}

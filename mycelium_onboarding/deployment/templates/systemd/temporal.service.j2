@@ -1,0 +1,79 @@
+{% if config.services.temporal.enabled %}
+# Temporal Server systemd service for {{ config.project_name }}
+# Generated: {{ config.created_at.strftime('%Y-%m-%d %H:%M:%S') }}
+# Installation: sudo cp {{ config.project_name }}-temporal.service /etc/systemd/system/
+#              sudo systemctl daemon-reload
+#              sudo systemctl enable {{ config.project_name }}-temporal.service
+#              sudo systemctl start {{ config.project_name }}-temporal.service
+# Note: Temporal Server typically runs in Docker. This service is for advanced users.
+
+[Unit]
+Description=Temporal Server for {{ config.project_name }}
+After=network.target network-online.target{% if config.services.postgres.enabled %} {{ config.project_name }}-postgres.service{% endif %}
+
+Wants=network-online.target
+{% if config.services.postgres.enabled %}
+Requires={{ config.project_name }}-postgres.service
+{% endif %}
+Documentation=https://docs.temporal.io/
+
+[Service]
+Type=simple
+User=temporal
+Group=temporal
+
+# Environment
+Environment=TEMPORAL_HOME=/opt/temporal
+Environment=TEMPORAL_CONFIG_DIR=/etc/{{ config.project_name }}/temporal
+Environment=DB=postgresql
+Environment=DB_PORT=5432
+Environment=DEFAULT_NAMESPACE={{ config.services.temporal.namespace }}
+Environment=BIND_ON_IP=0.0.0.0
+Environment=FRONTEND_PORT={{ config.services.temporal.frontend_port }}
+Environment=ENABLE_ES=false
+
+# PostgreSQL connection
+{% if config.services.postgres.enabled %}
+Environment=POSTGRES_SEEDS=localhost
+Environment=POSTGRES_PORT={{ config.services.postgres.port }}
+{% else %}
+Environment=POSTGRES_SEEDS=${POSTGRES_HOST}
+Environment=POSTGRES_PORT=${POSTGRES_PORT:-5432}
+{% endif %}
+
+# Credentials (use EnvironmentFile in production)
+EnvironmentFile=-/etc/{{ config.project_name }}/temporal.env
+
+# Start Temporal Server
+WorkingDirectory=/opt/temporal
+ExecStart=/opt/temporal/temporal-server \
+    --zone default \
+    --config /etc/{{ config.project_name }}/temporal/config.yaml \
+    start
+
+# Security
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/{{ config.project_name }}/temporal
+ReadWritePaths=/var/log/{{ config.project_name }}/temporal
+
+# Process management
+Restart={{ "always" if config.deployment.auto_start else "on-failure" }}
+RestartSec=10s
+TimeoutStartSec=60s
+TimeoutStopSec=30s
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier={{ config.project_name }}-temporal
+
+# Resource limits
+LimitNOFILE=65536
+LimitNPROC=8192
+
+[Install]
+WantedBy=multi-user.target
+{% endif %}

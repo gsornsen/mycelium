@@ -1,0 +1,132 @@
+# Docker Compose configuration for Mycelium
+# Generated from MyceliumConfig
+# Project: {{ config.project_name }}
+# Generated: {{ config.created_at.strftime('%Y-%m-%d %H:%M:%S') }}
+
+version: '3.8'
+
+services:
+{% if config.services.redis.enabled %}
+  redis:
+    image: redis:{{ config.services.redis.version or 'latest' }}
+    container_name: {{ config.project_name }}-redis
+    ports:
+      - "{{ config.services.redis.port }}:6379"
+    {% if config.services.redis.persistence %}
+    volumes:
+      - redis-data:/data
+    {% endif %}
+    {% if config.services.redis.custom_config or config.services.redis.max_memory %}
+    command:
+      {% if config.services.redis.max_memory %}
+      - --maxmemory
+      - "{{ config.services.redis.max_memory }}"
+      - --maxmemory-policy
+      - allkeys-lru
+      {% endif %}
+      {% for key, value in config.services.redis.custom_config.items() %}
+      - --{{ key }}
+      - "{{ value }}"
+      {% endfor %}
+    {% endif %}
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    restart: {{ "always" if config.deployment.auto_start else "on-failure" }}
+    networks:
+      - mycelium-network
+{% endif %}
+
+{% if config.services.postgres.enabled %}
+  postgres:
+    image: postgres:{{ config.services.postgres.version or 'latest' }}
+    container_name: {{ config.project_name }}-postgres
+    environment:
+      POSTGRES_DB: {{ config.services.postgres.database }}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Please set POSTGRES_PASSWORD in .env file}
+      {% if config.services.postgres.max_connections %}
+      POSTGRES_MAX_CONNECTIONS: {{ config.services.postgres.max_connections }}
+      {% endif %}
+    ports:
+      - "{{ config.services.postgres.port }}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    {% if config.services.postgres.custom_config %}
+    command:
+      {% for key, value in config.services.postgres.custom_config.items() %}
+      - -c
+      - {{ key }}={{ value }}
+      {% endfor %}
+    {% endif %}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d {{ config.services.postgres.database }}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: {{ "always" if config.deployment.auto_start else "on-failure" }}
+    networks:
+      - mycelium-network
+{% endif %}
+
+{% if config.services.temporal.enabled %}
+  temporal:
+    image: temporalio/auto-setup:{{ config.services.temporal.version or 'latest' }}
+    container_name: {{ config.project_name }}-temporal
+    {% if config.services.postgres.enabled %}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    {% endif %}
+    environment:
+      - DB=postgresql
+      - DB_PORT=5432
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PWD=${POSTGRES_PASSWORD:?Please set POSTGRES_PASSWORD in .env file}
+      {% if config.services.postgres.enabled %}
+      - POSTGRES_SEEDS=postgres
+      {% else %}
+      - POSTGRES_SEEDS=${TEMPORAL_POSTGRES_HOST:-localhost}
+      {% endif %}
+      - DYNAMIC_CONFIG_FILE_PATH=config/dynamicconfig/development-sql.yaml
+      - ENABLE_ES=false
+      - DEFAULT_NAMESPACE={{ config.services.temporal.namespace }}
+      - TEMPORAL_CLI_ADDRESS=temporal:{{ config.services.temporal.frontend_port }}
+    ports:
+      - "{{ config.services.temporal.frontend_port }}:7233"
+      - "{{ config.services.temporal.ui_port }}:8080"
+    {% if config.services.temporal.custom_config %}
+    volumes:
+      - ./temporal-config.yaml:/etc/temporal/config/config.yaml:ro
+    {% endif %}
+    healthcheck:
+      test: ["CMD", "tctl", "--address", "temporal:7233", "cluster", "health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: {{ "always" if config.deployment.auto_start else "on-failure" }}
+    networks:
+      - mycelium-network
+{% endif %}
+
+networks:
+  mycelium-network:
+    name: {{ config.project_name }}-network
+    driver: bridge
+
+{% if config.services.redis.persistence or config.services.postgres.enabled %}
+volumes:
+  {% if config.services.redis.persistence %}
+  redis-data:
+    name: {{ config.project_name }}-redis-data
+  {% endif %}
+  {% if config.services.postgres.enabled %}
+  postgres-data:
+    name: {{ config.project_name }}-postgres-data
+  {% endif %}
+{% endif %}

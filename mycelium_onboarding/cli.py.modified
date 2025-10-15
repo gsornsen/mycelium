@@ -384,8 +384,10 @@ def init(resume: bool | None, reset: bool) -> None:
                     manager.save(config)
 
                     # Mark complete and transition to COMPLETE step
-                    # Transition to COMPLETE step (loop will continue one more time to show completion screen)
                     state.current_step = WizardStep.COMPLETE
+                    # Transition to COMPLETE step to show completion screen
+                    # DO NOT set state.completed = True here or the loop will exit
+                    # DO NOT call flow.advance() - we're manually setting the step
 
                 elif action.startswith("edit:"):
                     # Jump to edit step
@@ -400,7 +402,6 @@ def init(resume: bool | None, reset: bool) -> None:
 
             elif current_step == WizardStep.COMPLETE:
                 config_path = get_config_dir() / "config.yaml"
-                state.completed = True  # Mark wizard as fully complete
                 screens.show_complete(str(config_path))
                 break
 
@@ -648,14 +649,8 @@ def set(key: str, value: str, project_local: bool) -> None:
         config set services.redis.enabled true
     """
     try:
-        # Determine location first (so we load from the right place)
-        location = get_config_path(
-            ConfigManager.CONFIG_FILENAME,
-            prefer_project=project_local,
-        )
-
-        # Load existing config from that location
-        manager = ConfigManager(config_path=location)
+        # Load existing config
+        manager = ConfigManager()
         cfg = manager.load()
         cfg_dict = cfg.to_dict()
 
@@ -668,8 +663,15 @@ def set(key: str, value: str, project_local: bool) -> None:
         # Re-validate
         new_cfg = MyceliumConfig.from_dict(cfg_dict)
 
-        # Save back to the same location
-        manager.save(new_cfg)
+        # Determine save location
+        location = get_config_path(
+            ConfigManager.CONFIG_FILENAME,
+            prefer_project=project_local,
+        )
+
+        # Save with new location
+        save_manager = ConfigManager(config_path=location)
+        save_manager.save(new_cfg)
 
         click.echo(click.style(f"✓ Set {key} = {parsed_value}", fg="green"))
         click.echo(f"  Saved to: {location}")
