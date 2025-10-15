@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import Any
 
 import click
+from rich.console import Console
 
 from mycelium_onboarding.config.manager import (
     ConfigLoadError,
@@ -31,7 +32,7 @@ from mycelium_onboarding.env_validator import (
     validate_environment,
 )
 from mycelium_onboarding.setup_direnv import setup_direnv
-from mycelium_onboarding.xdg_dirs import get_all_dirs
+from mycelium_onboarding.xdg_dirs import get_all_dirs, get_config_dir
 
 # Configure logging
 logging.basicConfig(
@@ -42,7 +43,10 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Commands that don't require environment validation
-SKIP_VALIDATION_COMMANDS = {"help", "setup-direnv", "config", "detect"}
+SKIP_VALIDATION_COMMANDS = {"help", "setup-direnv", "config", "detect", "init"}
+
+# Rich console for pretty output
+console = Console()
 
 
 # ============================================================================
@@ -180,6 +184,7 @@ def cmd_help(_args: list[str]) -> int:
 Usage: python -m mycelium_onboarding <command> [options]
 
 Commands:
+  init            Interactive wizard to set up Mycelium
   setup-direnv    Set up direnv integration for automatic environment activation
   status          Display environment and configuration status (validates environment)
   config          Configuration management commands (see 'config --help')
@@ -195,7 +200,7 @@ Configuration Commands:
   config migrate  Migrate configuration to newer schema version
 
 Detection Commands:
-  detect services Detect all available services (Docker, Redis, PostgreSQL, Temporal, GPU)
+  detect services Detect all available services
   detect docker   Detect Docker daemon availability
   detect redis    Detect Redis instances
   detect postgres Detect PostgreSQL instances
@@ -211,6 +216,7 @@ Environment Validation:
     - Without direnv: run 'source bin/activate.sh'
 
 Examples:
+  python -m mycelium_onboarding init
   python -m mycelium_onboarding setup-direnv
   python -m mycelium_onboarding status
   python -m mycelium_onboarding config show
@@ -234,6 +240,171 @@ For more information, visit: https://github.com/gsornsen/mycelium
 def cli() -> None:
     """Mycelium Onboarding CLI."""
     pass
+
+
+@cli.command()
+@click.option(
+    "--resume/--no-resume", default=None, help="Resume previous wizard session"
+)
+@click.option("--reset", is_flag=True, help="Clear any saved state and start fresh")
+def init(resume: bool | None, reset: bool) -> None:
+    """Interactive onboarding wizard to set up Mycelium.
+
+    This wizard will guide you through:
+    - Detecting available services
+    - Selecting and configuring services
+    - Choosing a deployment method
+    - Generating configuration files
+
+    Examples:
+        mycelium init                 # Start fresh or auto-resume
+        mycelium init --resume        # Force resume if state exists
+        mycelium init --no-resume     # Force fresh start
+        mycelium init --reset         # Clear saved state and start fresh
+    """
+    from mycelium_onboarding.wizard.flow import WizardFlow, WizardState, WizardStep
+    from mycelium_onboarding.wizard.persistence import WizardStatePersistence
+    from mycelium_onboarding.wizard.screens import WizardScreens
+    from mycelium_onboarding.wizard.validation import WizardValidator
+
+    persistence = WizardStatePersistence()
+
+    # Handle reset flag
+    if reset:
+        if persistence.exists():
+            persistence.clear()
+            console.print("[yellow]✓[/yellow] Cleared saved wizard state")
+        console.print("[cyan]Starting fresh wizard...[/cyan]\n")
+
+    # Determine whether to resume
+    should_resume = False
+    if persistence.exists():
+        if resume is None:
+            # Auto-detect: ask user
+            should_resume = click.confirm(
+                "Found existing wizard session. Would you like to resume?", default=True
+            )
+        else:
+            should_resume = resume
+
+    # Load or create state
+    if should_resume and persistence.exists():
+        console.print("[cyan]Resuming wizard from previous session...[/cyan]\n")
+        state = persistence.load()
+        if state is None:
+            console.print(
+                "[yellow]⚠ Could not load saved state. Starting fresh.[/yellow]\n"
+            )
+            state = WizardState()
+    else:
+        state = WizardState()
+
+    # Initialize flow and screens
+    flow = WizardFlow(state)
+    screens = WizardScreens(state)
+    validator = WizardValidator(state)
+
+    try:
+        # Wizard flow
+        while not state.is_complete():
+            # Save state before each step (for resume)
+            persistence.save(state)
+
+            current_step = state.current_step
+
+            if current_step == WizardStep.WELCOME:
+                setup_mode = screens.show_welcome()
+                state.setup_mode = setup_mode  # Store for Advanced screen skip
+                flow.advance()
+
+            elif current_step == WizardStep.DETECTION:
+                summary = screens.show_detection()
+                state.detection_results = summary  # type: ignore[assignment]
+                flow.advance()
+
+            elif current_step == WizardStep.SERVICES:
+                # Get project name first
+                if not state.project_name:
+                    project_name = click.prompt(
+                        "Project name", default="mycelium-project", type=str
+                    )
+                    state.project_name = project_name
+
+                services = screens.show_services()
+                state.services_enabled = services
+                flow.advance()
+
+            elif current_step == WizardStep.DEPLOYMENT:
+                deployment = screens.show_deployment()
+                state.deployment_method = deployment
+
+                # Skip ADVANCED if quick mode
+                if state.setup_mode == "quick":
+                    state.current_step = WizardStep.REVIEW
+                else:
+                    flow.advance()
+
+            elif current_step == WizardStep.ADVANCED:
+                screens.show_advanced()
+                flow.advance()
+
+            elif current_step == WizardStep.REVIEW:
+                action = screens.show_review()
+
+                if action == "confirm":
+                    # Validate state
+                    if not validator.validate_state():
+                        console.print("[red]✗ Validation errors:[/red]")
+                        for error in validator.get_error_messages():
+                            console.print(f"  • {error}")
+                        click.pause("Press any key to continue...")
+                        continue
+
+                    # Convert to config and save
+                    config = state.to_config()
+                    manager = ConfigManager()
+                    config_path = manager._determine_save_path()
+
+                    # Ensure parent directory exists
+                    config_path.parent.mkdir(parents=True, exist_ok=True)
+
+                    # Save configuration
+                    manager.save(config)
+
+                    # Mark complete
+                    state.completed = True
+                    state.current_step = WizardStep.COMPLETE
+                    flow.advance()
+
+                elif action.startswith("edit:"):
+                    # Jump to edit step
+                    edit_step = action.split(":")[1]
+                    state.current_step = WizardStep(edit_step)
+
+                elif action == "cancel":
+                    if click.confirm("Are you sure you want to cancel?", default=False):
+                        persistence.clear()
+                        console.print("[yellow]Wizard cancelled.[/yellow]")
+                        raise SystemExit(0)
+
+            elif current_step == WizardStep.COMPLETE:
+                config_path = get_config_dir() / "config.yaml"
+                screens.show_complete(str(config_path))
+                break
+
+        # Clear saved state on successful completion
+        persistence.clear()
+
+    except KeyboardInterrupt:
+        console.print(
+            "\n[yellow]Wizard interrupted. Run 'mycelium init --resume' to continue.[/yellow]"
+        )
+        persistence.save(state)
+        raise SystemExit(1)
+    except Exception as e:
+        console.print(f"\n[red]Error: {e}[/red]")
+        persistence.save(state)
+        raise
 
 
 @cli.group()
@@ -281,9 +452,7 @@ def show(path: Path | None, format: str) -> None:
         click.echo(f"{status} Configuration: {location}")
 
         if not exists:
-            click.echo(
-                click.style("  (using defaults - no file exists)", fg="yellow")
-            )
+            click.echo(click.style("  (using defaults - no file exists)", fg="yellow"))
 
         click.echo()
 
@@ -317,7 +486,7 @@ def show(path: Path | None, format: str) -> None:
         sys.exit(1)
 
 
-@config.command()
+@config.command(name="init")
 @click.option(
     "--output",
     type=click.Path(path_type=Path),
@@ -333,7 +502,7 @@ def show(path: Path | None, format: str) -> None:
     is_flag=True,
     help="Overwrite existing configuration",
 )
-def init(output: Path | None, project_local: bool, force: bool) -> None:
+def config_init(output: Path | None, project_local: bool, force: bool) -> None:
     """Initialize default configuration.
 
     Creates a new configuration file with default values. By default,
@@ -362,10 +531,14 @@ def init(output: Path | None, project_local: bool, force: bool) -> None:
             sys.exit(1)
 
         # Confirm if overwriting
-        if location.exists() and force and not click.confirm(
-            click.style(
-                f"Overwrite existing configuration at {location}?",
-                fg="yellow",
+        if (
+            location.exists()
+            and force
+            and not click.confirm(
+                click.style(
+                    f"Overwrite existing configuration at {location}?",
+                    fg="yellow",
+                )
             )
         ):
             click.echo("Cancelled")
@@ -660,9 +833,7 @@ def migrate(target: str | None, dry_run: bool, path: Path | None) -> None:
         # Check if migration is needed
         registry = get_default_registry()
         if not registry.needs_migration(config_dict, target):
-            click.echo(
-                click.style("✓ Configuration is already up to date", fg="green")
-            )
+            click.echo(click.style("✓ Configuration is already up to date", fg="green"))
             sys.exit(0)
 
         click.echo()
@@ -722,9 +893,7 @@ def migrate(target: str | None, dry_run: bool, path: Path | None) -> None:
 
             click.echo()
             click.echo(
-                click.style(
-                    f"✓ Successfully migrated to version {target}", fg="green"
-                )
+                click.style(f"✓ Successfully migrated to version {target}", fg="green")
             )
             click.echo(f"  Backup created: {location}.backup")
             click.echo(f"  Configuration updated: {location}")
@@ -840,7 +1009,9 @@ def services(format: str, save_config: bool) -> None:
 
                 click.echo()
                 click.echo(
-                    click.style("✓ Configuration updated with detected settings", fg="green")
+                    click.style(
+                        "✓ Configuration updated with detected settings", fg="green"
+                    )
                 )
                 click.echo(f"  Saved to: {location}")
 
@@ -895,7 +1066,9 @@ def redis() -> None:
         click.echo()
         if results:
             click.echo(
-                click.style(f"✓ Found {len(results)} Redis instance(s)", fg="green", bold=True)
+                click.style(
+                    f"✓ Found {len(results)} Redis instance(s)", fg="green", bold=True
+                )
             )
             for i, redis in enumerate(results, 1):
                 click.echo(f"\n  Instance {i}:")
@@ -904,7 +1077,7 @@ def redis() -> None:
                 if redis.version:
                     click.echo(f"    Version: {redis.version}")
                 if redis.password_required:
-                    click.echo(f"    Auth: Required")
+                    click.echo("    Auth: Required")
         else:
             click.echo(click.style("✗ No Redis instances found", fg="yellow"))
             click.echo("  Scanned ports: 6379, 6380, 6381")
@@ -931,7 +1104,9 @@ def postgres() -> None:
         if results:
             click.echo(
                 click.style(
-                    f"✓ Found {len(results)} PostgreSQL instance(s)", fg="green", bold=True
+                    f"✓ Found {len(results)} PostgreSQL instance(s)",
+                    fg="green",
+                    bold=True,
                 )
             )
             for i, pg in enumerate(results, 1):
@@ -989,9 +1164,7 @@ def gpu() -> None:
         click.echo()
         if result.available:
             click.echo(
-                click.style(
-                    f"✓ Found {len(result.gpus)} GPU(s)", fg="green", bold=True
-                )
+                click.style(f"✓ Found {len(result.gpus)} GPU(s)", fg="green", bold=True)
             )
             click.echo(f"  Total Memory: {result.total_memory_mb} MB")
 
@@ -1150,6 +1323,17 @@ def main(argv: list[str] | None = None) -> int:
     command = argv[0]
     args = argv[1:]
 
+    # Handle init command via Click
+    if command == "init":
+        try:
+            cli(["init"] + args, standalone_mode=False)
+            return 0
+        except click.ClickException as e:
+            e.show()
+            return 1
+        except SystemExit as e:
+            return e.code if isinstance(e.code, int) else 1
+
     # Handle config command via Click
     if command == "config":
         try:
@@ -1197,9 +1381,7 @@ def main(argv: list[str] | None = None) -> int:
     handler = commands.get(command)
     if handler is None:
         print(f"Error: Unknown command '{command}'", file=sys.stderr)
-        print(
-            "Run 'python -m mycelium_onboarding help' for usage.", file=sys.stderr
-        )
+        print("Run 'python -m mycelium_onboarding help' for usage.", file=sys.stderr)
         return 1
 
     try:
