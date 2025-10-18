@@ -6,830 +6,455 @@
 
 > **Mycelium**: Like nature's mycelial networks that communicate through chemical signals, distribute resources efficiently, and exhibit emergent intelligence - this Claude Code plugin creates an ecosystem of expert subagents that collaborate in real-time.
 
+## What is Mycelium?
 
-## Dual-Purpose Repository
+Mycelium is a comprehensive Claude Code plugin providing:
 
-This repository serves two purposes:
+- **130+ Expert Agents** across 11 domains (Python, DevOps, AI/ML, Security, and more)
+- **Dual-Mode Coordination** with auto-detection (Redis/TaskQueue/Markdown)
+- **Real-time Messaging** via pub/sub for agent collaboration
+- **Durable Workflows** with Temporal integration
+- **Infrastructure Monitoring** with `/infra-check`, `/team-status`, `/pipeline-status` commands
+- **Event-Driven Automation** via hooks system
 
-1. **Plugin Marketplace** - Discover and install Mycelium plugins and community contributions
-2. **Core Plugin** - The Mycelium distributed intelligence system (130+ agents, coordination infrastructure)
+## Quick Start
 
-### Quick Install: Marketplace + Core Plugin
+### Installation
 
 ```bash
-# Add Mycelium marketplace to Claude Code
+# Option 1: Plugin Marketplace (recommended)
 /plugin marketplace add gsornsen/mycelium
-
-# Browse available plugins
-/plugin
-
-# Install the core plugin
 /plugin install mycelium-core@mycelium
 
-# IMPORTANT: Restart Claude Code after installation
-# Exit Claude Code completely and restart to load all 130+ agents
+# Option 2: Direct from GitHub
+claude plugin install git+https://github.com/gsornsen/mycelium.git
 
-# Verify installation
-/infra-check
-
-# Check that agents are loaded (should see 119+ mycelium agents)
-/agents
+# Option 3: Local development
+ln -s /path/to/mycelium ~/.claude/plugins/mycelium
 ```
 
-### Quick Install: Core Plugin Only
+**Important**: Restart Claude Code completely after installation to load all 130+ agents.
+
+### Verification
 
 ```bash
-# Direct install from GitHub
-claude plugin install git+https://github.com/gsornsen/mycelium.git#plugins/mycelium-core
+# Check infrastructure health
+/infra-check
 
-# Or for local development
-git clone https://github.com/gsornsen/mycelium.git
-ln -s /path/to/mycelium/plugins/mycelium-core ~/.claude/plugins/mycelium-core
+# Verify agents loaded (should see 119+ mycelium agents)
+/agents
 
-# IMPORTANT: Restart Claude Code to load all agents
-# Exit completely and restart
+# Check coordination status
+/team-status
 ```
 
-> **⚠️ Important:** After installing Mycelium, you must **restart Claude Code completely** for it to discover and load all 130+ agents. See [AGENT_STRUCTURE_CHANGE.md](AGENT_STRUCTURE_CHANGE.md) for technical details about the agent loading system.
+### First Steps
 
-See [INSTALL.md](INSTALL.md) for detailed installation options and [CONTRIBUTING.md](CONTRIBUTING.md) for plugin submission guidelines.
+1. **Choose coordination mode** - Redis (production), TaskQueue (task-centric), or Markdown (zero-setup)
+2. **Set up infrastructure** - Start Redis/Temporal if using those modes
+3. **Invoke agents** - Use `@agent-name` to activate specialists
+4. **Monitor status** - Use `/team-status` and `/infra-check` commands
 
+📖 **New User?** See [.mycelium/modules/onboarding.md](.mycelium/modules/onboarding.md) for complete setup guide.
 
-## Why "Mycelium"?
-
-Mycelial networks in nature demonstrate remarkable distributed intelligence:
-
-- **Chemical Communication** → Real-time pub/sub messaging
-- **Resource Distribution** → Intelligent task queuing via Redis
-- **Resilience & Decentralization** → Fault-tolerant agent coordination
-- **Emergent Intelligence** → Complex workflows from simple agent interactions
-
-Just as mycelium connects trees in a forest, this plugin connects specialized Claude Code agents into a cohesive, intelligent system.
-
-## Overview
-
-Mycelium is a comprehensive Claude Code plugin that provides:
-
-1. **130+ Expert Subagents** - Specialized agents across 11 domains
-2. **Dual-Mode Coordination** - Redis/TaskQueue preferred, markdown fallback
-3. **Durable Workflows** - Temporal-based workflow orchestration
-4. **Real-time Messaging** - Pub/sub for agent communication
-5. **Infrastructure Commands** - Health checks, status monitoring, pipeline integration
-6. **Event Hooks** - Automated validation and coordination
-
-## 🙏 Standing on the Shoulders of Giants
-
-Mycelium's foundation was seeded by the exceptional work of the **[VoltAgent community](https://github.com/VoltAgent/awesome-claude-code-subagents)** and their curated collection of Claude Code subagents. Like spores spreading through a forest floor, their agents provided the initial inoculation for this distributed intelligence network.
-
-### What VoltAgent Provided
-
-- 🎯 **High-quality specialist agents** - Expertly crafted subagent definitions across multiple domains
-- 🏗️ **Proven architecture patterns** - Battle-tested approaches to agent design and tool permissions
-- 🌟 **Community-driven excellence** - A collaborative approach that inspired this project's ecosystem mindset
-
-### What Mycelium Grew From That Foundation
-
-- 🍄 **Dual-mode coordination substrate** - Redis/TaskQueue/Markdown coordination with graceful degradation
-- 🔄 **Durable workflow orchestration** - Temporal-based workflow execution for complex multi-agent tasks
-- 📡 **Real-time pub/sub messaging** - Chemical-signal-like communication between agents
-- 🎭 **130+ specialized agents** - Expanded and enhanced agent ecosystem across 11 categories
-- 🛠️ **Production-ready infrastructure** - Health checks, monitoring, and operational commands
-- 🪝 **Event-driven automation** - Hook system for validation and coordination
-
-### The Mycelial Philosophy
-
-Just as mycelium in nature builds upon existing organic matter to create something greater, Mycelium extends VoltAgent's excellent work with coordination infrastructure that enables true distributed intelligence. Both projects share a vision of collaborative, specialized agents working together - we've simply added the substrate that connects them.
-
-**Huge gratitude to the VoltAgent community** for creating such an invaluable resource and fostering the Claude Code agent ecosystem. If you're exploring Claude Code subagents, their repository is an essential visit: **https://github.com/VoltAgent/awesome-claude-code-subagents**
-
----
-
-## Architecture
+## Core Concepts
 
 ### The Mycelial Network Metaphor
 
 ```
-                    🍄 Fruiting Bodies (Orchestrators)
-                         /        |        \
-                        /         |         \
-                  Spores      Spores      Spores
-                (Agents)    (Agents)    (Agents)
-                    \          |          /
-                     \         |         /
-                      \        |        /
-                   ==========================
-                   Mycelial Network (Substrate)
-                   - Redis (chemical signals)
-                   - TaskQueue (resource flow)
-                   - Markdown (backup pathways)
-                   ==========================
+        🍄 Orchestrators (coordinate workflows)
+           /        |        \
+      Agents    Agents    Agents (specialized experts)
+           \        |        /
+      ============================
+         Substrate (coordination)
+         - Redis (real-time)
+         - TaskQueue (structured)
+         - Markdown (offline)
+      ============================
 ```
 
-**Terminology**:
-- **Spores/Nodes** - Individual specialized agents
-- **Fruiting Body/Colony** - Orchestrator agents that coordinate others
-- **Threads/Hyphae** - Durable workflows connecting agents
-- **Network/Substrate** - The coordination infrastructure (Redis/TaskQueue/Markdown)
+**Key Terms**:
+- **Spores** - Individual specialized agents (130+ available)
+- **Fruiting Bodies** - Meta-orchestrators that coordinate multi-agent workflows
+- **Hyphae** - Durable workflow threads connecting agents
+- **Substrate** - Coordination infrastructure (auto-detects best available mode)
 
-### Agent Categories (Spores)
+### Agent Categories
 
-1. **Core Development** (01) - Python, JavaScript, TypeScript, Rust specialists
-2. **Language Specialists** (02) - Go, Java, C++, Kotlin, Swift experts
-3. **Infrastructure** (03) - DevOps, Kubernetes, Security, Cloud
-4. **Quality & Security** (04) - Testing, QA, Security auditing, Performance
-5. **Data & AI** (05) - ML, Data Engineering, NLP, Computer Vision
-6. **Developer Experience** (06) - CLI, Documentation, Tooling, MCP
-7. **Specialized Domains** (07) - Web3, IoT, Game Dev, Audio/Video
-8. **Business & Product** (08) - PM, UX, Technical Writing, Marketing
-9. **Meta-Orchestration** (09) - Multi-agent coordination, workflow management
-10. **Research & Analysis** (10) - Academic research, benchmarking, innovation
-11. **Claude Code** (11) - Plugin development, subagent creation, hooks
+| Category | Agents | Description |
+|----------|--------|-------------|
+| Core Development | python-pro, ai-engineer, javascript-expert, typescript-specialist, rust-developer | Primary language specialists |
+| Infrastructure | devops-engineer, kubernetes-specialist, docker-expert, security-auditor | DevOps and deployment |
+| Data & AI | data-engineer, ml-engineer, nlp-specialist, computer-vision-expert | ML and data science |
+| Quality & Security | qa-engineer, test-automation-specialist, performance-engineer | Testing and optimization |
+| Developer Experience | cli-developer, documentation-engineer, mcp-specialist | Tools and documentation |
+| Meta-Orchestration | multi-agent-coordinator, workflow-orchestrator, task-distributor | Workflow coordination |
+| + 5 more categories | | See [.mycelium/modules/agents.md](.mycelium/modules/agents.md) |
 
-## Features
+📖 **Learn More**: See [.mycelium/modules/agents.md](.mycelium/modules/agents.md) for complete agent catalog.
 
-### 1. Dual-Mode Coordination
+### Coordination Modes
 
-Mycelium automatically detects and uses the best available coordination mode:
+Mycelium auto-detects the best available coordination mode:
 
-**Mode 1: Redis MCP (Preferred - Real-time)**
-- Real-time pub/sub messaging
-- Atomic operations with transactions
-- TTL-based automatic cleanup
-- Distributed coordination across machines
-- Sub-millisecond latency
+**Redis Mode** (Production - Real-time)
+- ⚡ 0.8ms latency, 234K messages/min
+- 🔄 Real-time pub/sub events
+- 📈 Scales to 100+ agents
 
-**Mode 2: TaskQueue MCP (Preferred - Task-centric)**
-- Durable task queue management
-- Built-in status tracking
-- Integration with MCP ecosystem
-- No additional server required (uses npx)
+**TaskQueue Mode** (Task-centric)
+- 📋 Structured task management
+- 🔗 MCP ecosystem integration
+- 📊 Built-in status tracking
 
-**Mode 3: Markdown Files (Fallback - Zero-setup)**
-- No infrastructure dependencies
-- Human-readable coordination files
-- Git-trackable state
-- Works completely offline
+**Markdown Mode** (Zero-setup - Offline)
+- 📝 Human-readable files
+- 🔒 Git-trackable state
+- 🚀 No dependencies
 
-### 2. Slash Commands
+📖 **Learn More**: See [.mycelium/modules/coordination.md](.mycelium/modules/coordination.md) for coordination patterns and API.
 
-#### `/infra-check` - Infrastructure Health Check
+## Slash Commands
 
-Comprehensive health monitoring for all coordination infrastructure.
+### `/infra-check` - Infrastructure Health
+
+Monitor coordination infrastructure health:
 
 ```bash
-# Quick check
-/infra-check
-
-# Detailed diagnostics
-/infra-check --verbose
-
-# Custom config
-/infra-check --config .infra-check.json
+/infra-check              # Quick check
+/infra-check --verbose    # Detailed diagnostics
+/infra-check --config .infra-check.json  # Custom config
 ```
 
-**Checks**:
-- Redis/Valkey connectivity and performance
-- Temporal cluster status
-- TaskQueue MCP availability
-- PostgreSQL/MongoDB health
-- GPU status (NVIDIA)
-- Custom service endpoints
+Checks: Redis, Temporal, TaskQueue MCP, GPU, databases, custom services.
 
-**Configuration** (`.infra-check.json`):
-```json
-{
-  "checks": {
-    "redis": {
-      "enabled": true,
-      "url": "redis://localhost:6379",
-      "timeout_seconds": 5
-    },
-    "temporal": {
-      "enabled": true,
-      "host": "localhost:7233"
-    },
-    "gpu": {
-      "enabled": true,
-      "required_model": "RTX 4090"
-    }
-  }
-}
-```
+### `/team-status` - Agent Coordination
 
-#### `/team-status` - Multi-Agent Coordination Status
-
-Monitor agent workload, active tasks, and coordination health.
+Monitor active agents, workload, and coordination health:
 
 ```bash
-# Show all agents
-/team-status
-
-# Specific agent
-/team-status ai-engineer
-
-# Detailed view
-/team-status --detailed
+/team-status              # All agents
+/team-status ai-engineer  # Specific agent
+/team-status --detailed   # Detailed metrics
 ```
 
-**Output**:
-```
-=== Mycelial Network Status ===
+### `/pipeline-status` - CI/CD Monitoring
 
-Active Spores (Agents): 12/130
-Network Health: HEALTHY ✅
-
-Agent Workload:
-  ai-engineer      [████████░░] 85% (2 tasks)
-  data-engineer    [███████░░░] 70% (1 task)
-  devops-engineer  [███░░░░░░░] 30% (1 task)
-
-Substrate (Coordination):
-  Mode: Redis (preferred)
-  Messages/min: 234K
-  Latency: 0.8ms avg
-
-Hyphae (Workflows):
-  Active: 3
-  Completed: 47
-  Failed: 0
-```
-
-#### `/pipeline-status` - CI/CD Pipeline Monitoring
-
-Check build, test, and deployment status across multiple CI systems.
+Check build, test, and deployment status:
 
 ```bash
-# Quick status
-/pipeline-status
-
-# Detailed with logs
-/pipeline-status --detailed
-
-# Watch mode (auto-refresh)
-/pipeline-status --watch
+/pipeline-status          # Quick status
+/pipeline-status --watch  # Auto-refresh
 ```
 
-Supports:
-- GitHub Actions
-- GitLab CI
-- Jenkins
-- Custom pipelines (via `.pipeline-status.sh`)
+Supports: GitHub Actions, GitLab CI, Jenkins, custom pipelines.
 
-### 3. Event Hooks
+## Usage Examples
 
-#### Pre-Test Validation
+### Multi-Agent Workflow
 
-Automatically validates infrastructure before running tests:
-
-```bash
-# Triggered automatically before:
-uv run pytest
-pytest
-python -m pytest
-```
-
-**What it validates**:
-- Infrastructure health (Redis, Temporal, etc.)
-- Project-specific requirements (via `.pre-test-checks.sh`)
-- Coordination substrate availability
-
-**Custom validation** (`.pre-test-checks.sh`):
-```bash
-#!/bin/bash
-project_pre_test_checks() {
-    # Check dependencies
-    uv sync --check || return 1
-
-    # Verify test data
-    [ -f "tests/fixtures/data.json" ] || return 1
-
-    # Custom validation
-    python scripts/validate_env.py || return 1
-
-    return 0
-}
-```
-
-### 4. Coordination Library
-
-JavaScript/Node.js library for dual-mode coordination:
+Coordinate multiple agents for complex tasks:
 
 ```javascript
 import { CoordinationClient } from 'mycelium/lib/coordination.js';
 
-// Auto-detect coordination mode
 const client = new CoordinationClient();
 await client.initialize();
-// → "Coordination mode: Redis (preferred)"
 
-// Store agent status (works in all modes)
-await client.storeAgentStatus('ai-engineer', {
-  status: 'busy',
-  active_tasks: ['train-model'],
-  last_updated: new Date().toISOString()
+// Create task chain
+const task1 = await client.createTask({
+  type: 'prepare-dataset',
+  assigned_to: 'data-engineer'
 });
 
-// Retrieve agent status
-const status = await client.getAgentStatus('ai-engineer');
+const task2 = await client.createTask({
+  type: 'train-model',
+  assigned_to: 'ai-engineer',
+  depends_on: [task1]
+});
 
-// Publish event (real-time in Redis, polling in others)
-await client.publishEvent('training:events', {
+const task3 = await client.createTask({
+  type: 'deploy-model',
+  assigned_to: 'devops-engineer',
+  depends_on: [task2]
+});
+
+// Monitor workflow
+await client.monitorWorkflow([task1, task2, task3]);
+```
+
+### Real-time Events
+
+Subscribe to agent events for real-time collaboration:
+
+```javascript
+// ai-engineer publishes training progress
+await client.publishEvent('training:progress', {
+  agent: 'ai-engineer',
   event: 'checkpoint_saved',
   step: 1000,
-  loss: 0.42
+  loss: 0.042
 });
 
-// Subscribe to events
-await client.subscribeEvents('training:events', (event) => {
-  console.log('Event received:', event);
+// performance-engineer subscribes and evaluates
+await client.subscribeEvents('training:progress', async (event) => {
+  if (event.event === 'checkpoint_saved') {
+    await evaluateCheckpoint(event.step);
+  }
 });
 ```
 
-### 5. Workflow Orchestration
+### Infrastructure Validation
 
-Durable workflows with Temporal integration:
-
-```javascript
-import { WorkflowClient } from 'mycelium/lib/workflow.js';
-
-const wf = new WorkflowClient();
-
-// Create durable workflow
-const workflowId = await wf.createWorkflow('train-model', {
-  dataset: 'alice-voice',
-  epochs: 3,
-  checkpoint_interval: 500
-});
-
-// Monitor workflow
-const status = await wf.getWorkflowStatus(workflowId);
-// → { status: 'running', progress: 0.35, step: 3500 }
-
-// Wait for completion
-await wf.waitForCompletion(workflowId);
-```
-
-## Installation
-
-### Option 1: Install from Git
+Check infrastructure before critical operations:
 
 ```bash
-# Clone repository
-git clone https://github.com/gsornsen/mycelium.git ~/.claude/plugins/mycelium
-
-# Or install as Claude Code plugin
-claude plugin install git+https://github.com/gsornsen/mycelium.git
-```
-
-### Option 2: Local Development
-
-```bash
-# Symlink local development version
-ln -s /home/gerald/git/mycelium ~/.claude/plugins/mycelium
-
-# Verify installation
-claude plugin list | grep mycelium
-```
-
-### Option 3: Direct Copy
-
-```bash
-# Copy to Claude Code plugins directory
-cp -r /path/to/mycelium ~/.claude/plugins/mycelium
-```
-
-## Setup
-
-### 1. Choose Coordination Mode
-
-#### Redis (Recommended for Production)
-
-```bash
-# Using Docker
-docker run -d -p 6379:6379 --name redis redis:latest
-
-# Or Valkey (Redis fork)
-docker run -d -p 6379:6379 --name valkey valkey/valkey:latest
-
-# Verify
-redis-cli ping  # Should return PONG
-```
-
-#### TaskQueue MCP (Good for Task-Centric Workflows)
-
-```bash
-# Install via npm
-npm install -g taskqueue-mcp
-
-# Verify
-npx taskqueue-mcp --version
-```
-
-#### Markdown Fallback (Zero Setup)
-
-```bash
-# Just create coordination directory
-mkdir -p .claude/coordination/
-
-# No installation required!
-```
-
-### 2. Configure Infrastructure Checks
-
-```bash
-# Copy example config
-cp ~/.claude/plugins/mycelium/docs/examples/infra-check.json.example \
-   ~/.infra-check.json
-
-# Edit for your environment
-nano ~/.infra-check.json
-```
-
-### 3. Enable Pre-Test Hooks (Optional)
-
-```bash
-# Project-specific validation
-cp ~/.claude/plugins/mycelium/docs/examples/pre-test-checks.sh.example \
-   .pre-test-checks.sh
-
-chmod +x .pre-test-checks.sh
-```
-
-## Usage Examples
-
-### Example 1: Multi-Agent Model Training
-
-```javascript
-// Orchestrate model training across multiple agents
-
-// 1. data-engineer prepares dataset
-await client.createTask('prepare-dataset', {
-  agent: 'data-engineer',
-  dataset: 'alice-voice',
-  output: 'data/processed/'
-});
-
-// 2. ai-engineer trains model
-await client.createTask('train-model', {
-  agent: 'ai-engineer',
-  depends_on: 'prepare-dataset',
-  config: 'configs/lora_default.yaml'
-});
-
-// 3. performance-engineer benchmarks
-await client.createTask('benchmark-model', {
-  agent: 'performance-engineer',
-  depends_on: 'train-model',
-  metrics: ['latency', 'throughput', 'memory']
-});
-
-// Monitor workflow
-await client.monitorWorkflow(['prepare-dataset', 'train-model', 'benchmark-model']);
-```
-
-### Example 2: Infrastructure Validation
-
-```bash
-# Before deploying
+# Validate before deployment
 /infra-check --verbose
 
 # Expected output:
 # ✅ Redis               HEALTHY    (0.8ms latency)
 # ✅ Temporal            HEALTHY    (3 workers active)
-# ✅ GPU                 HEALTHY    (RTX 4090, 45°C, 12GB free)
+# ✅ GPU                 HEALTHY    (RTX 4090, 12GB free)
 # ===================================
 # Overall Status: HEALTHY ✅
 ```
 
-### Example 3: Real-time Agent Collaboration
-
-```javascript
-// Multi-agent pair programming session
-
-// ai-engineer publishes progress
-await pubsub.publish('training:progress', {
-  agent: 'ai-engineer',
-  event: 'training_started',
-  workflow_id: 'train-123'
-});
-
-// performance-monitor subscribes and tracks
-await pubsub.subscribe('training:progress', async (event) => {
-  if (event.event === 'checkpoint_saved') {
-    // Trigger performance evaluation
-    await evaluateCheckpoint(event.checkpoint_path);
-  }
-});
-
-// error-coordinator watches for failures
-await pubsub.subscribe('training:errors', async (error) => {
-  await handleTrainingError(error);
-});
-```
-
 ## Documentation
 
-### Core Documentation
+### Core Modules
 
-- **[Dual-Mode Coordination Pattern](docs/patterns/dual-mode-coordination.md)** - Redis vs TaskQueue vs Markdown
-- **[Markdown Coordination Guide](docs/patterns/markdown-coordination.md)** - Fallback coordination details
-- **[Agent Collaboration Workflows](docs/patterns/agent-coordination-overview.md)** - Multi-agent patterns
-- **[Event-Driven Coordination](docs/patterns/event-driven-coordination.md)** - Pub/sub patterns
-- **[Task Handoff Protocol](docs/patterns/task-handoff-protocol.md)** - Agent-to-agent delegation
+- **[Onboarding Guide](.mycelium/modules/onboarding.md)** - Installation, setup, configuration
+- **[Coordination Deep Dive](.mycelium/modules/coordination.md)** - Dual-mode patterns, API, workflows
+- **[Deployment Guide](.mycelium/modules/deployment.md)** - Docker, Kubernetes, production setup
+- **[Agents Guide](.mycelium/modules/agents.md)** - Agent catalog, creation, integration
 
-### Configuration Examples
+### Additional Resources
 
-- **[Infrastructure Check Config](docs/examples/infra-check.json.example)** - `.infra-check.json` template
-- **[Pre-Test Validation Script](docs/examples/pre-test-checks.sh.example)** - Custom validation
-- **[Pipeline Status Script](docs/examples/pipeline-status.sh.example)** - CI/CD integration
+- **[Installation Guide](INSTALL.md)** - Detailed installation options
+- **[Contributing Guide](CONTRIBUTING.md)** - How to contribute agents, commands, hooks
+- **[Marketplace README](MARKETPLACE_README.md)** - Plugin marketplace submission
+- **[Agent Structure](AGENT_STRUCTURE_CHANGE.md)** - Technical details on agent loading
 
-### Agent Documentation
-
-All 130+ agents include:
-- Clear invocation criteria
-- Tool access specifications
-- Communication protocols
-- Integration patterns
-
-Browse: `agents/*/README.md` for category overviews
-
-## Architecture Details
+## Architecture
 
 ### Coordination Substrate
 
 ```
-┌─────────────────────────────────────────────────┐
-│         Application Layer (Agents)              │
-│  ai-engineer | data-engineer | devops-engineer  │
-└────────────────────┬────────────────────────────┘
-                     │
-┌────────────────────▼────────────────────────────┐
-│      Coordination Library (lib/)                │
-│  - Auto-detection of available substrate       │
-│  - Unified API across all modes                │
-│  - Graceful degradation                         │
-└────────────────────┬────────────────────────────┘
-                     │
-        ┌────────────┼────────────┐
-        ▼            ▼            ▼
-   ┌────────┐  ┌──────────┐  ┌──────────┐
-   │ Redis  │  │TaskQueue │  │Markdown  │
-   │  MCP   │  │   MCP    │  │  Files   │
-   └────────┘  └──────────┘  └──────────┘
-   Real-time   Task-centric   Zero-deps
+┌───────────────────────────────────────┐
+│     Application (Agents)              │
+└───────────────┬───────────────────────┘
+                │
+┌───────────────▼───────────────────────┐
+│  Coordination Library (auto-detect)  │
+└───────────────┬───────────────────────┘
+                │
+    ┌───────────┼───────────┐
+    ▼           ▼           ▼
+┌────────┐  ┌────────┐  ┌────────┐
+│ Redis  │  │TaskQueue│ │Markdown│
+└────────┘  └────────┘  └────────┘
+Real-time   Structured   Offline
 ```
 
-### Agent Hierarchy
+### Performance Benchmarks
 
-```
-Meta-Orchestration (Fruiting Bodies)
-├── multi-agent-coordinator    - Overall coordination
-├── workflow-orchestrator      - Process execution
-├── task-distributor           - Work allocation
-├── context-manager            - State management
-└── performance-monitor        - Metrics tracking
-
-Specialist Agents (Spores)
-├── Core Development
-│   ├── python-pro            - Python expertise
-│   ├── ai-engineer           - ML/AI systems
-│   └── ...
-├── Infrastructure
-│   ├── devops-engineer       - CI/CD, deployment
-│   ├── kubernetes-specialist - K8s orchestration
-│   └── ...
-└── ... (130+ total agents)
-```
-
-### Workflow Execution (Hyphae)
-
-```
-1. Task Creation → TaskQueue/Redis
-2. Agent Assignment → multi-agent-coordinator
-3. Execution → Specialist agent
-4. Progress Updates → pub/sub events
-5. Result Storage → Redis/Markdown
-6. Next Task Trigger → workflow-orchestrator
-```
+| Mode | Latency | Throughput | Agents | Overhead |
+|------|---------|------------|--------|----------|
+| Redis | 0.8ms | 234K msg/min | 100+ | <5% |
+| TaskQueue | 100ms | 3K tasks/min | 50+ | ~10% |
+| Markdown | 500ms | 6K ops/min | 20 | ~20% |
 
 ## Advanced Features
 
-### Custom Agent Creation
+### Custom Agents
 
-Create your own specialist agents:
+Create domain-specific agents:
 
 ```markdown
 ---
 name: voice-specialist
-description: Expert in voice cloning and TTS systems. Invoke when working with audio models, voice datasets, or speech synthesis.
+description: Expert in voice cloning and TTS. Invoke for audio models, voice datasets, speech synthesis.
 tools: Read, Write, Bash(python:*), Grep
 ---
 
-You are a voice cloning specialist with expertise in...
+You are a voice cloning specialist...
 
 ## Communication Protocol
-
 Report progress to multi-agent-coordinator:
-```json
 {
   "agent": "voice-specialist",
   "status": "completed",
-  "voice_similarity": 0.89,
-  "wer": 0.06
+  "voice_similarity": 0.89
 }
-```
 ```
 
 Save to: `~/.claude/plugins/mycelium/agents/07-specialized-domains/voice-specialist.md`
 
 ### Custom Commands
 
-Add domain-specific slash commands:
+Add slash commands:
 
 ```markdown
 ---
 allowed-tools: Bash(*)
-description: Check voice dataset quality metrics
+description: Check voice dataset quality
 ---
-
 # Voice Dataset Check
-
-Run quality analysis on voice dataset.
-
-## Your task
-
 1. Load dataset from $1
-2. Calculate metrics (duration, quality, speaker similarity)
+2. Calculate metrics
 3. Report findings
 ```
 
 Save to: `~/.claude/plugins/mycelium/commands/voice-check.md`
 
-### Custom Hooks
+### Event Hooks
 
-Create event-driven automation:
+Automate workflows:
 
 ```json
 {
-  "description": "Voice model training hooks",
   "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "Bash.*train.*voice",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "${MYCELIUM_ROOT}/hooks/post-training-eval.sh"
-          }
-        ]
-      }
-    ]
+    "PostToolUse": [{
+      "matcher": "Bash.*pytest",
+      "hooks": [{
+        "type": "command",
+        "command": "/infra-check"
+      }]
+    }]
   }
 }
 ```
 
-## Performance & Scalability
+## Deployment
 
-### Benchmarks
+### Docker Compose
 
-**Redis Mode**:
-- Message throughput: 234K messages/min
-- Latency: 0.8ms avg
-- Agent coordination overhead: <5%
-- Scales to 100+ agents
+```bash
+# Start complete stack (Redis + Temporal + monitoring)
+docker-compose up -d
 
-**TaskQueue Mode**:
-- Task creation: 50/sec
-- Task polling: 1Hz default
-- Agent coordination overhead: ~10%
-- Scales to 50+ agents
+# Verify
+docker-compose ps
+/infra-check
+```
 
-**Markdown Mode**:
-- File writes: 100/sec
-- File reads: 500/sec
-- Agent coordination overhead: ~20%
-- Scales to 20 agents
+### Kubernetes
 
-### Resource Requirements
+```bash
+# Deploy to cluster
+kubectl create namespace mycelium
+kubectl apply -f k8s/redis-deployment.yaml
+kubectl apply -f k8s/temporal-deployment.yaml
 
-**Minimal (Markdown Mode)**:
-- RAM: 100MB
-- Disk: 10MB
-- No network required
+# Verify
+kubectl get pods -n mycelium
+```
 
-**Recommended (Redis Mode)**:
-- RAM: 500MB (Redis: 256MB, Client: 256MB)
-- Disk: 50MB
-- Network: Local or LAN
-
-**Production (Redis + Temporal)**:
-- RAM: 2GB (Redis: 512MB, Temporal: 1GB, Clients: 512MB)
-- Disk: 500MB
-- Network: Low-latency recommended
+📖 **Production Deployment**: See [.mycelium/modules/deployment.md](.mycelium/modules/deployment.md) for complete guide.
 
 ## Troubleshooting
 
-### Command Not Found
+### Agents Not Loading
 
 ```bash
-# Verify plugin installation
-claude plugin list | grep mycelium
+# Restart Claude Code completely (important!)
+# Exit and restart, not just window close
 
-# Check symlink
-ls -la ~/.claude/plugins/mycelium
-
-# Reinstall if needed
-claude plugin uninstall mycelium
-claude plugin install git+https://github.com/gsornsen/mycelium.git
+# Verify agent count
+/agents | grep -c mycelium
+# Should show 119+
 ```
 
 ### Coordination Issues
 
 ```bash
-# Check coordination mode
-/team-status
-# Look for: "Coordination mode: redis|taskqueue|markdown"
+# Check active mode
+/team-status  # Look for "Coordination mode: ..."
 
 # Test Redis
 redis-cli ping
 
-# Test TaskQueue
-npx taskqueue-mcp --version
-
-# Fallback to markdown
-mkdir -p .claude/coordination/
+# Force markdown fallback
 export MYCELIUM_MODE=markdown
+mkdir -p .claude/coordination/
 ```
 
-### Stale Agent Status
+### Performance Issues
 
 ```bash
-# Clear stale data (Redis)
-redis-cli DEL "agents:status:*"
+# Check Redis latency
+redis-cli --latency
+# Should be <5ms
 
-# Clear stale data (Markdown)
-rm -f .claude/coordination/agent-*.md
-
-# Republish status
-/team-status --refresh
+# Check coordination overhead
+/team-status --detailed
 ```
 
 ## Contributing
 
-Contributions welcome! Areas of focus:
+We welcome contributions in these areas:
 
 1. **New Agents** - Domain-specific specialists
-2. **Commands** - Productivity slash commands
-3. **Hooks** - Event-driven automation
-4. **Documentation** - Patterns and examples
+2. **Slash Commands** - Productivity commands
+3. **Event Hooks** - Automation patterns
+4. **Documentation** - Examples and patterns
 5. **Coordination Modes** - New substrate integrations
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ## Roadmap
 
 ### v1.1 (Next)
-- [ ] Plugin marketplace submission
-- [ ] Web dashboard for agent monitoring
-- [ ] Advanced workflow patterns library
-- [ ] Agent performance analytics
+- Plugin marketplace submission
+- Web dashboard for monitoring
+- Advanced workflow patterns library
+- Agent performance analytics
 
 ### v1.2 (Future)
-- [ ] Multi-machine coordination (distributed Redis)
-- [ ] Agent learning system (capture & share patterns)
-- [ ] Auto-scaling agent allocation
-- [ ] Cost optimization recommendations
+- Multi-machine coordination
+- Agent learning system
+- Auto-scaling allocation
+- Cost optimization
 
 ### v2.0 (Vision)
-- [ ] Self-organizing agent networks
-- [ ] Adaptive coordination strategies
-- [ ] Emergent workflow discovery
-- [ ] Cross-project knowledge sharing
+- Self-organizing agent networks
+- Adaptive coordination strategies
+- Emergent workflow discovery
+- Cross-project knowledge sharing
+
+## Credits
+
+### Core Inspiration
+
+**[VoltAgent Community](https://github.com/VoltAgent/awesome-claude-code-subagents)** - The foundational agents and architectural patterns that seeded this mycelial network.
+
+### What VoltAgent Provided
+
+- High-quality specialist agents across multiple domains
+- Proven architecture patterns for agent design
+- Community-driven excellence and collaboration
+
+### What Mycelium Added
+
+- Dual-mode coordination substrate (Redis/TaskQueue/Markdown)
+- Real-time pub/sub messaging
+- Durable workflow orchestration (Temporal)
+- Production-ready infrastructure (health checks, monitoring)
+- Event-driven automation (hooks system)
+
+**Thank you** to the VoltAgent community for fostering the Claude Code agent ecosystem. If you're exploring subagents, visit: **https://github.com/VoltAgent/awesome-claude-code-subagents**
+
+## Support
+
+- **Documentation**: [.mycelium/modules/](.mycelium/modules/)
+- **Issues**: https://github.com/gsornsen/mycelium/issues
+- **Discussions**: https://github.com/gsornsen/mycelium/discussions
 
 ## License
 
 MIT License - see [LICENSE](LICENSE) file
-
-## Credits & Acknowledgments
-
-### Core Inspiration
-
-**[VoltAgent Community](https://github.com/VoltAgent/awesome-claude-code-subagents)** - The initial spores that seeded this mycelial network. Their curated collection of Claude Code subagents provided the foundational agents and architectural patterns that Mycelium built upon.
-
-### Project Influences
-
-- **Mycelium Metaphor** - Inspired by natural mycelial networks and their distributed intelligence
-- **Agent Architecture** - Claude Code subagent system and best practices
-- **Coordination Patterns** - Distributed systems research and battle-tested infrastructure patterns
-- **MCP Integration** - Model Context Protocol ecosystem and community tools
-
-### Special Thanks
-
-A heartfelt thank you to the VoltAgent community for fostering an excellent ecosystem of Claude Code subagents and demonstrating the power of specialized agent collaboration. This project stands on their shoulders and extends their vision with coordination infrastructure.
-
-## Support
-
-- **Documentation**: [docs/](docs/)
-- **Issues**: https://github.com/gsornsen/mycelium/issues
-- **Discussions**: https://github.com/gsornsen/mycelium/discussions
 
 ---
 
