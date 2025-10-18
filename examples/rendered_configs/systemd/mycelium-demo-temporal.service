@@ -1,0 +1,69 @@
+# Temporal Server systemd service for mycelium-demo
+# Generated: 2025-10-14 17:39:41
+# Installation: sudo cp mycelium-demo-temporal.service /etc/systemd/system/
+#              sudo systemctl daemon-reload
+#              sudo systemctl enable mycelium-demo-temporal.service
+#              sudo systemctl start mycelium-demo-temporal.service
+# Note: Temporal Server typically runs in Docker. This service is for advanced users.
+
+[Unit]
+Description=Temporal Server for mycelium-demo
+After=network.target network-online.target mycelium-demo-postgres.service
+Wants=network-online.target
+Requires=mycelium-demo-postgres.service
+Documentation=https://docs.temporal.io/
+
+[Service]
+Type=simple
+User=temporal
+Group=temporal
+
+# Environment
+Environment=TEMPORAL_HOME=/opt/temporal
+Environment=TEMPORAL_CONFIG_DIR=/etc/mycelium-demo/temporal
+Environment=DB=postgresql
+Environment=DB_PORT=5432
+Environment=DEFAULT_NAMESPACE=default
+Environment=BIND_ON_IP=0.0.0.0
+Environment=FRONTEND_PORT=7233
+Environment=ENABLE_ES=false
+
+# PostgreSQL connection
+Environment=POSTGRES_SEEDS=localhost
+Environment=POSTGRES_PORT=5432
+
+# Credentials (use EnvironmentFile in production)
+EnvironmentFile=-/etc/mycelium-demo/temporal.env
+
+# Start Temporal Server
+WorkingDirectory=/opt/temporal
+ExecStart=/opt/temporal/temporal-server \
+    --zone default \
+    --config /etc/mycelium-demo/temporal/config.yaml \
+    start
+
+# Security
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/mycelium-demo/temporal
+ReadWritePaths=/var/log/mycelium-demo/temporal
+
+# Process management
+Restart=always
+RestartSec=10s
+TimeoutStartSec=60s
+TimeoutStopSec=30s
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=mycelium-demo-temporal
+
+# Resource limits
+LimitNOFILE=65536
+LimitNPROC=8192
+
+[Install]
+WantedBy=multi-user.target

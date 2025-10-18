@@ -1,0 +1,46 @@
+# Redis-Only Configuration
+#
+# Lightweight setup with only Redis for pub/sub messaging and task queuing.
+# PostgreSQL and Temporal are disabled. Ideal for messaging-focused
+# applications that don't need durable workflows or persistent storage.
+#
+# Use Case:
+# - Lightweight agent communication
+# - Pub/sub messaging only
+# - Task queuing without persistence
+# - Resource-constrained environments
+# - Testing Redis features
+#
+# To use this configuration:
+#   cp examples/configs/redis-only.yaml ~/.config/mycelium/config.yaml
+#   mycelium config validate
+
+version: "1.0"
+
+# Project identifier
+project_name: mycelium-redis
+
+# Docker Compose deployment
+deployment:
+  method: docker-compose
+  auto_start: true
+  healthcheck_timeout: 30
+
+# Services configuration
+services:
+  # Redis: Enabled for pub/sub and queuing
+  redis:
+    enabled: true
+    port: 6379
+    persistence: true          # Keep data across restarts
+    max_memory: "512mb"        # Increased for queue storage
+    custom_config:
+      maxmemory-policy: "allkeys-lru"  # Evict least recently used keys
+
+  # PostgreSQL: Disabled (no persistent storage needed)
+  postgres:
+    enabled: false
+
+  # Temporal: Disabled (no workflow orchestration needed)
+  temporal:
+    enabled: false

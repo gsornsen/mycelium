@@ -1,0 +1,54 @@
+# Redis systemd service for mycelium-demo
+# Generated: 2025-10-14 17:39:41
+# Installation: sudo cp mycelium-demo-redis.service /etc/systemd/system/
+#              sudo systemctl daemon-reload
+#              sudo systemctl enable mycelium-demo-redis.service
+#              sudo systemctl start mycelium-demo-redis.service
+
+[Unit]
+Description=Redis Server for mycelium-demo
+After=network.target network-online.target
+Wants=network-online.target
+Documentation=https://redis.io/documentation
+
+[Service]
+Type=notify
+ExecStart=/usr/bin/redis-server \
+    --port 6379 \
+    --supervised systemd \
+    --daemonize no \
+    --dir /var/lib/mycelium-demo/redis \
+    --save 900 1 \
+    --save 300 10 \
+    --save 60 10000 \
+    --maxmemory 512mb \
+    --maxmemory-policy allkeys-lru \
+    --pidfile /var/run/mycelium-demo-redis.pid
+
+# Security
+User=redis
+Group=redis
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/mycelium-demo/redis
+ReadWritePaths=/var/run
+
+# Process management
+Restart=always
+RestartSec=5s
+TimeoutStartSec=0
+TimeoutStopSec=30s
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=mycelium-demo-redis
+
+# Resource limits
+LimitNOFILE=10032
+
+[Install]
+WantedBy=multi-user.target

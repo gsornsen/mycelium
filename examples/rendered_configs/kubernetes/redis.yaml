@@ -1,0 +1,106 @@
+# Redis Deployment and Service for mycelium-demo
+# Generated: 2025-10-14 17:39:41
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: mycelium-demo
+  labels:
+    app: redis
+    component: cache
+    project: mycelium-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+      project: mycelium-demo
+  template:
+    metadata:
+      labels:
+        app: redis
+        component: cache
+        project: mycelium-demo
+    spec:
+      containers:
+      - name: redis
+        image: redis:7.0
+        ports:
+        - containerPort: 6379
+          name: redis
+          protocol: TCP
+        args:
+        - --maxmemory
+        - "512mb"
+        - --maxmemory-policy
+        - allkeys-lru
+        volumeMounts:
+        - name: redis-data
+          mountPath: /data
+        livenessProbe:
+          exec:
+            command:
+            - redis-cli
+            - ping
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3
+        readinessProbe:
+          exec:
+            command:
+            - redis-cli
+            - ping
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+      volumes:
+      - name: redis-data
+        persistentVolumeClaim:
+          claimName: redis-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  namespace: mycelium-demo
+  labels:
+    app: redis
+    component: cache
+    project: mycelium-demo
+spec:
+  selector:
+    app: redis
+    project: mycelium-demo
+  ports:
+  - port: 6379
+    targetPort: 6379
+    protocol: TCP
+    name: redis
+  type: ClusterIP
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: redis-pvc
+  namespace: mycelium-demo
+  labels:
+    app: redis
+    component: cache
+    project: mycelium-demo
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: standard

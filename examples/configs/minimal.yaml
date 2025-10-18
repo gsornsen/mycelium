@@ -1,0 +1,16 @@
+# Minimal Mycelium Configuration
+#
+# This is the absolute minimum valid configuration. All fields use sensible
+# defaults: Docker Compose deployment with Redis, PostgreSQL, and Temporal
+# on standard ports.
+#
+# Use Case:
+# - Quick start without customization
+# - Default development environment
+# - Learning and experimentation
+#
+# To use this configuration:
+#   cp examples/configs/minimal.yaml ~/.config/mycelium/config.yaml
+#   mycelium config validate
+
+version: "1.0"

@@ -1,0 +1,122 @@
+{% if config.services.redis.enabled %}
+# Redis Deployment and Service for {{ config.project_name }}
+# Generated: {{ config.created_at.strftime('%Y-%m-%d %H:%M:%S') }}
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: {{ config.project_name }}
+  labels:
+    app: redis
+    component: cache
+    project: {{ config.project_name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+      project: {{ config.project_name }}
+  template:
+    metadata:
+      labels:
+        app: redis
+        component: cache
+        project: {{ config.project_name }}
+    spec:
+      containers:
+      - name: redis
+        image: redis:{{ config.services.redis.version or 'latest' }}
+        ports:
+        - containerPort: 6379
+          name: redis
+          protocol: TCP
+        {% if config.services.redis.custom_config or config.services.redis.max_memory %}
+        args:
+        {% if config.services.redis.max_memory %}
+        - --maxmemory
+        - "{{ config.services.redis.max_memory }}"
+        - --maxmemory-policy
+        - allkeys-lru
+        {% endif %}
+        {% for key, value in config.services.redis.custom_config.items() %}
+        - --{{ key }}
+        - "{{ value }}"
+        {% endfor %}
+        {% endif %}
+        {% if config.services.redis.persistence %}
+        volumeMounts:
+        - name: redis-data
+          mountPath: /data
+        {% endif %}
+        livenessProbe:
+          exec:
+            command:
+            - redis-cli
+            - ping
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3
+        readinessProbe:
+          exec:
+            command:
+            - redis-cli
+            - ping
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+      {% if config.services.redis.persistence %}
+      volumes:
+      - name: redis-data
+        persistentVolumeClaim:
+          claimName: redis-pvc
+      {% endif %}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  namespace: {{ config.project_name }}
+  labels:
+    app: redis
+    component: cache
+    project: {{ config.project_name }}
+spec:
+  selector:
+    app: redis
+    project: {{ config.project_name }}
+  ports:
+  - port: 6379
+    targetPort: 6379
+    protocol: TCP
+    name: redis
+  type: ClusterIP
+{% if config.services.redis.persistence %}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: redis-pvc
+  namespace: {{ config.project_name }}
+  labels:
+    app: redis
+    component: cache
+    project: {{ config.project_name }}
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: standard
+{% endif %}
+{% endif %}

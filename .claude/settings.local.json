@@ -16,7 +16,10 @@
       "Bash(uv run mypy:*)",
       "Bash(uv run ruff:*)",
       "Bash(uv run ruff format:*)",
-      "Bash(uv run coverage report:*)"
+      "Bash(uv run coverage report:*)",
+      "Bash(uv pip:*)",
+      "Bash(uv run:*)",
+      "mcp__RedisMCPServer__scan_all_keys"
     ],
     "deny": [],
     "ask": []

@@ -133,6 +133,10 @@ class TestManualActivation:
         - No environment pollution remains
         """
         script = f"""
+        # Clean environment first - unset any existing MYCELIUM vars
+        unset MYCELIUM_ENV_ACTIVE MYCELIUM_ROOT MYCELIUM_PROJECT_DIR
+        unset MYCELIUM_CONFIG_DIR MYCELIUM_DATA_DIR MYCELIUM_CACHE_DIR MYCELIUM_STATE_DIR
+
         export HOME={temp_home}
         cd {project_root}
 
@@ -142,12 +146,14 @@ class TestManualActivation:
 
         # Activate
         source bin/activate.sh > /dev/null 2>&1
-        echo "AFTER_ACTIVATION_ACTIVE=$MYCELIUM_ENV_ACTIVE"
+        echo "AFTER_ACTIVATION_ACTIVE=${{MYCELIUM_ENV_ACTIVE:-}}"
 
-        # Deactivate
-        deactivate 2>&1
-        echo "AFTER_DEACTIVATION_ACTIVE=$MYCELIUM_ENV_ACTIVE"
-        echo "AFTER_DEACTIVATION_ROOT=$MYCELIUM_ROOT"
+        # Deactivate - check if function exists first
+        if type deactivate > /dev/null 2>&1; then
+            deactivate > /dev/null 2>&1
+        fi
+        echo "AFTER_DEACTIVATION_ACTIVE=${{MYCELIUM_ENV_ACTIVE:-}}"
+        echo "AFTER_DEACTIVATION_ROOT=${{MYCELIUM_ROOT:-}}"
         echo "FINAL_PATH=$PATH"
 
         # Check if PATH was restored
@@ -175,13 +181,14 @@ class TestManualActivation:
         # Verify activation worked
         assert env_vars.get("AFTER_ACTIVATION_ACTIVE") == "1"
 
-        # Verify deactivation cleaned up
-        assert env_vars.get("AFTER_DEACTIVATION_ACTIVE") == ""
-        assert env_vars.get("AFTER_DEACTIVATION_ROOT") == ""
+        # Verify deactivation cleaned up (empty string or unset)
+        assert env_vars.get("AFTER_DEACTIVATION_ACTIVE", "") == ""
+        assert env_vars.get("AFTER_DEACTIVATION_ROOT", "") == ""
 
-        # Verify PATH was restored (should not contain differences)
-        # Note: PATH may have virtual env paths, so we just check bin is removed
-        assert str(project_root / "bin") not in env_vars.get("FINAL_PATH", "")
+        # Verify PATH was restored
+        # The script itself checks if PATH equals ORIGINAL_PATH and reports the result
+        # This is more reliable than comparing paths here due to environment differences
+        assert env_vars.get("PATH_RESTORED") == "yes", f"PATH was not restored. Script output: {result.stdout}"
 
     def test_nested_activation_prevention(
         self, project_root: Path, temp_home: Path
@@ -243,10 +250,14 @@ class TestManualActivation:
         shutil.copy(project_root / "bin" / "activate.sh", bin_dir / "activate.sh")
 
         script = f"""
+        # Clean environment first
+        unset MYCELIUM_ENV_ACTIVE MYCELIUM_ROOT MYCELIUM_PROJECT_DIR
+        unset MYCELIUM_CONFIG_DIR MYCELIUM_DATA_DIR MYCELIUM_CACHE_DIR MYCELIUM_STATE_DIR
+
         export HOME={temp_home}
         cd {fake_project}
         source bin/activate.sh 2>&1 | grep -i "pyproject.toml" && echo "ERROR_SHOWN=yes"
-        echo "ENV_ACTIVE=$MYCELIUM_ENV_ACTIVE"
+        echo "ENV_ACTIVE=${{MYCELIUM_ENV_ACTIVE:-}}"
         """
 
         result = subprocess.run(
@@ -264,7 +275,7 @@ class TestManualActivation:
 
         # Verify error was shown and environment not activated
         assert env_vars.get("ERROR_SHOWN") == "yes"
-        assert env_vars.get("ENV_ACTIVE") == ""
+        assert env_vars.get("ENV_ACTIVE", "") == ""
 
 
 class TestDirenvActivation:
@@ -649,12 +660,15 @@ class TestMissingDependencies:
         shutil.copy(project_root / "bin" / "activate.sh", bin_dir / "activate.sh")
 
         script = f"""
+        # Clean environment first
+        unset MYCELIUM_ENV_ACTIVE MYCELIUM_ROOT MYCELIUM_PROJECT_DIR
+        unset MYCELIUM_CONFIG_DIR MYCELIUM_DATA_DIR MYCELIUM_CACHE_DIR MYCELIUM_STATE_DIR
+
         export HOME={temp_home}
         cd {fake_project}
         source bin/activate.sh 2>&1
-        echo "ENV_ACTIVE=$MYCELIUM_ENV_ACTIVE"
+        echo "ENV_ACTIVE=${{MYCELIUM_ENV_ACTIVE:-}}"
         """
-
 
         result = subprocess.run(
             ["bash", "-c", script],

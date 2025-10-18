@@ -1,0 +1,64 @@
+# Kubernetes Deployment Configuration
+#
+# Configuration for deploying Mycelium services to a Kubernetes cluster.
+# Uses Kubernetes as the deployment method with settings optimized for
+# containerized orchestration.
+#
+# Use Case:
+# - Production Kubernetes deployments
+# - Cloud-native environments
+# - Scalable infrastructure
+# - High availability setups
+#
+# Prerequisites:
+# - Kubernetes cluster configured
+# - kubectl access to cluster
+# - Helm (optional, for advanced deployments)
+#
+# To use this configuration:
+#   cp examples/configs/kubernetes.yaml .mycelium/config.yaml
+#   mycelium config validate
+
+version: "1.0"
+
+# Project identifier (used for Kubernetes namespace)
+project_name: mycelium-k8s
+
+# Kubernetes deployment
+deployment:
+  method: kubernetes          # Deploy to Kubernetes
+  auto_start: true            # Auto-create resources
+  healthcheck_timeout: 120    # K8s startup takes longer
+
+# Services configuration
+services:
+  # Redis: Message broker and cache
+  redis:
+    enabled: true
+    version: "7.0"             # Pinned version for stability
+    port: 6379
+    persistence: true          # Use PersistentVolumeClaim
+    max_memory: "2gb"          # Larger for production
+    custom_config:
+      maxmemory-policy: "allkeys-lru"
+      save: "900 1 300 10"     # Less frequent saves
+
+  # PostgreSQL: Primary data store
+  postgres:
+    enabled: true
+    version: "15"              # Pinned version
+    port: 5432
+    database: mycelium_prod
+    max_connections: 300       # Higher for production
+    custom_config:
+      shared_buffers: "1GB"    # Tune based on pod resources
+      work_mem: "128MB"
+      maintenance_work_mem: "512MB"
+      effective_cache_size: "4GB"
+
+  # Temporal: Workflow engine
+  temporal:
+    enabled: true
+    ui_port: 8080
+    frontend_port: 7233
+    namespace: production       # Separate production namespace

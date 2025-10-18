@@ -1,0 +1,11 @@
+# Kubernetes Namespace for {{ config.project_name }}
+# Generated: {{ config.created_at.strftime('%Y-%m-%d %H:%M:%S') }}
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ config.project_name }}
+  labels:
+    app: mycelium
+    project: {{ config.project_name }}
+    managed-by: mycelium-onboarding

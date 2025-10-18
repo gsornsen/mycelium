@@ -1,0 +1,98 @@
+# Production Environment Configuration
+#
+# Production-ready configuration with robust settings, high availability
+# considerations, and performance tuning. Designed for production workloads
+# with emphasis on reliability, durability, and performance.
+#
+# Use Case:
+# - Production deployments
+# - High availability requirements
+# - Performance-critical applications
+# - Enterprise environments
+#
+# Prerequisites:
+# - Adequate system resources (CPU, RAM, disk)
+# - Monitoring and alerting configured
+# - Backup strategy in place
+# - High availability infrastructure
+#
+# To use this configuration:
+#   cp examples/configs/production.yaml .mycelium/config.yaml
+#   mycelium config validate
+#
+# Important: Review and tune settings based on your specific workload!
+
+version: "1.0"
+
+# Production project identifier
+project_name: mycelium-prod
+
+# Kubernetes deployment for production
+deployment:
+  method: kubernetes          # Or docker-compose for simpler setups
+  auto_start: true
+  healthcheck_timeout: 180    # Generous timeout for production
+
+# Services configuration
+services:
+  # Redis: High-performance message broker
+  redis:
+    enabled: true
+    version: "7.0"             # Pinned stable version
+    port: 6379
+    persistence: true          # Critical: enable persistence
+    max_memory: "4gb"          # Generous memory allocation
+    custom_config:
+      # Eviction policy
+      maxmemory-policy: "allkeys-lru"
+      # RDB persistence (snapshots)
+      save: "900 1 300 10 60 10000"  # Multiple save points
+      stop-writes-on-bgsave-error: "yes"
+      # AOF persistence (append-only file)
+      appendonly: "yes"
+      appendfsync: "everysec"        # Balance durability/performance
+      no-appendfsync-on-rewrite: "no"
+      # Performance
+      tcp-backlog: "511"
+      timeout: "300"
+
+  # PostgreSQL: Production database
+  postgres:
+    enabled: true
+    version: "15"              # Pinned stable version
+    port: 5432
+    database: mycelium_prod
+    max_connections: 500       # High connection pool
+    custom_config:
+      # Memory configuration (tune based on available RAM)
+      shared_buffers: "2GB"
+      work_mem: "128MB"
+      maintenance_work_mem: "1GB"
+      effective_cache_size: "6GB"
+      # WAL configuration
+      wal_level: "replica"           # Enable replication
+      max_wal_size: "4GB"
+      min_wal_size: "320MB"
+      wal_buffers: "16MB"
+      checkpoint_completion_target: "0.9"
+      # Performance tuning (for SSDs)
+      random_page_cost: "1.1"        # SSD vs 4.0 for HDD
+      effective_io_concurrency: "200" # SSD concurrency
+      default_statistics_target: "100"
+      # Logging (for monitoring)
+      log_min_duration_statement: "1000"  # Log queries > 1s
+      log_checkpoints: "on"
+      log_connections: "on"
+      log_disconnections: "on"
+      log_lock_waits: "on"
+      # Autovacuum (critical for production)
+      autovacuum: "on"
+      autovacuum_max_workers: "3"
+      autovacuum_naptime: "1min"
+
+  # Temporal: Production workflow engine
+  temporal:
+    enabled: true
+    ui_port: 8080              # Consider restricting access
+    frontend_port: 7233
+    namespace: production      # Production namespace

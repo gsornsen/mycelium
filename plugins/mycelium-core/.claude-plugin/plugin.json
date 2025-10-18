@@ -3,14 +3,13 @@
   "description": "Distributed intelligence system with 130+ expert agents across 11 domains, dual-mode coordination (Redis/TaskQueue/Markdown), real-time pub/sub messaging, and durable Temporal workflows. Like nature's mycelial networks.",
   "version": "1.0.0",
   "author": {
-    "name": "Gerald",
-    "email": "gerald@example.com",
+    "name": "Gerald Sornsen",
+    "email": "gsornsen@gmail.com",
     "url": "https://github.com/gsornsen/mycelium"
   },
   "license": "MIT",
   "homepage": "https://github.com/gsornsen/mycelium",
   "repository": "https://github.com/gsornsen/mycelium",
-  "documentation": "https://github.com/gsornsen/mycelium/blob/main/README.md",
   "keywords": [
     "agents",
     "subagents",

@@ -1,0 +1,48 @@
+# PostgreSQL-Only Configuration
+#
+# Setup with only PostgreSQL for persistent data storage. Redis and Temporal
+# are disabled. Ideal for applications that need database storage without
+# real-time messaging or workflow orchestration.
+#
+# Use Case:
+# - Data persistence without messaging
+# - Database-centric applications
+# - Testing PostgreSQL features
+# - Simple storage requirements
+#
+# To use this configuration:
+#   cp examples/configs/postgres-only.yaml ~/.config/mycelium/config.yaml
+#   mycelium config validate
+
+version: "1.0"
+
+# Project identifier
+project_name: mycelium-postgres
+
+# Docker Compose deployment
+deployment:
+  method: docker-compose
+  auto_start: true
+  healthcheck_timeout: 60
+
+# Services configuration
+services:
+  # Redis: Disabled (no messaging needed)
+  redis:
+    enabled: false
+
+  # PostgreSQL: Enabled for persistent storage
+  postgres:
+    enabled: true
+    version: "15"              # PostgreSQL 15 for latest features
+    port: 5432
+    database: mycelium         # Default database name
+    max_connections: 100       # Standard connection pool
+    custom_config:
+      shared_buffers: "256MB"  # 25% of RAM for caching
+      work_mem: "32MB"         # Memory per query operation
+      maintenance_work_mem: "128MB"  # For VACUUM, indexes
+
+  # Temporal: Disabled (no workflow orchestration needed)
+  temporal:
+    enabled: false

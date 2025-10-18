@@ -44,15 +44,19 @@ class TestActivationScript:
         """Test that activation sets all required environment variables."""
         # Source the activation script and check variables
         script = f"""
+        # Clean environment first
+        unset MYCELIUM_ENV_ACTIVE MYCELIUM_ROOT MYCELIUM_PROJECT_DIR
+        unset MYCELIUM_CONFIG_DIR MYCELIUM_DATA_DIR MYCELIUM_CACHE_DIR MYCELIUM_STATE_DIR
+
         cd {project_root}
         source bin/activate.sh > /dev/null 2>&1
-        echo "MYCELIUM_ENV_ACTIVE=$MYCELIUM_ENV_ACTIVE"
-        echo "MYCELIUM_ROOT=$MYCELIUM_ROOT"
-        echo "MYCELIUM_CONFIG_DIR=$MYCELIUM_CONFIG_DIR"
-        echo "MYCELIUM_DATA_DIR=$MYCELIUM_DATA_DIR"
-        echo "MYCELIUM_CACHE_DIR=$MYCELIUM_CACHE_DIR"
-        echo "MYCELIUM_STATE_DIR=$MYCELIUM_STATE_DIR"
-        echo "MYCELIUM_PROJECT_DIR=$MYCELIUM_PROJECT_DIR"
+        echo "MYCELIUM_ENV_ACTIVE=${{MYCELIUM_ENV_ACTIVE:-}}"
+        echo "MYCELIUM_ROOT=${{MYCELIUM_ROOT:-}}"
+        echo "MYCELIUM_CONFIG_DIR=${{MYCELIUM_CONFIG_DIR:-}}"
+        echo "MYCELIUM_DATA_DIR=${{MYCELIUM_DATA_DIR:-}}"
+        echo "MYCELIUM_CACHE_DIR=${{MYCELIUM_CACHE_DIR:-}}"
+        echo "MYCELIUM_STATE_DIR=${{MYCELIUM_STATE_DIR:-}}"
+        echo "MYCELIUM_PROJECT_DIR=${{MYCELIUM_PROJECT_DIR:-}}"
         """
 
         result = subprocess.run(
@@ -85,15 +89,19 @@ class TestActivationScript:
         """Test that activation creates XDG directories."""
         # Use temp HOME to avoid modifying user's actual directories
         script = f"""
+        # Clean environment first
+        unset MYCELIUM_ENV_ACTIVE MYCELIUM_ROOT MYCELIUM_PROJECT_DIR
+        unset MYCELIUM_CONFIG_DIR MYCELIUM_DATA_DIR MYCELIUM_CACHE_DIR MYCELIUM_STATE_DIR
+
         export HOME={tmp_path}
         cd {project_root}
         source bin/activate.sh > /dev/null 2>&1
 
         # Check if directories exist
-        test -d "$MYCELIUM_CONFIG_DIR" && echo "CONFIG_EXISTS=1"
-        test -d "$MYCELIUM_DATA_DIR" && echo "DATA_EXISTS=1"
-        test -d "$MYCELIUM_CACHE_DIR" && echo "CACHE_EXISTS=1"
-        test -d "$MYCELIUM_STATE_DIR" && echo "STATE_EXISTS=1"
+        test -d "${{MYCELIUM_CONFIG_DIR:-}}" && echo "CONFIG_EXISTS=1"
+        test -d "${{MYCELIUM_DATA_DIR:-}}" && echo "DATA_EXISTS=1"
+        test -d "${{MYCELIUM_CACHE_DIR:-}}" && echo "CACHE_EXISTS=1"
+        test -d "${{MYCELIUM_STATE_DIR:-}}" && echo "STATE_EXISTS=1"
         """
 
         result = subprocess.run(
@@ -174,8 +182,13 @@ class TestActivationScript:
         """Test that activation fails in non-project directory."""
         # Create a temporary directory without pyproject.toml
         script = f"""
+        # Clean environment first
+        unset MYCELIUM_ENV_ACTIVE MYCELIUM_ROOT MYCELIUM_PROJECT_DIR
+        unset MYCELIUM_CONFIG_DIR MYCELIUM_DATA_DIR MYCELIUM_CACHE_DIR MYCELIUM_STATE_DIR
+
         cd {tmp_path}
         source {tmp_path}/activate_test.sh 2>&1
+        echo "ENV_ACTIVE=${{MYCELIUM_ENV_ACTIVE:-}}"
         """
 
         # Create a test activation script in temp directory

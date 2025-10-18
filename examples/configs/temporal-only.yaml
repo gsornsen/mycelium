@@ -1,0 +1,46 @@
+# Temporal-Only Configuration
+#
+# Setup with only Temporal for workflow orchestration. Redis and PostgreSQL
+# are disabled, assuming you're using external services or Temporal Cloud.
+# Note: Temporal requires PostgreSQL as backend, so this assumes external DB.
+#
+# Use Case:
+# - Temporal Cloud with external services
+# - Workflow orchestration focus
+# - External Redis and PostgreSQL
+# - Testing Temporal features
+#
+# To use this configuration:
+#   cp examples/configs/temporal-only.yaml ~/.config/mycelium/config.yaml
+#   mycelium config validate
+#
+# Note: You'll need to configure external PostgreSQL connection for Temporal
+# backend in your environment.
+
+version: "1.0"
+
+# Project identifier
+project_name: mycelium-temporal
+
+# Docker Compose deployment
+deployment:
+  method: docker-compose
+  auto_start: true
+  healthcheck_timeout: 90      # Temporal takes longer to start
+
+# Services configuration
+services:
+  # Redis: Disabled (using external service)
+  redis:
+    enabled: false
+
+  # PostgreSQL: Disabled (using external service)
+  postgres:
+    enabled: false
+
+  # Temporal: Enabled for workflow orchestration
+  temporal:
+    enabled: true
+    ui_port: 8080              # Web UI
+    frontend_port: 7233        # gRPC frontend
+    namespace: default         # Default workflow namespace
