@@ -51,7 +51,7 @@ ls ~/.claude/plugins/mycelium/hooks/
 
 ## Coordination Setup
 
-Choose and configure your coordination mode:
+Choose and configure your coordination mode. For detailed information about coordination modes, see [.mycelium/modules/coordination.md](.mycelium/modules/coordination.md).
 
 ### Mode 1: Redis (Recommended for Production)
 
@@ -175,6 +175,8 @@ temporal workflow list --namespace mycelium-workflows
 
 ## Configuration
 
+For detailed configuration options, see [.mycelium/modules/onboarding.md](.mycelium/modules/onboarding.md#configuration).
+
 ### Global Infrastructure Check Config
 
 ```bash
@@ -265,6 +267,8 @@ chmod +x .pre-test-checks.sh
 
 ### Test JavaScript Library
 
+For coordination library usage examples, see [.mycelium/modules/coordination.md](.mycelium/modules/coordination.md#coordination-library-api).
+
 ```bash
 # Create test script
 cat > test-mycelium.js <<'EOF'
@@ -307,6 +311,8 @@ node test-mycelium.js
 ```
 
 ### Test Agent Invocation
+
+For more information about agents, see [.mycelium/modules/agents.md](.mycelium/modules/agents.md).
 
 ```bash
 # Test invoking a specific agent
@@ -422,14 +428,15 @@ rm .pipeline-status.sh
 ## Next Steps
 
 1. **Read the Documentation**: Check out [README.md](README.md) for features and usage
-2. **Explore Agents**: Browse the 130+ agents in `agents/` directory
-3. **Try Commands**: Use `/infra-check`, `/team-status`, `/pipeline-status`
-4. **Build Workflows**: Check [lib/workflow.js](lib/workflow.js) for workflow examples
-5. **Join Community**: Report issues, share patterns, contribute agents
+2. **Complete Onboarding**: See [.mycelium/modules/onboarding.md](.mycelium/modules/onboarding.md) for detailed setup
+3. **Explore Agents**: Browse the 130+ agents (see [.mycelium/modules/agents.md](.mycelium/modules/agents.md))
+4. **Try Commands**: Use `/infra-check`, `/team-status`, `/pipeline-status`
+5. **Learn Coordination**: Read [.mycelium/modules/coordination.md](.mycelium/modules/coordination.md) for workflow patterns
+6. **Join Community**: Report issues, share patterns, contribute agents (see [CONTRIBUTING.md](CONTRIBUTING.md))
 
 ## Support
 
-- **Documentation**: [docs/](docs/)
+- **Documentation**: [.mycelium/modules/](.mycelium/modules/)
 - **Issues**: https://github.com/gsornsen/mycelium/issues
 - **Discussions**: https://github.com/gsornsen/mycelium/discussions
 
