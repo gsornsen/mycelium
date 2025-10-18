@@ -6,7 +6,7 @@ Thank you for your interest in contributing to Mycelium! This guide will help yo
 
 ### 1. New Agents (Spores)
 
-Add specialized agents for new domains:
+Add specialized agents for new domains. See [.mycelium/modules/agents.md](.mycelium/modules/agents.md) for detailed agent architecture and patterns.
 
 ```markdown
 ---
@@ -59,7 +59,7 @@ argument-hint: [optional-args]
 **Guidelines**:
 - Project-agnostic where possible
 - Clear argument handling
-- Dual-mode coordination support
+- Dual-mode coordination support (see [.mycelium/modules/coordination.md](.mycelium/modules/coordination.md))
 - Error handling and feedback
 
 **Location**: `commands/your-command.md`
@@ -90,14 +90,14 @@ Add automation hooks:
 
 Improve documentation:
 
-- Coordination patterns in `docs/patterns/`
+- Coordination patterns in `.mycelium/modules/`
 - Configuration examples in `docs/examples/`
 - Usage guides and tutorials
 - Architecture diagrams
 
 ### 5. Library Enhancements
 
-Enhance coordination libraries:
+Enhance coordination libraries (see [.mycelium/modules/coordination.md](.mycelium/modules/coordination.md) for architecture):
 
 - `lib/coordination.js` - Coordination abstractions
 - `lib/pubsub.js` - Pub/sub messaging
@@ -127,6 +127,8 @@ npm install
 # Setup coordination infrastructure
 docker run -d -p 6379:6379 redis:latest
 ```
+
+For detailed setup instructions, see [.mycelium/modules/onboarding.md](.mycelium/modules/onboarding.md).
 
 ### 3. Create Development Branch
 
@@ -239,6 +241,8 @@ tools: Minimal required tools
 
 ### Test All Coordination Modes
 
+For coordination mode details, see [.mycelium/modules/coordination.md](.mycelium/modules/coordination.md#dual-mode-coordination).
+
 ```javascript
 // Test should work in all modes
 for (const mode of ['redis', 'taskqueue', 'markdown']) {
@@ -268,7 +272,7 @@ node tests/integration/test-coordination.js
 
 ### Agent Documentation
 
-Every agent should have:
+Every agent should have (see [.mycelium/modules/agents.md](.mycelium/modules/agents.md#creating-custom-agents)):
 - Clear description with invocation criteria
 - Tool access justification
 - Communication protocol
@@ -338,6 +342,14 @@ Contributors will be:
 - Open an issue for bugs or feature requests
 - Start a discussion for questions or ideas
 - Join community channels (Discord/Slack - TBD)
+- Read the documentation at [.mycelium/modules/](.mycelium/modules/)
+
+## Additional Resources
+
+- **[Onboarding Guide](.mycelium/modules/onboarding.md)** - Complete setup and installation
+- **[Agents Guide](.mycelium/modules/agents.md)** - Agent architecture and development
+- **[Coordination Guide](.mycelium/modules/coordination.md)** - Dual-mode patterns and API
+- **[README.md](README.md)** - Project overview and quick start
 
 ## License
 

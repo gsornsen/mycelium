@@ -28,7 +28,7 @@ Mycelium is both a **plugin marketplace** and a **core coordination plugin**. Th
 /plugin install mycelium-core@mycelium
 ```
 
-**Documentation**: [README.md](README.md)
+**Documentation**: See [README.md](README.md) for overview and [.mycelium/modules/onboarding.md](.mycelium/modules/onboarding.md) for detailed setup.
 
 ---
 
@@ -140,7 +140,7 @@ Choose the appropriate category for your plugin:
 
 ### Integration with Mycelium Core
 
-Your plugin can leverage Mycelium's coordination substrate:
+Your plugin can leverage Mycelium's coordination substrate. See [.mycelium/modules/coordination.md](.mycelium/modules/coordination.md) for detailed API documentation.
 
 ```javascript
 import { CoordinationClient } from 'mycelium-core/lib/coordination.js';
@@ -179,7 +179,7 @@ await client.subscribeEvents('mycelium:coordination', (event) => {
 1. **Clear Purpose** - Plugin should have focused, well-defined functionality
 2. **Documentation** - Comprehensive docs with examples
 3. **Error Handling** - Graceful error handling with helpful messages
-4. **Coordination-Aware** - Leverage dual-mode coordination patterns
+4. **Coordination-Aware** - Leverage dual-mode coordination patterns (see [.mycelium/modules/coordination.md](.mycelium/modules/coordination.md))
 5. **Performance** - Efficient resource usage
 6. **Security** - Validate inputs, handle credentials securely
 7. **Testing** - Include tests or testing documentation
@@ -243,7 +243,7 @@ Use the coordination library to store a greeting and publish an event.
 ### Advanced Plugin Example
 
 See `plugins/mycelium-core/` for a complete example of:
-- Multiple agent categories
+- Multiple agent categories (see [.mycelium/modules/agents.md](.mycelium/modules/agents.md))
 - Slash commands with arguments
 - Event hooks with validation
 - JavaScript coordination library
@@ -263,7 +263,7 @@ See `plugins/mycelium-core/` for a complete example of:
 
 - **Issues**: https://github.com/gsornsen/mycelium/issues (tag with `plugin-submission`)
 - **Discussions**: https://github.com/gsornsen/mycelium/discussions
-- **Documentation**: See [CONTRIBUTING.md](CONTRIBUTING.md)
+- **Documentation**: See [CONTRIBUTING.md](CONTRIBUTING.md) and [.mycelium/modules/](.mycelium/modules/)
 
 ## License
 
