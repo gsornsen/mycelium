@@ -289,15 +289,18 @@ class TestStorageStats:
 
         stats = storage.get_storage_stats()
 
-        assert 'total_files' in stats
+        # Check new field names
+        assert 'file_count' in stats
+        assert 'total_events' in stats
         assert 'total_size_bytes' in stats
-        assert 'current_file_size_bytes' in stats
+        assert 'latest_event_time' in stats
         assert 'storage_dir' in stats
-        assert 'rotation_threshold_bytes' in stats
 
-        assert stats['total_files'] >= 1
+        # Validate values
+        assert stats['file_count'] >= 1
+        assert stats['total_events'] == 5
         assert stats['total_size_bytes'] > 0
-        assert stats['current_file_size_bytes'] > 0
+        assert stats['latest_event_time'] is not None
 
     def test_clear_all_events(self, storage):
         """Test clearing all events."""
