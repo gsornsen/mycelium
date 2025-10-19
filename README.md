@@ -17,6 +17,7 @@ Mycelium is a comprehensive Claude Code plugin providing:
 - **Infrastructure Monitoring** with `/infra-check`, `/team-status`, `/pipeline-status` commands
 - **Event-Driven Automation** via hooks system
 - **Fast Agent Discovery** with lazy loading (105x faster, 67% memory reduction)
+- **Performance Analytics** with privacy-first telemetry (local-only, no PII)
 
 ## Quick Start
 
@@ -130,6 +131,65 @@ print(f"{len(core_agents)} core development agents")
 - Cache hit rate: 78% on realistic workloads
 
 📖 **API Reference**: See [scripts/agent_discovery.py](scripts/agent_discovery.py) for complete API documentation.
+
+### Performance Analytics
+
+Mycelium includes privacy-first performance telemetry for tracking agent discovery performance, cache efficiency, and token consumption.
+
+#### Quick Start
+
+```bash
+# Generate performance report
+uv run python -m mycelium_analytics report --days=7
+
+# Quick health check dashboard
+uv run python scripts/health_check.py
+```
+
+#### Key Features
+
+- 📊 **Real-time Metrics**: p50/p95/p99 latencies for agent discovery
+- ⚡ **Cache Performance**: Hit rate tracking and optimization insights
+- 💾 **Token Savings**: Measure Phase 1 lazy loading impact (60-90% savings)
+- 📈 **Performance Trends**: Daily stats with trend detection
+- 🔒 **Privacy-First**: Local-only storage, no PII, opt-out support
+
+#### Example Output
+
+```
+=== Mycelium Performance Health Check (7 days) ===
+
+┌─────────────────────────────────────────────────────┐
+│        AGENT DISCOVERY PERFORMANCE                  │
+├─────────────────────────────────────────────────────┤
+│  list_agents     0.08ms (p95)     ✅ < 20ms         │
+│  get_agent       0.03ms (p95)     ✅ < 5ms          │
+│  search          6.12ms (p95)     ✅ < 10ms         │
+└─────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────┐
+│        CACHE PERFORMANCE                            │
+├─────────────────────────────────────────────────────┤
+│  Hit rate        87.2%            ✅ > 80%          │
+│  Speedup         41.3x            (hit vs miss)     │
+└─────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────┐
+│        TOKEN SAVINGS (Phase 1 Impact)               │
+├─────────────────────────────────────────────────────┤
+│  Agents loaded   47 / 119         (39.5% used)      │
+│  Token savings   32,400 tokens    (60.5% saved)     │
+└─────────────────────────────────────────────────────┘
+```
+
+#### Privacy Guarantees
+
+All telemetry data is stored locally (`~/.mycelium/analytics/`) and never transmitted. Agent IDs are hashed, and no personal information is collected.
+
+**Opt-out**: `export MYCELIUM_TELEMETRY=0`
+
+📖 **Complete Documentation**: See [.mycelium/modules/analytics.md](.mycelium/modules/analytics.md) for full analytics guide.
+📖 **Privacy Policy**: See [.mycelium/PRIVACY.md](.mycelium/PRIVACY.md) for detailed privacy information.
 
 ### Coordination Modes
 
@@ -266,6 +326,7 @@ Check infrastructure before critical operations:
 - **[Coordination Deep Dive](.mycelium/modules/coordination.md)** - Dual-mode patterns, API, workflows
 - **[Deployment Guide](.mycelium/modules/deployment.md)** - Docker, Kubernetes, production setup
 - **[Agents Guide](.mycelium/modules/agents.md)** - Agent catalog, creation, integration
+- **[Performance Analytics](.mycelium/modules/analytics.md)** - Telemetry, metrics, privacy
 
 ### Additional Resources
 
@@ -273,6 +334,7 @@ Check infrastructure before critical operations:
 - **[Contributing Guide](CONTRIBUTING.md)** - How to contribute agents, commands, hooks
 - **[Marketplace README](MARKETPLACE_README.md)** - Plugin marketplace submission
 - **[Agent Structure](AGENT_STRUCTURE_CHANGE.md)** - Technical details on agent loading
+- **[Privacy Policy](.mycelium/PRIVACY.md)** - Analytics privacy guarantees
 
 ## Architecture
 
@@ -433,6 +495,9 @@ redis-cli --latency
 
 # Check coordination overhead
 /team-status --detailed
+
+# Check analytics for performance trends
+uv run python scripts/health_check.py
 ```
 
 ## Contributing
@@ -453,7 +518,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 - Plugin marketplace submission
 - Web dashboard for monitoring
 - Advanced workflow patterns library
-- Agent performance analytics
+- Agent performance analytics dashboard
 
 ### v1.2 (Future)
 - Multi-machine coordination
@@ -487,6 +552,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 - Production-ready infrastructure (health checks, monitoring)
 - Event-driven automation (hooks system)
 - Fast agent discovery with lazy loading (105x speedup)
+- Privacy-first performance analytics
 
 **Thank you** to the VoltAgent community for fostering the Claude Code agent ecosystem. If you're exploring subagents, visit: **https://github.com/VoltAgent/awesome-claude-code-subagents**
 
