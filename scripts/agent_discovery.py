@@ -14,6 +14,8 @@ Example:
     >>> from pathlib import Path
     >>> discovery = AgentDiscovery(Path("plugins/mycelium-core/agents/index.json"))
     >>> agents = discovery.list_agents(category="core-development")
+    >>> len(agents)
+    12
     >>> agent = discovery.get_agent("01-core-api-designer")
     >>> print(len(agent['content']))  # Lazily loaded
     4582
@@ -201,6 +203,16 @@ class AgentDiscovery:
             'total_lookups': 0
         }
 
+        # Initialize telemetry (graceful degradation if unavailable)
+        self.telemetry: Optional[Any] = None
+        try:
+            from mycelium_analytics import EventStorage, TelemetryCollector
+            storage = EventStorage()
+            self.telemetry = TelemetryCollector(storage)
+        except Exception:
+            # Telemetry unavailable - continue without it
+            pass
+
     def _load_index(self) -> Dict[str, Any]:
         """Load index.json metadata (lightweight).
 
@@ -291,6 +303,8 @@ class AgentDiscovery:
             >>> 'content' in agents[0]
             False
         """
+        start_time = time.perf_counter()
+
         # Start with all agents
         if category:
             # O(1) lookup by category
@@ -307,6 +321,15 @@ class AgentDiscovery:
                 if any(kw.lower() in agent_keywords for kw in keywords):
                     filtered.append(agent)
             agents = filtered
+
+        # Record telemetry
+        duration_ms = (time.perf_counter() - start_time) * 1000
+        if self.telemetry:
+            self.telemetry.record_agent_discovery(
+                operation='list_agents',
+                duration_ms=duration_ms,
+                agent_count=len(agents),
+            )
 
         # Return metadata only (no content)
         return agents
@@ -330,22 +353,51 @@ class AgentDiscovery:
             >>> 'content' in agent
             True
         """
+        start_time = time.perf_counter()
         self._stats['total_lookups'] += 1
 
         # Check cache first
         cached = self._cache.get(agent_id)
+        cache_hit = cached is not None
+
         if cached is not None:
+            # Record telemetry for cache hit
+            duration_ms = (time.perf_counter() - start_time) * 1000
+            if self.telemetry:
+                self.telemetry.record_agent_discovery(
+                    operation='get_agent',
+                    duration_ms=duration_ms,
+                    cache_hit=True,
+                    agent_count=1,
+                )
             return cached
 
         # O(1) lookup in index
         agent_meta = self._id_to_agent.get(agent_id)
         if agent_meta is None:
+            # Record telemetry for miss (agent not found)
+            duration_ms = (time.perf_counter() - start_time) * 1000
+            if self.telemetry:
+                self.telemetry.record_agent_discovery(
+                    operation='get_agent',
+                    duration_ms=duration_ms,
+                    cache_hit=False,
+                    agent_count=0,
+                )
             return None
 
         # Lazy load content from markdown file
         agent_file = Path(agent_meta['file_path'])
         if not agent_file.exists():
             # Agent file missing (broken reference)
+            duration_ms = (time.perf_counter() - start_time) * 1000
+            if self.telemetry:
+                self.telemetry.record_agent_discovery(
+                    operation='get_agent',
+                    duration_ms=duration_ms,
+                    cache_hit=False,
+                    agent_count=0,
+                )
             return None
 
         try:
@@ -353,6 +405,14 @@ class AgentDiscovery:
             content = agent_file.read_text(encoding='utf-8')
         except (IOError, UnicodeDecodeError) as e:
             # File read error
+            duration_ms = (time.perf_counter() - start_time) * 1000
+            if self.telemetry:
+                self.telemetry.record_agent_discovery(
+                    operation='get_agent',
+                    duration_ms=duration_ms,
+                    cache_hit=False,
+                    agent_count=0,
+                )
             return None
 
         # Combine metadata + content
@@ -360,6 +420,27 @@ class AgentDiscovery:
 
         # Cache for future requests
         self._cache.put(agent_id, agent_full)
+
+        # Record telemetry for successful load
+        duration_ms = (time.perf_counter() - start_time) * 1000
+        if self.telemetry:
+            self.telemetry.record_agent_discovery(
+                operation='get_agent',
+                duration_ms=duration_ms,
+                cache_hit=False,
+                agent_count=1,
+            )
+
+            # Also record agent load metrics
+            content_size = len(content.encode('utf-8'))
+            # Rough token estimate: ~4 chars per token
+            estimated_tokens = content_size // 4
+            self.telemetry.record_agent_load(
+                agent_id=agent_id,
+                load_time_ms=duration_ms,
+                content_size_bytes=content_size,
+                estimated_tokens=estimated_tokens,
+            )
 
         return agent_full
 
@@ -382,6 +463,8 @@ class AgentDiscovery:
             >>> any('api' in r['name'].lower() for r in results)
             True
         """
+        start_time = time.perf_counter()
+
         query_lower = query.lower()
         results_set = set()  # Use set to avoid duplicates
 
@@ -412,6 +495,15 @@ class AgentDiscovery:
             for agent_id in results_set
             if agent_id in self._id_to_agent
         ]
+
+        # Record telemetry
+        duration_ms = (time.perf_counter() - start_time) * 1000
+        if self.telemetry:
+            self.telemetry.record_agent_discovery(
+                operation='search',
+                duration_ms=duration_ms,
+                agent_count=len(results),
+            )
 
         return results
 
