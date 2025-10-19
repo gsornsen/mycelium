@@ -236,36 +236,62 @@ class EventStorage:
             self._current_file.rename(rotated_path)
 
     def get_storage_stats(self) -> dict[str, Any]:
-        """Get storage statistics.
+        """Get storage statistics including event count and latest timestamp.
 
-        Returns information about storage usage, file count, and sizes.
+        Returns information about storage usage, file count, sizes, total
+        events, and most recent event timestamp.
 
         Returns:
-            Dict with storage statistics
+            Dict with storage statistics including:
+                - file_count: Number of JSONL files
+                - total_events: Total number of events across all files
+                - total_size_bytes: Total storage size in bytes
+                - latest_event_time: ISO timestamp of most recent event
+                - storage_dir: Path to storage directory
 
         Example:
             >>> storage = EventStorage()
             >>> stats = storage.get_storage_stats()
-            >>> 'total_files' in stats
+            >>> 'file_count' in stats
             True
-            >>> 'total_size_bytes' in stats
+            >>> 'total_events' in stats
+            True
+            >>> 'latest_event_time' in stats
             True
         """
         jsonl_files = list(self.storage_dir.glob("events*.jsonl"))
 
-        total_size = sum(f.stat().st_size for f in jsonl_files if f.exists())
-        current_size = (
-            self._current_file.stat().st_size
-            if self._current_file.exists()
-            else 0
-        )
+        total_events = 0
+        total_size = 0
+        latest_event_time = None
+
+        for file_path in jsonl_files:
+            try:
+                total_size += file_path.stat().st_size
+
+                # Count events and find latest timestamp
+                with file_path.open("r", encoding="utf-8") as f:
+                    for line in f:
+                        total_events += 1
+                        try:
+                            event = json.loads(line)
+                            timestamp = event.get("timestamp")
+                            if timestamp and (
+                                latest_event_time is None
+                                or timestamp > latest_event_time
+                            ):
+                                latest_event_time = timestamp
+                        except json.JSONDecodeError:
+                            continue
+            except OSError:
+                continue
 
         return {
-            "total_files": len(jsonl_files),
+            "file_count": len(jsonl_files),
+            "total_events": total_events,
             "total_size_bytes": total_size,
-            "current_file_size_bytes": current_size,
+            "latest_event_time": latest_event_time,
             "storage_dir": str(self.storage_dir),
-            "rotation_threshold_bytes": self.max_file_size,
         }
 
     def clear_all_events(self) -> int:
