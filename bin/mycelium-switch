@@ -1,0 +1,597 @@
+#!/bin/bash
+# mycelium-switch - Switch between source and git versions of mycelium plugin
+#
+# Usage:
+#   mycelium-switch status              # Show current mode
+#   mycelium-switch source              # Switch to source (symlink)
+#   mycelium-switch git [URL]           # Switch to git (clone)
+#   mycelium-switch --help              # Show help
+#
+# Options:
+#   --dry-run                           # Preview changes without applying
+#   --verbose                           # Show detailed output
+#   --source-path PATH                  # Override default source path
+#   --no-backup                         # Skip backup creation
+
+set -euo pipefail
+
+# ============================================================================
+# Configuration
+# ============================================================================
+
+PLUGIN_NAME="mycelium-core"
+PLUGINS_DIR="${HOME}/.claude/plugins"
+DEFAULT_SOURCE="${HOME}/git/mycelium"
+DEFAULT_GIT_URL="https://github.com/gsornsen/mycelium"
+
+# State tracking
+STATE_FILE="${PLUGINS_DIR}/.mycelium-mode"
+BACKUP_DIR="${PLUGINS_DIR}/.backups"
+
+# Command-line options
+DRY_RUN=false
+VERBOSE=false
+NO_BACKUP=false
+SOURCE_PATH="$DEFAULT_SOURCE"
+
+# Colors for output
+if [[ -t 1 ]]; then
+    RED='\033[0;31m'
+    GREEN='\033[0;32m'
+    YELLOW='\033[1;33m'
+    BLUE='\033[0;34m'
+    BOLD='\033[1m'
+    RESET='\033[0m'
+else
+    RED=''
+    GREEN=''
+    YELLOW=''
+    BLUE=''
+    BOLD=''
+    RESET=''
+fi
+
+# ============================================================================
+# Utility Functions
+# ============================================================================
+
+log_info() {
+    echo -e "${BLUE}ℹ${RESET} $*"
+}
+
+log_success() {
+    echo -e "${GREEN}✅${RESET} $*"
+}
+
+log_warning() {
+    echo -e "${YELLOW}⚠${RESET} $*"
+}
+
+log_error() {
+    echo -e "${RED}❌${RESET} $*" >&2
+}
+
+log_verbose() {
+    [[ "$VERBOSE" == "true" ]] && echo -e "${BLUE}[VERBOSE]${RESET} $*"
+}
+
+show_help() {
+    cat <<EOF
+${BOLD}mycelium-switch${RESET} - Switch between source and git versions of mycelium plugin
+
+${BOLD}USAGE:${RESET}
+    mycelium-switch <command> [options]
+
+${BOLD}COMMANDS:${RESET}
+    status              Show current plugin mode and details
+    source              Switch to source mode (symlink to local directory)
+    git [URL]           Switch to git mode (clone from GitHub)
+                        Default URL: ${DEFAULT_GIT_URL}
+    help                Show this help message
+
+${BOLD}OPTIONS:${RESET}
+    --dry-run           Preview changes without applying them
+    --verbose           Show detailed output during operations
+    --source-path PATH  Override default source path (${DEFAULT_SOURCE})
+    --no-backup         Skip backup creation (use with caution)
+
+${BOLD}EXAMPLES:${RESET}
+    # Check current mode
+    mycelium-switch status
+
+    # Switch to development mode
+    mycelium-switch source
+
+    # Switch to production mode from GitHub
+    mycelium-switch git
+
+    # Switch to git with custom repository
+    mycelium-switch git https://github.com/custom/mycelium
+
+    # Preview changes without applying
+    mycelium-switch source --dry-run
+
+    # Use custom source path
+    mycelium-switch source --source-path /path/to/mycelium
+
+${BOLD}MODES:${RESET}
+    source  - Plugin is symlinked to local source directory
+              Use for development with live code changes
+
+    git     - Plugin is cloned from git repository
+              Use for production with stable published version
+
+${BOLD}FILES:${RESET}
+    State:   ${STATE_FILE}
+    Backups: ${BACKUP_DIR}
+
+${BOLD}NOTES:${RESET}
+    - Existing plugin is backed up before switching (unless --no-backup)
+    - Source mode requires valid plugin.json in local source
+    - Git mode requires network access to repository
+    - Operations are idempotent (safe to run multiple times)
+
+EOF
+}
+
+# ============================================================================
+# State Management
+# ============================================================================
+
+update_state() {
+    local mode="$1"
+    local source_path="${2:-}"
+    local git_url="${3:-}"
+
+    mkdir -p "$(dirname "$STATE_FILE")"
+
+    cat > "$STATE_FILE" <<EOF
+{
+  "mode": "${mode}",
+  "switched_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "source_path": "${source_path}",
+  "git_url": "${git_url}"
+}
+EOF
+
+    log_verbose "Updated state file: $STATE_FILE"
+}
+
+read_state() {
+    if [[ -f "$STATE_FILE" ]] && command -v jq &>/dev/null; then
+        cat "$STATE_FILE"
+    else
+        echo "{}"
+    fi
+}
+
+# ============================================================================
+# Detection Functions
+# ============================================================================
+
+detect_current_mode() {
+    local plugin_path="${PLUGINS_DIR}/${PLUGIN_NAME}"
+
+    if [[ ! -e "$plugin_path" ]]; then
+        echo "none"
+        return
+    fi
+
+    if [[ -L "$plugin_path" ]]; then
+        echo "source"
+    elif [[ -d "$plugin_path/.git" ]]; then
+        echo "git"
+    elif [[ -d "$plugin_path" ]]; then
+        echo "unknown"
+    else
+        echo "none"
+    fi
+}
+
+verify_plugin_structure() {
+    local plugin_path="$1"
+    local plugin_json="${plugin_path}/.claude-plugin/plugin.json"
+
+    if [[ ! -f "$plugin_json" ]]; then
+        return 1
+    fi
+
+    # Verify it's valid JSON with required fields
+    if command -v jq &>/dev/null; then
+        if ! jq -e '.name' "$plugin_json" &>/dev/null; then
+            return 1
+        fi
+    fi
+
+    return 0
+}
+
+# ============================================================================
+# Backup Functions
+# ============================================================================
+
+backup_existing() {
+    local plugin_path="${PLUGINS_DIR}/${PLUGIN_NAME}"
+
+    # Don't backup if it doesn't exist or is a symlink
+    if [[ ! -e "$plugin_path" ]] || [[ -L "$plugin_path" ]]; then
+        return 0
+    fi
+
+    if [[ "$NO_BACKUP" == "true" ]]; then
+        log_warning "Skipping backup (--no-backup specified)"
+        return 0
+    fi
+
+    local timestamp=$(date +%Y%m%d-%H%M%S)
+    local backup_path="${BACKUP_DIR}/${PLUGIN_NAME}-${timestamp}"
+
+    mkdir -p "$BACKUP_DIR"
+
+    log_info "Creating backup: $backup_path"
+    if [[ "$DRY_RUN" == "false" ]]; then
+        cp -r "$plugin_path" "$backup_path"
+        log_success "Backup created: $backup_path"
+        echo "$backup_path"
+    else
+        log_info "[DRY RUN] Would create backup: $backup_path"
+        echo "$backup_path"
+    fi
+}
+
+list_backups() {
+    if [[ ! -d "$BACKUP_DIR" ]]; then
+        echo "No backups found"
+        return
+    fi
+
+    local backups=("$BACKUP_DIR"/${PLUGIN_NAME}-*)
+    if [[ -e "${backups[0]}" ]]; then
+        echo "${BOLD}Available backups:${RESET}"
+        for backup in "${backups[@]}"; do
+            local size=$(du -sh "$backup" | cut -f1)
+            local name=$(basename "$backup")
+            echo "  $name (${size})"
+        done
+    else
+        echo "No backups found"
+    fi
+}
+
+# ============================================================================
+# Switch Functions
+# ============================================================================
+
+switch_to_source() {
+    local plugin_path="${PLUGINS_DIR}/${PLUGIN_NAME}"
+    local source_plugin="${SOURCE_PATH}/plugins/mycelium-core"
+
+    log_info "Switching to source mode..."
+    log_verbose "Source path: $SOURCE_PATH"
+
+    # Validate source exists
+    if [[ ! -d "$SOURCE_PATH" ]]; then
+        log_error "Local source not found at: $SOURCE_PATH"
+        log_info "Use --source-path to specify a different location"
+        exit 1
+    fi
+
+    # Validate plugin structure
+    if [[ ! -d "$source_plugin" ]]; then
+        log_error "Plugin directory not found at: $source_plugin"
+        log_info "Expected structure: \$SOURCE_PATH/plugins/mycelium-core"
+        exit 1
+    fi
+
+    if ! verify_plugin_structure "$source_plugin"; then
+        log_error "Invalid plugin structure in source"
+        log_info "Missing or invalid: $source_plugin/.claude-plugin/plugin.json"
+        exit 1
+    fi
+
+    # Check if already in source mode with same path
+    local current_mode=$(detect_current_mode)
+    if [[ "$current_mode" == "source" ]]; then
+        local current_target=$(readlink "$plugin_path")
+        if [[ "$current_target" == "$source_plugin" ]]; then
+            log_success "Already in source mode with same path"
+            log_info "Target: $current_target"
+            return 0
+        fi
+    fi
+
+    # Backup existing
+    local backup_path=$(backup_existing)
+
+    if [[ "$DRY_RUN" == "true" ]]; then
+        echo ""
+        log_info "${BOLD}[DRY RUN] Would perform:${RESET}"
+        echo "  1. Remove: $plugin_path"
+        echo "  2. Create symlink:"
+        echo "     From: $plugin_path"
+        echo "     To:   $source_plugin"
+        echo "  3. Update state file"
+        [[ -n "$backup_path" ]] && echo "  4. Backup: $backup_path"
+        return 0
+    fi
+
+    # Remove existing plugin
+    log_verbose "Removing existing plugin: $plugin_path"
+    rm -rf "$plugin_path"
+
+    # Create symlink
+    log_verbose "Creating symlink: $plugin_path -> $source_plugin"
+    ln -s "$source_plugin" "$plugin_path"
+
+    # Verify symlink
+    if [[ ! -L "$plugin_path" ]]; then
+        log_error "Failed to create symlink"
+        exit 1
+    fi
+
+    # Update state
+    update_state "source" "$SOURCE_PATH" ""
+
+    echo ""
+    log_success "Switched to source mode"
+    echo ""
+    echo "  ${BOLD}Symlink:${RESET} $plugin_path"
+    echo "  ${BOLD}Target:${RESET}  $source_plugin"
+    [[ -n "$backup_path" ]] && echo "  ${BOLD}Backup:${RESET}  $backup_path"
+    echo ""
+    log_info "Plugin will use live code from local source"
+}
+
+switch_to_git() {
+    local git_url="${1:-$DEFAULT_GIT_URL}"
+    local plugin_path="${PLUGINS_DIR}/${PLUGIN_NAME}"
+
+    log_info "Switching to git mode..."
+    log_verbose "Git URL: $git_url"
+
+    # Validate git URL accessibility
+    log_verbose "Validating git repository..."
+    if ! git ls-remote "$git_url" &>/dev/null; then
+        log_error "Cannot access git repository: $git_url"
+        log_info "Check URL and network connection"
+        exit 1
+    fi
+
+    # Check if already in git mode with same URL
+    local current_mode=$(detect_current_mode)
+    if [[ "$current_mode" == "git" ]]; then
+        local current_url=$(cd "$plugin_path" && git remote get-url origin 2>/dev/null || echo "")
+        if [[ "$current_url" == "$git_url" ]]; then
+            log_success "Already in git mode with same repository"
+            log_info "URL: $current_url"
+            log_info "Consider running: cd $plugin_path && git pull"
+            return 0
+        fi
+    fi
+
+    # Backup existing
+    local backup_path=$(backup_existing)
+
+    if [[ "$DRY_RUN" == "true" ]]; then
+        echo ""
+        log_info "${BOLD}[DRY RUN] Would perform:${RESET}"
+        echo "  1. Remove: $plugin_path"
+        echo "  2. Clone repository:"
+        echo "     From: $git_url"
+        echo "     To:   $plugin_path"
+        echo "  3. Update state file"
+        [[ -n "$backup_path" ]] && echo "  4. Backup: $backup_path"
+        return 0
+    fi
+
+    # Remove existing plugin (whether symlink or directory)
+    log_verbose "Removing existing plugin: $plugin_path"
+    rm -rf "$plugin_path"
+
+    # Clone to temp directory first
+    local temp_dir=$(mktemp -d)
+    log_verbose "Cloning to temporary directory: $temp_dir"
+
+    if ! git clone --depth=1 --quiet "$git_url" "$temp_dir"; then
+        log_error "Failed to clone repository"
+        rm -rf "$temp_dir"
+        exit 1
+    fi
+
+    # Move plugin directory from temp to plugins dir
+    local source_plugin="${temp_dir}/plugins/mycelium-core"
+    if [[ ! -d "$source_plugin" ]]; then
+        log_error "Plugin directory not found in repository"
+        log_info "Expected: plugins/mycelium-core in repository"
+        rm -rf "$temp_dir"
+        exit 1
+    fi
+
+    log_verbose "Moving plugin to: $plugin_path"
+    mv "$source_plugin" "$plugin_path"
+
+    # Clean up temp directory
+    rm -rf "$temp_dir"
+
+    # Verify installation
+    if ! verify_plugin_structure "$plugin_path"; then
+        log_error "Plugin installation failed verification"
+        exit 1
+    fi
+
+    # Update state
+    update_state "git" "" "$git_url"
+
+    # Get commit info
+    local commit=$(cd "$plugin_path" && git rev-parse --short HEAD 2>/dev/null || echo "unknown")
+
+    echo ""
+    log_success "Switched to git mode"
+    echo ""
+    echo "  ${BOLD}Repository:${RESET} $git_url"
+    echo "  ${BOLD}Commit:${RESET}     $commit"
+    echo "  ${BOLD}Location:${RESET}   $plugin_path"
+    [[ -n "$backup_path" ]] && echo "  ${BOLD}Backup:${RESET}     $backup_path"
+    echo ""
+    log_info "Plugin installed from published version"
+}
+
+# ============================================================================
+# Status Display
+# ============================================================================
+
+show_status() {
+    local mode=$(detect_current_mode)
+    local plugin_path="${PLUGINS_DIR}/${PLUGIN_NAME}"
+
+    echo ""
+    echo "${BOLD}Mycelium Plugin Status${RESET}"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+
+    case "$mode" in
+        source)
+            local target=$(readlink "$plugin_path")
+            echo "  ${BOLD}Mode:${RESET}   ${GREEN}🔗 Source (Symlink)${RESET}"
+            echo "  ${BOLD}Target:${RESET} $target"
+            echo "  ${BOLD}Status:${RESET} ${GREEN}✅ Development mode active${RESET}"
+            echo ""
+            echo "  Changes to source code will be reflected immediately."
+            ;;
+        git)
+            local git_url=$(cd "$plugin_path" && git remote get-url origin 2>/dev/null || echo "unknown")
+            local commit=$(cd "$plugin_path" && git rev-parse --short HEAD 2>/dev/null || echo "unknown")
+            local commit_date=$(cd "$plugin_path" && git log -1 --format=%cd --date=short 2>/dev/null || echo "unknown")
+            echo "  ${BOLD}Mode:${RESET}   ${BLUE}📦 Git (Clone)${RESET}"
+            echo "  ${BOLD}URL:${RESET}    $git_url"
+            echo "  ${BOLD}Commit:${RESET} $commit ($commit_date)"
+            echo "  ${BOLD}Status:${RESET} ${GREEN}✅ Production mode active${RESET}"
+            echo ""
+            echo "  Plugin installed from published version."
+            ;;
+        none)
+            echo "  ${BOLD}Mode:${RESET}   ${RED}❌ Not installed${RESET}"
+            echo "  ${BOLD}Path:${RESET}   $plugin_path"
+            echo "  ${BOLD}Status:${RESET} ${RED}Plugin not found${RESET}"
+            echo ""
+            echo "  Run 'mycelium-switch source' or 'mycelium-switch git' to install."
+            ;;
+        unknown)
+            echo "  ${BOLD}Mode:${RESET}   ${YELLOW}⚠️  Unknown${RESET}"
+            echo "  ${BOLD}Path:${RESET}   $plugin_path"
+            echo "  ${BOLD}Status:${RESET} ${YELLOW}Plugin exists but mode cannot be determined${RESET}"
+            echo ""
+            echo "  Manual intervention may be required."
+            ;;
+    esac
+
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+    # Show state file if exists
+    if [[ -f "$STATE_FILE" ]] && command -v jq &>/dev/null; then
+        echo ""
+        echo "${BOLD}Last Switch:${RESET}"
+        local last_mode=$(jq -r '.mode // "unknown"' "$STATE_FILE")
+        local last_time=$(jq -r '.switched_at // "unknown"' "$STATE_FILE")
+        echo "  Mode: $last_mode"
+        echo "  When: $last_time"
+    fi
+
+    # Show backup info
+    echo ""
+    list_backups
+
+    echo ""
+}
+
+# ============================================================================
+# Main Command Processing
+# ============================================================================
+
+main() {
+    local command=""
+    local git_url=""
+
+    # Parse arguments
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --dry-run)
+                DRY_RUN=true
+                shift
+                ;;
+            --verbose|-v)
+                VERBOSE=true
+                shift
+                ;;
+            --no-backup)
+                NO_BACKUP=true
+                shift
+                ;;
+            --source-path)
+                SOURCE_PATH="$2"
+                shift 2
+                ;;
+            --help|-h|help)
+                show_help
+                exit 0
+                ;;
+            status|source|git)
+                command="$1"
+                shift
+                # For git command, check if URL provided
+                if [[ "$command" == "git" ]] && [[ $# -gt 0 ]] && [[ ! "$1" =~ ^-- ]]; then
+                    git_url="$1"
+                    shift
+                fi
+                ;;
+            *)
+                log_error "Unknown option: $1"
+                echo ""
+                echo "Run 'mycelium-switch --help' for usage information"
+                exit 1
+                ;;
+        esac
+    done
+
+    # Require a command
+    if [[ -z "$command" ]]; then
+        log_error "No command specified"
+        echo ""
+        echo "Run 'mycelium-switch --help' for usage information"
+        exit 1
+    fi
+
+    # Create plugins directory if it doesn't exist
+    mkdir -p "$PLUGINS_DIR"
+
+    # Execute command
+    case "$command" in
+        status)
+            show_status
+            ;;
+        source)
+            switch_to_source
+            ;;
+        git)
+            switch_to_git "${git_url:-$DEFAULT_GIT_URL}"
+            ;;
+        *)
+            log_error "Unknown command: $command"
+            exit 1
+            ;;
+    esac
+}
+
+# ============================================================================
+# Entry Point
+# ============================================================================
+
+# Check for required commands
+if ! command -v git &>/dev/null; then
+    log_error "git is required but not installed"
+    exit 1
+fi
+
+# Run main function
+main "$@"
