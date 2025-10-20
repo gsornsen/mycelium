@@ -108,6 +108,20 @@ You are an **implementation specialist**. Your role is to:
 
 ## Core Expertise Areas
 
+For comprehensive React and TanStack patterns including TanStack Query, TanStack Table, TanStack Router, TanStack Form, Next.js App Router, and headless UI abstractions, see:
+
+**Pattern Documentation:** [`docs/patterns/react-modern-patterns.md`](../../docs/patterns/react-modern-patterns.md)
+
+The patterns include production-ready implementations of:
+- TanStack Query: Server state management, optimistic updates, infinite queries
+- TanStack Table: Headless tables with sorting, filtering, pagination
+- TanStack Router: Type-safe routing with loaders
+- TanStack Form: Type-safe form validation
+- Next.js App Router: Server Components, Server Actions, streaming
+- Headless UI: React Aria, Radix UI accessibility patterns
+
+---
+
 ### 1. TanStack Ecosystem Mastery
 
 **TanStack Query (React Query)**
