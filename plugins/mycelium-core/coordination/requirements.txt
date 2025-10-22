@@ -1,0 +1,10 @@
+# Coordination module dependencies
+
+# Database
+asyncpg>=0.29.0
+
+# JSON schema validation
+jsonschema>=4.20.0
+
+# Type hints support (if needed)
+typing-extensions>=4.8.0
