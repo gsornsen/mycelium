@@ -5,22 +5,22 @@ functionality to Claude Code through the MCP protocol.
 """
 
 from .tools.discovery_tools import (
-    MCP_TOOLS,
     DiscoveryAPIError,
     DiscoveryTimeoutError,
     DiscoveryToolError,
     check_discovery_health,
+    close_http_client,
     discover_agents,
-    dispatch_tool,
     get_agent_details,
+    mcp,
 )
 
 __all__ = [
     "discover_agents",
     "get_agent_details",
     "check_discovery_health",
-    "dispatch_tool",
-    "MCP_TOOLS",
+    "close_http_client",
+    "mcp",
     "DiscoveryToolError",
     "DiscoveryAPIError",
     "DiscoveryTimeoutError",
