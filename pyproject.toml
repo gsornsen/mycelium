@@ -29,6 +29,7 @@ dependencies = [
     "inquirerpy>=0.3.4",
     "rich>=14.2.0",
     "jinja2>=3.1.0",
+    "asyncpg>=0.29.0",  # PostgreSQL async driver for agent registry
 ]
 
 [project.optional-dependencies]
@@ -37,6 +38,7 @@ test = [
     "pytest-cov>=4.1.0",
     "pytest-benchmark>=4.0.0",
     "pytest-mock>=3.11.1",
+    "pytest-asyncio>=0.21.0",
     "hypothesis>=6.82.0",
 ]
 dev = [
@@ -44,6 +46,12 @@ dev = [
     "mypy>=1.7.0",
     "pytest>=7.4.0",
     "pytest-cov>=4.1.0",
+    "pytest-asyncio>=0.21.0",
+]
+# Optional dependencies for NLP features (Task 1.3)
+nlp = [
+    "sentence-transformers>=2.2.0",
+    "scikit-learn>=1.3.0",
 ]
 
 [build-system]
@@ -86,6 +94,9 @@ ignore = [
     "S101",   # Allow asserts in tests
     "D",      # Don't require docstrings in tests
 ]
+"plugins/**/*.py" = [
+    "D",      # Don't require docstrings in plugins (for now)
+]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
@@ -115,6 +126,10 @@ strict_equality = true
 module = "tests.*"
 disallow_untyped_defs = false
 
+[[tool.mypy.overrides]]
+module = "asyncpg.*"
+ignore_missing_imports = true
+
 # Pytest configuration
 [tool.pytest.ini_options]
 minversion = "7.0"
@@ -133,11 +148,12 @@ markers = [
     "integration: marks tests as integration tests",
     "asyncio: marks tests as async tests",
 ]
+asyncio_mode = "auto"
 
 # Coverage configuration
 [tool.coverage.run]
 branch = true
-source = ["mycelium_onboarding"]
+source = ["mycelium_onboarding", "plugins"]
 omit = [
     "*/tests/*",
     "*/__main__.py",
