@@ -1,0 +1,213 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Agent Handoff Message",
+  "description": "JSON schema for agent-to-agent handoff messages enabling state transfer and context preservation",
+  "type": "object",
+  "required": ["version", "source", "target", "context", "timestamp"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "Protocol version for backward compatibility",
+      "pattern": "^[0-9]+\\.[0-9]+$",
+      "default": "1.0"
+    },
+    "handoff_id": {
+      "type": "string",
+      "description": "Unique identifier for this handoff",
+      "format": "uuid"
+    },
+    "workflow_id": {
+      "type": "string",
+      "description": "Workflow identifier this handoff belongs to",
+      "format": "uuid"
+    },
+    "source": {
+      "type": "object",
+      "description": "Source agent information",
+      "required": ["agent_id", "agent_type"],
+      "properties": {
+        "agent_id": {
+          "type": "string",
+          "description": "Unique identifier of source agent"
+        },
+        "agent_type": {
+          "type": "string",
+          "description": "Type/role of source agent"
+        },
+        "execution_time": {
+          "type": "number",
+          "description": "Execution time in milliseconds"
+        }
+      }
+    },
+    "target": {
+      "type": "object",
+      "description": "Target agent information",
+      "required": ["agent_id", "agent_type"],
+      "properties": {
+        "agent_id": {
+          "type": "string",
+          "description": "Unique identifier of target agent"
+        },
+        "agent_type": {
+          "type": "string",
+          "description": "Type/role of target agent"
+        },
+        "requirements": {
+          "type": "object",
+          "description": "Requirements or constraints for target agent"
+        }
+      }
+    },
+    "context": {
+      "type": "object",
+      "description": "Conversation and task context",
+      "properties": {
+        "task_description": {
+          "type": "string",
+          "description": "High-level task description"
+        },
+        "previous_results": {
+          "type": "array",
+          "description": "Results from previous agents in workflow",
+          "items": {
+            "type": "object"
+          }
+        },
+        "conversation_history": {
+          "type": "array",
+          "description": "Relevant conversation messages",
+          "items": {
+            "type": "object",
+            "properties": {
+              "role": {
+                "type": "string",
+                "enum": ["user", "assistant", "system"]
+              },
+              "content": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          }
+        },
+        "files": {
+          "type": "array",
+          "description": "File paths and metadata",
+          "items": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              },
+              "metadata": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "user_preferences": {
+          "type": "object",
+          "description": "User preferences and configuration"
+        }
+      }
+    },
+    "state": {
+      "type": "object",
+      "description": "Workflow execution state",
+      "properties": {
+        "variables": {
+          "type": "object",
+          "description": "Workflow variables and intermediate data"
+        },
+        "progress": {
+          "type": "object",
+          "description": "Progress tracking information",
+          "properties": {
+            "completed_steps": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "pending_steps": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "percentage": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            }
+          }
+        },
+        "errors": {
+          "type": "array",
+          "description": "Errors encountered during execution",
+          "items": {
+            "type": "object",
+            "properties": {
+              "agent_id": {
+                "type": "string"
+              },
+              "error_type": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          }
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Additional metadata for tracking and debugging",
+      "properties": {
+        "priority": {
+          "type": "string",
+          "enum": ["low", "normal", "high", "critical"],
+          "default": "normal"
+        },
+        "timeout": {
+          "type": "number",
+          "description": "Timeout in milliseconds"
+        },
+        "retry_count": {
+          "type": "integer",
+          "description": "Number of retry attempts made",
+          "minimum": 0
+        },
+        "tags": {
+          "type": "array",
+          "description": "Tags for categorization",
+          "items": {
+            "type": "string"
+          }
+        },
+        "correlation_id": {
+          "type": "string",
+          "description": "Correlation ID for distributed tracing"
+        }
+      }
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Handoff creation timestamp"
+    }
+  }
+}
