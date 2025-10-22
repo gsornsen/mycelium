@@ -1,0 +1,171 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Agent Discovery MCP Tools Configuration",
+  "description": "Configuration for agent discovery MCP tools exposing discovery API functionality to Claude Code",
+  "version": "1.0.0",
+  "tools": [
+    {
+      "name": "discover_agents",
+      "enabled": true,
+      "description": "Discover agents using natural language query with ranked results and confidence scores",
+      "category": "discovery",
+      "priority": "high",
+      "timeout_seconds": 30,
+      "retry_count": 2,
+      "cache_ttl_seconds": 300,
+      "input_validation": {
+        "query": {
+          "type": "string",
+          "required": true,
+          "min_length": 1,
+          "max_length": 500,
+          "trim": true
+        },
+        "limit": {
+          "type": "integer",
+          "required": false,
+          "minimum": 1,
+          "maximum": 20,
+          "default": 5
+        },
+        "threshold": {
+          "type": "number",
+          "required": false,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "default": 0.6
+        }
+      },
+      "error_handling": {
+        "retry_on": [
+          "TimeoutError",
+          "HTTPError"
+        ],
+        "fallback_behavior": "return_empty_list",
+        "user_message_template": "Failed to discover agents for query '{query}': {error}"
+      },
+      "examples": [
+        {
+          "description": "Find Python development agents",
+          "input": {
+            "query": "Python backend development"
+          },
+          "expected_agents": [
+            "python-pro",
+            "backend-developer"
+          ]
+        },
+        {
+          "description": "Find database experts",
+          "input": {
+            "query": "PostgreSQL optimization and query tuning"
+          },
+          "expected_agents": [
+            "postgres-pro",
+            "database-administrator"
+          ]
+        },
+        {
+          "description": "Find security specialists",
+          "input": {
+            "query": "security audit and vulnerability assessment"
+          },
+          "expected_agents": [
+            "security-auditor",
+            "security-expert"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "get_agent_details",
+      "enabled": true,
+      "description": "Retrieve detailed metadata for a specific agent by ID",
+      "category": "discovery",
+      "priority": "medium",
+      "timeout_seconds": 30,
+      "retry_count": 2,
+      "cache_ttl_seconds": 600,
+      "input_validation": {
+        "agent_id": {
+          "type": "string",
+          "required": true,
+          "min_length": 1,
+          "max_length": 100,
+          "trim": true,
+          "pattern": "^[a-zA-Z0-9-_]+$"
+        }
+      },
+      "error_handling": {
+        "retry_on": [
+          "TimeoutError",
+          "HTTPError"
+        ],
+        "fallback_behavior": "raise_error",
+        "user_message_template": "Agent '{agent_id}' not found or error occurred: {error}. Try using discover_agents to find available agents."
+      },
+      "examples": [
+        {
+          "description": "Get backend developer details",
+          "input": {
+            "agent_id": "backend-developer"
+          }
+        },
+        {
+          "description": "Get Python pro details",
+          "input": {
+            "agent_id": "python-pro"
+          }
+        }
+      ]
+    }
+  ],
+  "api_configuration": {
+    "base_url": {
+      "env_var": "DISCOVERY_API_URL",
+      "default": "http://localhost:8000",
+      "description": "Base URL for the Discovery API"
+    },
+    "endpoints": {
+      "discover": "/api/v1/agents/discover",
+      "details": "/api/v1/agents/{agent_id}",
+      "search": "/api/v1/agents/search",
+      "health": "/api/v1/health"
+    },
+    "rate_limiting": {
+      "enabled": true,
+      "requests_per_minute": 100,
+      "burst_size": 10
+    },
+    "connection": {
+      "pool_size": 10,
+      "keepalive_timeout": 60,
+      "connect_timeout": 10
+    }
+  },
+  "performance_targets": {
+    "discover_agents": {
+      "p50_ms": 100,
+      "p95_ms": 500,
+      "p99_ms": 1000
+    },
+    "get_agent_details": {
+      "p50_ms": 50,
+      "p95_ms": 200,
+      "p99_ms": 500
+    }
+  },
+  "logging": {
+    "log_requests": true,
+    "log_responses": false,
+    "log_errors": true,
+    "include_query_params": true,
+    "sanitize_sensitive_data": true
+  },
+  "monitoring": {
+    "track_usage": true,
+    "track_latency": true,
+    "track_errors": true,
+    "track_cache_hits": true
+  }
+}
