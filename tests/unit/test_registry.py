@@ -25,7 +25,7 @@ from plugins.mycelium_core.registry import (
 # Test Configuration
 TEST_DB_URL = os.getenv(
     "TEST_DATABASE_URL",
-    "postgresql://localhost:5432/mycelium_test"
+    "postgresql://mycelium:mycelium_dev_password@localhost:5432/mycelium_registry"
 )
 
 # Sample test data
