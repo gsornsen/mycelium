@@ -1,0 +1,544 @@
+openapi: 3.0.0
+info:
+  title: Mycelium Discovery API
+  description: |
+    RESTful API for agent discovery and metadata retrieval in the Mycelium multi-agent system.
+
+    This API enables intelligent agent discovery through natural language queries, full-text search,
+    and metadata filtering. It provides the foundation for Claude Code to dynamically discover and
+    coordinate specialized agents for complex workflows.
+
+    ## Features
+    - Natural language agent discovery with confidence scoring
+    - Full-text search across agent descriptions, capabilities, and keywords
+    - Category-based filtering and pagination
+    - Performance monitoring and rate limiting
+    - OpenAPI 3.0 specification for easy integration
+
+    ## Rate Limiting
+    - Default: 100 requests per minute per IP address
+    - Rate limit headers included in all responses
+    - 429 status code returned when limit exceeded
+
+    ## Performance
+    - Discovery queries: < 100ms (P95)
+    - Search operations: < 100ms (P95)
+    - Health checks: < 50ms (P95)
+  version: 1.0.0
+  contact:
+    name: Mycelium Team
+    email: support@mycelium.dev
+  license:
+    name: MIT
+
+servers:
+  - url: http://localhost:8000
+    description: Local development server
+  - url: https://api.mycelium.dev
+    description: Production server
+
+tags:
+  - name: Health
+    description: Health check and system status endpoints
+  - name: Discovery
+    description: Agent discovery and search endpoints
+
+paths:
+  /api/v1/health:
+    get:
+      tags:
+        - Health
+      summary: Health check
+      description: Check API and database health status
+      operationId: healthCheck
+      responses:
+        '200':
+          description: Healthy status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              example:
+                status: healthy
+                pgvector_installed: true
+                agent_count: 130
+                database_size: 42 MB
+                timestamp: "2025-10-21T15:30:00Z"
+                version: "1.0.0"
+        '500':
+          description: Unhealthy status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/agents/discover:
+    post:
+      tags:
+        - Discovery
+      summary: Discover agents
+      description: |
+        Discover agents using natural language or keyword query.
+
+        This endpoint performs intelligent matching between your query and agent capabilities,
+        returning ranked results with confidence scores. Confidence scoring is based on:
+        - Exact matches on agent type/name (0.90-0.95)
+        - Keyword matches (0.85)
+        - Description matches (0.70)
+        - General relevance (0.60)
+
+        Results are sorted by confidence score in descending order.
+      operationId: discoverAgents
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DiscoverRequest'
+            examples:
+              backend:
+                summary: Backend development query
+                value:
+                  query: "python backend development"
+                  limit: 10
+                  threshold: 0.7
+              security:
+                summary: Security audit query
+                value:
+                  query: "security audit and vulnerability assessment"
+                  limit: 5
+                  threshold: 0.6
+      responses:
+        '200':
+          description: Successful discovery
+          headers:
+            X-RateLimit-Limit:
+              schema:
+                type: integer
+              description: Request limit per minute
+            X-RateLimit-Remaining:
+              schema:
+                type: integer
+              description: Remaining requests in current window
+            X-Processing-Time-Ms:
+              schema:
+                type: number
+              description: Processing time in milliseconds
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiscoverResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '415':
+          description: Unsupported media type
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+              description: Seconds to wait before retrying
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/agents/{agent_id}:
+    get:
+      tags:
+        - Discovery
+      summary: Get agent details
+      description: |
+        Retrieve detailed information about a specific agent.
+
+        You can query by either:
+        - Agent ID (e.g., "01-core-backend-developer")
+        - Agent type (e.g., "backend-developer")
+
+        The endpoint will try both lookup methods automatically.
+      operationId: getAgentDetails
+      parameters:
+        - name: agent_id
+          in: path
+          required: true
+          description: Agent ID or agent type
+          schema:
+            type: string
+          examples:
+            byId:
+              value: "01-core-backend-developer"
+              summary: By agent ID
+            byType:
+              value: "backend-developer"
+              summary: By agent type
+      responses:
+        '200':
+          description: Agent found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentDetailResponse'
+        '404':
+          description: Agent not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/agents/search:
+    get:
+      tags:
+        - Discovery
+      summary: Search agents
+      description: |
+        Search agents with filters and full-text search.
+
+        Supports:
+        - Full-text search across descriptions, keywords, and names
+        - Category filtering
+        - Pagination with limit and offset
+
+        If no query is provided, returns all agents (paginated).
+      operationId: searchAgents
+      parameters:
+        - name: q
+          in: query
+          required: false
+          description: Search query for full-text search
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 500
+          example: "python async"
+        - name: category
+          in: query
+          required: false
+          description: Filter by category
+          schema:
+            type: string
+          example: "Development"
+        - name: limit
+          in: query
+          required: false
+          description: Maximum number of results
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+        - name: offset
+          in: query
+          required: false
+          description: Offset for pagination
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentSearchResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    DiscoverRequest:
+      type: object
+      required:
+        - query
+      properties:
+        query:
+          type: string
+          minLength: 1
+          maxLength: 500
+          description: Natural language or structured query
+          example: "python backend development"
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 50
+          default: 10
+          description: Maximum number of agents to return
+        threshold:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+          default: 0.5
+          description: Minimum confidence threshold (0.0-1.0)
+
+    AgentMetadata:
+      type: object
+      required:
+        - id
+        - agent_id
+        - agent_type
+        - name
+        - display_name
+        - category
+        - description
+        - capabilities
+        - tools
+        - keywords
+        - file_path
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Agent UUID
+        agent_id:
+          type: string
+          description: Unique agent identifier
+          example: "01-core-backend-developer"
+        agent_type:
+          type: string
+          description: Agent type/name
+          example: "backend-developer"
+        name:
+          type: string
+          description: Agent name
+        display_name:
+          type: string
+          description: Display name for UI
+        category:
+          type: string
+          description: Agent category
+          example: "Development"
+        description:
+          type: string
+          description: Agent description
+        capabilities:
+          type: array
+          items:
+            type: string
+          description: List of agent capabilities
+        tools:
+          type: array
+          items:
+            type: string
+          description: Available tools
+        keywords:
+          type: array
+          items:
+            type: string
+          description: Search keywords
+        file_path:
+          type: string
+          description: Path to agent definition file
+        estimated_tokens:
+          type: integer
+          nullable: true
+          description: Estimated token count
+        avg_response_time_ms:
+          type: number
+          nullable: true
+          description: Average response time in milliseconds
+        success_rate:
+          type: number
+          nullable: true
+          minimum: 0.0
+          maximum: 1.0
+          description: Success rate (0.0-1.0)
+        usage_count:
+          type: integer
+          description: Usage count
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update timestamp
+        last_used_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Last usage timestamp
+
+    AgentMatch:
+      type: object
+      required:
+        - agent
+        - confidence
+      properties:
+        agent:
+          $ref: '#/components/schemas/AgentMetadata'
+        confidence:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+          description: Confidence score for this match
+          example: 0.92
+        match_reason:
+          type: string
+          nullable: true
+          description: Explanation of match
+          example: "exact match on keywords: backend, python"
+
+    DiscoverResponse:
+      type: object
+      required:
+        - query
+        - matches
+        - total_count
+        - processing_time_ms
+      properties:
+        query:
+          type: string
+          description: Original query
+        matches:
+          type: array
+          items:
+            $ref: '#/components/schemas/AgentMatch'
+          description: Matching agents with confidence scores
+        total_count:
+          type: integer
+          description: Total number of matches found
+        processing_time_ms:
+          type: number
+          description: Processing time in milliseconds
+
+    AgentDetailResponse:
+      type: object
+      required:
+        - agent
+      properties:
+        agent:
+          $ref: '#/components/schemas/AgentMetadata'
+        metadata:
+          type: object
+          nullable: true
+          description: Additional metadata
+          additionalProperties: true
+
+    AgentSearchResponse:
+      type: object
+      required:
+        - query
+        - agents
+        - total_count
+        - processing_time_ms
+      properties:
+        query:
+          type: string
+          description: Search query
+        agents:
+          type: array
+          items:
+            $ref: '#/components/schemas/AgentMetadata'
+          description: List of matching agents
+        total_count:
+          type: integer
+          description: Total number of results
+        processing_time_ms:
+          type: number
+          description: Processing time in milliseconds
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          description: Error type
+          example: "ValidationError"
+        message:
+          type: string
+          description: Human-readable error message
+          example: "Query must be at least 1 character long"
+        details:
+          type: object
+          nullable: true
+          description: Additional error details
+          additionalProperties: true
+
+    HealthResponse:
+      type: object
+      required:
+        - status
+        - pgvector_installed
+        - agent_count
+        - database_size
+        - timestamp
+      properties:
+        status:
+          type: string
+          enum: [healthy, unhealthy]
+          description: Health status
+        pgvector_installed:
+          type: boolean
+          description: Whether pgvector extension is installed
+        agent_count:
+          type: integer
+          description: Total number of agents in registry
+        database_size:
+          type: string
+          description: Database size
+        timestamp:
+          type: string
+          format: date-time
+          description: Health check timestamp
+        version:
+          type: string
+          description: API version
+          default: "1.0.0"
+
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key for authentication (future use)
+
+security: []
