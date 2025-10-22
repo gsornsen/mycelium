@@ -6,11 +6,23 @@ This module provides workflow orchestration capabilities including:
 - State management with persistence
 - Failure recovery mechanisms
 - Agent handoff protocol
+- Coordination event tracking
 """
 
 from .orchestrator import WorkflowOrchestrator, WorkflowStatus, TaskStatus
 from .state_manager import StateManager, WorkflowState
 from .protocol import HandoffProtocol, HandoffMessage
+from .tracker import (
+    CoordinationTracker,
+    CoordinationEvent,
+    EventType,
+    AgentInfo,
+    ErrorInfo,
+    PerformanceMetrics,
+    track_handoff,
+    track_task_execution,
+    track_failure,
+)
 
 __all__ = [
     "WorkflowOrchestrator",
@@ -20,4 +32,13 @@ __all__ = [
     "WorkflowState",
     "HandoffProtocol",
     "HandoffMessage",
+    "CoordinationTracker",
+    "CoordinationEvent",
+    "EventType",
+    "AgentInfo",
+    "ErrorInfo",
+    "PerformanceMetrics",
+    "track_handoff",
+    "track_task_execution",
+    "track_failure",
 ]
