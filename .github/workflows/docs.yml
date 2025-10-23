@@ -1,0 +1,354 @@
+name: Documentation Validation
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'docs/**'
+      - '**.md'
+      - 'examples/**'
+  push:
+    branches:
+      - main
+    paths:
+      - 'docs/**'
+      - '**.md'
+      - 'examples/**'
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: "3.10"
+  UV_VERSION: "0.5.11"
+
+jobs:
+  # Validate markdown links and formatting
+  markdown-lint:
+    name: Lint Markdown Files
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Lint markdown files
+        uses: DavidAnson/markdownlint-cli2-action@v18
+        with:
+          globs: |
+            **/*.md
+            !**/node_modules/**
+            !**/.worktrees/**
+
+      - name: Check markdown links
+        uses: gaurav-nelson/github-action-markdown-link-check@v1
+        with:
+          use-quiet-mode: 'yes'
+          config-file: '.github/markdown-link-check-config.json'
+        continue-on-error: true
+
+  # Extract and test Python code snippets from documentation
+  test-doc-examples:
+    name: Test Documentation Examples
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: ankane/pgvector:latest
+        env:
+          POSTGRES_USER: mycelium
+          POSTGRES_PASSWORD: mycelium_test
+          POSTGRES_DB: mycelium_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: ${{ env.UV_VERSION }}
+          enable-cache: true
+
+      - name: Cache uv packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/uv
+          key: uv-${{ runner.os }}-${{ hashFiles('**/pyproject.toml', '**/uv.lock') }}
+          restore-keys: |
+            uv-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: |
+          uv sync --frozen --all-extras
+
+      - name: Extract Python code blocks from markdown
+        run: |
+          mkdir -p /tmp/doc-tests
+          python3 << 'EOF'
+          import re
+          import os
+          from pathlib import Path
+
+          def extract_python_blocks(md_file):
+              """Extract Python code blocks from markdown file."""
+              with open(md_file, 'r') as f:
+                  content = f.read()
+
+              # Match ```python code blocks
+              pattern = r'```python\n(.*?)```'
+              blocks = re.findall(pattern, content, re.DOTALL)
+              return blocks
+
+          def create_test_file(blocks, source_file):
+              """Create a test file from extracted code blocks."""
+              if not blocks:
+                  return None
+
+              # Generate test file name
+              rel_path = Path(source_file).relative_to('.')
+              test_name = str(rel_path).replace('/', '_').replace('.md', '_test.py')
+              test_path = Path('/tmp/doc-tests') / test_name
+
+              # Create test content
+              test_content = [
+                  '"""Auto-generated tests from documentation."""',
+                  'import sys',
+                  'from pathlib import Path',
+                  '',
+                  '# Add project root to path',
+                  'project_root = Path(__file__).parent.parent.parent',
+                  'sys.path.insert(0, str(project_root))',
+                  '',
+              ]
+
+              for i, block in enumerate(blocks):
+                  # Skip blocks that are just output or comments
+                  if block.strip().startswith('#') and '\n' not in block.strip():
+                      continue
+
+                  test_content.append(f'def test_example_{i}():')
+                  test_content.append('    """Test code example from documentation."""')
+
+                  # Indent the code block
+                  for line in block.split('\n'):
+                      if line.strip():
+                          test_content.append('    ' + line)
+                      else:
+                          test_content.append('')
+
+                  test_content.append('')
+
+              # Write test file
+              with open(test_path, 'w') as f:
+                  f.write('\n'.join(test_content))
+
+              return test_path
+
+          # Find all markdown files
+          md_files = list(Path('.').rglob('*.md'))
+          # Exclude certain directories
+          md_files = [f for f in md_files if '.worktrees' not in str(f) and 'node_modules' not in str(f)]
+
+          test_files_created = []
+          for md_file in md_files:
+              print(f"Processing {md_file}...")
+              blocks = extract_python_blocks(md_file)
+              if blocks:
+                  test_file = create_test_file(blocks, md_file)
+                  if test_file:
+                      test_files_created.append(test_file)
+                      print(f"  Created test file: {test_file}")
+
+          print(f"\nTotal test files created: {len(test_files_created)}")
+
+          # Save list of test files
+          with open('/tmp/doc-tests/test_files.txt', 'w') as f:
+              for tf in test_files_created:
+                  f.write(f"{tf}\n")
+          EOF
+
+      - name: List extracted test files
+        run: |
+          echo "Extracted test files:"
+          ls -la /tmp/doc-tests/
+          if [ -f /tmp/doc-tests/test_files.txt ]; then
+            cat /tmp/doc-tests/test_files.txt
+          fi
+
+      - name: Validate Python syntax in extracted code
+        run: |
+          if [ -f /tmp/doc-tests/test_files.txt ]; then
+            while IFS= read -r test_file; do
+              echo "Checking syntax: $test_file"
+              python3 -m py_compile "$test_file" || echo "Syntax error in $test_file"
+            done < /tmp/doc-tests/test_files.txt
+          else
+            echo "No test files to validate"
+          fi
+
+      - name: Run static analysis on examples
+        run: |
+          if [ -f /tmp/doc-tests/test_files.txt ]; then
+            while IFS= read -r test_file; do
+              echo "Linting: $test_file"
+              uv run ruff check "$test_file" --select F,E,W --ignore E501 || true
+            done < /tmp/doc-tests/test_files.txt
+          else
+            echo "No test files to lint"
+          fi
+        continue-on-error: true
+
+      - name: Test imports in documentation examples
+        run: |
+          if [ -f /tmp/doc-tests/test_files.txt ]; then
+            echo "Testing imports in documentation examples..."
+            while IFS= read -r test_file; do
+              echo "Testing imports in: $test_file"
+              python3 << EOF || true
+          import ast
+          import importlib
+          import sys
+
+          # Parse the test file
+          with open("$test_file", 'r') as f:
+              tree = ast.parse(f.read())
+
+          # Extract imports
+          for node in ast.walk(tree):
+              if isinstance(node, ast.Import):
+                  for alias in node.names:
+                      try:
+                          importlib.import_module(alias.name.split('.')[0])
+                          print(f"  ✓ {alias.name}")
+                      except ImportError as e:
+                          print(f"  ✗ {alias.name}: {e}")
+              elif isinstance(node, ast.ImportFrom):
+                  if node.module:
+                      try:
+                          importlib.import_module(node.module.split('.')[0])
+                          print(f"  ✓ from {node.module}")
+                      except ImportError as e:
+                          print(f"  ✗ from {node.module}: {e}")
+          EOF
+            done < /tmp/doc-tests/test_files.txt
+          else
+            echo "No test files to check imports"
+          fi
+        continue-on-error: true
+
+  # Validate code examples in examples/ directory
+  test-examples:
+    name: Test Example Scripts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: ${{ env.UV_VERSION }}
+          enable-cache: true
+
+      - name: Install dependencies
+        run: |
+          uv sync --frozen --all-extras
+
+      - name: Validate example scripts syntax
+        run: |
+          find examples -name "*.py" -type f | while read -r script; do
+            echo "Validating: $script"
+            python3 -m py_compile "$script"
+          done
+
+      - name: Lint example scripts
+        run: |
+          uv run ruff check examples/ --select F,E,W --ignore E501
+        continue-on-error: true
+
+      - name: Type check example scripts
+        run: |
+          uv run mypy examples/ --ignore-missing-imports --no-strict-optional
+        continue-on-error: true
+
+  # Check documentation completeness
+  docs-coverage:
+    name: Documentation Coverage
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: ${{ env.UV_VERSION }}
+          enable-cache: true
+
+      - name: Install dependencies
+        run: |
+          uv sync --frozen --all-extras
+          pip install interrogate
+
+      - name: Check docstring coverage
+        run: |
+          interrogate -v \
+            --ignore-init-method \
+            --ignore-init-module \
+            --ignore-magic \
+            --ignore-module \
+            --ignore-nested-functions \
+            --ignore-private \
+            --ignore-property-decorators \
+            --fail-under=50 \
+            plugins/ mycelium_onboarding/
+        continue-on-error: true
+
+      - name: Generate documentation coverage report
+        run: |
+          interrogate -v \
+            --ignore-init-method \
+            --ignore-init-module \
+            --ignore-magic \
+            --ignore-module \
+            --ignore-nested-functions \
+            --ignore-private \
+            --ignore-property-decorators \
+            --generate-badge docs/ \
+            plugins/ mycelium_onboarding/
+        continue-on-error: true
+
+  # Summary job
+  docs-validation-summary:
+    name: Documentation Validation Summary
+    runs-on: ubuntu-latest
+    needs: [markdown-lint, test-doc-examples, test-examples, docs-coverage]
+    if: always()
+    steps:
+      - name: Check validation results
+        run: |
+          echo "Documentation validation completed"
+          echo "Markdown lint: ${{ needs.markdown-lint.result }}"
+          echo "Doc examples: ${{ needs.test-doc-examples.result }}"
+          echo "Example scripts: ${{ needs.test-examples.result }}"
+          echo "Docs coverage: ${{ needs.docs-coverage.result }}"

@@ -1,0 +1,362 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - feat/*
+      - fix/*
+  pull_request:
+    branches:
+      - main
+
+env:
+  PYTHON_VERSION: "3.10"
+  UV_VERSION: "0.5.11"
+
+jobs:
+  # Fast checks that run on every push
+  lint:
+    name: Lint with Ruff
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: ${{ env.UV_VERSION }}
+          enable-cache: true
+
+      - name: Cache uv packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/uv
+          key: uv-${{ runner.os }}-${{ hashFiles('**/pyproject.toml', '**/uv.lock') }}
+          restore-keys: |
+            uv-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: |
+          uv sync --frozen --no-install-project
+          uv pip install ruff
+
+      - name: Run Ruff linting
+        run: |
+          uv run ruff check plugins/ mycelium_onboarding/ tests/
+
+      - name: Run Ruff format check
+        run: |
+          uv run ruff format --check plugins/ mycelium_onboarding/ tests/
+
+  type-check:
+    name: Type Check with mypy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: ${{ env.UV_VERSION }}
+          enable-cache: true
+
+      - name: Cache uv packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/uv
+          key: uv-${{ runner.os }}-${{ hashFiles('**/pyproject.toml', '**/uv.lock') }}
+          restore-keys: |
+            uv-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: |
+          uv sync --frozen --all-extras
+
+      - name: Run mypy
+        run: |
+          uv run mypy plugins/ mycelium_onboarding/
+
+  # Unit tests - fast, no external services
+  test-unit:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: ${{ env.UV_VERSION }}
+          enable-cache: true
+
+      - name: Cache uv packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/uv
+          key: uv-${{ runner.os }}-py${{ matrix.python-version }}-${{ hashFiles('**/pyproject.toml', '**/uv.lock') }}
+          restore-keys: |
+            uv-${{ runner.os }}-py${{ matrix.python-version }}-
+            uv-${{ runner.os }}-
+
+      - name: Cache pytest cache
+        uses: actions/cache@v4
+        with:
+          path: .pytest_cache
+          key: pytest-${{ runner.os }}-py${{ matrix.python-version }}-${{ github.sha }}
+          restore-keys: |
+            pytest-${{ runner.os }}-py${{ matrix.python-version }}-
+
+      - name: Cache sentence-transformers models
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/torch/sentence_transformers
+          key: st-models-${{ hashFiles('**/pyproject.toml') }}
+          restore-keys: |
+            st-models-
+
+      - name: Install dependencies
+        run: |
+          uv sync --frozen --all-extras
+
+      - name: Get changed files (on push to feature branches)
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/feat/')
+        id: changed-files
+        uses: tj-actions/changed-files@v45
+        with:
+          files: |
+            plugins/**/*.py
+            mycelium_onboarding/**/*.py
+            tests/**/*.py
+
+      - name: Run unit tests for changed files
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/feat/') && steps.changed-files.outputs.any_changed == 'true'
+        run: |
+          # Extract test files and source files
+          changed_test_files=$(echo "${{ steps.changed-files.outputs.all_changed_files }}" | tr ' ' '\n' | grep '^tests/' || true)
+          changed_source_files=$(echo "${{ steps.changed-files.outputs.all_changed_files }}" | tr ' ' '\n' | grep -E '^(plugins|mycelium_onboarding)/' || true)
+
+          # Run changed test files directly
+          if [ -n "$changed_test_files" ]; then
+            echo "Running changed test files: $changed_test_files"
+            uv run pytest $changed_test_files -v -m "not integration and not benchmark and not slow" --tb=short
+          fi
+
+          # For changed source files, run corresponding tests
+          if [ -n "$changed_source_files" ]; then
+            echo "Changed source files detected: $changed_source_files"
+            echo "Running unit tests..."
+            uv run pytest tests/unit/ -v -m "not integration and not benchmark and not slow" --tb=short
+          fi
+
+      - name: Run full unit test suite
+        if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main' || steps.changed-files.outputs.any_changed != 'true'
+        run: |
+          uv run pytest tests/unit/ tests/test_*.py -v \
+            -m "not integration and not benchmark and not slow" \
+            --tb=short \
+            --cov=plugins \
+            --cov=mycelium_onboarding \
+            --cov-report=xml \
+            --cov-report=term
+
+      - name: Upload coverage to Codecov
+        if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage.xml
+          flags: unit-tests-py${{ matrix.python-version }}
+          name: unit-py${{ matrix.python-version }}
+          fail_ci_if_error: false
+
+  # Integration tests - with PostgreSQL service
+  test-integration:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: ankane/pgvector:latest
+        env:
+          POSTGRES_USER: mycelium
+          POSTGRES_PASSWORD: mycelium_test
+          POSTGRES_DB: mycelium_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: ${{ env.UV_VERSION }}
+          enable-cache: true
+
+      - name: Cache uv packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/uv
+          key: uv-${{ runner.os }}-${{ hashFiles('**/pyproject.toml', '**/uv.lock') }}
+          restore-keys: |
+            uv-${{ runner.os }}-
+
+      - name: Cache sentence-transformers models
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/torch/sentence_transformers
+          key: st-models-${{ hashFiles('**/pyproject.toml') }}
+          restore-keys: |
+            st-models-
+
+      - name: Install dependencies
+        run: |
+          uv sync --frozen --all-extras
+
+      - name: Wait for PostgreSQL
+        run: |
+          until pg_isready -h localhost -p 5432 -U mycelium; do
+            echo "Waiting for PostgreSQL..."
+            sleep 2
+          done
+
+      - name: Initialize database schema
+        run: |
+          PGPASSWORD=mycelium_test psql -h localhost -U mycelium -d mycelium_test -f plugins/mycelium-core/registry/schema.sql || true
+        continue-on-error: true
+
+      - name: Run integration tests
+        env:
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: 5432
+          POSTGRES_USER: mycelium
+          POSTGRES_PASSWORD: mycelium_test
+          POSTGRES_DB: mycelium_test
+          DATABASE_URL: postgresql://mycelium:mycelium_test@localhost:5432/mycelium_test
+        run: |
+          uv run pytest tests/integration/ -v \
+            -m "integration" \
+            --tb=short \
+            --cov=plugins \
+            --cov=mycelium_onboarding \
+            --cov-report=xml \
+            --cov-report=term
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage.xml
+          flags: integration-tests
+          name: integration
+          fail_ci_if_error: false
+
+  # Benchmarks - only run on schedule or manual trigger
+  benchmarks:
+    name: Performance Benchmarks
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: ${{ env.UV_VERSION }}
+          enable-cache: true
+
+      - name: Cache uv packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/uv
+          key: uv-${{ runner.os }}-${{ hashFiles('**/pyproject.toml', '**/uv.lock') }}
+          restore-keys: |
+            uv-${{ runner.os }}-
+
+      - name: Cache sentence-transformers models
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/torch/sentence_transformers
+          key: st-models-${{ hashFiles('**/pyproject.toml') }}
+          restore-keys: |
+            st-models-
+
+      - name: Install dependencies
+        run: |
+          uv sync --frozen --all-extras
+
+      - name: Run benchmarks
+        run: |
+          uv run pytest tests/ -v \
+            -m "benchmark" \
+            --benchmark-only \
+            --benchmark-json=benchmark-results.json
+
+      - name: Store benchmark results
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-results
+          path: benchmark-results.json
+
+  # Summary job to ensure all critical checks pass
+  ci-success:
+    name: CI Success
+    runs-on: ubuntu-latest
+    needs: [lint, type-check, test-unit, test-integration]
+    if: always()
+    steps:
+      - name: Check all jobs status
+        run: |
+          if [[ "${{ needs.lint.result }}" != "success" ]]; then
+            echo "Lint job failed"
+            exit 1
+          fi
+          if [[ "${{ needs.type-check.result }}" != "success" ]]; then
+            echo "Type check job failed"
+            exit 1
+          fi
+          if [[ "${{ needs.test-unit.result }}" != "success" ]]; then
+            echo "Unit tests failed"
+            exit 1
+          fi
+          if [[ "${{ needs.test-integration.result }}" != "success" ]]; then
+            echo "Integration tests failed"
+            exit 1
+          fi
+          echo "All CI checks passed!"
