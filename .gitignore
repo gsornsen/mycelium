@@ -9,6 +9,7 @@ yarn.lock
 .claude/coordination/
 !.claude/coordination/.gitkeep
 **/coordination/
+!tests/**/coordination/
 docs/design/
 TASK_1.2_IMPLEMENTATION_SUMMARY.md
 TASK_1.2_QUICK_START.md

@@ -1,1 +1,1 @@
-"""Unit tests for coordination module."""
+"""Coordination tests package."""

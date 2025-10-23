@@ -6,7 +6,7 @@ import pytest
 # Set test database URL
 os.environ["DATABASE_URL"] = "postgresql://localhost:5432/mycelium_test"
 
-from plugins.mycelium_core.coordination.state_manager import (
+from coordination.state_manager import (
     StateManager,
     WorkflowState,
     WorkflowStatus,

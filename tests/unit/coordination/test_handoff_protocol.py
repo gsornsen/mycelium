@@ -4,7 +4,7 @@ import json
 import pytest
 from datetime import datetime
 
-from plugins.mycelium_core.coordination.protocol import (
+from coordination.protocol import (
     HandoffProtocol,
     HandoffMessage,
     AgentInfo,
