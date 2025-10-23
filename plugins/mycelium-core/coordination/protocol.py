@@ -128,10 +128,9 @@ class HandoffMessage:
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert handoff message to dictionary."""
-        return {
+        result = {
             "version": self.version,
             "handoff_id": self.handoff_id,
-            "workflow_id": self.workflow_id,
             "source": self.source.to_dict(),
             "target": self.target.to_dict(),
             "context": self.context.to_dict(),
@@ -139,6 +138,10 @@ class HandoffMessage:
             "metadata": self.metadata.to_dict(),
             "timestamp": self.timestamp,
         }
+        # Only include workflow_id if it's not None
+        if self.workflow_id is not None:
+            result["workflow_id"] = self.workflow_id
+        return result
 
     def to_json(self, indent: Optional[int] = None) -> str:
         """Serialize handoff message to JSON string."""
