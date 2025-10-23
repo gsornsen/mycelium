@@ -27,7 +27,22 @@
       "Bash(find plugins/mycelium-core/agents -name \"*.md\" -exec wc -c {} +)",
       "Bash(awk '{sum+=$1; count++; if($1 > max) max=$1; if(min==\"\"\"\"\"\"\"\" || $1 < min) min=$1} END {print \"\"\"\"Total bytes:\"\"\"\", sum, \"\"\"\"\\nAgent count:\"\"\"\", count-1, \"\"\"\"\\nAverage bytes:\"\"\"\", int(sum/(count-1)), \"\"\"\"\\nMin bytes:\"\"\"\", min, \"\"\"\"\\nMax bytes:\"\"\"\", max}')",
       "Bash(wc -c /home/gerald/git/mycelium/plugins/mycelium-core/agents/09-meta-workflow-orchestrator.md)",
-      "Bash(wc -c /home/gerald/git/mycelium/plugins/mycelium-core/agents/index.json)"
+      "Bash(wc -c /home/gerald/git/mycelium/plugins/mycelium-core/agents/index.json)",
+      "WebFetch(domain:www.anthropic.com)",
+      "WebFetch(domain:github.com)",
+      "Bash(find /home/gerald/git/mycelium -type f -name \"*.md\" -exec grep -l \"Claude Code Skills\" {})",
+      "Bash(if [ -f \"docs/projects/claude-code-skills/milestones/M02_SKILL_INFRASTRUCTURE.md\" ])",
+      "Bash(then echo \"M02 exists\")",
+      "Bash(else echo \"M02 missing - will recreate\")",
+      "Bash(fi)",
+      "Bash(du:*)",
+      "Bash(find:*)",
+      "Bash(git worktree:*)",
+      "Bash(mkdir:*)",
+      "Bash(pytest:*)",
+      "Bash(ruff check:*)",
+      "Bash(ruff format:*)",
+      "Bash(python:*)"
     ],
     "deny": [],
     "ask": []
