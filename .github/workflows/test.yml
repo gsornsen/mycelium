@@ -1,0 +1,353 @@
+name: Test Suite
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+  schedule:
+    # Run comprehensive tests daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: "3.10"
+  UV_VERSION: "0.5.11"
+
+jobs:
+  # Comprehensive test matrix across Python versions and OS
+  test-matrix:
+    name: Test (${{ matrix.os }}, Python ${{ matrix.python-version }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+        exclude:
+          # Windows can be slow, test only latest Python
+          - os: windows-latest
+            python-version: "3.10"
+          - os: windows-latest
+            python-version: "3.11"
+          - os: windows-latest
+            python-version: "3.12"
+          # macOS is expensive, test only one version
+          - os: macos-latest
+            python-version: "3.10"
+          - os: macos-latest
+            python-version: "3.11"
+          - os: macos-latest
+            python-version: "3.12"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: ${{ env.UV_VERSION }}
+          enable-cache: true
+
+      - name: Cache uv packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/uv
+          key: uv-${{ matrix.os }}-py${{ matrix.python-version }}-${{ hashFiles('**/pyproject.toml', '**/uv.lock') }}
+          restore-keys: |
+            uv-${{ matrix.os }}-py${{ matrix.python-version }}-
+            uv-${{ matrix.os }}-
+
+      - name: Cache pytest cache
+        uses: actions/cache@v4
+        with:
+          path: .pytest_cache
+          key: pytest-${{ matrix.os }}-py${{ matrix.python-version }}-${{ github.sha }}
+          restore-keys: |
+            pytest-${{ matrix.os }}-py${{ matrix.python-version }}-
+
+      - name: Cache sentence-transformers models
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/torch/sentence_transformers
+            ~/.cache/huggingface
+          key: st-models-${{ hashFiles('**/pyproject.toml') }}
+          restore-keys: |
+            st-models-
+
+      - name: Install dependencies
+        run: |
+          uv sync --frozen --all-extras
+
+      - name: Run unit tests
+        run: |
+          uv run pytest tests/unit/ tests/test_*.py -v \
+            -m "not integration and not benchmark and not slow" \
+            --tb=short \
+            --cov=plugins \
+            --cov=mycelium_onboarding \
+            --cov-report=xml \
+            --cov-report=term \
+            --cov-report=html
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ matrix.os }}-py${{ matrix.python-version }}
+          path: |
+            coverage.xml
+            htmlcov/
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage.xml
+          flags: ${{ matrix.os }}-py${{ matrix.python-version }}
+          name: ${{ matrix.os }}-py${{ matrix.python-version }}
+          fail_ci_if_error: false
+
+  # Integration tests with full service stack
+  test-integration-full:
+    name: Full Integration Tests
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: ankane/pgvector:latest
+        env:
+          POSTGRES_USER: mycelium
+          POSTGRES_PASSWORD: mycelium_test
+          POSTGRES_DB: mycelium_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: ${{ env.UV_VERSION }}
+          enable-cache: true
+
+      - name: Cache uv packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/uv
+          key: uv-${{ runner.os }}-${{ hashFiles('**/pyproject.toml', '**/uv.lock') }}
+          restore-keys: |
+            uv-${{ runner.os }}-
+
+      - name: Cache sentence-transformers models
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/torch/sentence_transformers
+            ~/.cache/huggingface
+          key: st-models-${{ hashFiles('**/pyproject.toml') }}
+          restore-keys: |
+            st-models-
+
+      - name: Install dependencies
+        run: |
+          uv sync --frozen --all-extras
+
+      - name: Wait for PostgreSQL
+        run: |
+          until pg_isready -h localhost -p 5432 -U mycelium; do
+            echo "Waiting for PostgreSQL..."
+            sleep 2
+          done
+
+      - name: Initialize database schema
+        run: |
+          PGPASSWORD=mycelium_test psql -h localhost -U mycelium -d mycelium_test -f plugins/mycelium-core/registry/schema.sql || true
+        continue-on-error: true
+
+      - name: Run all integration tests
+        env:
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: 5432
+          POSTGRES_USER: mycelium
+          POSTGRES_PASSWORD: mycelium_test
+          POSTGRES_DB: mycelium_test
+          DATABASE_URL: postgresql://mycelium:mycelium_test@localhost:5432/mycelium_test
+        run: |
+          uv run pytest tests/integration/ tests/telemetry/ -v \
+            --tb=long \
+            --cov=plugins \
+            --cov=mycelium_onboarding \
+            --cov-report=xml \
+            --cov-report=term \
+            --cov-report=html
+
+      - name: Upload integration test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-test-results
+          path: |
+            coverage.xml
+            htmlcov/
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage.xml
+          flags: integration-full
+          name: integration-full
+          fail_ci_if_error: false
+
+  # Performance benchmarks with detailed reporting
+  benchmarks:
+    name: Performance Benchmarks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: ${{ env.UV_VERSION }}
+          enable-cache: true
+
+      - name: Cache uv packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/uv
+          key: uv-${{ runner.os }}-${{ hashFiles('**/pyproject.toml', '**/uv.lock') }}
+          restore-keys: |
+            uv-${{ runner.os }}-
+
+      - name: Cache sentence-transformers models
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/torch/sentence_transformers
+            ~/.cache/huggingface
+          key: st-models-${{ hashFiles('**/pyproject.toml') }}
+          restore-keys: |
+            st-models-
+
+      - name: Install dependencies
+        run: |
+          uv sync --frozen --all-extras
+
+      - name: Run benchmarks
+        run: |
+          uv run pytest tests/ -v \
+            -m "benchmark" \
+            --benchmark-only \
+            --benchmark-json=benchmark-results.json \
+            --benchmark-autosave \
+            --benchmark-save-data
+
+      - name: Store benchmark results
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-results
+          path: |
+            benchmark-results.json
+            .benchmarks/
+
+      - name: Comment benchmark results on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const results = JSON.parse(fs.readFileSync('benchmark-results.json', 'utf8'));
+
+            let comment = '## Benchmark Results\n\n';
+            comment += '| Test | Min | Max | Mean | StdDev |\n';
+            comment += '|------|-----|-----|------|--------|\n';
+
+            results.benchmarks.forEach(bench => {
+              const stats = bench.stats;
+              comment += `| ${bench.name} | ${stats.min.toFixed(4)}s | ${stats.max.toFixed(4)}s | ${stats.mean.toFixed(4)}s | ${stats.stddev.toFixed(4)}s |\n`;
+            });
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+  # Coverage report aggregation
+  coverage-report:
+    name: Coverage Report
+    runs-on: ubuntu-latest
+    needs: [test-matrix, test-integration-full]
+    if: always()
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download all coverage artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: coverage-reports/
+
+      - name: Display coverage structure
+        run: |
+          ls -R coverage-reports/
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install coverage tools
+        run: |
+          pip install coverage
+
+      - name: Combine coverage reports
+        run: |
+          find coverage-reports -name 'coverage.xml' -exec echo "Found: {}" \;
+          # Note: This is a placeholder - actual combining would need coverage combine
+          echo "Coverage reports collected from all test runs"
+
+  # Test result summary
+  test-summary:
+    name: Test Summary
+    runs-on: ubuntu-latest
+    needs: [test-matrix, test-integration-full, benchmarks]
+    if: always()
+    steps:
+      - name: Check test results
+        run: |
+          if [[ "${{ needs.test-matrix.result }}" != "success" ]]; then
+            echo "Test matrix failed"
+            exit 1
+          fi
+          if [[ "${{ needs.test-integration-full.result }}" != "success" ]]; then
+            echo "Integration tests failed"
+            exit 1
+          fi
+          echo "All tests passed successfully!"
