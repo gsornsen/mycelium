@@ -5,7 +5,9 @@
 # Has assignments: True
 
 import time
+
 from plugins.mycelium_core.registry import AgentRegistry
+
 
 async def benchmark_queries():
     async with AgentRegistry() as registry:
@@ -28,4 +30,5 @@ async def benchmark_queries():
         print(f"DB size: {health['database_size']}")
 
 import asyncio
+
 asyncio.run(benchmark_queries())

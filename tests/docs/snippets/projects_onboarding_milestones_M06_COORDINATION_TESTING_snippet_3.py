@@ -7,9 +7,9 @@
 # tests/functional/test_coordination_patterns.py
 """Functional tests for coordination patterns."""
 
-import pytest
 import asyncio
-from typing import Any
+
+import pytest
 
 pytestmark = pytest.mark.asyncio
 

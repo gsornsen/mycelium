@@ -7,9 +7,9 @@
 # tests/test_config_show.py
 """Tests for config show command."""
 
-import pytest
 from click.testing import CliRunner
 from mycelium_onboarding.cli.config import show
+
 
 def test_show_table_format(tmp_config):
     """Show command should display table format."""

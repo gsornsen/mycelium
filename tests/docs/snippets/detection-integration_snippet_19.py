@@ -6,6 +6,7 @@
 
 from mycelium_onboarding.detection import detect_all
 
+
 def determine_environment():
     """Determine environment type based on detected services."""
     summary = detect_all()

@@ -5,8 +5,7 @@
 # Has assignments: True
 
 # tests/test_docker_detection.py
-import pytest
-from mycelium_onboarding.detection.docker import detect_docker, DockerInfo
+from mycelium_onboarding.detection.docker import detect_docker
 
 
 def test_detect_docker_available(monkeypatch):
@@ -20,7 +19,7 @@ def test_detect_docker_available(monkeypatch):
                 returncode=0,
                 stdout="Docker version 24.0.6, build ed223bc\n"
             )
-        elif "ps" in command:
+        if "ps" in command:
             return subprocess.CompletedProcess(
                 args=command,
                 returncode=0,

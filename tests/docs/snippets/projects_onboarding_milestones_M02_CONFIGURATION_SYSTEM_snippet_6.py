@@ -7,9 +7,10 @@
 # mycelium_onboarding/cli/config_commands.py
 """CLI commands for configuration management."""
 
+from pathlib import Path
+
 import click
 import yaml
-from pathlib import Path
 
 from mycelium_onboarding.config.manager import ConfigManager, ConfigValidationError
 from mycelium_onboarding.config.schema import MyceliumConfig

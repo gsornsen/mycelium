@@ -6,6 +6,7 @@
 
 from mycelium_onboarding.detection import detect_all
 
+
 def preflight_checks():
     """Run pre-flight service checks."""
     print("Running pre-flight checks...")

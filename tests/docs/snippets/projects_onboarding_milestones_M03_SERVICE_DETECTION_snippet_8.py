@@ -7,9 +7,10 @@
 # mycelium_onboarding/cli/detect_commands.py
 """CLI commands for service detection."""
 
-import click
 import asyncio
 import json
+
+import click
 
 from mycelium_onboarding.detection.orchestrator import detect_all_services
 

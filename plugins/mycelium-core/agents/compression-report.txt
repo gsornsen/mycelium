@@ -1,0 +1,1276 @@
+================================================================================
+AGENT DESCRIPTION COMPRESSION REPORT
+================================================================================
+Generated: 2025-10-19T00:35:01.313782
+Index file: /home/gerald/git/mycelium/plugins/mycelium-core/agents/index.json
+Backup file: /home/gerald/git/mycelium/plugins/mycelium-core/agents/index.json.backup
+Rules file: /home/gerald/git/mycelium/plugins/compression_rules.json
+
+--------------------------------------------------------------------------------
+COMPRESSION RULES APPLIED
+--------------------------------------------------------------------------------
+Remove phrases: 28
+Replace patterns: 12
+Word replacements: 7
+Structural rules: 6
+
+Settings:
+  preserve_meaning: True
+  preserve_technical_terms: True
+  max_description_length: 100
+  target_reduction_percent: 35
+
+--------------------------------------------------------------------------------
+OVERALL STATISTICS
+--------------------------------------------------------------------------------
+Total agents processed: 119
+Original token count: 6,610
+Compressed token count: 2,386
+Tokens saved: 4,224
+Average reduction: 63.90%
+
+Min reduction: 50.00%
+Max reduction: 85.19%
+Median reduction: 64.29%
+
+--------------------------------------------------------------------------------
+TOP 10 AGENTS BY TOKEN SAVINGS
+--------------------------------------------------------------------------------
+1. python-pro
+   Saved: 46 tokens (85.2%)
+   54 → 8 tokens
+
+2. voice-chat-frontend-architect
+   Saved: 45 tokens (77.6%)
+   58 → 13 tokens
+
+3. legacy-modernizer
+   Saved: 45 tokens (68.2%)
+   66 → 21 tokens
+
+4. wordpress-master
+   Saved: 45 tokens (65.2%)
+   69 → 24 tokens
+
+5. api-documenter
+   Saved: 44 tokens (71.0%)
+   62 → 18 tokens
+
+6. flutter-expert
+   Saved: 43 tokens (70.5%)
+   61 → 18 tokens
+
+7. performance-engineer
+   Saved: 43 tokens (65.2%)
+   66 → 23 tokens
+
+8. quant-analyst
+   Saved: 43 tokens (69.4%)
+   62 → 19 tokens
+
+9. seo-specialist
+   Saved: 43 tokens (70.5%)
+   61 → 18 tokens
+
+10. refactoring-specialist
+   Saved: 42 tokens (64.6%)
+   65 → 23 tokens
+
+--------------------------------------------------------------------------------
+AGENTS WITH MINIMAL COMPRESSION (<5% reduction)
+--------------------------------------------------------------------------------
+None - all agents had >5% compression
+
+--------------------------------------------------------------------------------
+DETAILED BEFORE/AFTER COMPARISON
+--------------------------------------------------------------------------------
+
+Agent: accessibility-tester
+Tokens: 55 → 18 (saved 37, 67.3%)
+
+BEFORE (222 chars):
+Expert accessibility tester WCAG compliance, inclusive design, and universal access. Masters screen reader compatibility, keyboard navigation, and assistive technology integration creating barrier-free digital experiences.
+
+AFTER (73 chars):
+accessibility tester WCAG compliance, inclusive design, universal access.
+--------------------------------------------------------------------------------
+
+Agent: agent-organizer
+Tokens: 56 → 20 (saved 36, 64.3%)
+
+BEFORE (225 chars):
+Expert agent organizer multi-agent orchestration, team assembly, and workflow optimization. Masters task decomposition, agent selection, and coordination strategies achieving optimal team performance and resource utilization.
+
+AFTER (80 chars):
+agent organizer multi-agent orchestration, team assembly, workflow optimization.
+--------------------------------------------------------------------------------
+
+Agent: ai-engineer
+Tokens: 52 → 18 (saved 34, 65.4%)
+
+BEFORE (210 chars):
+Expert AI engineer AI system design, model implementation, and production deployment. Masters multiple AI frameworks and tools building scalable, efficient, and ethical AI solutions from research to production.
+
+AFTER (74 chars):
+AI engineer AI system design, model implementation, production deployment.
+--------------------------------------------------------------------------------
+
+Agent: angular-architect
+Tokens: 54 → 16 (saved 38, 70.4%)
+
+BEFORE (217 chars):
+Expert Angular architect mastering Angular 15+ with enterprise patterns. Specializes in RxJS, NgRx state management, micro-frontend architecture, and performance optimization building scalable enterprise applications.
+
+AFTER (65 chars):
+Angular architect mastering Angular 15+ with enterprise patterns.
+--------------------------------------------------------------------------------
+
+Agent: api-designer
+Tokens: 47 → 16 (saved 31, 66.0%)
+
+BEFORE (190 chars):
+API architecture expert designing scalable, developer-friendly interfaces. Creates REST and GraphQL APIs with comprehensive documentation, consistency, performance, and developer experience.
+
+AFTER (65 chars):
+API architecture Designs scalable, developer-friendly interfaces.
+--------------------------------------------------------------------------------
+
+Agent: api-documenter
+Tokens: 62 → 18 (saved 44, 71.0%)
+
+BEFORE (248 chars):
+Expert API documenter creating comprehensive, developer-friendly API documentation. Masters OpenAPI/Swagger specifications, interactive documentation portals, and documentation automation clarity, completeness, and exceptional developer experience.
+
+AFTER (75 chars):
+API documenter Creates comprehensive, developer-friendly API documentation.
+--------------------------------------------------------------------------------
+
+Agent: architect-reviewer
+Tokens: 60 → 25 (saved 35, 58.3%)
+
+BEFORE (243 chars):
+Expert architecture reviewer system design validation, architectural patterns, and technical decision assessment. Masters scalability analysis, technology stack evaluation, and evolutionary architecture maintainability and long-term viability.
+
+AFTER (103 chars):
+architecture reviewer system design validation, architectural patterns, technical decision assessmen...
+--------------------------------------------------------------------------------
+
+Agent: backend-developer
+Tokens: 40 → 20 (saved 20, 50.0%)
+
+BEFORE (160 chars):
+Senior backend engineer scalable API development and microservices architecture. Builds robust server-side solutions performance, security, and maintainability.
+
+AFTER (80 chars):
+Senior backend engineer scalable API development and microservices architecture.
+--------------------------------------------------------------------------------
+
+Agent: blockchain-developer
+Tokens: 57 → 20 (saved 37, 64.9%)
+
+BEFORE (229 chars):
+Expert blockchain developer smart contract development, DApp architecture, and DeFi protocols. Masters Solidity, Web3 integration, and blockchain security building secure, gas-efficient, and innovative decentralized applications.
+
+AFTER (83 chars):
+blockchain developer smart contract development, DApp architecture, DeFi protocols.
+--------------------------------------------------------------------------------
+
+Agent: build-engineer
+Tokens: 55 → 22 (saved 33, 60.0%)
+
+BEFORE (221 chars):
+Expert build engineer build system optimization, compilation strategies, and developer productivity. Masters modern build tools, caching mechanisms, and creating fast, reliable build pipelines that scale with team growth.
+
+AFTER (89 chars):
+build engineer build system optimization, compilation strategies, developer productivity.
+--------------------------------------------------------------------------------
+
+Agent: business-analyst
+Tokens: 54 → 22 (saved 32, 59.3%)
+
+BEFORE (218 chars):
+Expert business analyst requirements gathering, process improvement, and data-driven decision making. Masters stakeholder management, business process modeling, and solution design delivering measurable business value.
+
+AFTER (90 chars):
+business analyst requirements gathering, process improvement, data-driven decision making.
+--------------------------------------------------------------------------------
+
+Agent: chaos-engineer
+Tokens: 53 → 23 (saved 30, 56.6%)
+
+BEFORE (212 chars):
+Expert chaos engineer controlled failure injection, resilience testing, and building antifragile systems. Masters chaos experiments, game day planning, and continuous resilience improvement learning from failure.
+
+AFTER (92 chars):
+chaos engineer controlled failure injection, resilience testing, Builds antifragile systems.
+--------------------------------------------------------------------------------
+
+Agent: claude-code-developer
+Tokens: 56 → 25 (saved 31, 55.4%)
+
+BEFORE (227 chars):
+Expert in creating and enhancing Claude Code subagents, plugins, hooks, slash commands, output styles, and plugin marketplaces. Specializes in auditing existing implementations and designing cross-agent collaborative workflows.
+
+AFTER (103 chars):
+in Creates and enhancing Claude Code subagents, plugins, hooks, slash commands, output styles, plugi...
+--------------------------------------------------------------------------------
+
+Agent: cli-developer
+Tokens: 53 → 19 (saved 34, 64.2%)
+
+BEFORE (212 chars):
+Expert CLI developer command-line interface design, developer tools, and terminal applications. Masters user experience, cross-platform compatibility, and building efficient CLI tools that developers love to use.
+
+AFTER (76 chars):
+CLI developer command-line interface design, developer tools, terminal apps.
+--------------------------------------------------------------------------------
+
+Agent: cloud-architect
+Tokens: 53 → 22 (saved 31, 58.5%)
+
+BEFORE (214 chars):
+Expert cloud architect multi-cloud strategies, scalable architectures, and cost-effective solutions. Masters AWS, Azure, and GCP security, performance, and compliance while designing resilient cloud-native systems.
+
+AFTER (89 chars):
+cloud architect multi-cloud strategies, scalable architectures, cost-effective solutions.
+--------------------------------------------------------------------------------
+
+Agent: code-reviewer
+Tokens: 55 → 23 (saved 32, 58.2%)
+
+BEFORE (223 chars):
+Expert code reviewer code quality, security vulnerabilities, and best practices across multiple languages. Masters static analysis, design patterns, and performance optimization maintainability and technical debt reduction.
+
+AFTER (95 chars):
+code reviewer code quality, security vulnerabilities, best practices across multiple languages.
+--------------------------------------------------------------------------------
+
+Agent: competitive-analyst
+Tokens: 54 → 21 (saved 33, 61.1%)
+
+BEFORE (219 chars):
+Expert competitive analyst competitor intelligence, strategic analysis, and market positioning. Masters competitive benchmarking, SWOT analysis, and strategic recommendations creating sustainable competitive advantages.
+
+AFTER (84 chars):
+competitive analyst competitor intelligence, strategic analysis, market positioning.
+--------------------------------------------------------------------------------
+
+Agent: compliance-auditor
+Tokens: 52 → 20 (saved 32, 61.5%)
+
+BEFORE (210 chars):
+Expert compliance auditor regulatory frameworks, data privacy laws, and security standards. Masters GDPR, HIPAA, PCI DSS, SOC 2, and ISO certifications automated compliance validation and continuous monitoring.
+
+AFTER (80 chars):
+compliance auditor regulatory frameworks, data privacy laws, security standards.
+--------------------------------------------------------------------------------
+
+Agent: content-marketer
+Tokens: 59 → 20 (saved 39, 66.1%)
+
+BEFORE (237 chars):
+Expert content marketer content strategy, SEO optimization, and engagement-driven marketing. Masters multi-channel content creation, analytics, and conversion optimization building brand authority and driving measurable business results.
+
+AFTER (81 chars):
+content marketer content strategy, SEO optimization, engagement-driven marketing.
+--------------------------------------------------------------------------------
+
+Agent: context-manager
+Tokens: 56 → 22 (saved 34, 60.7%)
+
+BEFORE (227 chars):
+Expert context manager information storage, retrieval, and synchronization across multi-agent systems. Masters state management, version control, and data lifecycle ensuring consistency, accessibility, and performance at scale.
+
+AFTER (91 chars):
+context manager information storage, retrieval, synchronization across multi-agent systems.
+--------------------------------------------------------------------------------
+
+Agent: cpp-pro
+Tokens: 54 → 19 (saved 35, 64.8%)
+
+BEFORE (219 chars):
+Expert C++ developer modern C++20/23, systems programming, and high-performance computing. Masters template metaprogramming, zero-overhead abstractions, and low-level optimization with emphasis on safety and efficiency.
+
+AFTER (79 chars):
+C++ developer modern C++20/23, systems programming, high-performance computing.
+--------------------------------------------------------------------------------
+
+Agent: csharp-developer
+Tokens: 51 → 17 (saved 34, 66.7%)
+
+BEFORE (205 chars):
+Expert C# developer modern .NET development, ASP.NET Core, and cloud-native applications. Masters C# 12 features, Blazor, and cross-platform development with emphasis on performance and clean architecture.
+
+AFTER (70 chars):
+C# developer modern .NET development, ASP.NET Core, cloud-native apps.
+--------------------------------------------------------------------------------
+
+Agent: customer-success-manager
+Tokens: 56 → 15 (saved 41, 73.2%)
+
+BEFORE (225 chars):
+Expert customer success manager customer retention, growth, and advocacy. Masters account health monitoring, strategic relationship building, and driving customer value realization to maximize satisfaction and revenue growth.
+
+AFTER (62 chars):
+customer success manager customer retention, growth, advocacy.
+--------------------------------------------------------------------------------
+
+Agent: data-analyst
+Tokens: 54 → 19 (saved 35, 64.8%)
+
+BEFORE (216 chars):
+Expert data analyst business intelligence, data visualization, and statistical analysis. Masters SQL, Python, and BI tools to transform raw data into actionable insights stakeholder communication and business impact.
+
+AFTER (77 chars):
+data analyst business intelligence, data visualization, statistical analysis.
+--------------------------------------------------------------------------------
+
+Agent: data-engineer
+Tokens: 51 → 21 (saved 30, 58.8%)
+
+BEFORE (204 chars):
+Expert data engineer building scalable data pipelines, ETL/ELT processes, and data infrastructure. Masters big data technologies and cloud platforms reliable, efficient, and cost-optimized data platforms.
+
+AFTER (85 chars):
+data engineer Builds scalable data pipelines, ETL/ELT processes, data infrastructure.
+--------------------------------------------------------------------------------
+
+Agent: data-researcher
+Tokens: 60 → 18 (saved 42, 70.0%)
+
+BEFORE (240 chars):
+Expert data researcher discovering, collecting, and analyzing diverse data sources. Masters data mining, statistical analysis, and pattern recognition extracting meaningful insights from complex datasets to support evidence-based decisions.
+
+AFTER (72 chars):
+data researcher discovering, collecting, analyzing diverse data sources.
+--------------------------------------------------------------------------------
+
+Agent: data-scientist
+Tokens: 55 → 18 (saved 37, 67.3%)
+
+BEFORE (220 chars):
+Expert data scientist statistical analysis, machine learning, and business insights. Masters exploratory data analysis, predictive modeling, and data storytelling delivering actionable insights that drive business value.
+
+AFTER (73 chars):
+data scientist statistical analysis, machine learning, business insights.
+--------------------------------------------------------------------------------
+
+Agent: database-administrator
+Tokens: 51 → 23 (saved 28, 54.9%)
+
+BEFORE (205 chars):
+Expert database administrator high-availability systems, performance optimization, and disaster recovery. Masters PostgreSQL, MySQL, MongoDB, and Redis reliability, scalability, and operational excellence.
+
+AFTER (94 chars):
+database administrator high-availability systems, performance optimization, disaster recovery.
+--------------------------------------------------------------------------------
+
+Agent: database-optimizer
+Tokens: 58 → 25 (saved 33, 56.9%)
+
+BEFORE (234 chars):
+Expert database optimizer query optimization, performance tuning, and scalability across multiple database systems. Masters execution plan analysis, index strategies, and system-level optimizations achieving peak database performance.
+
+AFTER (103 chars):
+database optimizer query optimization, performance tuning, scalability across multiple database syst...
+--------------------------------------------------------------------------------
+
+Agent: debugger
+Tokens: 54 → 20 (saved 34, 63.0%)
+
+BEFORE (219 chars):
+Expert debugger complex issue diagnosis, root cause analysis, and systematic problem-solving. Masters debugging tools, techniques, and methodologies across multiple languages and environments efficient issue resolution.
+
+AFTER (82 chars):
+debugger complex issue diagnosis, root cause analysis, systematic problem-solving.
+--------------------------------------------------------------------------------
+
+Agent: dependency-manager
+Tokens: 65 → 25 (saved 40, 61.5%)
+
+BEFORE (262 chars):
+Expert dependency manager package management, security auditing, and version conflict resolution across multiple ecosystems. Masters dependency optimization, supply chain security, and automated updates maintaining stable, secure, and efficient dependency trees.
+
+AFTER (103 chars):
+dependency manager package management, security auditing, version conflict resolution across multipl...
+--------------------------------------------------------------------------------
+
+Agent: deployment-engineer
+Tokens: 49 → 19 (saved 30, 61.2%)
+
+BEFORE (198 chars):
+Expert deployment engineer CI/CD pipelines, release automation, and deployment strategies. Masters blue-green, canary, and rolling deployments zero-downtime releases and rapid rollback capabilities.
+
+AFTER (79 chars):
+deployment engineer CI/CD pipelines, release automation, deployment strategies.
+--------------------------------------------------------------------------------
+
+Agent: devops-engineer
+Tokens: 64 → 25 (saved 39, 60.9%)
+
+BEFORE (259 chars):
+Expert DevOps engineer bridging development and operations with comprehensive automation, monitoring, and infrastructure management. Masters CI/CD, containerization, kubernetes, ArgoCD, and local development culture, collaboration, and continuous improvement.
+
+AFTER (103 chars):
+DevOps engineer bridging development and operations with comprehensive automation, monitoring, infra...
+--------------------------------------------------------------------------------
+
+Agent: devops-incident-responder
+Tokens: 53 → 19 (saved 34, 64.2%)
+
+BEFORE (213 chars):
+Expert incident responder rapid detection, diagnosis, and resolution of production issues. Masters observability tools, root cause analysis, and automated remediation minimizing downtime and preventing recurrence.
+
+AFTER (79 chars):
+incident responder rapid detection, diagnosis, resolution of production issues.
+--------------------------------------------------------------------------------
+
+Agent: django-developer
+Tokens: 55 → 16 (saved 39, 70.9%)
+
+BEFORE (221 chars):
+Expert Django developer mastering Django 4+ with modern Python practices. Specializes in scalable web applications, REST API development, async views, and enterprise patterns rapid development and security best practices.
+
+AFTER (66 chars):
+Django developer mastering Django 4+ with modern Python practices.
+--------------------------------------------------------------------------------
+
+Agent: documentation-engineer
+Tokens: 59 → 25 (saved 34, 57.6%)
+
+BEFORE (236 chars):
+Expert documentation engineer technical documentation systems, API documentation, and developer-friendly content. Masters documentation-as-code, automated generation, and creating maintainable documentation that developers actually use.
+
+AFTER (103 chars):
+documentation engineer technical documentation systems, API documentation, developer-friendly conten...
+--------------------------------------------------------------------------------
+
+Agent: dotnet-core-expert
+Tokens: 54 → 15 (saved 39, 72.2%)
+
+BEFORE (218 chars):
+Expert .NET Core specialist mastering .NET 8 with modern C# features. Specializes in cross-platform development, minimal APIs, cloud-native applications, and microservices building high-performance, scalable solutions.
+
+AFTER (62 chars):
+.NET Core specialist mastering .NET 8 with modern C# features.
+--------------------------------------------------------------------------------
+
+Agent: dotnet-framework-4.8-expert
+Tokens: 56 → 15 (saved 41, 73.2%)
+
+BEFORE (225 chars):
+Expert .NET Framework 4.8 specialist mastering legacy enterprise applications. Specializes in Windows-based development, Web Forms, WCF services, and Windows services maintaining and modernizing existing enterprise solutions.
+
+AFTER (63 chars):
+.NET Framework 4.8 specialist mastering legacy enterprise apps.
+--------------------------------------------------------------------------------
+
+Agent: dx-optimizer
+Tokens: 62 → 22 (saved 40, 64.5%)
+
+BEFORE (250 chars):
+Expert developer experience optimizer build performance, tooling efficiency, and workflow automation. Masters development environment optimization reducing friction, accelerating feedback loops, and maximizing developer productivity and satisfaction.
+
+AFTER (90 chars):
+developer experience optimizer build performance, tooling efficiency, workflow automation.
+--------------------------------------------------------------------------------
+
+Agent: electron-pro
+Tokens: 44 → 15 (saved 29, 65.9%)
+
+BEFORE (176 chars):
+Desktop application specialist building secure cross-platform solutions. Develops Electron apps with native OS integration, security, performance, and seamless user experience.
+
+AFTER (62 chars):
+Desktop app specialist Builds secure cross-platform solutions.
+--------------------------------------------------------------------------------
+
+Agent: embedded-systems
+Tokens: 63 → 23 (saved 40, 63.5%)
+
+BEFORE (254 chars):
+Expert embedded systems engineer microcontroller programming, RTOS development, and hardware optimization. Masters low-level programming, real-time constraints, and resource-limited environments reliability, efficiency, and hardware-software integration.
+
+AFTER (95 chars):
+embedded systems engineer microcontroller programming, RTOS development, hardware optimization.
+--------------------------------------------------------------------------------
+
+Agent: error-coordinator
+Tokens: 61 → 20 (saved 41, 67.2%)
+
+BEFORE (247 chars):
+Expert error coordinator distributed error handling, failure recovery, and system resilience. Masters error correlation, cascade prevention, and automated recovery strategies across multi-agent systems minimizing impact and learning from failures.
+
+AFTER (82 chars):
+error coordinator distributed error handling, failure recovery, system resilience.
+--------------------------------------------------------------------------------
+
+Agent: error-detective
+Tokens: 56 → 20 (saved 36, 64.3%)
+
+BEFORE (227 chars):
+Expert error detective complex error pattern analysis, correlation, and root cause discovery. Masters distributed system debugging, error tracking, and anomaly detection finding hidden connections and preventing error cascades.
+
+AFTER (82 chars):
+error detective complex error pattern analysis, correlation, root cause discovery.
+--------------------------------------------------------------------------------
+
+Agent: fintech-engineer
+Tokens: 59 → 22 (saved 37, 62.7%)
+
+BEFORE (236 chars):
+Expert fintech engineer financial systems, regulatory compliance, and secure transaction processing. Masters banking integrations, payment systems, and building scalable financial technology that meets stringent regulatory requirements.
+
+AFTER (89 chars):
+fintech engineer financial systems, regulatory compliance, secure transaction processing.
+--------------------------------------------------------------------------------
+
+Agent: flutter-expert
+Tokens: 61 → 18 (saved 43, 70.5%)
+
+BEFORE (246 chars):
+Expert Flutter specialist mastering Flutter 3+ with modern architecture patterns. Specializes in cross-platform development, custom animations, native integrations, and performance optimization creating beautiful, native-performance applications.
+
+AFTER (74 chars):
+Flutter specialist mastering Flutter 3+ with modern architecture patterns.
+--------------------------------------------------------------------------------
+
+Agent: frontend-developer
+Tokens: 47 → 15 (saved 32, 68.1%)
+
+BEFORE (189 chars):
+Expert UI engineer focused on crafting robust, scalable frontend solutions. Builds high-quality React components prioritizing maintainability, user experience, and web standards compliance.
+
+AFTER (60 chars):
+UI engineer focused on crafting scalable frontend solutions.
+--------------------------------------------------------------------------------
+
+Agent: fullstack-developer
+Tokens: 40 → 16 (saved 24, 60.0%)
+
+BEFORE (162 chars):
+End-to-end feature owner with expertise across the entire stack. Delivers complete solutions from database to UI seamless integration and optimal user experience.
+
+AFTER (64 chars):
+End-to-end feature owner with expertise across the entire stack.
+--------------------------------------------------------------------------------
+
+Agent: game-developer
+Tokens: 57 → 20 (saved 37, 64.9%)
+
+BEFORE (231 chars):
+Expert game developer game engine programming, graphics optimization, and multiplayer systems. Masters game design patterns, performance optimization, and cross-platform development creating engaging, performant gaming experiences.
+
+AFTER (83 chars):
+game developer game engine programming, graphics optimization, multiplayer systems.
+--------------------------------------------------------------------------------
+
+Agent: git-workflow-manager
+Tokens: 57 → 18 (saved 39, 68.4%)
+
+BEFORE (228 chars):
+Expert Git workflow manager branching strategies, automation, and team collaboration. Masters Git workflows, merge conflict resolution, and repository management enabling efficient, clear, and scalable version control practices.
+
+AFTER (74 chars):
+Git workflow manager branching strategies, automation, team collaboration.
+--------------------------------------------------------------------------------
+
+Agent: golang-pro
+Tokens: 47 → 22 (saved 25, 53.2%)
+
+BEFORE (189 chars):
+Expert Go developer high-performance systems, concurrent programming, and cloud-native microservices. Masters idiomatic Go patterns with emphasis on simplicity, efficiency, and reliability.
+
+AFTER (90 chars):
+Go developer high-performance systems, concurrent programming, cloud-native microservices.
+--------------------------------------------------------------------------------
+
+Agent: graphql-architect
+Tokens: 44 → 16 (saved 28, 63.6%)
+
+BEFORE (177 chars):
+GraphQL schema architect designing efficient, scalable API graphs. Masters federation, subscriptions, and query optimization while ensuring type safety and developer experience.
+
+AFTER (64 chars):
+GraphQL schema architect Designs efficient, scalable API graphs.
+--------------------------------------------------------------------------------
+
+Agent: incident-responder
+Tokens: 48 → 16 (saved 32, 66.7%)
+
+BEFORE (195 chars):
+Expert incident responder security and operational incident management. Masters evidence collection, forensic analysis, and coordinated response minimizing impact and preventing future incidents.
+
+AFTER (64 chars):
+incident responder security and operational incident management.
+--------------------------------------------------------------------------------
+
+Agent: iot-engineer
+Tokens: 53 → 21 (saved 32, 60.4%)
+
+BEFORE (213 chars):
+Expert IoT engineer connected device architectures, edge computing, and IoT platform development. Masters IoT protocols, device management, and data pipelines building scalable, secure, and reliable IoT solutions.
+
+AFTER (86 chars):
+IoT engineer connected device architectures, edge computing, IoT platform development.
+--------------------------------------------------------------------------------
+
+Agent: java-architect
+Tokens: 53 → 22 (saved 31, 58.5%)
+
+BEFORE (212 chars):
+Senior Java architect enterprise-grade applications, Spring ecosystem, and cloud-native development. Masters modern Java features, reactive programming, and microservices patterns scalability and maintainability.
+
+AFTER (88 chars):
+Senior Java architect enterprise-grade apps, Spring ecosystem, cloud-native development.
+--------------------------------------------------------------------------------
+
+Agent: javascript-pro
+Tokens: 52 → 23 (saved 29, 55.8%)
+
+BEFORE (208 chars):
+Expert JavaScript developer modern ES2023+ features, asynchronous programming, and full-stack development. Masters both browser APIs and Node.js ecosystem with emphasis on performance and clean code patterns.
+
+AFTER (95 chars):
+JavaScript developer modern ES2023+ features, asynchronous programming, full-stack development.
+--------------------------------------------------------------------------------
+
+Agent: knowledge-synthesizer
+Tokens: 64 → 25 (saved 39, 60.9%)
+
+BEFORE (259 chars):
+Expert knowledge synthesizer extracting insights from multi-agent interactions, identifying patterns, and building collective intelligence. Masters cross-agent learning, best practice extraction, and continuous system improvement through knowledge management.
+
+AFTER (103 chars):
+knowledge synthesizer extracting insights from multi-agent interactions, identifying patterns, Build...
+--------------------------------------------------------------------------------
+
+Agent: kotlin-specialist
+Tokens: 52 → 17 (saved 35, 67.3%)
+
+BEFORE (209 chars):
+Expert Kotlin developer coroutines, multiplatform development, and Android applications. Masters functional programming patterns, DSL design, and modern Kotlin features with emphasis on conciseness and safety.
+
+AFTER (69 chars):
+Kotlin developer coroutines, multiplatform development, Android apps.
+--------------------------------------------------------------------------------
+
+Agent: kubernetes-specialist
+Tokens: 59 → 25 (saved 34, 57.6%)
+
+BEFORE (238 chars):
+Expert Kubernetes specialist mastering container orchestration, cluster management, and cloud-native architectures. Specializes in production-grade deployments, security hardening, and performance optimization scalability and reliability.
+
+AFTER (103 chars):
+Kubernetes specialist mastering container orchestration, cluster management, cloud-native architectu...
+--------------------------------------------------------------------------------
+
+Agent: laravel-specialist
+Tokens: 50 → 16 (saved 34, 68.0%)
+
+BEFORE (203 chars):
+Expert Laravel specialist mastering Laravel 10+ with modern PHP practices. Specializes in elegant syntax, Eloquent ORM, queue systems, and enterprise features building scalable web applications and APIs.
+
+AFTER (67 chars):
+Laravel specialist mastering Laravel 10+ with modern PHP practices.
+--------------------------------------------------------------------------------
+
+Agent: legacy-modernizer
+Tokens: 66 → 21 (saved 45, 68.2%)
+
+BEFORE (266 chars):
+Expert legacy system modernizer incremental migration strategies and risk-free modernization. Masters refactoring patterns, technology updates, and business continuity transforming legacy systems into modern, maintainable architectures without disrupting operations.
+
+AFTER (86 chars):
+legacy system modernizer incremental migration strategies and risk-free modernization.
+--------------------------------------------------------------------------------
+
+Agent: legal-advisor
+Tokens: 56 → 14 (saved 42, 75.0%)
+
+BEFORE (227 chars):
+Expert legal advisor technology law, compliance, and risk mitigation. Masters contract drafting, intellectual property, data privacy, and regulatory compliance protecting business interests while enabling innovation and growth.
+
+AFTER (58 chars):
+legal advisor technology law, compliance, risk mitigation.
+--------------------------------------------------------------------------------
+
+Agent: llm-architect
+Tokens: 54 → 18 (saved 36, 66.7%)
+
+BEFORE (216 chars):
+Expert LLM architect large language model architecture, deployment, and optimization. Masters LLM system design, fine-tuning strategies, and production serving building scalable, efficient, and safe LLM applications.
+
+AFTER (74 chars):
+LLM architect large language model architecture, deployment, optimization.
+--------------------------------------------------------------------------------
+
+Agent: machine-learning-engineer
+Tokens: 50 → 21 (saved 29, 58.0%)
+
+BEFORE (203 chars):
+Expert ML engineer production model deployment, serving infrastructure, and scalable ML systems. Masters model optimization, real-time inference, and edge deployment reliability and performance at scale.
+
+AFTER (85 chars):
+ML engineer production model deployment, serving infrastructure, scalable ML systems.
+--------------------------------------------------------------------------------
+
+Agent: market-researcher
+Tokens: 54 → 19 (saved 35, 64.8%)
+
+BEFORE (216 chars):
+Expert market researcher market analysis, consumer insights, and competitive intelligence. Masters market sizing, segmentation, and trend analysis identifying opportunities and informing strategic business decisions.
+
+AFTER (79 chars):
+market researcher market analysis, consumer insights, competitive intelligence.
+--------------------------------------------------------------------------------
+
+Agent: mcp-developer
+Tokens: 55 → 16 (saved 39, 70.9%)
+
+BEFORE (221 chars):
+Expert MCP developer Model Context Protocol server and client development. Masters protocol specification, SDK implementation, and building production-ready integrations between AI systems and external tools/data sources.
+
+AFTER (67 chars):
+MCP developer Model Context Protocol server and client development.
+--------------------------------------------------------------------------------
+
+Agent: microservices-architect
+Tokens: 45 → 17 (saved 28, 62.2%)
+
+BEFORE (182 chars):
+Distributed systems architect designing scalable microservice ecosystems. Masters service boundaries, communication patterns, and operational excellence in cloud-native environments.
+
+AFTER (71 chars):
+Distributed systems architect Designs scalable microservice ecosystems.
+--------------------------------------------------------------------------------
+
+Agent: ml-engineer
+Tokens: 53 → 23 (saved 30, 56.6%)
+
+BEFORE (214 chars):
+Expert ML engineer machine learning model lifecycle, production deployment, and ML system optimization. Masters both traditional ML and deep learning building scalable, reliable ML systems from training to serving.
+
+AFTER (92 chars):
+ML engineer machine learning model lifecycle, production deployment, ML system optimization.
+--------------------------------------------------------------------------------
+
+Agent: mlops-engineer
+Tokens: 53 → 25 (saved 28, 52.8%)
+
+BEFORE (213 chars):
+Expert MLOps engineer ML infrastructure, platform engineering, and operational excellence for machine learning systems. Masters CI/CD for ML, model versioning, and scalable ML platforms reliability and automation.
+
+AFTER (102 chars):
+MLOps engineer ML infrastructure, platform engineering, operational excellence for machine learning...
+--------------------------------------------------------------------------------
+
+Agent: mobile-app-developer
+Tokens: 50 → 19 (saved 31, 62.0%)
+
+BEFORE (202 chars):
+Expert mobile app developer native and cross-platform development for iOS and Android. Masters performance optimization, platform guidelines, and creating exceptional mobile experiences that users love.
+
+AFTER (79 chars):
+mobile app developer native and cross-platform development for iOS and Android.
+--------------------------------------------------------------------------------
+
+Agent: mobile-developer
+Tokens: 48 → 17 (saved 31, 64.6%)
+
+BEFORE (194 chars):
+Cross-platform mobile specialist building performant native experiences. Creates optimized mobile applications with React Native and Flutter, platform-specific excellence and battery efficiency.
+
+AFTER (70 chars):
+Cross-platform mobile specialist Builds performant native experiences.
+--------------------------------------------------------------------------------
+
+Agent: multi-agent-coordinator
+Tokens: 60 → 25 (saved 35, 58.3%)
+
+BEFORE (240 chars):
+Expert multi-agent coordinator complex workflow orchestration, inter-agent communication, and distributed system coordination. Masters parallel execution, dependency management, and fault tolerance achieving seamless collaboration at scale.
+
+AFTER (103 chars):
+multi-agent coordinator complex workflow orchestration, inter-agent communication, distributed syste...
+--------------------------------------------------------------------------------
+
+Agent: network-engineer
+Tokens: 53 → 23 (saved 30, 56.6%)
+
+BEFORE (212 chars):
+Expert network engineer cloud and hybrid network architectures, security, and performance optimization. Masters network design, troubleshooting, and automation reliability, scalability, and zero-trust principles.
+
+AFTER (92 chars):
+network engineer cloud and hybrid network architectures, security, performance optimization.
+--------------------------------------------------------------------------------
+
+Agent: nextjs-developer
+Tokens: 57 → 20 (saved 37, 64.9%)
+
+BEFORE (231 chars):
+Expert Next.js developer mastering Next.js 14+ with App Router and full-stack features. Specializes in server components, server actions, performance optimization, and production deployment building fast, SEO-friendly applications.
+
+AFTER (80 chars):
+Next.js developer mastering Next.js 14+ with App Router and full-stack features.
+--------------------------------------------------------------------------------
+
+Agent: nlp-engineer
+Tokens: 52 → 17 (saved 35, 67.3%)
+
+BEFORE (209 chars):
+Expert NLP engineer natural language processing, understanding, and generation. Masters transformer models, text processing pipelines, and production NLP systems multilingual support and real-time performance.
+
+AFTER (68 chars):
+NLP engineer natural language processing, understanding, generation.
+--------------------------------------------------------------------------------
+
+Agent: payment-integration
+Tokens: 66 → 25 (saved 41, 62.1%)
+
+BEFORE (267 chars):
+Expert payment integration specialist mastering payment gateway integration, PCI compliance, and financial transaction processing. Specializes in secure payment flows, multi-currency support, and fraud prevention reliability, compliance, and seamless user experience.
+
+AFTER (103 chars):
+payment integration specialist mastering payment gateway integration, PCI compliance, financial tran...
+--------------------------------------------------------------------------------
+
+Agent: penetration-tester
+Tokens: 59 → 19 (saved 40, 67.8%)
+
+BEFORE (237 chars):
+Expert penetration tester ethical hacking, vulnerability assessment, and security testing. Masters offensive security techniques, exploit development, and comprehensive security assessments identifying and validating security weaknesses.
+
+AFTER (79 chars):
+penetration tester ethical hacking, vulnerability assessment, security testing.
+--------------------------------------------------------------------------------
+
+Agent: performance-engineer
+Tokens: 66 → 23 (saved 43, 65.2%)
+
+BEFORE (264 chars):
+Expert performance engineer system optimization, bottleneck identification, and scalability engineering. Masters performance testing, profiling, and tuning across applications, databases, and infrastructure achieving optimal response times and resource efficiency.
+
+AFTER (93 chars):
+performance engineer system optimization, bottleneck identification, scalability engineering.
+--------------------------------------------------------------------------------
+
+Agent: performance-monitor
+Tokens: 58 → 18 (saved 40, 69.0%)
+
+BEFORE (235 chars):
+Expert performance monitor system-wide metrics collection, analysis, and optimization. Masters real-time monitoring, anomaly detection, and performance insights across distributed agent systems observability and continuous improvement.
+
+AFTER (75 chars):
+performance monitor system-wide metrics collection, analysis, optimization.
+--------------------------------------------------------------------------------
+
+Agent: php-pro
+Tokens: 51 → 22 (saved 29, 56.9%)
+
+BEFORE (205 chars):
+Expert PHP developer modern PHP 8.3+ with strong typing, async programming, and enterprise frameworks. Masters Laravel, Symfony, and modern PHP patterns with emphasis on performance and clean architecture.
+
+AFTER (91 chars):
+PHP developer modern PHP 8.3+ with strong typing, async programming, enterprise frameworks.
+--------------------------------------------------------------------------------
+
+Agent: platform-engineer
+Tokens: 56 → 24 (saved 32, 57.1%)
+
+BEFORE (225 chars):
+Expert platform engineer internal developer platforms, self-service infrastructure, and developer experience. Masters platform APIs, GitOps workflows, and golden path templates empowering developers and accelerating delivery.
+
+AFTER (98 chars):
+platform engineer internal developer platforms, self-service infrastructure, developer experience.
+--------------------------------------------------------------------------------
+
+Agent: postgres-pro
+Tokens: 57 → 25 (saved 32, 56.1%)
+
+BEFORE (231 chars):
+Expert PostgreSQL specialist mastering database administration, performance optimization, and high availability. Deep expertise in PostgreSQL internals, advanced features, and enterprise deployment reliability and peak performance.
+
+AFTER (103 chars):
+PostgreSQL specialist mastering database administration, performance optimization, high availability...
+--------------------------------------------------------------------------------
+
+Agent: product-manager
+Tokens: 58 → 19 (saved 39, 67.2%)
+
+BEFORE (234 chars):
+Expert product manager product strategy, user-centric development, and business outcomes. Masters roadmap planning, feature prioritization, and cross-functional leadership delivering products that users love and drive business growth.
+
+AFTER (78 chars):
+product manager product strategy, user-centric development, business outcomes.
+--------------------------------------------------------------------------------
+
+Agent: project-manager
+Tokens: 53 → 13 (saved 40, 75.5%)
+
+BEFORE (213 chars):
+Expert project manager project planning, execution, and delivery. Masters resource management, risk mitigation, and stakeholder communication delivering projects on time, within budget, and exceeding expectations.
+
+AFTER (54 chars):
+project manager project planning, execution, delivery.
+--------------------------------------------------------------------------------
+
+Agent: prompt-engineer
+Tokens: 56 → 20 (saved 36, 64.3%)
+
+BEFORE (225 chars):
+Expert prompt engineer designing, optimizing, and managing prompts for large language models. Masters prompt architecture, evaluation frameworks, and production prompt systems reliability, efficiency, and measurable outcomes.
+
+AFTER (82 chars):
+prompt engineer designing, optimizing, managing prompts for large language models.
+--------------------------------------------------------------------------------
+
+Agent: python-pro
+Tokens: 54 → 8 (saved 46, 85.2%)
+
+BEFORE (216 chars):
+Expert Python developer modern Python 3.13+ development with deep expertise in type safety, async programming, data science, and web frameworks. Masters Pythonic patterns while ensuring production-ready code quality.
+
+AFTER (33 chars):
+Python developer modern Python 3.
+--------------------------------------------------------------------------------
+
+Agent: qa-expert
+Tokens: 55 → 19 (saved 36, 65.5%)
+
+BEFORE (223 chars):
+Expert QA engineer comprehensive quality assurance, test strategy, and quality metrics. Masters manual and automated testing, test planning, and quality processes delivering high-quality software through systematic testing.
+
+AFTER (76 chars):
+QA engineer comprehensive quality assurance, test strategy, quality metrics.
+--------------------------------------------------------------------------------
+
+Agent: quant-analyst
+Tokens: 62 → 19 (saved 43, 69.4%)
+
+BEFORE (248 chars):
+Expert quantitative analyst financial modeling, algorithmic trading, and risk analytics. Masters statistical methods, derivatives pricing, and high-frequency trading mathematical rigor, performance optimization, and profitable strategy development.
+
+AFTER (77 chars):
+quantitative analyst financial modeling, algorithmic trading, risk analytics.
+--------------------------------------------------------------------------------
+
+Agent: rails-expert
+Tokens: 56 → 15 (saved 41, 73.2%)
+
+BEFORE (225 chars):
+Expert Rails specialist mastering Rails 7+ with modern conventions. Specializes in convention over configuration, Hotwire/Turbo, Action Cable, and rapid application development building elegant, maintainable web applications.
+
+AFTER (60 chars):
+Rails specialist mastering Rails 7+ with modern conventions.
+--------------------------------------------------------------------------------
+
+Agent: react-specialist
+Tokens: 59 → 18 (saved 41, 69.5%)
+
+BEFORE (236 chars):
+Expert React specialist mastering React 18+ with modern patterns and ecosystem. Specializes in performance optimization, advanced hooks, server components, and production-ready architectures creating scalable, maintainable applications.
+
+AFTER (72 chars):
+React specialist mastering React 18+ with modern patterns and ecosystem.
+--------------------------------------------------------------------------------
+
+Agent: react-tanstack-developer
+Tokens: 53 → 25 (saved 28, 52.8%)
+
+BEFORE (213 chars):
+Expert React developer TanStack ecosystem (Query, Table, Router, Form) and clean abstractions for complex implementations. Masters modern component libraries and design systems maintainable, production-ready code.
+
+AFTER (103 chars):
+React developer TanStack ecosystem (Query, Table, Router, Form) and clean abstractions for complex i...
+--------------------------------------------------------------------------------
+
+Agent: refactoring-specialist
+Tokens: 65 → 23 (saved 42, 64.6%)
+
+BEFORE (262 chars):
+Expert refactoring specialist mastering safe code transformation techniques and design pattern application. Specializes in improving code structure, reducing complexity, and enhancing maintainability while preserving behavior systematic, test-driven refactoring.
+
+AFTER (92 chars):
+refactoring specialist mastering safe code transformation techniques and design pattern app.
+--------------------------------------------------------------------------------
+
+Agent: research-analyst
+Tokens: 58 → 21 (saved 37, 63.8%)
+
+BEFORE (235 chars):
+Expert research analyst comprehensive information gathering, synthesis, and insight generation. Masters research methodologies, data analysis, and report creation delivering actionable intelligence that drives informed decision-making.
+
+AFTER (84 chars):
+research analyst comprehensive information gathering, synthesis, insight generation.
+--------------------------------------------------------------------------------
+
+Agent: risk-manager
+Tokens: 60 → 22 (saved 38, 63.3%)
+
+BEFORE (240 chars):
+Expert risk manager comprehensive risk assessment, mitigation strategies, and compliance frameworks. Masters risk modeling, stress testing, and regulatory compliance protecting organizations from financial, operational, and strategic risks.
+
+AFTER (89 chars):
+risk manager comprehensive risk assessment, mitigation strategies, compliance frameworks.
+--------------------------------------------------------------------------------
+
+Agent: rust-engineer
+Tokens: 49 → 18 (saved 31, 63.3%)
+
+BEFORE (196 chars):
+Expert Rust developer systems programming, memory safety, and zero-cost abstractions. Masters ownership patterns, async programming, and performance optimization for mission-critical applications.
+
+AFTER (74 chars):
+Rust developer systems programming, memory safety, zero-cost abstractions.
+--------------------------------------------------------------------------------
+
+Agent: sales-engineer
+Tokens: 57 → 19 (saved 38, 66.7%)
+
+BEFORE (231 chars):
+Expert sales engineer technical pre-sales, solution architecture, and proof of concepts. Masters technical demonstrations, competitive positioning, and translating complex technology into business value for prospects and customers.
+
+AFTER (77 chars):
+sales engineer technical pre-sales, solution architecture, proof of concepts.
+--------------------------------------------------------------------------------
+
+Agent: scrum-master
+Tokens: 58 → 19 (saved 39, 67.2%)
+
+BEFORE (234 chars):
+Expert Scrum Master agile transformation, team facilitation, and continuous improvement. Masters Scrum framework implementation, impediment removal, and fostering high-performing, self-organizing teams that deliver value consistently.
+
+AFTER (77 chars):
+Scrum Master agile transformation, team facilitation, continuous improvement.
+--------------------------------------------------------------------------------
+
+Agent: search-specialist
+Tokens: 58 → 25 (saved 33, 56.9%)
+
+BEFORE (234 chars):
+Expert search specialist mastering advanced information retrieval, query optimization, and knowledge discovery. Specializes in finding needle-in-haystack information across diverse sources precision, comprehensiveness, and efficiency.
+
+AFTER (100 chars):
+search specialist mastering advanced information retrieval, query optimization, knowledge discovery.
+--------------------------------------------------------------------------------
+
+Agent: security-auditor
+Tokens: 60 → 23 (saved 37, 61.7%)
+
+BEFORE (241 chars):
+Expert security auditor comprehensive security assessments, compliance validation, and risk management. Masters security frameworks, audit methodologies, and compliance standards identifying vulnerabilities and ensuring regulatory adherence.
+
+AFTER (92 chars):
+security auditor comprehensive security assessments, compliance validation, risk management.
+--------------------------------------------------------------------------------
+
+Agent: security-engineer
+Tokens: 56 → 20 (saved 36, 64.3%)
+
+BEFORE (224 chars):
+Expert infrastructure security engineer DevSecOps, cloud security, and compliance frameworks. Masters security automation, vulnerability management, and zero-trust architecture with emphasis on shift-left security practices.
+
+AFTER (82 chars):
+infrastructure security engineer DevSecOps, cloud security, compliance frameworks.
+--------------------------------------------------------------------------------
+
+Agent: seo-specialist
+Tokens: 61 → 18 (saved 43, 70.5%)
+
+BEFORE (246 chars):
+Expert SEO strategist technical SEO, content optimization, and search engine rankings. Masters both on-page and off-page optimization, structured data implementation, and performance metrics to drive organic traffic and improve search visibility.
+
+AFTER (75 chars):
+SEO strategist technical SEO, content optimization, search engine rankings.
+--------------------------------------------------------------------------------
+
+Agent: spring-boot-engineer
+Tokens: 58 → 18 (saved 40, 69.0%)
+
+BEFORE (233 chars):
+Expert Spring Boot engineer mastering Spring Boot 3+ with cloud-native patterns. Specializes in microservices, reactive programming, Spring Cloud integration, and enterprise solutions building scalable, production-ready applications.
+
+AFTER (73 chars):
+Spring Boot engineer mastering Spring Boot 3+ with cloud-native patterns.
+--------------------------------------------------------------------------------
+
+Agent: sql-pro
+Tokens: 55 → 25 (saved 30, 54.5%)
+
+BEFORE (221 chars):
+Expert SQL developer complex query optimization, database design, and performance tuning across PostgreSQL, MySQL, SQL Server, and Oracle. Masters advanced SQL features, indexing strategies, and data warehousing patterns.
+
+AFTER (103 chars):
+SQL developer complex query optimization, database design, performance tuning across PostgreSQL, MyS...
+--------------------------------------------------------------------------------
+
+Agent: sre-engineer
+Tokens: 61 → 25 (saved 36, 59.0%)
+
+BEFORE (244 chars):
+Expert Site Reliability Engineer balancing feature velocity with system stability through SLOs, automation, and operational excellence. Masters reliability engineering, chaos testing, and toil reduction building resilient, self-healing systems.
+
+AFTER (103 chars):
+Site Reliability Engineer balancing feature velocity with system stability through SLOs, automation,...
+--------------------------------------------------------------------------------
+
+Agent: swift-expert
+Tokens: 54 → 21 (saved 33, 61.1%)
+
+BEFORE (218 chars):
+Expert Swift developer Swift 5.9+ with async/await, SwiftUI, and protocol-oriented programming. Masters Apple platforms development, server-side Swift, and modern concurrency with emphasis on safety and expressiveness.
+
+AFTER (84 chars):
+Swift developer Swift 5.9+ with async/await, SwiftUI, protocol-oriented programming.
+--------------------------------------------------------------------------------
+
+Agent: task-distributor
+Tokens: 57 → 19 (saved 38, 66.7%)
+
+BEFORE (231 chars):
+Expert task distributor intelligent work allocation, load balancing, and queue management. Masters priority scheduling, capacity tracking, and fair distribution maximizing throughput while maintaining quality and meeting deadlines.
+
+AFTER (79 chars):
+task distributor intelligent work allocation, load balancing, queue management.
+--------------------------------------------------------------------------------
+
+Agent: technical-writer
+Tokens: 53 → 17 (saved 36, 67.9%)
+
+BEFORE (213 chars):
+Expert technical writer clear, accurate documentation and content creation. Masters API documentation, user guides, and technical content making complex information accessible and actionable for diverse audiences.
+
+AFTER (68 chars):
+technical writer clear, accurate documentation and content creation.
+--------------------------------------------------------------------------------
+
+Agent: terraform-engineer
+Tokens: 54 → 22 (saved 32, 59.3%)
+
+BEFORE (216 chars):
+Expert Terraform engineer infrastructure as code, multi-cloud provisioning, and modular architecture. Masters Terraform best practices, state management, and enterprise patterns reusability, security, and automation.
+
+AFTER (90 chars):
+Terraform engineer infrastructure as code, multi-cloud provisioning, modular architecture.
+--------------------------------------------------------------------------------
+
+Agent: test-automator
+Tokens: 58 → 25 (saved 33, 56.9%)
+
+BEFORE (232 chars):
+Expert test automation engineer building robust test frameworks, CI/CD integration, and comprehensive test coverage. Masters multiple automation tools and frameworks maintainable, scalable, and efficient automated testing solutions.
+
+AFTER (103 chars):
+test automation engineer Builds robust test frameworks, CI/CD integration, comprehensive test covera...
+--------------------------------------------------------------------------------
+
+Agent: tooling-engineer
+Tokens: 62 → 21 (saved 41, 66.1%)
+
+BEFORE (250 chars):
+Expert tooling engineer developer tool creation, CLI development, and productivity enhancement. Masters tool architecture, plugin systems, and user experience design building efficient, extensible tools that significantly improve developer workflows.
+
+AFTER (84 chars):
+tooling engineer developer tool creation, CLI development, productivity enhancement.
+--------------------------------------------------------------------------------
+
+Agent: trend-analyst
+Tokens: 56 → 24 (saved 32, 57.1%)
+
+BEFORE (227 chars):
+Expert trend analyst identifying emerging patterns, forecasting future developments, and strategic foresight. Masters trend detection, impact analysis, and scenario planning helping organizations anticipate and adapt to change.
+
+AFTER (98 chars):
+trend analyst identifying emerging patterns, forecasting future developments, strategic foresight.
+--------------------------------------------------------------------------------
+
+Agent: typescript-pro
+Tokens: 54 → 23 (saved 31, 57.4%)
+
+BEFORE (218 chars):
+Expert TypeScript developer advanced type system usage, full-stack development, and build optimization. Masters type-safe patterns for both frontend and backend with emphasis on developer experience and runtime safety.
+
+AFTER (92 chars):
+TypeScript developer advanced type system usage, full-stack development, build optimization.
+--------------------------------------------------------------------------------
+
+Agent: ui-designer
+Tokens: 58 → 18 (saved 40, 69.0%)
+
+BEFORE (234 chars):
+Expert visual designer creating intuitive, beautiful, and accessible user interfaces. Masters design systems, interaction patterns, and visual hierarchy to craft exceptional user experiences that balance aesthetics with functionality.
+
+AFTER (73 chars):
+visual designer Creates intuitive, beautiful, accessible user interfaces.
+--------------------------------------------------------------------------------
+
+Agent: ux-researcher
+Tokens: 60 → 19 (saved 41, 68.3%)
+
+BEFORE (243 chars):
+Expert UX researcher user insights, usability testing, and data-driven design decisions. Masters qualitative and quantitative research methods to uncover user needs, validate designs, and drive product improvements through actionable insights.
+
+AFTER (77 chars):
+UX researcher user insights, usability testing, data-driven design decisions.
+--------------------------------------------------------------------------------
+
+Agent: voice-chat-frontend-architect
+Tokens: 58 → 13 (saved 45, 77.6%)
+
+BEFORE (235 chars):
+Expert web client architect for full-duplex voice chat applications. Specializes in LiveKit WebRTC integration, real-time audio handling, voice-first UX patterns, and polished interactive voice interfaces with deep backend integration.
+
+AFTER (53 chars):
+web client architect for full-duplex voice chat apps.
+--------------------------------------------------------------------------------
+
+Agent: vue-expert
+Tokens: 54 → 16 (saved 38, 70.4%)
+
+BEFORE (218 chars):
+Expert Vue specialist mastering Vue 3 with Composition API and ecosystem. Specializes in reactivity system, performance optimization, Nuxt 3 development, and enterprise patterns building elegant, reactive applications.
+
+AFTER (66 chars):
+Vue specialist mastering Vue 3 with Composition API and ecosystem.
+--------------------------------------------------------------------------------
+
+Agent: websocket-engineer
+Tokens: 48 → 19 (saved 29, 60.4%)
+
+BEFORE (192 chars):
+Real-time communication specialist implementing scalable WebSocket architectures. Masters bidirectional protocols, event-driven systems, and low-latency messaging for interactive applications.
+
+AFTER (79 chars):
+Real-time communication specialist Implements scalable WebSocket architectures.
+--------------------------------------------------------------------------------
+
+Agent: wordpress-master
+Tokens: 61 → 21 (saved 40, 65.6%)
+
+BEFORE (246 chars):
+Expert WordPress developer theme development, plugin architecture, and performance optimization. Masters both classic PHP development and modern block-based solutions, delivering scalable WordPress sites from simple blogs to enterprise platforms.
+
+AFTER (85 chars):
+WordPress developer theme development, plugin architecture, performance optimization.
+--------------------------------------------------------------------------------
+
+Agent: wordpress-master
+Tokens: 69 → 24 (saved 45, 65.2%)
+
+BEFORE (278 chars):
+Elite WordPress architect full-stack development, performance optimization, and enterprise solutions. Masters custom theme/plugin development, multisite management, security hardening, and scaling WordPress from small sites to enterprise platforms handling millions of visitors.
+
+AFTER (97 chars):
+Elite WordPress architect full-stack development, performance optimization, enterprise solutions.
+--------------------------------------------------------------------------------
+
+Agent: workflow-orchestrator
+Tokens: 62 → 25 (saved 37, 59.7%)
+
+BEFORE (251 chars):
+Expert workflow orchestrator complex process design, state machine implementation, and business process automation. Masters workflow patterns, error compensation, and transaction management building reliable, flexible, and observable workflow systems.
+
+AFTER (103 chars):
+workflow orchestrator complex process design, state machine implementation, business process automat...
+--------------------------------------------------------------------------------

@@ -4,7 +4,6 @@
 # Has imports: True
 # Has assignments: True
 
-from typing import List
 
 async def find_best_agent(task: str) -> Optional[AgentMatch]:
     """Find best agent for task with type safety."""
@@ -18,8 +17,7 @@ async def find_best_agent(task: str) -> Optional[AgentMatch]:
 
     if response.agents:
         return response.agents[0]
-    else:
-        return None
+    return None
 
 # Usage
 best_agent = await find_best_agent("database performance optimization")

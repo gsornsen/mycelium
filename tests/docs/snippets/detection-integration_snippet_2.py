@@ -6,6 +6,7 @@
 
 from mycelium_onboarding.detection import detect_all
 
+
 def initialize_caching():
     """Initialize caching with Redis if available, else use memory cache."""
     summary = detect_all()

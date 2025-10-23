@@ -7,8 +7,8 @@
 # mycelium_onboarding/cli/config.py (continued)
 
 import subprocess
-import os
 import tempfile
+
 
 @config.command()
 @click.option(
@@ -57,7 +57,7 @@ def edit(project: bool, editor: str):
 
     except FileNotFoundError:
         console.print(f"[red]✗ Editor '{editor}' not found[/red]")
-        console.print(f"[dim]Set EDITOR environment variable or use --editor[/dim]")
+        console.print("[dim]Set EDITOR environment variable or use --editor[/dim]")
         tmp_path.unlink()
         raise click.Abort()
 
@@ -75,12 +75,12 @@ def edit(project: bool, editor: str):
         console.print(f"[green]✓ Configuration saved to {config_path}[/green]")
 
     except yaml.YAMLError as e:
-        console.print(f"[red]✗ Invalid YAML syntax:[/red]")
+        console.print("[red]✗ Invalid YAML syntax:[/red]")
         console.print(str(e))
         console.print("\n[yellow]Configuration not saved. Fix errors and try again.[/yellow]")
 
     except Exception as e:
-        console.print(f"[red]✗ Validation failed:[/red]")
+        console.print("[red]✗ Validation failed:[/red]")
         console.print(str(e))
         console.print("\n[yellow]Configuration not saved. Fix errors and try again.[/yellow]")
 

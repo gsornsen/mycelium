@@ -4,11 +4,9 @@
 # Has imports: True
 # Has assignments: True
 
+from mycelium_onboarding.config.manager import ConfigLoadError, ConfigValidationError
 from mycelium_onboarding.deployment.secrets import SecretsError
-from mycelium_onboarding.config.manager import (
-    ConfigLoadError,
-    ConfigValidationError
-)
+
 
 def safe_deployment_generation(project_name: str):
     """Safely generate deployment with error handling."""

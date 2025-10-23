@@ -6,6 +6,7 @@
 
 from mycelium_onboarding.detection import detect_all
 
+
 def initialize_services_with_fallback():
     """Initialize services with fallback strategies."""
     summary = detect_all()

@@ -7,15 +7,16 @@
 # mycelium_onboarding/cli/generate.py
 """CLI command for deployment generation."""
 
-import click
 from pathlib import Path
+
+import click
+from mycelium_onboarding.generators.docker_compose import DockerComposeGenerator
+from mycelium_onboarding.generators.justfile import JustfileGenerator
+from mycelium_onboarding.generators.secrets import generate_env_file
 from rich.console import Console
 from rich.panel import Panel
 
 from mycelium_onboarding.config.manager import ConfigManager
-from mycelium_onboarding.generators.docker_compose import DockerComposeGenerator
-from mycelium_onboarding.generators.justfile import JustfileGenerator
-from mycelium_onboarding.generators.secrets import generate_env_file
 
 console = Console()
 
@@ -96,10 +97,10 @@ def generate(method: str, output: str, force: bool, no_secrets: bool):
         f"Output directory: [cyan]{output_dir}[/cyan]\n\n"
         f"Generated files:\n" +
         "\n".join(f"  • {f.relative_to(output_dir)}" for f in generated_files) +
-        f"\n\nNext steps:\n"
-        f"1. Review generated files\n"
-        f"2. Start services: [bold]just up[/bold] or [bold]docker-compose up[/bold]\n"
-        f"3. Test coordination: [bold]/mycelium-test[/bold]",
+        "\n\nNext steps:\n"
+        "1. Review generated files\n"
+        "2. Start services: [bold]just up[/bold] or [bold]docker-compose up[/bold]\n"
+        "3. Test coordination: [bold]/mycelium-test[/bold]",
         border_style="green"
     ))
 

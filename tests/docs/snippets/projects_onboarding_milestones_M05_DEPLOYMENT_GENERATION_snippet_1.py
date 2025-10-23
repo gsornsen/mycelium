@@ -8,18 +8,19 @@
 """Docker Compose file generator."""
 
 from pathlib import Path
-from typing import Optional
+
 import jinja2
 import yaml
 
 from mycelium_onboarding.config.schema import MyceliumConfig
+
 
 class DockerComposeGenerator:
     """Generates Docker Compose configuration from MyceliumConfig."""
 
     TEMPLATE_NAME = "docker-compose.yml.j2"
 
-    def __init__(self, template_dir: Optional[Path] = None):
+    def __init__(self, template_dir: Path | None = None):
         if template_dir is None:
             template_dir = Path(__file__).parent.parent / "templates"
 
@@ -132,7 +133,7 @@ class DockerComposeGenerator:
 
         return "\n".join(lines)
 
-def validate_docker_compose(compose_file: Path) -> tuple[bool, Optional[str]]:
+def validate_docker_compose(compose_file: Path) -> tuple[bool, str | None]:
     """
     Validate Docker Compose file using docker-compose config.
 

@@ -4,9 +4,11 @@
 # Has imports: True
 # Has assignments: True
 
-from mycelium_onboarding.detection import detect_all
-import redis
 import psycopg2
+import redis
+
+from mycelium_onboarding.detection import detect_all
+
 
 def connect_to_services():
     """Connect to detected services."""

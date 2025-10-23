@@ -7,6 +7,7 @@
 from mycelium_onboarding.detection.docker_detector import detect_docker
 from mycelium_onboarding.detection.redis_detector import detect_redis
 
+
 def quick_check():
     """Quick check of only critical services."""
     docker = detect_docker()

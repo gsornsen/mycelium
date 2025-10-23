@@ -4,10 +4,11 @@
 # Has imports: True
 # Has assignments: True
 
-import pytest
 from unittest.mock import MagicMock, patch
-from mycelium_onboarding.wizard.screens import WizardScreens
+
 from mycelium_onboarding.wizard.flow import WizardState
+from mycelium_onboarding.wizard.screens import WizardScreens
+
 
 def test_services_screen_with_mocks():
     """Test services screen with mocked InquirerPy."""
@@ -35,9 +36,10 @@ def test_services_screen_with_mocks():
 
 def test_wizard_flow_with_mock_detection():
     """Test complete wizard flow with mocked detection."""
+    from unittest.mock import Mock
+
     from mycelium_onboarding.detection.orchestrator import DetectionSummary
     from mycelium_onboarding.wizard.flow import WizardFlow
-    from unittest.mock import Mock
 
     # Create mock detection
     mock_detection = Mock(spec=DetectionSummary)

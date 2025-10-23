@@ -4,8 +4,9 @@
 # Has imports: True
 # Has assignments: True
 
-from mycelium_onboarding.detection import detect_all
 from mycelium_onboarding.config.manager import ConfigManager
+from mycelium_onboarding.detection import detect_all
+
 
 def validate_config_against_detection():
     """Validate that configured services are actually available."""
@@ -41,8 +42,7 @@ def validate_config_against_detection():
         for issue in issues:
             print(f"  - {issue}")
         return False
-    else:
-        print("Configuration validated successfully")
-        return True
+    print("Configuration validated successfully")
+    return True
 
 validate_config_against_detection()

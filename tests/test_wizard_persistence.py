@@ -14,7 +14,6 @@ import pytest
 
 from mycelium_onboarding.wizard.flow import WizardState, WizardStep
 from mycelium_onboarding.wizard.persistence import (
-    PersistenceError,
     WizardStatePersistence,
 )
 
@@ -308,7 +307,7 @@ class TestBackupAndRestore:
         assert backup_path is not None
 
         # Load from backup file
-        with open(backup_path, "r") as f:
+        with open(backup_path) as f:
             backup_data = json.load(f)
 
         assert backup_data["project_name"] == "backup-test"

@@ -9,7 +9,7 @@
 
 import os
 from pathlib import Path
-from typing import List, Optional
+
 
 class EnvironmentValidationError(Exception):
     """Raised when environment validation fails."""
@@ -68,7 +68,7 @@ def is_environment_active() -> bool:
     return "MYCELIUM_ENV_ACTIVE" in os.environ
 
 
-def get_missing_vars() -> List[str]:
+def get_missing_vars() -> list[str]:
     """Get list of missing environment variables.
 
     Returns:
@@ -85,7 +85,7 @@ def get_missing_vars() -> List[str]:
     return [var for var in required_vars if var not in os.environ]
 
 
-def get_environment_info() -> dict[str, Optional[str]]:
+def get_environment_info() -> dict[str, str | None]:
     """Get current environment information.
 
     Returns:

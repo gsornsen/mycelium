@@ -5,7 +5,9 @@
 # Has assignments: True
 
 import threading
+
 from mycelium_onboarding.detection import detect_all
+
 
 class BackgroundDetector:
     """Run detection in background with periodic updates."""

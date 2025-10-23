@@ -5,7 +5,9 @@
 # Has assignments: True
 
 import asyncio
+
 from mycelium_onboarding.detection import detect_all_async
+
 
 async def main():
     summary = await detect_all_async()

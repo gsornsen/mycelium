@@ -5,9 +5,9 @@
 # Has assignments: False
 
 from coordination.tracker import (
+    track_failure,
     track_handoff,
     track_task_execution,
-    track_failure,
 )
 
 # Track handoff

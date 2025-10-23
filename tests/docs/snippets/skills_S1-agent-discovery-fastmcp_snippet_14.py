@@ -6,6 +6,7 @@
 
 from mycelium_analytics import TelemetryCollector
 
+
 class InstrumentedDiscoveryService(AgentDiscoveryService):
     """Discovery service with telemetry."""
 

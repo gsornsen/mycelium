@@ -8,6 +8,7 @@
 """Configuration persistence after wizard completion."""
 
 from pathlib import Path
+
 from rich.console import Console
 from rich.panel import Panel
 
@@ -84,7 +85,7 @@ def resume_from_previous() -> Optional[MyceliumConfig]:
 
         if choice == "Resume":
             return config
-        elif choice == "Cancel":
+        if choice == "Cancel":
             return None
 
         # Start fresh - return None

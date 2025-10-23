@@ -4,10 +4,10 @@
 # Has imports: True
 # Has assignments: True
 
-from mycelium_onboarding.wizard.screens import WizardScreens
-from mycelium_onboarding.wizard.flow import WizardStep
 from InquirerPy import inquirer
 from rich.console import Console
+
+from mycelium_onboarding.wizard.screens import WizardScreens
 
 console = Console()
 

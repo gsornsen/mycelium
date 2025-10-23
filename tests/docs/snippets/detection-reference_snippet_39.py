@@ -4,8 +4,8 @@
 # Has imports: True
 # Has assignments: True
 
-import asyncio
 from mycelium_onboarding.detection import detect_all_async
+
 
 async def check_services():
     summary = await detect_all_async()

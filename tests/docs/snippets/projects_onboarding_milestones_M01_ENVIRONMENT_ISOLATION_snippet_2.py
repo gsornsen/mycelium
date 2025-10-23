@@ -5,9 +5,6 @@
 # Has assignments: True
 
 # tests/test_xdg_dirs.py
-import pytest
-from pathlib import Path
-import os
 
 def test_get_config_dir_default(monkeypatch, tmp_path):
     """Test default config dir when XDG_CONFIG_HOME not set."""

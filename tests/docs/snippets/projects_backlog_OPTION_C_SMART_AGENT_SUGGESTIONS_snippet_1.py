@@ -14,10 +14,9 @@ Author: @claude-code-developer + @ml-engineer
 Date: 2025-10-18
 """
 
+import re
 import subprocess
 from pathlib import Path
-from typing import Any
-import re
 
 
 class ContextExtractor:

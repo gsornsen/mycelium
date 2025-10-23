@@ -4,13 +4,13 @@
 # Has imports: True
 # Has assignments: True
 
-import pytest
-from click.testing import CliRunner
-from unittest.mock import MagicMock, patch
 from pathlib import Path
+from unittest.mock import MagicMock, patch
+
+from click.testing import CliRunner
 
 from mycelium_onboarding.cli import cli
-from mycelium_onboarding.wizard.flow import WizardState
+
 
 def test_wizard_quick_mode_e2e(tmp_path: Path):
     """End-to-end test for quick mode wizard."""

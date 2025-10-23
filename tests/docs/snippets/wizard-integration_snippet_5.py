@@ -4,7 +4,8 @@
 # Has imports: True
 # Has assignments: True
 
-from mycelium_onboarding.wizard.validation import WizardValidator, ValidationError
+from mycelium_onboarding.wizard.validation import ValidationError, WizardValidator
+
 
 class ExtendedWizardValidator(WizardValidator):
     """Extended validator with custom rules."""

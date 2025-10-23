@@ -4,7 +4,8 @@
 # Has imports: True
 # Has assignments: True
 
-from prometheus_client import Gauge, Counter
+from prometheus_client import Counter, Gauge
+
 from mycelium_onboarding.detection import detect_all
 
 # Define metrics
@@ -24,4 +25,5 @@ def update_metrics():
 
 # Run periodically
 import schedule
+
 schedule.every(60).seconds.do(update_metrics)

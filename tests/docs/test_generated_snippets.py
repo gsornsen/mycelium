@@ -5,9 +5,6 @@ DO NOT EDIT MANUALLY - your changes will be overwritten.
 """
 
 import ast
-import importlib.util
-import sys
-from pathlib import Path
 
 import pytest
 
@@ -9300,7 +9297,7 @@ def test_snippet_coverage():
     valid_snippets = 482
     invalid_snippets = total_snippets - valid_snippets
 
-    print(f"\nDocumentation snippet coverage:")
+    print("\nDocumentation snippet coverage:")
     print(f"  Total snippets: {total_snippets}")
     print(f"  Valid syntax: {valid_snippets}")
     print(f"  Invalid syntax: {invalid_snippets}")

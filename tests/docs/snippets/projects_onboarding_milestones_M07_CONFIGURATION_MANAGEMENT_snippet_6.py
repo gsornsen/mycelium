@@ -30,7 +30,7 @@ def init(project: bool, template: str, force: bool):
 
     if config_path.exists() and not force:
         console.print(f"[yellow]⚠ Configuration already exists: {config_path}[/yellow]")
-        console.print(f"[dim]Use --force to overwrite[/dim]")
+        console.print("[dim]Use --force to overwrite[/dim]")
         raise click.Abort()
 
     # Create configuration from template
@@ -53,13 +53,13 @@ def init(project: bool, template: str, force: bool):
 def _create_from_template(template: str) -> MyceliumConfig:
     """Create configuration from template."""
     from mycelium_onboarding.config.schema import (
-        MyceliumConfig,
         DeploymentConfig,
-        ServicesConfig,
-        RedisConfig,
+        MyceliumConfig,
         PostgresConfig,
-        TemporalConfig,
+        RedisConfig,
+        ServicesConfig,
         TaskQueueConfig,
+        TemporalConfig,
     )
 
     if template == 'minimal':
@@ -75,7 +75,7 @@ def _create_from_template(template: str) -> MyceliumConfig:
             ),
         )
 
-    elif template == 'docker':
+    if template == 'docker':
         # Docker Compose with all services
         return MyceliumConfig(
             project_name="mycelium",
@@ -88,7 +88,7 @@ def _create_from_template(template: str) -> MyceliumConfig:
             ),
         )
 
-    elif template == 'justfile':
+    if template == 'justfile':
         # Justfile with core services
         return MyceliumConfig(
             project_name="mycelium",
@@ -101,7 +101,7 @@ def _create_from_template(template: str) -> MyceliumConfig:
             ),
         )
 
-    elif template == 'full':
+    if template == 'full':
         # All services with recommended settings
         return MyceliumConfig(
             project_name="mycelium",
@@ -123,5 +123,4 @@ def _create_from_template(template: str) -> MyceliumConfig:
             ),
         )
 
-    else:
-        raise ValueError(f"Unknown template: {template}")
+    raise ValueError(f"Unknown template: {template}")

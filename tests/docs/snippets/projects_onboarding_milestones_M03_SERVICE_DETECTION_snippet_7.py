@@ -9,18 +9,18 @@
 
 import asyncio
 import json
-from pathlib import Path
-from datetime import datetime, timedelta
-from typing import Optional
-from dataclasses import asdict
 import logging
+from dataclasses import asdict
+from datetime import datetime, timedelta
+from pathlib import Path
+
+from mycelium_onboarding.detection.docker import DockerInfo, detect_docker
+from mycelium_onboarding.detection.gpu import GPUInfo, detect_gpu
+from mycelium_onboarding.detection.postgres import PostgresInfo, detect_postgres
+from mycelium_onboarding.detection.redis import RedisInfo, detect_redis
+from mycelium_onboarding.detection.temporal import TemporalInfo, detect_temporal
 
 from mycelium_onboarding.xdg_dirs import get_cache_dir
-from mycelium_onboarding.detection.docker import detect_docker, DockerInfo
-from mycelium_onboarding.detection.redis import detect_redis, RedisInfo
-from mycelium_onboarding.detection.postgres import detect_postgres, PostgresInfo
-from mycelium_onboarding.detection.temporal import detect_temporal, TemporalInfo
-from mycelium_onboarding.detection.gpu import detect_gpu, GPUInfo
 
 logger = logging.getLogger(__name__)
 
@@ -125,7 +125,7 @@ def _get_cache_path() -> Path:
     return cache_dir / "service-detection.json"
 
 
-def _load_from_cache(ttl: int) -> Optional[DetectionResults]:
+def _load_from_cache(ttl: int) -> DetectionResults | None:
     """Load detection results from cache if fresh."""
     cache_path = _get_cache_path()
 

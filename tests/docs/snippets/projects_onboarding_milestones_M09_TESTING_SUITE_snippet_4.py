@@ -7,12 +7,12 @@
 # tests/conftest.py
 """Shared pytest fixtures for all tests."""
 
-import pytest
+from collections.abc import Generator
 from pathlib import Path
-from typing import Generator
 from unittest.mock import Mock
 
-from mycelium.config import MyceliumConfig, ServicesConfig, RedisConfig, PostgresConfig
+import pytest
+from mycelium.config import MyceliumConfig, PostgresConfig, RedisConfig, ServicesConfig
 
 
 @pytest.fixture

@@ -30,7 +30,7 @@ except TypeError as e:
     # Fix non-serializable objects
 
 # Solution 3: Use schema validation
-from jsonschema import validate, ValidationError
+from jsonschema import ValidationError, validate
 
 HANDOFF_CONTEXT_SCHEMA = {
     "type": "object",
@@ -55,6 +55,6 @@ result = handoff_to_agent(
 )
 
 if not result.get("context_preserved", False):
-    print(f"Warning: Context not fully preserved")
+    print("Warning: Context not fully preserved")
     print(f"Reason: {result.get('preservation_status', {})}")
     # Retry with reduced context or different format

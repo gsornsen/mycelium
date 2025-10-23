@@ -10,8 +10,7 @@
 import secrets
 import string
 from pathlib import Path
-from typing import Optional
-import os
+
 
 def generate_password(length: int = 32, include_symbols: bool = True) -> str:
     """
@@ -65,9 +64,9 @@ def generate_env_file(
     if config.services.postgres.enabled:
         lines.extend([
             "# PostgreSQL Configuration",
-            f"POSTGRES_USER=mycelium",
+            "POSTGRES_USER=mycelium",
             f"POSTGRES_PASSWORD={generate_password(32, include_symbols=False)}",
-            f"POSTGRES_DB=mycelium",
+            "POSTGRES_DB=mycelium",
             "",
         ])
 
@@ -81,7 +80,7 @@ def generate_env_file(
     lines.extend([
         "# Project Configuration",
         f"PROJECT_NAME={config.project_name}",
-        f"MYCELIUM_ENV=development",
+        "MYCELIUM_ENV=development",
         "",
     ])
 

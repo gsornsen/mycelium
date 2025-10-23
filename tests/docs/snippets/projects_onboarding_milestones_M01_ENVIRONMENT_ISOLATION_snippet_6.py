@@ -7,9 +7,9 @@
 # mycelium_onboarding/config_loader.py
 """Hierarchical configuration loading."""
 
-from pathlib import Path
 import os
-from typing import Optional
+from pathlib import Path
+
 
 def get_config_path(filename: str, prefer_project: bool = True) -> Path:
     """Get configuration file path following precedence.
@@ -70,7 +70,7 @@ def get_all_config_paths(filename: str) -> list[Path]:
     return paths
 
 
-def find_config_file(filename: str) -> Optional[Path]:
+def find_config_file(filename: str) -> Path | None:
     """Find first existing config file in precedence order.
 
     Args:

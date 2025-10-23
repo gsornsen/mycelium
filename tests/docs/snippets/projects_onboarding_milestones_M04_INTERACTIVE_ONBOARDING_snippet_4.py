@@ -8,12 +8,13 @@
 """Integration between wizard and detection system."""
 
 from mycelium_onboarding.detection.orchestrator import detect_all_services
-from mycelium_onboarding.wizard.flow import WizardState, create_wizard_state
+from mycelium_onboarding.wizard.flow import create_wizard_state
 from mycelium_onboarding.wizard.screens import (
-    show_welcome_screen,
-    prompt_service_selection,
     prompt_deployment_method,
+    prompt_service_selection,
+    show_welcome_screen,
 )
+
 
 async def run_wizard_with_detection(use_cache: bool = True) -> 'MyceliumConfig':
     """Run full wizard flow with service detection."""
@@ -63,11 +64,11 @@ def build_config_from_selections(
 ) -> 'MyceliumConfig':
     """Build MyceliumConfig from wizard selections."""
     from mycelium_onboarding.config.schema import (
-        MyceliumConfig,
         DeploymentConfig,
-        ServicesConfig,
-        RedisConfig,
+        MyceliumConfig,
         PostgresConfig,
+        RedisConfig,
+        ServicesConfig,
     )
 
     # Create service configs based on selections

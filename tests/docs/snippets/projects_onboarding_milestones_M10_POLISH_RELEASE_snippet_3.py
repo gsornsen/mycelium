@@ -7,14 +7,13 @@
 # scripts/generate_changelog.py
 """Generate changelog from git commits."""
 
+import re
 import subprocess
 import sys
 from datetime import datetime
-from typing import List, Dict
-import re
 
 
-def get_commits_since_last_tag() -> List[str]:
+def get_commits_since_last_tag() -> list[str]:
     """Get commits since last release tag."""
     # Get last tag
     result = subprocess.run(
@@ -40,7 +39,7 @@ def get_commits_since_last_tag() -> List[str]:
     return result.stdout.strip().split('\n') if result.stdout else []
 
 
-def parse_commit(commit_line: str) -> Dict[str, str]:
+def parse_commit(commit_line: str) -> dict[str, str]:
     """Parse commit line into structured data."""
     parts = commit_line.split('|')
     return {
@@ -51,7 +50,7 @@ def parse_commit(commit_line: str) -> Dict[str, str]:
     }
 
 
-def categorize_commits(commits: List[Dict]) -> Dict[str, List[Dict]]:
+def categorize_commits(commits: list[dict]) -> dict[str, list[dict]]:
     """Categorize commits by type (feat, fix, docs, etc.)."""
     categories = {
         'Features': [],

@@ -7,13 +7,12 @@
 # tests/test_wizard_screens.py
 """Test wizard screen rendering and validation."""
 
-import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
+
 from mycelium_onboarding.wizard.screens import (
-    prompt_service_selection,
     prompt_deployment_method,
-    prompt_project_metadata,
 )
+
 
 def test_service_selection_requires_at_least_one():
     """Service selection should require at least one service."""

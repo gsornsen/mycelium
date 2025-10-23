@@ -4,8 +4,8 @@
 # Has imports: True
 # Has assignments: True
 
-from coordination.tracker import CoordinationTracker
 import asyncpg
+from coordination.tracker import CoordinationTracker
 
 # Create database connection pool
 pool = await asyncpg.create_pool(

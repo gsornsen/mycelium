@@ -9,7 +9,7 @@ events = get_coordination_events(event_type="handoff", limit=10)
 
 for event in events["events"]:
     if not event["metadata"].get("context_preserved", True):
-        print(f"\nHandoff failed to preserve context:")
+        print("\nHandoff failed to preserve context:")
         print(f"  Source: {event['source_agent']}")
         print(f"  Target: {event['target_agent']}")
         print(f"  Reason: {event['metadata'].get('failure_reason', 'Unknown')}")

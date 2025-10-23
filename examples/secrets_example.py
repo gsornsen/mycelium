@@ -43,8 +43,8 @@ def main() -> None:
 
     manager.save_secrets(secrets)
     print(f"Secrets saved to: {manager.secrets_file}")
-    print(f"File permissions: 0o600 (owner read/write only)")
-    print(f"Directory permissions: 0o700 (owner rwx only)")
+    print("File permissions: 0o600 (owner read/write only)")
+    print("Directory permissions: 0o700 (owner rwx only)")
     print()
 
     # Example 3: Load existing secrets
@@ -66,7 +66,7 @@ def main() -> None:
     env_file = Path("/tmp/my-temporal-app.env")
     generate_env_file(secrets, env_file)
     print(f".env file created at: {env_file}")
-    print(f"File permissions: 0o600 (secure)")
+    print("File permissions: 0o600 (secure)")
     print("\nFile contents:")
     print(env_file.read_text())
     print()

@@ -65,10 +65,9 @@ class TokenBudgetCalculator:
                 raise BudgetExceededError(
                     f"Hard budget limit exceeded: {consumed} > {budget.recommended_budget}"
                 )
-            else:
-                status.warnings.append(
-                    f"🚨 Budget exceeded but enforcement disabled. "
-                    f"Enable hard limits if cost control is required."
-                )
+            status.warnings.append(
+                "🚨 Budget exceeded but enforcement disabled. "
+                "Enable hard limits if cost control is required."
+            )
 
         return status

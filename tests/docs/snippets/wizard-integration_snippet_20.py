@@ -5,7 +5,8 @@
 # Has assignments: True
 
 from fastapi import FastAPI, WebSocket
-from mycelium_onboarding.wizard.flow import WizardState, WizardFlow
+
+from mycelium_onboarding.wizard.flow import WizardFlow, WizardState
 
 app = FastAPI()
 

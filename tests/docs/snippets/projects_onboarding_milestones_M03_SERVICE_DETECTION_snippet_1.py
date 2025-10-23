@@ -7,11 +7,10 @@
 # mycelium_onboarding/detection/docker.py
 """Docker detection and health checking."""
 
-import subprocess
-import shutil
-from typing import Optional
-from dataclasses import dataclass
 import logging
+import shutil
+import subprocess
+from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)
 
@@ -20,11 +19,11 @@ logger = logging.getLogger(__name__)
 class DockerInfo:
     """Docker detection result."""
     available: bool
-    version: Optional[str] = None
+    version: str | None = None
     running: bool = False
     compose_available: bool = False
-    compose_version: Optional[str] = None
-    error: Optional[str] = None
+    compose_version: str | None = None
+    error: str | None = None
 
 
 def detect_docker(timeout: float = 2.0) -> DockerInfo:
@@ -123,7 +122,7 @@ def _detect_docker_compose(timeout: float) -> bool:
     return False
 
 
-def _get_compose_version(timeout: float) -> Optional[str]:
+def _get_compose_version(timeout: float) -> str | None:
     """Get Docker Compose version."""
     # Try docker compose (v2)
     try:

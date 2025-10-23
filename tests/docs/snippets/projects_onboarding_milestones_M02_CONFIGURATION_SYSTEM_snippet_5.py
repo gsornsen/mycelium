@@ -8,6 +8,7 @@
 
 from mycelium_onboarding.config.migrations import migrate_config
 
+
 class ConfigManager:
     @classmethod
     def load_from_path(cls, path: Path) -> MyceliumConfig:

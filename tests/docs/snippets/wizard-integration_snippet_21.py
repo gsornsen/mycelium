@@ -6,6 +6,7 @@
 
 from mycelium_onboarding.wizard.flow import WizardState
 
+
 class WizardOrchestrator:
     """Orchestrate multiple related wizards."""
 

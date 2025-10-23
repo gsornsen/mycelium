@@ -8,11 +8,15 @@
 """CLI entry point for onboarding command."""
 
 import asyncio
+
 import click
+from mycelium_onboarding.wizard.integration import run_wizard_with_detection
 from rich.console import Console
 
-from mycelium_onboarding.wizard.integration import run_wizard_with_detection
-from mycelium_onboarding.wizard.persistence import save_configuration, resume_from_previous
+from mycelium_onboarding.wizard.persistence import (
+    resume_from_previous,
+    save_configuration,
+)
 
 console = Console()
 

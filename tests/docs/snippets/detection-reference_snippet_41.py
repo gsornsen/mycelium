@@ -4,8 +4,9 @@
 # Has imports: True
 # Has assignments: True
 
-from mycelium_onboarding.detection import detect_all, generate_detection_report
 import json
+
+from mycelium_onboarding.detection import detect_all, generate_detection_report
 
 # Generate JSON report
 summary = detect_all()

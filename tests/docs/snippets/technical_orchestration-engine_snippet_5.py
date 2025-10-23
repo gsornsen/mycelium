@@ -5,9 +5,9 @@
 # Has assignments: True
 
 from plugins.mycelium_core.coordination import (
-    WorkflowOrchestrator,
     StateManager,
     TaskDefinition,
+    WorkflowOrchestrator,
 )
 
 # Initialize

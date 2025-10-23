@@ -6,6 +6,7 @@
 
 from mycelium_onboarding.config.manager import ConfigManager
 
+
 def load_and_generate():
     """Load config from file and generate deployment."""
     manager = ConfigManager()

@@ -6,6 +6,7 @@
 
 # celery.py
 from celery import Celery
+
 from mycelium_onboarding.detection import detect_all
 
 app = Celery("myapp")

@@ -5,7 +5,6 @@
 # Has assignments: True
 
 from fastmcp import FastMCP
-from fastmcp.tools import Tool
 
 # Initialize FastMCP server
 mcp = FastMCP("Mycelium Agent Discovery")
@@ -38,6 +37,7 @@ async def discover_agents(
         "Backend Developer"
     """
     import time
+
     from mycelium_core.agent_discovery import AgentDiscoveryService
 
     start_time = time.perf_counter()

@@ -9,7 +9,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from jinja2 import Environment, FileSystemLoader, Template, select_autoescape
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 from mycelium_onboarding.config.schema import DeploymentMethod, MyceliumConfig
 
@@ -215,12 +215,11 @@ class TemplateRenderer:
 
         if method == DeploymentMethod.DOCKER_COMPOSE:
             return self.render_docker_compose(config)
-        elif method == DeploymentMethod.KUBERNETES:
+        if method == DeploymentMethod.KUBERNETES:
             return self.render_kubernetes(config)
-        elif method == DeploymentMethod.SYSTEMD:
+        if method == DeploymentMethod.SYSTEMD:
             return self.render_systemd(config)
-        elif method == DeploymentMethod.MANUAL:
+        if method == DeploymentMethod.MANUAL:
             # For manual deployment, return empty dict
             return {}
-        else:
-            raise ValueError(f"Invalid deployment method: {method}")
+        raise ValueError(f"Invalid deployment method: {method}")

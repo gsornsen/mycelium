@@ -5,7 +5,7 @@
 # Has assignments: True
 
 # Solution 1: Validate context against schema
-from jsonschema import validate, ValidationError
+from jsonschema import ValidationError, validate
 
 # Get agent's expected context schema
 details = get_agent_details("security-expert")

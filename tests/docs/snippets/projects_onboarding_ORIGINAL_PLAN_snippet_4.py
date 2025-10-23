@@ -17,7 +17,7 @@ def validate_python_command(cmd: str) -> bool:
     for pattern in blocked_patterns:
         if re.search(pattern, cmd):
             raise ValueError(
-                f"Direct python execution blocked. Use: uv run python ..."
+                "Direct python execution blocked. Use: uv run python ..."
             )
 
     return True

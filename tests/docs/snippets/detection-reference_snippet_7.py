@@ -15,6 +15,7 @@ print(text_report)
 # Machine-readable JSON
 json_report = generate_detection_report(summary, format="json")
 import json
+
 data = json.loads(json_report)
 
 # YAML for config management

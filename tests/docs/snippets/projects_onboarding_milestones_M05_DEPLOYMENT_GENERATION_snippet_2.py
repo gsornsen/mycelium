@@ -7,12 +7,11 @@
 # tests/test_docker_compose_generator.py
 """Tests for Docker Compose generator."""
 
-import pytest
-from pathlib import Path
 import yaml
-
 from mycelium_onboarding.generators.docker_compose import DockerComposeGenerator
+
 from mycelium_onboarding.config.schema import MyceliumConfig
+
 
 def test_generate_valid_yaml():
     """Generated content should be valid YAML."""

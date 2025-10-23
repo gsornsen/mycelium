@@ -5,7 +5,9 @@
 # Has assignments: True
 
 import asyncio
+
 from plugins.mycelium_core.registry import AgentRegistry, load_agents_from_index
+
 
 async def main():
     # Initialize registry
@@ -31,7 +33,7 @@ async def main():
 
         # Get specific agent
         agent = await registry.get_agent_by_type("backend-developer")
-        print(f"\nAgent details:")
+        print("\nAgent details:")
         print(f"  Name: {agent['display_name']}")
         print(f"  Category: {agent['category']}")
         print(f"  Tools: {', '.join(agent['tools'])}")

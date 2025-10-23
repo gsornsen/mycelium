@@ -6,7 +6,9 @@
 
 # mycelium_onboarding/cli.py
 import click
+
 from mycelium_onboarding.env_validator import validate_environment
+
 
 @click.group()
 def cli():

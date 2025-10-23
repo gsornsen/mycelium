@@ -18,9 +18,10 @@ Flow Sequence:
 7. Write configuration and show next steps
 """
 
+from dataclasses import dataclass
 from enum import Enum
 from typing import Optional
-from dataclasses import dataclass
+
 
 class WizardStep(str, Enum):
     WELCOME = "welcome"
@@ -37,18 +38,18 @@ class WizardState:
     current_step: WizardStep
     detection_results: Optional['DetectionResults'] = None
     selected_services: set[str] = None
-    deployment_method: Optional[str] = None
+    deployment_method: str | None = None
     config: Optional['MyceliumConfig'] = None
 
     def can_proceed(self) -> bool:
         """Validate if current step is complete."""
         if self.current_step == WizardStep.SERVICE_SELECTION:
             return self.selected_services is not None
-        elif self.current_step == WizardStep.DEPLOYMENT_METHOD:
+        if self.current_step == WizardStep.DEPLOYMENT_METHOD:
             return self.deployment_method is not None
         return True
 
-    def next_step(self) -> Optional[WizardStep]:
+    def next_step(self) -> WizardStep | None:
         """Determine next step in flow."""
         steps = list(WizardStep)
         current_idx = steps.index(self.current_step)

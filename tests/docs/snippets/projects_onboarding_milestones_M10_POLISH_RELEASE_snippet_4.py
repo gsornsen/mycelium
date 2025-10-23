@@ -9,9 +9,9 @@
 
 import os
 import platform
-from typing import Optional
-import requests
 from pathlib import Path
+
+import requests
 
 
 class TelemetryClient:
@@ -41,7 +41,7 @@ class TelemetryClient:
     def track_event(
         self,
         event_name: str,
-        properties: Optional[dict] = None
+        properties: dict | None = None
     ):
         """Track usage event (async, non-blocking)."""
         if not self.enabled:

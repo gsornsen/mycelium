@@ -5,11 +5,12 @@
 # Has assignments: True
 
 # backend/tasks.py
-from celery import Celery
-import subprocess
 import json
+import subprocess
 from datetime import datetime
+
 import redis
+from celery import Celery
 
 celery_app = Celery(
     'mycelium_orchestrator',

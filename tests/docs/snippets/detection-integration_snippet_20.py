@@ -5,6 +5,7 @@
 # Has assignments: True
 
 from flask import Flask, jsonify
+
 from mycelium_onboarding.detection import detect_all
 
 app = Flask(__name__)

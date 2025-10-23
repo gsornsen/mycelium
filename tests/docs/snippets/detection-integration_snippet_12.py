@@ -6,6 +6,7 @@
 
 from mycelium_onboarding.detection import detect_all
 
+
 def diagnose_service_issues():
     """Diagnose and report service availability issues."""
     summary = detect_all()

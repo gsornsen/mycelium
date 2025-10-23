@@ -7,7 +7,7 @@
 from mycelium_onboarding.config.schema import MyceliumConfig
 from mycelium_onboarding.deployment.generator import (
     DeploymentGenerator,
-    DeploymentMethod
+    DeploymentMethod,
 )
 
 # Create configuration

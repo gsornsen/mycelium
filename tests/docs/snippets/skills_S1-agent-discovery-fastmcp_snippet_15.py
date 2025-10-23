@@ -11,7 +11,10 @@ discovery = AgentDiscovery()
 results = discovery.search("Python development")
 
 # After (FastMCP)
-from mycelium_core.mcp.tools.discovery_tools import discover_agents, DiscoverAgentsRequest
+from mycelium_core.mcp.tools.discovery_tools import (
+    DiscoverAgentsRequest,
+    discover_agents,
+)
 
 request = DiscoverAgentsRequest(query="Python development")
 response = await discover_agents(request)

@@ -5,7 +5,8 @@
 # Has assignments: True
 
 from functools import lru_cache
-from typing import Dict, Any
+from typing import Any
+
 
 class CachedNLPMatcher(NLPMatcher):
     """NLP matcher with LRU caching."""
@@ -18,9 +19,9 @@ class CachedNLPMatcher(NLPMatcher):
     async def match(
         self,
         query: str,
-        candidates: List[Dict[str, Any]],
+        candidates: List[dict[str, Any]],
         threshold: float = 0.6
-    ) -> List[Dict[str, Any]]:
+    ) -> List[dict[str, Any]]:
         """Match with cached embeddings."""
         # Use cached query embedding
         query_embedding = self._get_query_embedding(query)

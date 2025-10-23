@@ -5,9 +5,9 @@
 # Has assignments: True
 
 # mycelium_onboarding/xdg_dirs.py
-from pathlib import Path
 import os
-from typing import Optional
+from pathlib import Path
+
 
 def get_config_dir(project_name: str = "mycelium") -> Path:
     """Get XDG config directory, creating if needed.
@@ -73,7 +73,7 @@ def get_state_dir(project_name: str = "mycelium") -> Path:
     return state_dir
 
 
-def get_project_dir(project_root: Optional[Path] = None) -> Path:
+def get_project_dir(project_root: Path | None = None) -> Path:
     """Get project-local directory.
 
     Args:

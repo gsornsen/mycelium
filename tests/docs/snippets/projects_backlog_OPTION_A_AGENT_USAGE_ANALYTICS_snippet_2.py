@@ -313,7 +313,7 @@ class UsageAnalyzer:
         # Initialize heatmap
         days_of_week = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
         heatmap: dict[str, dict[int, int]] = {
-            day: {hour: 0 for hour in range(24)}
+            day: dict.fromkeys(range(24), 0)
             for day in days_of_week
         }
 

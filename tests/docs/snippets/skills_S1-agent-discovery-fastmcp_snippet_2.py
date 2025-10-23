@@ -5,7 +5,6 @@
 # Has assignments: True
 
 from datetime import datetime
-from typing import List, Optional, Dict, Any
 
 
 class AgentMatch(BaseModel):
@@ -18,17 +17,17 @@ class AgentMatch(BaseModel):
     category: AgentCategory = Field(..., description="Agent category")
     description: str = Field(..., description="Agent description")
 
-    capabilities: List[str] = Field(
+    capabilities: list[str] = Field(
         default_factory=list,
         description="Agent capabilities"
     )
 
-    tools: List[str] = Field(
+    tools: list[str] = Field(
         default_factory=list,
         description="Tools the agent uses"
     )
 
-    keywords: List[str] = Field(
+    keywords: list[str] = Field(
         default_factory=list,
         description="Keywords for matching"
     )
@@ -64,7 +63,7 @@ class DiscoverAgentsResponse(BaseModel):
     success: bool = Field(default=True, description="Request success status")
     query: str = Field(..., description="Original query")
 
-    agents: List[AgentMatch] = Field(
+    agents: list[AgentMatch] = Field(
         default_factory=list,
         description="Matching agents"
     )
@@ -85,17 +84,17 @@ class DiscoverAgentsResponse(BaseModel):
 class AgentDetailsMetadata(BaseModel):
     """Agent metadata."""
 
-    dependencies: List[str] = Field(
+    dependencies: list[str] = Field(
         default_factory=list,
         description="Agent dependencies"
     )
 
-    examples: List[str] = Field(
+    examples: list[str] = Field(
         default_factory=list,
         description="Example use cases"
     )
 
-    tags: List[str] = Field(
+    tags: list[str] = Field(
         default_factory=list,
         description="Additional tags"
     )
@@ -110,9 +109,9 @@ class AgentDetails(BaseModel):
     display_name: str
     category: AgentCategory
     description: str
-    capabilities: List[str]
-    tools: List[str]
-    keywords: List[str]
+    capabilities: list[str]
+    tools: list[str]
+    keywords: list[str]
 
     file_path: str = Field(..., description="Path to agent definition file")
     estimated_tokens: int
@@ -141,7 +140,7 @@ class AgentDetails(BaseModel):
         description="Last update timestamp"
     )
 
-    last_used_at: Optional[datetime] = Field(
+    last_used_at: datetime | None = Field(
         default=None,
         description="Last usage timestamp"
     )

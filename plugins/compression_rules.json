@@ -1,0 +1,179 @@
+{
+  "version": "1.0.0",
+  "description": "Compression rules for agent descriptions based on refactoring-specialist analysis",
+  "rules": {
+    "remove_phrases": [
+      "Expert ",
+      "expert ",
+      "Expertise in ",
+      "expertise in ",
+      "Specializing in ",
+      "specializing in ",
+      "Specialized in ",
+      "specialized in ",
+      "Masters ",
+      "masters ",
+      "Mastery of ",
+      "mastery of ",
+      "with focus on ",
+      "With focus on ",
+      "focusing on ",
+      "Focusing on ",
+      "dedicated to ",
+      "Dedicated to ",
+      "committed to ",
+      "Committed to ",
+      "Ensures ",
+      "ensures ",
+      "Ensuring ",
+      "ensuring ",
+      "various ",
+      "Various ",
+      "across all ",
+      "Across all "
+    ],
+    "replace_patterns": [
+      {
+        "pattern": "\\bGoogle Cloud Platform\\b",
+        "replacement": "GCP",
+        "description": "Abbreviate Google Cloud Platform"
+      },
+      {
+        "pattern": "\\bAmazon Web Services\\b",
+        "replacement": "AWS",
+        "description": "Abbreviate Amazon Web Services"
+      },
+      {
+        "pattern": "\\bContinuous Integration/Continuous Deployment\\b",
+        "replacement": "CI/CD",
+        "description": "Abbreviate CI/CD"
+      },
+      {
+        "pattern": "\\bInfrastructure as Code\\b",
+        "replacement": "IaC",
+        "description": "Abbreviate Infrastructure as Code"
+      },
+      {
+        "pattern": "\\bApplication Programming Interface\\b",
+        "replacement": "API",
+        "description": "Abbreviate API"
+      },
+      {
+        "pattern": "\\bApplication Programming Interfaces\\b",
+        "replacement": "APIs",
+        "description": "Abbreviate APIs"
+      },
+      {
+        "pattern": "\\buser interface\\b",
+        "replacement": "UI",
+        "description": "Abbreviate user interface"
+      },
+      {
+        "pattern": "\\buser experience\\b",
+        "replacement": "UX",
+        "description": "Abbreviate user experience"
+      },
+      {
+        "pattern": ",\\s+and\\s+",
+        "replacement": ", ",
+        "description": "Remove 'and' from lists"
+      },
+      {
+        "pattern": "\\s+and\\s+various\\s+",
+        "replacement": ", ",
+        "description": "Remove 'and various'"
+      },
+      {
+        "pattern": "\\.\\s*$",
+        "replacement": "",
+        "description": "Remove ending period"
+      },
+      {
+        "pattern": "\\s{2,}",
+        "replacement": " ",
+        "description": "Normalize whitespace"
+      }
+    ],
+    "word_replacements": [
+      {
+        "from": "applications",
+        "to": "apps",
+        "context": "general usage"
+      },
+      {
+        "from": "application",
+        "to": "app",
+        "context": "general usage"
+      },
+      {
+        "from": "robust, scalable",
+        "to": "scalable",
+        "context": "redundant qualifier"
+      },
+      {
+        "from": "building ",
+        "to": "Builds ",
+        "context": "verb simplification at start"
+      },
+      {
+        "from": "creating ",
+        "to": "Creates ",
+        "context": "verb simplification at start"
+      },
+      {
+        "from": "designing ",
+        "to": "Designs ",
+        "context": "verb simplification at start"
+      },
+      {
+        "from": "implementing ",
+        "to": "Implements ",
+        "context": "verb simplification at start"
+      }
+    ],
+    "structural_rules": [
+      {
+        "rule": "remove_redundant_qualifiers",
+        "description": "Remove phrases like 'Expert', 'specializing in', 'with focus on'",
+        "enabled": true
+      },
+      {
+        "rule": "apply_abbreviations",
+        "description": "Use standard tech abbreviations (API, GCP, AWS, CI/CD)",
+        "enabled": true
+      },
+      {
+        "rule": "simplify_verb_phrases",
+        "description": "Convert 'specializing in building' to 'Builds'",
+        "enabled": true
+      },
+      {
+        "rule": "remove_articles",
+        "description": "Remove 'a', 'an', 'the' where safe",
+        "enabled": true
+      },
+      {
+        "rule": "compress_conjunctions",
+        "description": "Simplify 'and' in lists",
+        "enabled": true
+      },
+      {
+        "rule": "remove_ending_punctuation",
+        "description": "Remove trailing periods",
+        "enabled": true
+      }
+    ]
+  },
+  "settings": {
+    "preserve_meaning": true,
+    "preserve_technical_terms": true,
+    "max_description_length": 100,
+    "target_reduction_percent": 35
+  },
+  "notes": [
+    "Rules based on refactoring-specialist comprehensive analysis",
+    "Target: 30-40% reduction while preserving searchability",
+    "All technical keywords (React, Python, PostgreSQL, etc.) preserved",
+    "Format: [Action Verb] + [Primary Focus] + [Key Technologies]"
+  ]
+}

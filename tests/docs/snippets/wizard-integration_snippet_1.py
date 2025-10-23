@@ -4,11 +4,12 @@
 # Has imports: True
 # Has assignments: True
 
+from mycelium_onboarding.config.manager import ConfigManager
 from mycelium_onboarding.wizard.flow import WizardFlow, WizardState, WizardStep
+from mycelium_onboarding.wizard.persistence import WizardStatePersistence
 from mycelium_onboarding.wizard.screens import WizardScreens
 from mycelium_onboarding.wizard.validation import WizardValidator
-from mycelium_onboarding.wizard.persistence import WizardStatePersistence
-from mycelium_onboarding.config.manager import ConfigManager
+
 
 def run_wizard_programmatically():
     """Run the wizard programmatically."""

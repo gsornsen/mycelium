@@ -18,9 +18,10 @@ context = {
 }
 
 # Solution 2: Compress context
+import base64
 import gzip
 import json
-import base64
+
 
 def compress_context(context):
     json_data = json.dumps(context).encode('utf-8')

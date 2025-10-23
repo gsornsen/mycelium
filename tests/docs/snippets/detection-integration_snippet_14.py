@@ -5,7 +5,7 @@
 # Has assignments: True
 
 import time
-from functools import wraps
+
 from mycelium_onboarding.detection import detect_all
 
 # Simple cache with TTL

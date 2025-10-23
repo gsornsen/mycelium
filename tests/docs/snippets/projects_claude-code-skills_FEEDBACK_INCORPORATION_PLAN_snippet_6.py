@@ -7,6 +7,7 @@
 # Click commands
 import click
 
+
 @click.group()
 def cli():
     """Mycelium Skills CLI"""
@@ -36,8 +37,9 @@ def list(format: str):
 
 # Textual TUI
 from textual.app import App
-from textual.widgets import Header, Footer, DataTable, Static
 from textual.containers import Container
+from textual.widgets import DataTable, Footer, Header, Static
+
 
 class MyceliumTUI(App):
     """Interactive TUI for Mycelium Skills."""

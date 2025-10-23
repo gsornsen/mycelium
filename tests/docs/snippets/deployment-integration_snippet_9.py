@@ -6,6 +6,7 @@
 
 from mycelium_onboarding.deployment.generator import DeploymentGenerator
 
+
 class ExtendedDeploymentGenerator(DeploymentGenerator):
     """Extended generator with custom methods."""
 
@@ -13,11 +14,10 @@ class ExtendedDeploymentGenerator(DeploymentGenerator):
         """Generate with support for custom methods."""
         if method == "docker-swarm":
             return self._generate_docker_swarm()
-        elif method == "nomad":
+        if method == "nomad":
             return self._generate_nomad()
-        else:
-            # Fall back to standard methods
-            return super().generate(method)
+        # Fall back to standard methods
+        return super().generate(method)
 
     def _generate_docker_swarm(self) -> GenerationResult:
         """Generate Docker Swarm stack file."""

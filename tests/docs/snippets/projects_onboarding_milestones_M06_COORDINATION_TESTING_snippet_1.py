@@ -8,11 +8,12 @@
 """Test orchestration framework for coordination patterns."""
 
 import asyncio
-from dataclasses import dataclass, field
-from typing import Optional, Callable, Any
-from enum import Enum
-import time
 import logging
+import time
+from collections.abc import Callable
+from dataclasses import dataclass, field
+from enum import Enum
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +30,7 @@ class TestResult:
     test_name: str
     status: TestStatus
     duration_ms: float
-    error: Optional[str] = None
+    error: str | None = None
     metrics: dict[str, Any] = field(default_factory=dict)
     logs: list[str] = field(default_factory=list)
 
@@ -38,8 +39,8 @@ class TestSuite:
     """Collection of coordination tests."""
     name: str
     tests: list[Callable]
-    setup: Optional[Callable] = None
-    teardown: Optional[Callable] = None
+    setup: Callable | None = None
+    teardown: Callable | None = None
 
 class TestOrchestrator:
     """

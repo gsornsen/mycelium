@@ -7,10 +7,9 @@
 # mycelium_onboarding/detection/redis.py
 """Redis detection and health checking."""
 
-import socket
-from typing import Optional
-from dataclasses import dataclass
 import logging
+import socket
+from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)
 
@@ -21,9 +20,9 @@ class RedisInfo:
     available: bool
     host: str = "localhost"
     port: int = 6379
-    version: Optional[str] = None
+    version: str | None = None
     reachable: bool = False
-    error: Optional[str] = None
+    error: str | None = None
 
 
 def detect_redis(
@@ -59,11 +58,11 @@ def detect_redis(
                     info.version = line.split(":", 1)[1]
                     break
 
-    except socket.timeout:
+    except TimeoutError:
         info.error = f"Connection timeout to {host}:{port}"
         logger.debug(f"Redis connection timeout: {host}:{port}")
 
-    except (socket.error, OSError) as e:
+    except OSError as e:
         info.error = f"Cannot connect to {host}:{port}: {e}"
         logger.debug(f"Redis connection failed: {host}:{port} - {e}")
 

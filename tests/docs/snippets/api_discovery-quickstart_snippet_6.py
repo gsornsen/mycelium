@@ -4,8 +4,10 @@
 # Has imports: True
 # Has assignments: True
 
-import requests
 import time
+
+import requests
+
 
 def discover_with_retry(query: str, max_retries: int = 3):
     """Discover agents with rate limit retry."""

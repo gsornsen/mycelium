@@ -6,6 +6,7 @@
 
 from mycelium_onboarding.detection import detect_all
 
+
 def select_redis_instance(prefer_authenticated=True):
     """Select appropriate Redis instance based on preferences."""
     summary = detect_all()

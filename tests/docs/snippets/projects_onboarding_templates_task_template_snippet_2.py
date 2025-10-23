@@ -7,8 +7,9 @@
 # mycelium/generators/justfile.py
 """Justfile generator for native service deployment."""
 
-from jinja2 import Environment, FileSystemLoader
 from pathlib import Path
+
+from jinja2 import Environment, FileSystemLoader
 from mycelium.config import MyceliumConfig
 
 

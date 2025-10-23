@@ -6,8 +6,10 @@
 
 """Unit tests for UsageAnalyzer."""
 
+from datetime import datetime, timedelta, timezone
+
 import pytest
-from datetime import datetime, timezone, timedelta
+
 from mycelium_analytics import EventStorage
 from mycelium_analytics.metrics import UsageAnalyzer
 

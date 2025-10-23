@@ -4,8 +4,6 @@
 # Has imports: True
 # Has assignments: True
 
-import pytest
-from pathlib import Path
 
 def test_deployment_generation(tmp_path):
     """Test deployment generation."""

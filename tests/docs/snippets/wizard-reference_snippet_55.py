@@ -4,7 +4,7 @@
 # Has imports: True
 # Has assignments: True
 
-from mycelium_onboarding.wizard.validation import WizardValidator, ValidationError
+from mycelium_onboarding.wizard.validation import WizardValidator
 
 validator = WizardValidator(state)
 

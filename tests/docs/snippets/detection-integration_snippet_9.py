@@ -4,8 +4,9 @@
 # Has imports: True
 # Has assignments: True
 
-from mycelium_onboarding.detection import detect_all
 from mycelium_onboarding.config.manager import ConfigManager
+from mycelium_onboarding.detection import detect_all
+
 
 def update_redis_config_only():
     """Update only Redis configuration from detection."""

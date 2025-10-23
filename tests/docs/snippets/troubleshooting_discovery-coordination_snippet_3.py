@@ -13,9 +13,11 @@ result = discover_agents(query="your query", threshold=0.4)
 
 # Solution 3: Reload registry
 from plugins.mycelium_core.agent_discovery import reload_registry
+
 reload_registry()
 
 # Solution 4: Check API configuration
 import os
+
 print(f"Discovery API URL: {os.getenv('DISCOVERY_API_URL')}")
 # Default should be: http://localhost:8000

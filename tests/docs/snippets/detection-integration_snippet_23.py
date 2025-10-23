@@ -5,9 +5,12 @@
 # Has assignments: True
 
 # test_myapp.py
-import pytest
 from unittest.mock import patch
+
+import pytest
+
 from mycelium_onboarding.detection.docker_detector import DockerDetectionResult
+
 
 def test_with_docker_available():
     """Test behavior when Docker is available."""

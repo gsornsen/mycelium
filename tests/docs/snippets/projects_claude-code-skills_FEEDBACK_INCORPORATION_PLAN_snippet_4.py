@@ -6,9 +6,10 @@
 
 # plugins/mycelium-core/skills/database.py
 import os
-import psycopg2
-from psycopg2.pool import SimpleConnectionPool
+
 from pgvector.psycopg2 import register_vector
+from psycopg2.pool import SimpleConnectionPool
+
 
 class DatabaseManager:
     """Manages PostgreSQL connections for skills infrastructure."""

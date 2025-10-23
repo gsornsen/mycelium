@@ -4,9 +4,10 @@
 # Has imports: True
 # Has assignments: True
 
+from mycelium_onboarding.config.manager import ConfigManager
 from mycelium_onboarding.wizard.flow import WizardState
 from mycelium_onboarding.wizard.validation import WizardValidator
-from mycelium_onboarding.config.manager import ConfigManager
+
 
 def create_config_from_template(template_name: str):
     """Create configuration from predefined template."""

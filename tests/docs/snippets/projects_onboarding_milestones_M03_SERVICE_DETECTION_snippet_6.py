@@ -7,9 +7,8 @@
 # mycelium_onboarding/detection/gpu.py
 """GPU detection."""
 
-import subprocess
 import shutil
-from typing import Optional
+import subprocess
 from dataclasses import dataclass
 from enum import Enum
 
@@ -25,12 +24,12 @@ class GPUType(str, Enum):
 class GPUInfo:
     """GPU detection result."""
     available: bool
-    gpu_type: Optional[GPUType] = None
+    gpu_type: GPUType | None = None
     count: int = 0
-    driver_version: Optional[str] = None
-    cuda_version: Optional[str] = None
+    driver_version: str | None = None
+    cuda_version: str | None = None
     devices: list[str] = None
-    error: Optional[str] = None
+    error: str | None = None
 
     def __post_init__(self):
         if self.devices is None:
@@ -104,7 +103,7 @@ def _detect_nvidia_gpu(timeout: float) -> GPUInfo:
     return info
 
 
-def _get_cuda_version(timeout: float) -> Optional[str]:
+def _get_cuda_version(timeout: float) -> str | None:
     """Get CUDA version from nvidia-smi."""
     try:
         result = subprocess.run(

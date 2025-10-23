@@ -6,7 +6,9 @@
 
 # myapp/apps.py
 from django.apps import AppConfig
+
 from mycelium_onboarding.detection import detect_all
+
 
 class MyAppConfig(AppConfig):
     name = "myapp"

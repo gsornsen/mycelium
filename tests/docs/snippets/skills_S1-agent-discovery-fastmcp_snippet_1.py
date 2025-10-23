@@ -4,9 +4,10 @@
 # Has imports: True
 # Has assignments: True
 
-from pydantic import BaseModel, Field, field_validator
-from typing import List, Optional
 from enum import Enum
+
+from pydantic import BaseModel, Field, field_validator
+
 
 class AgentCategory(str, Enum):
     """Agent categories for filtering."""
@@ -43,7 +44,7 @@ class DiscoverAgentsRequest(BaseModel):
         description="Minimum confidence threshold (0.0-1.0)"
     )
 
-    category_filter: Optional[AgentCategory] = Field(
+    category_filter: AgentCategory | None = Field(
         default=None,
         description="Optional category filter"
     )

@@ -4,8 +4,10 @@
 # Has imports: True
 # Has assignments: True
 
-import git
 from datetime import datetime
+
+import git
+
 
 def version_deployment(config: MyceliumConfig):
     """Version control generated deployments."""

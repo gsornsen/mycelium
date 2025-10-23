@@ -7,11 +7,10 @@
 # tests/unit/test_config_manager.py
 """Unit tests for ConfigManager."""
 
-import pytest
-from pathlib import Path
-from pydantic import ValidationError
 
-from mycelium.config import ConfigManager, MyceliumConfig, ServicesConfig, RedisConfig
+import pytest
+from mycelium.config import ConfigManager, MyceliumConfig, RedisConfig, ServicesConfig
+from pydantic import ValidationError
 
 
 class TestConfigManagerLoad:

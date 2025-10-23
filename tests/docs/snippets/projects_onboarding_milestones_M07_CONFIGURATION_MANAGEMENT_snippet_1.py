@@ -7,14 +7,13 @@
 # mycelium_onboarding/cli/config.py
 """Configuration management CLI commands."""
 
+import json
+
 import click
-from pathlib import Path
+import yaml
 from rich.console import Console
 from rich.syntax import Syntax
 from rich.table import Table
-from rich.panel import Panel
-import yaml
-import json
 
 from mycelium_onboarding.config.manager import ConfigManager
 from mycelium_onboarding.config.schema import MyceliumConfig
@@ -155,9 +154,8 @@ def _mask_sensitive_data(config_dict: dict) -> dict:
                 k: "***REDACTED***" if any(s in k.lower() for s in sensitive_keys) else mask_recursive(v)
                 for k, v in obj.items()
             }
-        elif isinstance(obj, list):
+        if isinstance(obj, list):
             return [mask_recursive(item) for item in obj]
-        else:
-            return obj
+        return obj
 
     return mask_recursive(config_dict)

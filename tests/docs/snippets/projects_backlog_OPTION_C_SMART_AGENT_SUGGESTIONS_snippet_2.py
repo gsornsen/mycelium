@@ -14,13 +14,12 @@ Author: @claude-code-developer + @ml-engineer
 Date: 2025-10-18
 """
 
-from pathlib import Path
-from typing import Any
-import pickle
 import hashlib
+import pickle
+from typing import Any
+
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-import numpy as np
 
 from scripts.agent_discovery import AgentDiscovery
 

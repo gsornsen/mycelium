@@ -19,6 +19,7 @@ for task in tasks:
 
 # Solution 2: Increase cache size
 import os
+
 os.environ["DISCOVERY_CACHE_SIZE"] = "200"  # Default: 100
 
 # Solution 3: Warm up cache

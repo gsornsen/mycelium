@@ -9,6 +9,7 @@ events = get_coordination_events(limit=1000)
 
 # Count by type
 from collections import Counter
+
 event_types = Counter(e["event_type"] for e in events["events"])
 print(f"Event Types: {dict(event_types)}")
 

@@ -18,5 +18,6 @@ env_vars = secrets.to_env_vars()
 
 # Use in deployment
 import os
+
 for key, value in env_vars.items():
     os.environ[key] = value

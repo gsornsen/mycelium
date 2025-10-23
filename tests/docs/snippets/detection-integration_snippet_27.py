@@ -6,7 +6,9 @@
 
 import signal
 import sys
+
 from mycelium_onboarding.detection import detect_all
+
 
 class Application:
     def __init__(self):

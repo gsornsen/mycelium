@@ -6,6 +6,7 @@
 
 # Solution 1: Restart API service
 import subprocess
+
 subprocess.run(["systemctl", "restart", "mycelium-discovery-api"])
 
 # Solution 2: Reload registry

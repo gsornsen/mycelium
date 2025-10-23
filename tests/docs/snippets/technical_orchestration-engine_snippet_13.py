@@ -6,6 +6,7 @@
 
 from plugins.mycelium_core.coordination.orchestrator import TaskExecutionContext
 
+
 async def my_task_executor(ctx: TaskExecutionContext) -> Dict[str, Any]:
     """
     Task executor function.

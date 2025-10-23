@@ -6,7 +6,8 @@
 
 # Textual TUI example
 from textual.app import App
-from textual.widgets import Header, Footer, DataTable
+from textual.widgets import DataTable, Footer, Header
+
 
 class MyceliumTUI(App):
     """Interactive TUI for Mycelium Skills."""

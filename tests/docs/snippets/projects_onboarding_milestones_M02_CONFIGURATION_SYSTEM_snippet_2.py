@@ -8,12 +8,12 @@
 """Configuration manager for loading/saving configurations."""
 
 from pathlib import Path
-from typing import Optional
+
 import yaml
 from pydantic import ValidationError
 
 from mycelium_onboarding.config.schema import MyceliumConfig
-from mycelium_onboarding.config_loader import get_config_path, find_config_file
+from mycelium_onboarding.config_loader import find_config_file, get_config_path
 
 
 class ConfigurationError(Exception):

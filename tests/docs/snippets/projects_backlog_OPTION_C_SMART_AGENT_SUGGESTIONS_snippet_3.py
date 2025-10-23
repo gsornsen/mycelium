@@ -27,8 +27,10 @@ Date: 2025-10-18
 import argparse
 import subprocess
 from pathlib import Path
+
 from mycelium_recommender.context_extractor import ContextExtractor
 from mycelium_recommender.recommender import AgentRecommender
+
 from scripts.agent_discovery import AgentDiscovery
 
 
@@ -47,9 +49,8 @@ def auto_detect_files() -> list[Path]:
 
         if result:
             return [Path(p) for p in result.split('\n')[:10]]
-        else:
-            # Fallback: list files in current directory
-            return list(Path.cwd().rglob("*.py"))[:10]
+        # Fallback: list files in current directory
+        return list(Path.cwd().rglob("*.py"))[:10]
     except (subprocess.CalledProcessError, FileNotFoundError):
         # Not a git repo - use current directory
         return list(Path.cwd().rglob("*.*"))[:10]
@@ -75,7 +76,7 @@ def cmd_suggest(args):
             include_git=True
         )
 
-    print(f"\n=== Agent Suggestions ===\n")
+    print("\n=== Agent Suggestions ===\n")
     print(f"Context: {context}\n")
 
     # Get suggestions
@@ -125,10 +126,10 @@ def cmd_explain(args):
 
     print(f"\n=== Explanation: {args.agent_id} ===\n")
     print(f"Similarity Score: {explanation['similarity_score']:.2%}")
-    print(f"\nMatched Keywords:")
+    print("\nMatched Keywords:")
     for keyword in explanation['matched_keywords']:
         print(f"  - {keyword}")
-    print(f"\nTop Features:")
+    print("\nTop Features:")
     for feature, weight in explanation['top_features']:
         print(f"  - {feature}: {weight:.4f}")
 

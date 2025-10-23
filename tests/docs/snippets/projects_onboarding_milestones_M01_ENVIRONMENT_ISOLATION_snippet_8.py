@@ -5,9 +5,9 @@
 # Has assignments: True
 
 # tests/integration/test_environment_activation.py
-import pytest
 import subprocess
-from pathlib import Path
+
+import pytest
 
 
 def test_manual_activation_full_flow(tmp_path):

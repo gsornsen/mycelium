@@ -7,12 +7,12 @@
 # scripts/performance_benchmark.py
 """Performance benchmarking for key operations."""
 
-import time
-import statistics
-from typing import List, Callable
-from dataclasses import dataclass
 import cProfile
 import pstats
+import statistics
+import time
+from collections.abc import Callable
+from dataclasses import dataclass
 from io import StringIO
 
 
@@ -34,7 +34,7 @@ class PerformanceBenchmark:
 
     def __init__(self, iterations: int = 100):
         self.iterations = iterations
-        self.results: List[BenchmarkResult] = []
+        self.results: list[BenchmarkResult] = []
 
     def benchmark_operation(
         self,
@@ -50,7 +50,7 @@ class PerformanceBenchmark:
             operation()
 
         # Measure
-        timings: List[float] = []
+        timings: list[float] = []
         for _ in range(self.iterations):
             start = time.perf_counter()
             operation()
@@ -98,7 +98,7 @@ class PerformanceBenchmark:
 
         print(stream.getvalue())
 
-    def _percentile(self, data: List[float], percentile: int) -> float:
+    def _percentile(self, data: list[float], percentile: int) -> float:
         """Calculate percentile of data."""
         sorted_data = sorted(data)
         index = int(len(sorted_data) * percentile / 100)
@@ -126,8 +126,8 @@ class PerformanceBenchmark:
 
 def main():
     """Run performance benchmarks."""
+    from mycelium.config import MyceliumConfig
     from mycelium.detection import InfraDetector
-    from mycelium.config import ConfigManager, MyceliumConfig
     from mycelium.generators import DockerComposeGenerator, JustfileGenerator
 
     benchmark = PerformanceBenchmark(iterations=100)

@@ -1292,20 +1292,20 @@ def generate(method: str | None, output: str | None, generate_secrets: bool) -> 
 
     # Display results
     if result.success:
-        console.print(f"\n[bold green]✓ Deployment generated successfully![/bold green]\n")
+        console.print("\n[bold green]✓ Deployment generated successfully![/bold green]\n")
         console.print(f"Output directory: [cyan]{result.output_dir}[/cyan]")
-        console.print(f"\nGenerated files:")
+        console.print("\nGenerated files:")
         for file in result.files_generated:
             console.print(f"  • {file.name}")
 
         # Show warnings if any
         if result.warnings:
-            console.print(f"\n[yellow]Warnings:[/yellow]")
+            console.print("\n[yellow]Warnings:[/yellow]")
             for warning in result.warnings:
                 console.print(f"  • {warning}")
 
         # Show next steps
-        console.print(f"\n[bold]Next Steps:[/bold]")
+        console.print("\n[bold]Next Steps:[/bold]")
         if deploy_method == DeploymentMethod.DOCKER_COMPOSE:
             console.print(f"  1. Review and update {result.output_dir}/.env with your credentials")
             console.print(f"  2. cd {result.output_dir}")
@@ -1319,7 +1319,7 @@ def generate(method: str | None, output: str | None, generate_secrets: bool) -> 
             console.print("  2. sudo ./install.sh")
             console.print(f"  3. sudo systemctl start {config.project_name}-*")
     else:
-        console.print(f"\n[bold red]✗ Deployment generation failed![/bold red]\n")
+        console.print("\n[bold red]✗ Deployment generation failed![/bold red]\n")
         console.print("[red]Errors:[/red]")
         for error in result.errors:
             console.print(f"  • {error}")

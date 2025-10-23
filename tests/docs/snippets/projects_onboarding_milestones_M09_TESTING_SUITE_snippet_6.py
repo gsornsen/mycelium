@@ -7,9 +7,10 @@
 # tests/fixtures/mcp_fixtures.py
 """Mock fixtures for MCP server interactions."""
 
-import pytest
+from collections.abc import AsyncGenerator
 from unittest.mock import AsyncMock, Mock
-from typing import AsyncGenerator
+
+import pytest
 
 
 @pytest.fixture

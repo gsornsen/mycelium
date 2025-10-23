@@ -7,13 +7,12 @@
 # mycelium_onboarding/cli/test.py
 """CLI command for coordination testing."""
 
-import click
 import asyncio
 import os
-from rich.console import Console
 
+import click
 from mycelium_testing.orchestrator import TestOrchestrator, TestSuite
-from tests.functional import test_coordination_patterns
+from rich.console import Console
 
 console = Console()
 
@@ -70,13 +69,12 @@ def _get_tests_for_pattern(pattern: str) -> list:
             for name in dir(tests_module)
             if name.startswith('test_')
         ]
-    else:
-        pattern_prefix = f"test_{pattern.replace('-', '_')}"
-        return [
-            getattr(tests_module, name)
-            for name in dir(tests_module)
-            if name.startswith(pattern_prefix)
-        ]
+    pattern_prefix = f"test_{pattern.replace('-', '_')}"
+    return [
+        getattr(tests_module, name)
+        for name in dir(tests_module)
+        if name.startswith(pattern_prefix)
+    ]
 
 if __name__ == '__main__':
     test()

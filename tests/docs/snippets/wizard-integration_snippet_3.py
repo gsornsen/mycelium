@@ -4,8 +4,9 @@
 # Has imports: True
 # Has assignments: True
 
-from mycelium_onboarding.wizard.flow import WizardState, WizardStep
+from mycelium_onboarding.wizard.flow import WizardState
 from mycelium_onboarding.wizard.validation import WizardValidator
+
 
 def headless_wizard(answers: dict):
     """Run wizard with predefined answers (for CI/CD)."""

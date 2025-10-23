@@ -4,7 +4,10 @@
 # Has imports: True
 # Has assignments: True
 
-from mycelium_core.mcp.tools.discovery_tools import discover_agents, DiscoverAgentsRequest
+from mycelium_core.mcp.tools.discovery_tools import (
+    DiscoverAgentsRequest,
+    discover_agents,
+)
 
 # Create request
 request = DiscoverAgentsRequest(

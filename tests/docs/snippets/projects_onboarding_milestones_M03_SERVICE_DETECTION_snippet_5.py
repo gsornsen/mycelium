@@ -9,6 +9,7 @@
 
 import requests
 
+
 @dataclass
 class TemporalInfo:
     available: bool

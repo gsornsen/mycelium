@@ -6,10 +6,11 @@
 
 """Unit tests for recommendation system."""
 
-import pytest
 from pathlib import Path
+
 from mycelium_recommender.context_extractor import ContextExtractor
 from mycelium_recommender.recommender import AgentRecommender
+
 from scripts.agent_discovery import AgentDiscovery
 
 

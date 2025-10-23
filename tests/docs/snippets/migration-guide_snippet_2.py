@@ -4,8 +4,10 @@
 # Has imports: True
 # Has assignments: True
 
-from mycelium_onboarding.config.migrations import Migration
 from typing import Any
+
+from mycelium_onboarding.config.migrations import Migration
+
 
 class Migration_1_2_to_1_3(Migration):
     """Migrate from version 1.2 to 1.3.

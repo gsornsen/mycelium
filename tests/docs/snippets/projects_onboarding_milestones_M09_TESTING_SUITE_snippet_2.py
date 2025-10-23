@@ -7,13 +7,11 @@
 # tests/unit/test_detection.py
 """Unit tests for infrastructure detection."""
 
-import pytest
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import MagicMock, Mock, patch
 
 from mycelium.detection import (
-    InfraDetector,
     DetectionResults,
-    ServiceStatus,
+    InfraDetector,
     RedisDetection,
 )
 

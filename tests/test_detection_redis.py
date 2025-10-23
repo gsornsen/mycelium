@@ -3,11 +3,10 @@
 from __future__ import annotations
 
 import socket
-from unittest.mock import Mock, patch
-
-import pytest
+from unittest.mock import Mock
 
 import pytest_mock
+
 from mycelium_onboarding.detection.redis_detector import (
     RedisDetectionResult,
     detect_redis,
@@ -74,7 +73,7 @@ class TestDetectRedis:
     def test_detect_redis_timeout(self, mocker: pytest_mock.MockerFixture) -> None:
         """Test Redis connection timeout."""
         mock_socket = Mock()
-        mock_socket.connect.side_effect = socket.timeout()
+        mock_socket.connect.side_effect = TimeoutError()
 
         mock_socket_class = mocker.patch("socket.socket")
         mock_socket_class.return_value = mock_socket

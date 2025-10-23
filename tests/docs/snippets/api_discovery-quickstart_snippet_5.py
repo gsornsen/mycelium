@@ -5,7 +5,9 @@
 # Has assignments: True
 
 from functools import lru_cache
+
 import requests
+
 
 @lru_cache(maxsize=100)
 def get_agent(agent_id: str):

@@ -9,8 +9,9 @@
 
 import asyncio
 import random
-from typing import Callable, Any
+from collections.abc import Callable
 from functools import wraps
+
 
 class FailureInjector:
     """Inject failures into coordination operations."""
@@ -81,10 +82,9 @@ class FailureInjector:
 # mycelium_testing/metrics.py
 """Metrics collection for coordination tests."""
 
-import time
-from dataclasses import dataclass, field
-from typing import Optional
 from collections import defaultdict
+from dataclasses import dataclass, field
+
 
 @dataclass
 class MetricsCollector:

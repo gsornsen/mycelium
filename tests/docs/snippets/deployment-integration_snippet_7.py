@@ -6,6 +6,7 @@
 
 from jinja2 import Environment, FileSystemLoader
 
+
 def create_custom_renderer():
     """Create renderer with custom filters."""
     env = Environment(

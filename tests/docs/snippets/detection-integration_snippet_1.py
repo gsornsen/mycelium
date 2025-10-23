@@ -6,6 +6,7 @@
 
 from mycelium_onboarding.detection import detect_all
 
+
 def check_services():
     """Check if required services are available."""
     summary = detect_all()

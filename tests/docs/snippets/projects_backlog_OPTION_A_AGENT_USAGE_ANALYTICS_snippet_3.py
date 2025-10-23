@@ -29,6 +29,7 @@ Date: 2025-10-18
 
 import argparse
 from pathlib import Path
+
 from mycelium_analytics import EventStorage
 from mycelium_analytics.metrics import UsageAnalyzer
 from scripts.agent_discovery import AgentDiscovery
@@ -96,7 +97,7 @@ def cmd_unused(args):
         print(f"  Keywords: {', '.join(agent['keywords'][:5])}")
         days_since = agent['days_since_last_use']
         if days_since == float("inf"):
-            print(f"  Status: Never used")
+            print("  Status: Never used")
         else:
             print(f"  Last Used: {days_since} days ago")
         print()

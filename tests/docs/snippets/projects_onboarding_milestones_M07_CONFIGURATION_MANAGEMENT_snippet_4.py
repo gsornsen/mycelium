@@ -51,7 +51,7 @@ def validate(project: bool, strict: bool):
         _show_validation_summary(config)
 
     except Exception as e:
-        console.print(f"\n[red]✗ Validation failed:[/red]")
+        console.print("\n[red]✗ Validation failed:[/red]")
         console.print(f"  {e}")
         raise click.ClickException("Invalid configuration")
 

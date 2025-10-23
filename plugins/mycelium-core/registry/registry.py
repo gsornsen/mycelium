@@ -8,7 +8,7 @@ import json
 import os
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 from uuid import UUID
 
 import asyncpg
@@ -42,8 +42,8 @@ class AgentRegistry:
 
     def __init__(
         self,
-        connection_string: Optional[str] = None,
-        pool: Optional[Pool] = None,
+        connection_string: str | None = None,
+        pool: Pool | None = None,
     ):
         """Initialize the agent registry.
 
@@ -60,7 +60,7 @@ class AgentRegistry:
                 "DATABASE_URL",
                 "postgresql://localhost:5432/mycelium_registry"
             )
-            self._pool: Optional[Pool] = None
+            self._pool: Pool | None = None
             self._owns_pool = True
 
     async def initialize(self) -> None:
@@ -101,12 +101,12 @@ class AgentRegistry:
         category: str,
         description: str,
         file_path: str,
-        capabilities: Optional[List[str]] = None,
-        tools: Optional[List[str]] = None,
-        keywords: Optional[List[str]] = None,
-        embedding: Optional[List[float]] = None,
-        estimated_tokens: Optional[int] = None,
-        metadata: Optional[Dict[str, Any]] = None,
+        capabilities: list[str] | None = None,
+        tools: list[str] | None = None,
+        keywords: list[str] | None = None,
+        embedding: list[float] | None = None,
+        estimated_tokens: int | None = None,
+        metadata: dict[str, Any] | None = None,
     ) -> UUID:
         """Create a new agent in the registry.
 
@@ -168,7 +168,7 @@ class AgentRegistry:
         finally:
             await self._release_connection(conn)
 
-    async def get_agent_by_id(self, agent_id: str) -> Dict[str, Any]:
+    async def get_agent_by_id(self, agent_id: str) -> dict[str, Any]:
         """Get an agent by its agent_id.
 
         Args:
@@ -201,7 +201,7 @@ class AgentRegistry:
         finally:
             await self._release_connection(conn)
 
-    async def get_agent_by_type(self, agent_type: str) -> Dict[str, Any]:
+    async def get_agent_by_type(self, agent_type: str) -> dict[str, Any]:
         """Get an agent by its agent_type.
 
         Args:
@@ -234,7 +234,7 @@ class AgentRegistry:
         finally:
             await self._release_connection(conn)
 
-    async def get_agent_by_uuid(self, uuid: UUID) -> Dict[str, Any]:
+    async def get_agent_by_uuid(self, uuid: UUID) -> dict[str, Any]:
         """Get an agent by its UUID.
 
         Args:
@@ -335,10 +335,10 @@ class AgentRegistry:
 
     async def list_agents(
         self,
-        category: Optional[str] = None,
+        category: str | None = None,
         limit: int = 100,
         offset: int = 0,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """List agents with optional filtering.
 
         Args:
@@ -386,7 +386,7 @@ class AgentRegistry:
         self,
         query: str,
         limit: int = 10,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Search agents using full-text search on description and keywords.
 
         Args:
@@ -430,10 +430,10 @@ class AgentRegistry:
 
     async def similarity_search(
         self,
-        embedding: List[float],
+        embedding: list[float],
         limit: int = 10,
         threshold: float = 0.5,
-    ) -> List[Tuple[Dict[str, Any], float]]:
+    ) -> list[tuple[dict[str, Any], float]]:
         """Search agents by embedding similarity using pgvector.
 
         Args:
@@ -473,7 +473,7 @@ class AgentRegistry:
         finally:
             await self._release_connection(conn)
 
-    async def get_agent_count(self, category: Optional[str] = None) -> int:
+    async def get_agent_count(self, category: str | None = None) -> int:
         """Get the total number of agents in the registry.
 
         Args:
@@ -487,14 +487,13 @@ class AgentRegistry:
             if category:
                 query = "SELECT COUNT(*) FROM agents WHERE category = $1"
                 return await conn.fetchval(query, category)
-            else:
-                query = "SELECT COUNT(*) FROM agents"
-                return await conn.fetchval(query)
+            query = "SELECT COUNT(*) FROM agents"
+            return await conn.fetchval(query)
 
         finally:
             await self._release_connection(conn)
 
-    async def get_categories(self) -> List[str]:
+    async def get_categories(self) -> list[str]:
         """Get all unique categories in the registry.
 
         Returns:
@@ -513,7 +512,7 @@ class AgentRegistry:
 
     async def bulk_insert_agents(
         self,
-        agents: List[Dict[str, Any]],
+        agents: list[dict[str, Any]],
         batch_size: int = 100,
     ) -> int:
         """Bulk insert agents into the registry.
@@ -548,7 +547,7 @@ class AgentRegistry:
 
     # Utility methods
 
-    async def health_check(self) -> Dict[str, Any]:
+    async def health_check(self) -> dict[str, Any]:
         """Perform a health check on the registry.
 
         Returns:
@@ -617,7 +616,7 @@ async def load_agents_from_index(
     if not index_path.exists():
         raise FileNotFoundError(f"Index file not found: {index_path}")
 
-    with open(index_path, 'r', encoding='utf-8') as f:
+    with open(index_path, encoding='utf-8') as f:
         data = json.load(f)
 
     agents_data = []

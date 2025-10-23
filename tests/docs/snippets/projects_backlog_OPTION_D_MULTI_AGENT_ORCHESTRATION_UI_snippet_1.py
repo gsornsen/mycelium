@@ -4,11 +4,12 @@
 # Has imports: True
 # Has assignments: True
 
+import uuid
+from datetime import datetime
+from typing import Any
+
 from fastapi import FastAPI, HTTPException, WebSocket
 from pydantic import BaseModel, Field
-from typing import List, Dict, Any, Optional
-from datetime import datetime
-import uuid
 
 app = FastAPI(title="Mycelium Orchestration API", version="1.0.0")
 
@@ -22,33 +23,33 @@ class AgentNode(BaseModel):
     id: str = Field(..., description="Unique node ID")
     agent_type: str = Field(..., description="Agent ID (e.g., 'python-pro')")
     position: tuple[int, int] = Field(..., description="(x, y) position in canvas")
-    config: Dict[str, Any] = Field(default_factory=dict, description="Node-specific config")
+    config: dict[str, Any] = Field(default_factory=dict, description="Node-specific config")
 
 
 class WorkflowEdge(BaseModel):
     """Edge connecting two nodes."""
     source: str = Field(..., description="Source node ID")
     target: str = Field(..., description="Target node ID")
-    condition: Optional[str] = Field(None, description="Conditional edge (e.g., 'on_success')")
+    condition: str | None = Field(None, description="Conditional edge (e.g., 'on_success')")
 
 
 class WorkflowCreate(BaseModel):
     """Create workflow request."""
     name: str
-    description: Optional[str] = None
-    nodes: List[AgentNode]
-    edges: List[WorkflowEdge]
-    tags: List[str] = Field(default_factory=list)
-    category: Optional[str] = None
+    description: str | None = None
+    nodes: list[AgentNode]
+    edges: list[WorkflowEdge]
+    tags: list[str] = Field(default_factory=list)
+    category: str | None = None
 
 
 class WorkflowResponse(BaseModel):
     """Workflow response."""
     id: uuid.UUID
     name: str
-    description: Optional[str]
-    nodes: List[AgentNode]
-    edges: List[WorkflowEdge]
+    description: str | None
+    nodes: list[AgentNode]
+    edges: list[WorkflowEdge]
     created_at: datetime
     updated_at: datetime
     is_template: bool
@@ -56,7 +57,7 @@ class WorkflowResponse(BaseModel):
 
 class ExecutionCreate(BaseModel):
     """Execute workflow request."""
-    input_params: Dict[str, Any] = Field(default_factory=dict)
+    input_params: dict[str, Any] = Field(default_factory=dict)
     trigger: str = "manual"
 
 
@@ -65,18 +66,18 @@ class ExecutionResponse(BaseModel):
     id: uuid.UUID
     workflow_id: uuid.UUID
     status: str
-    started_at: Optional[datetime]
-    completed_at: Optional[datetime]
-    duration_seconds: Optional[float]
-    node_statuses: Dict[str, str]
-    error_message: Optional[str]
+    started_at: datetime | None
+    completed_at: datetime | None
+    duration_seconds: float | None
+    node_statuses: dict[str, str]
+    error_message: str | None
 
 
 # ============================================================================
 # Endpoints
 # ============================================================================
 
-@app.get("/api/agents", response_model=List[Dict[str, Any]])
+@app.get("/api/agents", response_model=list[dict[str, Any]])
 async def list_agents():
     """List all available agents from discovery system.
 
@@ -98,8 +99,9 @@ async def list_agents():
             ...
         ]
     """
-    from scripts.agent_discovery import AgentDiscovery
     from pathlib import Path
+
+    from scripts.agent_discovery import AgentDiscovery
 
     discovery = AgentDiscovery(Path("plugins/mycelium-core/agents/index.json"))
     agents = discovery.list_agents()
@@ -107,10 +109,10 @@ async def list_agents():
     return agents
 
 
-@app.get("/api/workflows", response_model=List[WorkflowResponse])
+@app.get("/api/workflows", response_model=list[WorkflowResponse])
 async def list_workflows(
-    category: Optional[str] = None,
-    is_template: Optional[bool] = None,
+    category: str | None = None,
+    is_template: bool | None = None,
     limit: int = 50
 ):
     """List workflows with optional filtering.
@@ -252,10 +254,10 @@ async def execute_workflow(workflow_id: uuid.UUID, execution: ExecutionCreate):
     raise HTTPException(status_code=501, detail="Not implemented")
 
 
-@app.get("/api/workflows/{workflow_id}/executions", response_model=List[ExecutionResponse])
+@app.get("/api/workflows/{workflow_id}/executions", response_model=list[ExecutionResponse])
 async def list_executions(
     workflow_id: uuid.UUID,
-    status: Optional[str] = None,
+    status: str | None = None,
     limit: int = 50
 ):
     """List executions for workflow.
@@ -309,8 +311,8 @@ async def cancel_execution(execution_id: uuid.UUID):
 @app.get("/api/executions/{execution_id}/logs")
 async def get_execution_logs(
     execution_id: uuid.UUID,
-    node_id: Optional[str] = None,
-    level: Optional[str] = None,
+    node_id: str | None = None,
+    level: str | None = None,
     limit: int = 1000
 ):
     """Get execution logs.

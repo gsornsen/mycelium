@@ -7,6 +7,7 @@
 # Example: Loading config with fallback
 import yaml
 
+
 def load_config():
     """Load configuration with hierarchical fallback."""
     config_file = find_config_file("config.yaml")

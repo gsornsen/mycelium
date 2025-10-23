@@ -26,10 +26,12 @@ Date: 2025-10-18
 
 import argparse
 from pathlib import Path
-from mycelium_analytics import EventStorage
-from mycelium_analytics.metrics import UsageAnalyzer
+
 from scripts.prompt_analyzer import PromptAnalyzer
 from scripts.prompt_optimizer import PromptOptimizer
+
+from mycelium_analytics import EventStorage
+from mycelium_analytics.metrics import UsageAnalyzer
 from scripts.agent_discovery import AgentDiscovery
 
 
@@ -158,7 +160,7 @@ def cmd_batch_optimize(args):
     # Sort by score (lowest first)
     candidates.sort(key=lambda x: x['score'])
 
-    print(f"\n=== Batch Optimization ===\n")
+    print("\n=== Batch Optimization ===\n")
     print(f"Found {len(candidates)} agents below {args.min_score}/100\n")
 
     for candidate in candidates[:args.limit]:

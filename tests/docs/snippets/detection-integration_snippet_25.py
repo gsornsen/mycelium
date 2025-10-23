@@ -5,6 +5,7 @@
 # Has assignments: True
 
 from fastapi import FastAPI, status
+
 from mycelium_onboarding.detection import detect_all
 
 app = FastAPI()

@@ -4,8 +4,8 @@
 # Has imports: True
 # Has assignments: True
 
-from mycelium_onboarding.config.schema import DeploymentMethod
 from enum import Enum
+
 
 # Extend DeploymentMethod enum (in config/schema.py)
 class ExtendedDeploymentMethod(str, Enum):

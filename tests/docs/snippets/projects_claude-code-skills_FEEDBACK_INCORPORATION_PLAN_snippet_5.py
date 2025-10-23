@@ -9,15 +9,12 @@ TF-IDF Vectorizer for agent search with pgvector integration.
 Hybrid approach: TF-IDF for explainability + embeddings for semantic search.
 """
 
-from typing import List, Dict, Any, Optional
 from pathlib import Path
-import json
-import numpy as np
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
+from typing import Any, Optional
+
 from sentence_transformers import SentenceTransformer
-import psycopg2
-from pgvector.psycopg2 import register_vector
+from sklearn.feature_extraction.text import TfidfVectorizer
+
 
 class AgentVectorizer:
     """Hybrid TF-IDF + Embeddings agent similarity ranking."""
@@ -85,10 +82,10 @@ class AgentVectorizer:
         self,
         query: str,
         max_results: int = 5,
-        category_filter: Optional[str] = None,
+        category_filter: str | None = None,
         min_score: float = 0.0,
         use_embeddings: bool = True
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Hybrid search using TF-IDF + embeddings.
 
         Args:
@@ -121,8 +118,8 @@ class AgentVectorizer:
         self,
         query: str,
         max_results: int,
-        category_filter: Optional[str]
-    ) -> List[Dict[str, Any]]:
+        category_filter: str | None
+    ) -> list[dict[str, Any]]:
         """Search using pgvector embeddings."""
         conn = self.db_manager.get_connection()
         try:
@@ -164,10 +161,10 @@ class AgentVectorizer:
 
     def _combine_results(
         self,
-        tfidf_results: List[Dict],
-        embedding_results: List[Dict],
+        tfidf_results: list[dict],
+        embedding_results: list[dict],
         weights: tuple = (0.3, 0.7)
-    ) -> List[Dict]:
+    ) -> list[dict]:
         """Combine TF-IDF and embedding results with weighted scores."""
         # Create maps for quick lookup
         tfidf_map = {r['agent_id']: r for r in tfidf_results}

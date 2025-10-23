@@ -6,8 +6,6 @@
 
 """Unit tests for prompt analyzer and optimizer."""
 
-import pytest
-from pathlib import Path
 from scripts.prompt_analyzer import PromptAnalyzer
 from scripts.prompt_optimizer import PromptOptimizer
 

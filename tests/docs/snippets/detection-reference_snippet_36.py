@@ -6,6 +6,7 @@
 
 from typing import Protocol
 
+
 class Detector(Protocol):
     """Protocol for all detector functions."""
 

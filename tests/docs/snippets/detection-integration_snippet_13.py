@@ -5,7 +5,9 @@
 # Has assignments: True
 
 import time
+
 from mycelium_onboarding.detection import detect_all
+
 
 def wait_for_services(required_services, max_wait=60, check_interval=5):
     """Wait for required services to become available."""
@@ -17,13 +19,7 @@ def wait_for_services(required_services, max_wait=60, check_interval=5):
         # Check all required services
         all_available = True
         for service in required_services:
-            if service == "docker" and not summary.has_docker:
-                all_available = False
-            elif service == "redis" and not summary.has_redis:
-                all_available = False
-            elif service == "postgres" and not summary.has_postgres:
-                all_available = False
-            elif service == "temporal" and not summary.has_temporal:
+            if service == "docker" and not summary.has_docker or service == "redis" and not summary.has_redis or service == "postgres" and not summary.has_postgres or service == "temporal" and not summary.has_temporal:
                 all_available = False
 
         if all_available:

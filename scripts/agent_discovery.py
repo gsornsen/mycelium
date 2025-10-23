@@ -25,11 +25,11 @@ Phase: 1 Week 3
 Date: 2025-10-17
 """
 
-from pathlib import Path
-from typing import Optional, List, Dict, Any
 import json
 import time
 from collections import OrderedDict
+from pathlib import Path
+from typing import Any
 
 
 class AgentDiscoveryError(Exception):
@@ -80,7 +80,7 @@ class AgentCache:
             'puts': 0
         }
 
-    def get(self, key: str) -> Optional[Dict[str, Any]]:
+    def get(self, key: str) -> dict[str, Any] | None:
         """Get cached agent, moving to end (most recent).
 
         Args:
@@ -98,7 +98,7 @@ class AgentCache:
         self._stats['misses'] += 1
         return None
 
-    def put(self, key: str, value: Dict[str, Any]) -> None:
+    def put(self, key: str, value: dict[str, Any]) -> None:
         """Cache agent content with LRU eviction.
 
         Args:
@@ -133,7 +133,7 @@ class AgentCache:
             'puts': 0
         }
 
-    def get_stats(self) -> Dict[str, int]:
+    def get_stats(self) -> dict[str, int]:
         """Get cache statistics.
 
         Returns:
@@ -189,9 +189,9 @@ class AgentDiscovery:
         self.index = self._load_index()
 
         # Build lookup tables for O(1) access
-        self._id_to_agent: Dict[str, Dict[str, Any]] = {}
-        self._category_to_agents: Dict[str, List[Dict[str, Any]]] = {}
-        self._keyword_to_agents: Dict[str, List[Dict[str, Any]]] = {}
+        self._id_to_agent: dict[str, dict[str, Any]] = {}
+        self._category_to_agents: dict[str, list[dict[str, Any]]] = {}
+        self._keyword_to_agents: dict[str, list[dict[str, Any]]] = {}
         self._build_lookup_tables()
 
         # Initialize content cache
@@ -204,7 +204,7 @@ class AgentDiscovery:
         }
 
         # Initialize telemetry (graceful degradation if unavailable)
-        self.telemetry: Optional[Any] = None
+        self.telemetry: Any | None = None
         try:
             from mycelium_analytics import EventStorage, TelemetryCollector
             storage = EventStorage()
@@ -213,7 +213,7 @@ class AgentDiscovery:
             # Telemetry unavailable - continue without it
             pass
 
-    def _load_index(self) -> Dict[str, Any]:
+    def _load_index(self) -> dict[str, Any]:
         """Load index.json metadata (lightweight).
 
         Returns:
@@ -281,9 +281,9 @@ class AgentDiscovery:
 
     def list_agents(
         self,
-        category: Optional[str] = None,
-        keywords: Optional[List[str]] = None
-    ) -> List[Dict[str, Any]]:
+        category: str | None = None,
+        keywords: list[str] | None = None
+    ) -> list[dict[str, Any]]:
         """List agents (metadata only, no content).
 
         Returns lightweight metadata for all matching agents without
@@ -334,7 +334,7 @@ class AgentDiscovery:
         # Return metadata only (no content)
         return agents
 
-    def get_agent(self, agent_id: str) -> Optional[Dict[str, Any]]:
+    def get_agent(self, agent_id: str) -> dict[str, Any] | None:
         """Get agent details (lazy load content).
 
         Loads full agent content on first access, then caches for future
@@ -403,7 +403,7 @@ class AgentDiscovery:
         try:
             self._stats['file_reads'] += 1
             content = agent_file.read_text(encoding='utf-8')
-        except (IOError, UnicodeDecodeError) as e:
+        except (OSError, UnicodeDecodeError):
             # File read error
             duration_ms = (time.perf_counter() - start_time) * 1000
             if self.telemetry:
@@ -444,7 +444,7 @@ class AgentDiscovery:
 
         return agent_full
 
-    def search(self, query: str) -> List[Dict[str, Any]]:
+    def search(self, query: str) -> list[dict[str, Any]]:
         """Search agents by keyword in metadata.
 
         Fast search across agent names, descriptions, and keywords using
@@ -507,7 +507,7 @@ class AgentDiscovery:
 
         return results
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """Get performance statistics.
 
         Returns:
@@ -544,7 +544,7 @@ class AgentDiscovery:
         self._cache.clear()
 
 
-def benchmark_discovery(index_path: Path) -> Dict[str, float]:
+def benchmark_discovery(index_path: Path) -> dict[str, float]:
     """Benchmark discovery performance and validate targets.
 
     Runs comprehensive performance tests:
@@ -632,13 +632,13 @@ if __name__ == '__main__':
 
         print("=== Agent Discovery Performance Benchmarks ===\n")
         print(f"Agent count:         {results['agent_count']}")
-        print(f"\nPerformance:")
+        print("\nPerformance:")
         print(f"  List all agents:   {results['list_all_agents_ms']:.2f}ms")
         print(f"  Get agent (first): {results['get_agent_first_ms']:.2f}ms")
         print(f"  Get agent (cached):{results['get_agent_cached_ms']:.2f}ms")
         print(f"  Search 'api':      {results['search_ms']:.2f}ms ({results['search_result_count']} results)")
         print(f"  Filter category:   {results['filter_category_ms']:.2f}ms ({results['filtered_count']} agents)")
-        print(f"\nCache statistics:")
+        print("\nCache statistics:")
         print(f"  Cache hit rate:    {results['cache_hit_rate']:.1f}%")
         print(f"  File reads:        {results['file_reads']}")
 

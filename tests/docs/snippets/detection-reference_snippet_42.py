@@ -7,6 +7,7 @@
 import time
 from functools import lru_cache
 
+
 @lru_cache(maxsize=1)
 def cached_detect_all():
     return detect_all()

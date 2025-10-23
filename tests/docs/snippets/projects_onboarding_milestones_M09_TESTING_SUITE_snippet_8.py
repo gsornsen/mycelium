@@ -8,9 +8,8 @@
 """Parametrized tests for configuration validation."""
 
 import pytest
-from pydantic import ValidationError
-
 from mycelium.config import RedisConfig
+from pydantic import ValidationError
 
 
 @pytest.mark.parametrize("port,should_pass", [

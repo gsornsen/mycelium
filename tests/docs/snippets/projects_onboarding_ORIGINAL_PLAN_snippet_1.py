@@ -6,7 +6,7 @@
 
 # ~/.claude/plugins/mycelium-core/lib/onboarding/tui.py
 from textual.app import App
-from textual.widgets import Checkbox, Button, SelectionList
+
 
 class MyceliumOnboarding(App):
     def compose(self):

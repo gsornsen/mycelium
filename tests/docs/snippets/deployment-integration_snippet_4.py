@@ -7,6 +7,7 @@
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
 
+
 async def generate_deployment_async(
     config: MyceliumConfig,
     method: DeploymentMethod
@@ -25,7 +26,7 @@ async def generate_deployment_async(
     return result
 
 # Usage with FastAPI
-from fastapi import FastAPI, BackgroundTasks
+from fastapi import BackgroundTasks, FastAPI
 
 app = FastAPI()
 

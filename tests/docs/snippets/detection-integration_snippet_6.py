@@ -4,7 +4,8 @@
 # Has imports: True
 # Has assignments: True
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
+
 from mycelium_onboarding.detection import detect_all_async
 
 app = FastAPI()

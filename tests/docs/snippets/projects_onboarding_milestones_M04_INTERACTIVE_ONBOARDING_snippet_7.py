@@ -7,9 +7,11 @@
 # tests/integration/test_wizard_flow.py
 """Integration tests for complete wizard flow."""
 
+from unittest.mock import AsyncMock, patch
+
 import pytest
-from unittest.mock import patch, AsyncMock
 from mycelium_onboarding.wizard.integration import run_wizard_with_detection
+
 
 @pytest.mark.asyncio
 async def test_complete_wizard_flow():

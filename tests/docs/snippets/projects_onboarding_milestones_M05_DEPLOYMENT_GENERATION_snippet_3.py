@@ -8,17 +8,18 @@
 """Justfile generator for bare-metal deployments."""
 
 from pathlib import Path
-from typing import Optional
+
 import jinja2
 
 from mycelium_onboarding.config.schema import MyceliumConfig
+
 
 class JustfileGenerator:
     """Generates Justfile configuration from MyceliumConfig."""
 
     TEMPLATE_NAME = "Justfile.j2"
 
-    def __init__(self, template_dir: Optional[Path] = None):
+    def __init__(self, template_dir: Path | None = None):
         if template_dir is None:
             template_dir = Path(__file__).parent.parent / "templates"
 

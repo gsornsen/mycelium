@@ -4,9 +4,10 @@
 # Has imports: True
 # Has assignments: True
 
-from typing import List, Dict, Any, Optional
-from mycelium_core.registry import AgentRegistry
+from typing import Any
+
 from mycelium_core.matching import NLPMatcher
+from mycelium_core.registry import AgentRegistry
 
 
 class AgentDiscoveryService:
@@ -22,8 +23,8 @@ class AgentDiscoveryService:
         query: str,
         limit: int = 5,
         threshold: float = 0.6,
-        category_filter: Optional[str] = None
-    ) -> List[Dict[str, Any]]:
+        category_filter: str | None = None
+    ) -> list[dict[str, Any]]:
         """
         Search for agents matching query.
 
@@ -56,7 +57,7 @@ class AgentDiscoveryService:
 
         return matches
 
-    async def get_details(self, agent_id: str) -> Optional[Dict[str, Any]]:
+    async def get_details(self, agent_id: str) -> dict[str, Any] | None:
         """
         Get detailed agent information.
 

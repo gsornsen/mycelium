@@ -6,6 +6,7 @@
 
 # Solution 1: Increase timeout
 import os
+
 os.environ["DISCOVERY_TIMEOUT_SECONDS"] = "60"
 
 result = discover_agents("query")

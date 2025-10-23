@@ -4,8 +4,10 @@
 # Has imports: True
 # Has assignments: True
 
+from unittest.mock import patch
+
 import pytest
-from unittest.mock import patch, MagicMock
+
 
 class TestCoordination:
     @pytest.fixture(params=["redis", "taskqueue", "markdown"])

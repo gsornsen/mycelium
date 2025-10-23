@@ -6,6 +6,7 @@
 
 from abc import ABC, abstractmethod
 
+
 class WizardPlugin(ABC):
     """Base class for wizard plugins."""
 

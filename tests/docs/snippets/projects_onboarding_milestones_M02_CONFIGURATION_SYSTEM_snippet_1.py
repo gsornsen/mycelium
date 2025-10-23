@@ -7,10 +7,10 @@
 # mycelium_onboarding/config/schema.py
 """Configuration schema using Pydantic v2."""
 
-from pydantic import BaseModel, Field, field_validator
-from typing import Literal, Optional
-from pathlib import Path
 from enum import Enum
+from typing import Literal
+
+from pydantic import BaseModel, Field, field_validator
 
 
 class DeploymentMethod(str, Enum):
@@ -22,7 +22,7 @@ class DeploymentMethod(str, Enum):
 class ServiceConfig(BaseModel):
     """Configuration for a single service."""
     enabled: bool = True
-    version: Optional[str] = None
+    version: str | None = None
     custom_config: dict[str, str] = Field(default_factory=dict)
 
 

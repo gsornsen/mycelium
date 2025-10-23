@@ -4,8 +4,9 @@
 # Has imports: True
 # Has assignments: True
 
-from mycelium_onboarding.detection import detect_all, update_config_from_detection
 from mycelium_onboarding.config.manager import ConfigManager
+from mycelium_onboarding.detection import detect_all, update_config_from_detection
+
 
 def auto_configure():
     """Automatically configure services based on detection."""

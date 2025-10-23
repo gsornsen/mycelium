@@ -4,8 +4,9 @@
 # Has imports: True
 # Has assignments: True
 
-from sentence_transformers import SentenceTransformer
 from plugins.mycelium_core.registry import AgentRegistry
+from sentence_transformers import SentenceTransformer
+
 
 async def semantic_agent_discovery(query: str):
     # Initialize embedding model
@@ -28,6 +29,7 @@ async def semantic_agent_discovery(query: str):
 
 # Usage
 import asyncio
+
 asyncio.run(semantic_agent_discovery(
     "I need to build a REST API with authentication"
 ))

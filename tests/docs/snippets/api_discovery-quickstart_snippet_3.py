@@ -6,6 +6,7 @@
 
 import requests
 
+
 def discover_agent(query: str, min_confidence: float = 0.8):
     """Discover agent with fallback to lower confidence."""
 
@@ -19,7 +20,7 @@ def discover_agent(query: str, min_confidence: float = 0.8):
 
     if not matches and min_confidence > 0.5:
         # Fallback to lower confidence
-        print(f"No high-confidence matches, trying threshold 0.5...")
+        print("No high-confidence matches, trying threshold 0.5...")
         return discover_agent(query, min_confidence=0.5)
 
     return matches

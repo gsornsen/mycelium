@@ -4,8 +4,8 @@
 # Has imports: True
 # Has assignments: True
 
-from plugins.mycelium_core.mcp.tools.discovery_tools import discover_agents
 from plugins.mycelium_core.mcp.tools.coordination_tools import coordinate_workflow
+from plugins.mycelium_core.mcp.tools.discovery_tools import discover_agents
 
 # 1. Discover agents for each phase
 design_agents = discover_agents("API design REST best practices", limit=1)

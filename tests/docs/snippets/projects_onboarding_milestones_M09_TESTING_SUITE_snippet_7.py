@@ -7,17 +7,13 @@
 # tests/fixtures/config_fixtures.py
 """Factory functions for creating test data."""
 
-from dataclasses import dataclass, field
-from typing import Optional
-import factory
-from factory import Factory, SubFactory, Faker
-
+from factory import Factory, SubFactory
 from mycelium.config import (
-    MyceliumConfig,
-    ServicesConfig,
-    RedisConfig,
-    PostgresConfig,
     DeploymentConfig,
+    MyceliumConfig,
+    PostgresConfig,
+    RedisConfig,
+    ServicesConfig,
 )
 
 

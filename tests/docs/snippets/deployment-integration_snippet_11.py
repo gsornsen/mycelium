@@ -6,6 +6,7 @@
 
 from mycelium_onboarding.deployment.secrets import SecretsManager
 
+
 def deploy_production(config: MyceliumConfig):
     """Production deployment with separate secrets."""
     # Generate deployment files

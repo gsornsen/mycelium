@@ -7,13 +7,12 @@
 # scripts/qa_validation.py
 """Automated QA validation script for multi-platform testing."""
 
+import json
+import platform
 import subprocess
 import sys
-import platform
-from pathlib import Path
 from dataclasses import dataclass
-from typing import List, Optional
-import json
+from pathlib import Path
 
 
 @dataclass
@@ -22,14 +21,14 @@ class QATestResult:
     test_name: str
     status: str  # "pass", "fail", "skip"
     duration_sec: float
-    error_message: Optional[str] = None
+    error_message: str | None = None
 
 
 class QAValidator:
     """Orchestrates comprehensive QA validation."""
 
     def __init__(self):
-        self.results: List[QATestResult] = []
+        self.results: list[QATestResult] = []
         self.platform_info = self._gather_platform_info()
 
     def _gather_platform_info(self) -> dict:
@@ -238,7 +237,7 @@ y
             tutorial.exists()
         )
 
-    def _record_result(self, test_name: str, passed: bool, error: Optional[str] = None):
+    def _record_result(self, test_name: str, passed: bool, error: str | None = None):
         """Record test result."""
         result = QATestResult(
             test_name=test_name,

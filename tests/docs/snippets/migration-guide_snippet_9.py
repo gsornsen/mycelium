@@ -4,8 +4,8 @@
 # Has imports: True
 # Has assignments: True
 
-import pytest
 from mycelium_onboarding.config.migrations import Migration_1_2_to_1_3
+
 
 def test_migration_1_2_to_1_3():
     """Test migration from 1.2 to 1.3."""

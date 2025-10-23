@@ -4,8 +4,10 @@
 # Has imports: True
 # Has assignments: True
 
-from mycelium_onboarding.detection import detect_all
 from packaging import version
+
+from mycelium_onboarding.detection import detect_all
+
 
 def check_postgres_version(min_version="15.0"):
     """Ensure PostgreSQL meets minimum version requirement."""

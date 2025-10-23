@@ -14,6 +14,7 @@ await registry.initialize()
 
 # Initialize with existing pool
 import asyncpg
+
 pool = await asyncpg.create_pool(connection_string)
 registry = AgentRegistry(pool=pool)
 await registry.initialize()

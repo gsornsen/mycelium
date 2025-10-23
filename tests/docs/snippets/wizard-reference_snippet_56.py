@@ -24,5 +24,6 @@ config = state.to_config()
 
 # Save config
 from mycelium_onboarding.config.manager import ConfigManager
+
 manager = ConfigManager()
 manager.save(config)

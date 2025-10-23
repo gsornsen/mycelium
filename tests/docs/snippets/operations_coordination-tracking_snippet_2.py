@@ -5,11 +5,9 @@
 # Has assignments: True
 
 from coordination.tracker import (
+    AgentInfo,
     CoordinationEvent,
     EventType,
-    AgentInfo,
-    ErrorInfo,
-    PerformanceMetrics,
 )
 
 # Create handoff event

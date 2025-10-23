@@ -4,8 +4,8 @@
 # Has imports: True
 # Has assignments: True
 
-from typing import List, Dict, Any
-import numpy as np
+from typing import Any
+
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -26,9 +26,9 @@ class NLPMatcher:
     async def match(
         self,
         query: str,
-        candidates: List[Dict[str, Any]],
+        candidates: list[dict[str, Any]],
         threshold: float = 0.6
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """
         Match query against candidate agents.
 
@@ -70,7 +70,7 @@ class NLPMatcher:
 
         return matches
 
-    def _prepare_agent_text(self, agent: Dict[str, Any]) -> str:
+    def _prepare_agent_text(self, agent: dict[str, Any]) -> str:
         """
         Prepare agent text for embedding.
 
@@ -91,7 +91,7 @@ class NLPMatcher:
     def _explain_match(
         self,
         query: str,
-        agent: Dict[str, Any],
+        agent: dict[str, Any],
         score: float
     ) -> str:
         """
@@ -112,5 +112,4 @@ class NLPMatcher:
 
         if matches:
             return f"Matches keywords: {', '.join(matches)}"
-        else:
-            return agent.get("description", "")[:100]
+        return agent.get("description", "")[:100]

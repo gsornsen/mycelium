@@ -2,7 +2,7 @@
 
 import time
 from collections import defaultdict
-from typing import Callable, Dict, Tuple
+from collections.abc import Callable
 
 from fastapi import Request, Response
 from fastapi.responses import JSONResponse
@@ -34,7 +34,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         self.rate_per_second = requests_per_minute / 60.0
 
         # Store token buckets per IP: {ip: (tokens, last_update_time)}
-        self._buckets: Dict[str, Tuple[float, float]] = defaultdict(
+        self._buckets: dict[str, tuple[float, float]] = defaultdict(
             lambda: (float(burst_size), time.time())
         )
 
@@ -85,7 +85,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 
             self._last_cleanup = current_time
 
-    def _check_rate_limit(self, client_ip: str) -> Tuple[bool, Dict[str, str]]:
+    def _check_rate_limit(self, client_ip: str) -> tuple[bool, dict[str, str]]:
         """Check if request should be rate limited.
 
         Args:

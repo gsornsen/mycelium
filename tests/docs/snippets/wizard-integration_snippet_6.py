@@ -4,10 +4,13 @@
 # Has imports: True
 # Has assignments: True
 
-from mycelium_onboarding.wizard.persistence import WizardStatePersistence
-from mycelium_onboarding.wizard.flow import WizardState
-import redis
 import pickle
+
+import redis
+
+from mycelium_onboarding.wizard.flow import WizardState
+from mycelium_onboarding.wizard.persistence import WizardStatePersistence
+
 
 class RedisWizardPersistence(WizardStatePersistence):
     """Persist wizard state in Redis."""

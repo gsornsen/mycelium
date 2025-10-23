@@ -10,9 +10,7 @@ from __future__ import annotations
 import subprocess
 from pathlib import Path
 from typing import Any
-from unittest.mock import MagicMock, Mock, patch
-
-import pytest
+from unittest.mock import MagicMock, patch
 
 from mycelium_onboarding.detection.gpu_detector import (
     GPUDetectionResult,
@@ -524,12 +522,12 @@ class TestGPUDetectionIntegration:
             call_count += 1
             if call_count == 1:  # nvidia-smi
                 return MagicMock(returncode=1, stdout="", stderr="")
-            else:  # rocm-smi
-                return MagicMock(
-                    returncode=0,
-                    stdout="GPU[0]: AMD Radeon RX 6900 XT\n",
-                    stderr="",
-                )
+            # rocm-smi
+            return MagicMock(
+                returncode=0,
+                stdout="GPU[0]: AMD Radeon RX 6900 XT\n",
+                stderr="",
+            )
 
         with patch("subprocess.run", side_effect=mock_run):
             result = detect_gpus()
@@ -551,12 +549,12 @@ class TestGPUDetectionIntegration:
                     stdout="0, NVIDIA GeForce RTX 3080, 10240, 470.57.02\n",
                     stderr="",
                 )
-            else:  # rocm-smi
-                return MagicMock(
-                    returncode=0,
-                    stdout="GPU[0]: AMD Radeon RX 6900 XT\n",
-                    stderr="",
-                )
+            # rocm-smi
+            return MagicMock(
+                returncode=0,
+                stdout="GPU[0]: AMD Radeon RX 6900 XT\n",
+                stderr="",
+            )
 
         with patch("subprocess.run", side_effect=mock_run):
             result = detect_gpus()
@@ -593,12 +591,12 @@ class TestGPUDetectionIntegration:
             call_count += 1
             if call_count <= 2:  # nvidia-smi and rocm-smi fail
                 return MagicMock(returncode=1, stdout="", stderr="")
-            else:  # lspci succeeds
-                return MagicMock(
-                    returncode=0,
-                    stdout="00:02.0 VGA compatible controller: Intel Corporation UHD Graphics 630\n",
-                    stderr="",
-                )
+            # lspci succeeds
+            return MagicMock(
+                returncode=0,
+                stdout="00:02.0 VGA compatible controller: Intel Corporation UHD Graphics 630\n",
+                stderr="",
+            )
 
         with patch("subprocess.run", side_effect=mock_run), \
              patch("platform.system", return_value="Linux"):

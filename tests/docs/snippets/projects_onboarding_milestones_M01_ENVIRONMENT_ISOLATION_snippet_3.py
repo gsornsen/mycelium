@@ -7,17 +7,17 @@
 # mycelium_onboarding/setup_direnv.py
 """Setup direnv integration for automatic environment activation."""
 
-from pathlib import Path
 import shutil
 import subprocess
-from typing import Optional
+from pathlib import Path
+
 
 def check_direnv_installed() -> bool:
     """Check if direnv is installed and available."""
     return shutil.which("direnv") is not None
 
 
-def setup_direnv(project_root: Optional[Path] = None) -> tuple[bool, str]:
+def setup_direnv(project_root: Path | None = None) -> tuple[bool, str]:
     """Setup direnv for the project.
 
     Args:

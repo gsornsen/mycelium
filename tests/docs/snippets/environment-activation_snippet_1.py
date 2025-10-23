@@ -4,7 +4,10 @@
 # Has imports: True
 # Has assignments: False
 
-from mycelium_onboarding.env_validator import is_environment_active, validate_environment
+from mycelium_onboarding.env_validator import (
+    is_environment_active,
+    validate_environment,
+)
 
 # Quick boolean check
 if is_environment_active():

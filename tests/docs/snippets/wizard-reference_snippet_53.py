@@ -5,9 +5,9 @@
 # Has assignments: True
 
 from mycelium_onboarding.wizard.flow import WizardFlow, WizardState, WizardStep
+from mycelium_onboarding.wizard.persistence import WizardStatePersistence
 from mycelium_onboarding.wizard.screens import WizardScreens
 from mycelium_onboarding.wizard.validation import WizardValidator
-from mycelium_onboarding.wizard.persistence import WizardStatePersistence
 
 # Initialize
 state = WizardState()

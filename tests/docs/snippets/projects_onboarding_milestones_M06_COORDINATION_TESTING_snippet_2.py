@@ -7,11 +7,11 @@
 # tests/fixtures/mcp_clients.py
 """Pytest fixtures for MCP client management."""
 
-import pytest
-import asyncio
 import os
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
 from unittest.mock import AsyncMock
+
+import pytest
 
 # Real MCP client imports
 try:

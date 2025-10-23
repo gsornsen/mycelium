@@ -6,6 +6,7 @@
 
 from pathlib import Path
 
+
 def generate_environments(base_config: MyceliumConfig):
     """Generate deployments for dev, staging, and production."""
     environments = {

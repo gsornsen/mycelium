@@ -18,6 +18,7 @@ for event in events["events"]:
 
 # Solution 2: Verify agent availability
 from plugins.mycelium_core.agent_discovery import check_discovery_health
+
 health = check_discovery_health()
 
 # Solution 3: Retry with different agent

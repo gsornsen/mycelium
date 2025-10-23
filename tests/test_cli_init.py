@@ -14,8 +14,8 @@ import pytest
 from click.testing import CliRunner
 
 from mycelium_onboarding.cli import cli
-from mycelium_onboarding.wizard.flow import WizardState, WizardStep
 from mycelium_onboarding.detection.orchestrator import DetectionSummary
+from mycelium_onboarding.wizard.flow import WizardState
 
 
 class TestInitCommand:

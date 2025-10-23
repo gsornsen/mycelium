@@ -16,7 +16,7 @@ async def monitor_workflow(wf_id):
         if status["status"] == "completed":
             print(f"✅ Workflow completed in {status['total_duration_ms']}ms")
             break
-        elif status["status"] == "failed":
+        if status["status"] == "failed":
             print(f"❌ Workflow failed at step {status['current_step']}")
             # Get failure events
             events = await get_coordination_events(
@@ -26,8 +26,7 @@ async def monitor_workflow(wf_id):
             for event in events["events"]:
                 print(f"  Error: {event['metadata']['error']}")
             break
-        else:
-            print(f"⏳ Progress: {status['progress_percent']}%")
-            await asyncio.sleep(1)
+        print(f"⏳ Progress: {status['progress_percent']}%")
+        await asyncio.sleep(1)
 
 await monitor_workflow(workflow_id)

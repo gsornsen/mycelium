@@ -5,8 +5,9 @@
 # Has assignments: True
 
 # Check API health
-import requests
 import time
+
+import requests
 
 start = time.time()
 try:

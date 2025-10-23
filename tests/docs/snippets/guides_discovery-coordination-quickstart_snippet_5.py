@@ -4,8 +4,9 @@
 # Has imports: True
 # Has assignments: True
 
-from plugins.mycelium_core.mcp.tools.coordination_tools import get_workflow_status
 import time
+
+from plugins.mycelium_core.mcp.tools.coordination_tools import get_workflow_status
 
 # Monitor long-running workflow
 workflow_id = "wf-abc-123"

@@ -6,8 +6,10 @@
 
 # conftest.py
 import pytest
+
 from mycelium_onboarding.detection import DetectionSummary
 from mycelium_onboarding.detection.docker_detector import DockerDetectionResult
+
 # ... import other result types
 
 @pytest.fixture

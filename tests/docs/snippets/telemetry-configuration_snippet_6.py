@@ -5,4 +5,5 @@
 # Has assignments: False
 
 import logging
+
 logging.getLogger("plugins.mycelium_core.telemetry").setLevel(logging.DEBUG)

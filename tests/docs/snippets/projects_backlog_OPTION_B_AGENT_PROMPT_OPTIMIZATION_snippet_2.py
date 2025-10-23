@@ -13,9 +13,9 @@ Author: @claude-code-developer + @documentation-engineer
 Date: 2025-10-18
 """
 
+import re
 from pathlib import Path
 from typing import Any
-import re
 
 
 class PromptOptimizer:

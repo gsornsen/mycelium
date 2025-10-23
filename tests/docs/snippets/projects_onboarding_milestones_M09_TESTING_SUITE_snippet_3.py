@@ -7,14 +7,13 @@
 # tests/integration/test_full_flow.py
 """Integration tests for complete onboarding workflow."""
 
-import pytest
-from pathlib import Path
-from unittest.mock import patch, Mock
+from unittest.mock import Mock, patch
 
-from mycelium.detection import InfraDetector
+import pytest
 from mycelium.config import ConfigManager, MyceliumConfig
-from mycelium.wizard import OnboardingWizard
+from mycelium.detection import InfraDetector
 from mycelium.generators import DockerComposeGenerator, JustfileGenerator
+from mycelium.wizard import OnboardingWizard
 
 
 @pytest.mark.integration
