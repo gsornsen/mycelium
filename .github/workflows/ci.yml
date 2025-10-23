@@ -43,9 +43,7 @@ jobs:
             uv-${{ runner.os }}-
 
       - name: Install dependencies
-        run: |
-          uv sync --frozen --no-install-project
-          uv pip install ruff
+        run: uv sync --frozen --all-extras --group dev
 
       - name: Run Ruff linting
         run: |
@@ -82,8 +80,7 @@ jobs:
             uv-${{ runner.os }}-
 
       - name: Install dependencies
-        run: |
-          uv sync --frozen --all-extras
+        run: uv sync --frozen --all-extras --group dev
 
       - name: Run mypy
         run: |
@@ -137,8 +134,7 @@ jobs:
             st-models-
 
       - name: Install dependencies
-        run: |
-          uv sync --frozen --all-extras
+        run: uv sync --frozen --all-extras --group dev
 
       - name: Get changed files (on push to feature branches)
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/feat/')
@@ -240,9 +236,13 @@ jobs:
           restore-keys: |
             st-models-
 
-      - name: Install dependencies
+      - name: Install PostgreSQL client
         run: |
-          uv sync --frozen --all-extras
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+
+      - name: Install dependencies
+        run: uv sync --frozen --all-extras --group dev
 
       - name: Wait for PostgreSQL
         run: |
@@ -318,8 +318,7 @@ jobs:
             st-models-
 
       - name: Install dependencies
-        run: |
-          uv sync --frozen --all-extras
+        run: uv sync --frozen --all-extras --group dev
 
       - name: Run benchmarks
         run: |

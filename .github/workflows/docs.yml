@@ -87,9 +87,13 @@ jobs:
           restore-keys: |
             uv-${{ runner.os }}-
 
-      - name: Install dependencies
+      - name: Install PostgreSQL client
         run: |
-          uv sync --frozen --all-extras
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+
+      - name: Install dependencies
+        run: uv sync --frozen --all-extras --group dev
 
       - name: Extract Python code blocks from markdown
         run: |
@@ -266,8 +270,7 @@ jobs:
           enable-cache: true
 
       - name: Install dependencies
-        run: |
-          uv sync --frozen --all-extras
+        run: uv sync --frozen --all-extras --group dev
 
       - name: Validate example scripts syntax
         run: |
@@ -307,7 +310,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          uv sync --frozen --all-extras
+          uv sync --frozen --all-extras --group dev
           pip install interrogate
 
       - name: Check docstring coverage

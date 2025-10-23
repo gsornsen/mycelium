@@ -37,7 +37,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          uv sync --frozen --all-extras
+          uv sync --frozen --all-extras --group dev
           pip install safety bandit
 
       - name: Run Safety check
@@ -126,7 +126,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          uv sync --frozen --all-extras
+          uv sync --frozen --all-extras --group dev
           pip install pip-licenses
 
       - name: Generate license report
@@ -163,7 +163,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          uv sync --frozen --all-extras
+          uv sync --frozen --all-extras --group dev
           pip install radon
 
       - name: Cyclomatic Complexity

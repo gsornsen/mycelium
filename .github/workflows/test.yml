@@ -85,8 +85,7 @@ jobs:
             st-models-
 
       - name: Install dependencies
-        run: |
-          uv sync --frozen --all-extras
+        run: uv sync --frozen --all-extras --group dev
 
       - name: Run unit tests
         run: |
@@ -167,9 +166,13 @@ jobs:
           restore-keys: |
             st-models-
 
-      - name: Install dependencies
+      - name: Install PostgreSQL client
         run: |
-          uv sync --frozen --all-extras
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+
+      - name: Install dependencies
+        run: uv sync --frozen --all-extras --group dev
 
       - name: Wait for PostgreSQL
         run: |
@@ -255,8 +258,7 @@ jobs:
             st-models-
 
       - name: Install dependencies
-        run: |
-          uv sync --frozen --all-extras
+        run: uv sync --frozen --all-extras --group dev
 
       - name: Run benchmarks
         run: |
