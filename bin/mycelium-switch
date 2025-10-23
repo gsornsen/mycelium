@@ -76,62 +76,60 @@ log_verbose() {
 }
 
 show_help() {
-    cat <<EOF
-${BOLD}mycelium-switch${RESET} - Switch between source and git versions of mycelium plugin
-
-${BOLD}USAGE:${RESET}
-    mycelium-switch <command> [options]
-
-${BOLD}COMMANDS:${RESET}
-    status              Show current plugin mode and details
-    source              Switch to source mode (symlink to local directory)
-    git [URL]           Switch to git mode (clone from GitHub)
-                        Default URL: ${DEFAULT_GIT_URL}
-    help                Show this help message
-
-${BOLD}OPTIONS:${RESET}
-    --dry-run           Preview changes without applying them
-    --verbose           Show detailed output during operations
-    --source-path PATH  Override default source path (${DEFAULT_SOURCE})
-    --no-backup         Skip backup creation (use with caution)
-
-${BOLD}EXAMPLES:${RESET}
-    # Check current mode
-    mycelium-switch status
-
-    # Switch to development mode
-    mycelium-switch source
-
-    # Switch to production mode from GitHub
-    mycelium-switch git
-
-    # Switch to git with custom repository
-    mycelium-switch git https://github.com/custom/mycelium
-
-    # Preview changes without applying
-    mycelium-switch source --dry-run
-
-    # Use custom source path
-    mycelium-switch source --source-path /path/to/mycelium
-
-${BOLD}MODES:${RESET}
-    source  - Plugin is symlinked to local source directory
-              Use for development with live code changes
-
-    git     - Plugin is cloned from git repository
-              Use for production with stable published version
-
-${BOLD}FILES:${RESET}
-    State:   ${STATE_FILE}
-    Backups: ${BACKUP_DIR}
-
-${BOLD}NOTES:${RESET}
-    - Existing plugin is backed up before switching (unless --no-backup)
-    - Source mode requires valid plugin.json in local source
-    - Git mode requires network access to repository
-    - Operations are idempotent (safe to run multiple times)
-
-EOF
+    echo -e "${BOLD}mycelium-switch${RESET} - Switch between source and git versions of mycelium plugin"
+    echo ""
+    echo -e "${BOLD}USAGE:${RESET}"
+    echo "    mycelium-switch <command> [options]"
+    echo ""
+    echo -e "${BOLD}COMMANDS:${RESET}"
+    echo "    status              Show current plugin mode and details"
+    echo "    source              Switch to source mode (symlink to local directory)"
+    echo "    git [URL]           Switch to git mode (clone from GitHub)"
+    echo "                        Default URL: ${DEFAULT_GIT_URL}"
+    echo "    help                Show this help message"
+    echo ""
+    echo -e "${BOLD}OPTIONS:${RESET}"
+    echo "    --dry-run           Preview changes without applying them"
+    echo "    --verbose           Show detailed output during operations"
+    echo "    --source-path PATH  Override default source path (${DEFAULT_SOURCE})"
+    echo "    --no-backup         Skip backup creation (use with caution)"
+    echo ""
+    echo -e "${BOLD}EXAMPLES:${RESET}"
+    echo "    # Check current mode"
+    echo "    mycelium-switch status"
+    echo ""
+    echo "    # Switch to development mode"
+    echo "    mycelium-switch source"
+    echo ""
+    echo "    # Switch to production mode from GitHub"
+    echo "    mycelium-switch git"
+    echo ""
+    echo "    # Switch to git with custom repository"
+    echo "    mycelium-switch git https://github.com/custom/mycelium"
+    echo ""
+    echo "    # Preview changes without applying"
+    echo "    mycelium-switch source --dry-run"
+    echo ""
+    echo "    # Use custom source path"
+    echo "    mycelium-switch source --source-path /path/to/mycelium"
+    echo ""
+    echo -e "${BOLD}MODES:${RESET}"
+    echo "    source  - Plugin is symlinked to local source directory"
+    echo "              Use for development with live code changes"
+    echo ""
+    echo "    git     - Plugin is cloned from git repository"
+    echo "              Use for production with stable published version"
+    echo ""
+    echo -e "${BOLD}FILES:${RESET}"
+    echo "    State:   ${STATE_FILE}"
+    echo "    Backups: ${BACKUP_DIR}"
+    echo ""
+    echo -e "${BOLD}NOTES:${RESET}"
+    echo "    - Existing plugin is backed up before switching (unless --no-backup)"
+    echo "    - Source mode requires valid plugin.json in local source"
+    echo "    - Git mode requires network access to repository"
+    echo "    - Operations are idempotent (safe to run multiple times)"
+    echo ""
 }
 
 # ============================================================================
@@ -247,7 +245,7 @@ list_backups() {
 
     local backups=("$BACKUP_DIR"/${PLUGIN_NAME}-*)
     if [[ -e "${backups[0]}" ]]; then
-        echo "${BOLD}Available backups:${RESET}"
+        echo -e "${BOLD}Available backups:${RESET}"
         for backup in "${backups[@]}"; do
             local size=$(du -sh "$backup" | cut -f1)
             local name=$(basename "$backup")
@@ -305,7 +303,7 @@ switch_to_source() {
 
     if [[ "$DRY_RUN" == "true" ]]; then
         echo ""
-        log_info "${BOLD}[DRY RUN] Would perform:${RESET}"
+        log_info "[DRY RUN] Would perform:"
         echo "  1. Remove: $plugin_path"
         echo "  2. Create symlink:"
         echo "     From: $plugin_path"
@@ -335,9 +333,9 @@ switch_to_source() {
     echo ""
     log_success "Switched to source mode"
     echo ""
-    echo "  ${BOLD}Symlink:${RESET} $plugin_path"
-    echo "  ${BOLD}Target:${RESET}  $source_plugin"
-    [[ -n "$backup_path" ]] && echo "  ${BOLD}Backup:${RESET}  $backup_path"
+    echo -e "  ${BOLD}Symlink:${RESET} $plugin_path"
+    echo -e "  ${BOLD}Target:${RESET}  $source_plugin"
+    [[ -n "$backup_path" ]] && echo -e "  ${BOLD}Backup:${RESET}  $backup_path"
     echo ""
     log_info "Plugin will use live code from local source"
 }
@@ -374,7 +372,7 @@ switch_to_git() {
 
     if [[ "$DRY_RUN" == "true" ]]; then
         echo ""
-        log_info "${BOLD}[DRY RUN] Would perform:${RESET}"
+        log_info "[DRY RUN] Would perform:"
         echo "  1. Remove: $plugin_path"
         echo "  2. Clone repository:"
         echo "     From: $git_url"
@@ -428,10 +426,10 @@ switch_to_git() {
     echo ""
     log_success "Switched to git mode"
     echo ""
-    echo "  ${BOLD}Repository:${RESET} $git_url"
-    echo "  ${BOLD}Commit:${RESET}     $commit"
-    echo "  ${BOLD}Location:${RESET}   $plugin_path"
-    [[ -n "$backup_path" ]] && echo "  ${BOLD}Backup:${RESET}     $backup_path"
+    echo -e "  ${BOLD}Repository:${RESET} $git_url"
+    echo -e "  ${BOLD}Commit:${RESET}     $commit"
+    echo -e "  ${BOLD}Location:${RESET}   $plugin_path"
+    [[ -n "$backup_path" ]] && echo -e "  ${BOLD}Backup:${RESET}     $backup_path"
     echo ""
     log_info "Plugin installed from published version"
 }
@@ -445,16 +443,16 @@ show_status() {
     local plugin_path="${PLUGINS_DIR}/${PLUGIN_NAME}"
 
     echo ""
-    echo "${BOLD}Mycelium Plugin Status${RESET}"
+    echo -e "${BOLD}Mycelium Plugin Status${RESET}"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo ""
 
     case "$mode" in
         source)
             local target=$(readlink "$plugin_path")
-            echo "  ${BOLD}Mode:${RESET}   ${GREEN}🔗 Source (Symlink)${RESET}"
-            echo "  ${BOLD}Target:${RESET} $target"
-            echo "  ${BOLD}Status:${RESET} ${GREEN}✅ Development mode active${RESET}"
+            echo -e "  ${BOLD}Mode:${RESET}   ${GREEN}🔗 Source (Symlink)${RESET}"
+            echo -e "  ${BOLD}Target:${RESET} $target"
+            echo -e "  ${BOLD}Status:${RESET} ${GREEN}✅ Development mode active${RESET}"
             echo ""
             echo "  Changes to source code will be reflected immediately."
             ;;
@@ -462,24 +460,24 @@ show_status() {
             local git_url=$(cd "$plugin_path" && git remote get-url origin 2>/dev/null || echo "unknown")
             local commit=$(cd "$plugin_path" && git rev-parse --short HEAD 2>/dev/null || echo "unknown")
             local commit_date=$(cd "$plugin_path" && git log -1 --format=%cd --date=short 2>/dev/null || echo "unknown")
-            echo "  ${BOLD}Mode:${RESET}   ${BLUE}📦 Git (Clone)${RESET}"
-            echo "  ${BOLD}URL:${RESET}    $git_url"
-            echo "  ${BOLD}Commit:${RESET} $commit ($commit_date)"
-            echo "  ${BOLD}Status:${RESET} ${GREEN}✅ Production mode active${RESET}"
+            echo -e "  ${BOLD}Mode:${RESET}   ${BLUE}📦 Git (Clone)${RESET}"
+            echo -e "  ${BOLD}URL:${RESET}    $git_url"
+            echo -e "  ${BOLD}Commit:${RESET} $commit ($commit_date)"
+            echo -e "  ${BOLD}Status:${RESET} ${GREEN}✅ Production mode active${RESET}"
             echo ""
             echo "  Plugin installed from published version."
             ;;
         none)
-            echo "  ${BOLD}Mode:${RESET}   ${RED}❌ Not installed${RESET}"
-            echo "  ${BOLD}Path:${RESET}   $plugin_path"
-            echo "  ${BOLD}Status:${RESET} ${RED}Plugin not found${RESET}"
+            echo -e "  ${BOLD}Mode:${RESET}   ${RED}❌ Not installed${RESET}"
+            echo -e "  ${BOLD}Path:${RESET}   $plugin_path"
+            echo -e "  ${BOLD}Status:${RESET} ${RED}Plugin not found${RESET}"
             echo ""
             echo "  Run 'mycelium-switch source' or 'mycelium-switch git' to install."
             ;;
         unknown)
-            echo "  ${BOLD}Mode:${RESET}   ${YELLOW}⚠️  Unknown${RESET}"
-            echo "  ${BOLD}Path:${RESET}   $plugin_path"
-            echo "  ${BOLD}Status:${RESET} ${YELLOW}Plugin exists but mode cannot be determined${RESET}"
+            echo -e "  ${BOLD}Mode:${RESET}   ${YELLOW}⚠️  Unknown${RESET}"
+            echo -e "  ${BOLD}Path:${RESET}   $plugin_path"
+            echo -e "  ${BOLD}Status:${RESET} ${YELLOW}Plugin exists but mode cannot be determined${RESET}"
             echo ""
             echo "  Manual intervention may be required."
             ;;
@@ -491,7 +489,7 @@ show_status() {
     # Show state file if exists
     if [[ -f "$STATE_FILE" ]] && command -v jq &>/dev/null; then
         echo ""
-        echo "${BOLD}Last Switch:${RESET}"
+        echo -e "${BOLD}Last Switch:${RESET}"
         local last_mode=$(jq -r '.mode // "unknown"' "$STATE_FILE")
         local last_time=$(jq -r '.switched_at // "unknown"' "$STATE_FILE")
         echo "  Mode: $last_mode"

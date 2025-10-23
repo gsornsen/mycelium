@@ -1,0 +1,117 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Coordination Event Schema",
+  "description": "Schema for coordination tracking events",
+  "type": "object",
+  "required": ["event_id", "event_type", "workflow_id", "timestamp"],
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier for the event"
+    },
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "handoff",
+        "execution_start",
+        "execution_end",
+        "failure",
+        "retry",
+        "workflow_created",
+        "workflow_started",
+        "workflow_completed",
+        "workflow_failed",
+        "workflow_cancelled",
+        "workflow_paused",
+        "workflow_resumed",
+        "task_created",
+        "task_started",
+        "task_completed",
+        "task_failed",
+        "task_skipped",
+        "task_retrying"
+      ],
+      "description": "Type of coordination event"
+    },
+    "workflow_id": {
+      "type": "string",
+      "description": "Workflow identifier this event belongs to"
+    },
+    "task_id": {
+      "type": ["string", "null"],
+      "description": "Optional task identifier for task-level events"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when event occurred"
+    },
+    "agent_id": {
+      "type": ["string", "null"],
+      "description": "Agent identifier associated with this event"
+    },
+    "agent_type": {
+      "type": ["string", "null"],
+      "description": "Agent type associated with this event"
+    },
+    "source_agent": {
+      "type": ["object", "null"],
+      "properties": {
+        "agent_id": {"type": "string"},
+        "agent_type": {"type": "string"}
+      },
+      "description": "Source agent for handoff events"
+    },
+    "target_agent": {
+      "type": ["object", "null"],
+      "properties": {
+        "agent_id": {"type": "string"},
+        "agent_type": {"type": "string"}
+      },
+      "description": "Target agent for handoff events"
+    },
+    "status": {
+      "type": ["string", "null"],
+      "description": "Status at time of event"
+    },
+    "duration_ms": {
+      "type": ["number", "null"],
+      "description": "Duration in milliseconds for timed events"
+    },
+    "error": {
+      "type": ["object", "null"],
+      "properties": {
+        "error_type": {"type": "string"},
+        "message": {"type": "string"},
+        "attempt": {"type": "integer"},
+        "stack_trace": {"type": "string"}
+      },
+      "description": "Error details for failure events"
+    },
+    "metadata": {
+      "type": ["object", "null"],
+      "additionalProperties": true,
+      "description": "Additional event-specific metadata"
+    },
+    "context": {
+      "type": ["object", "null"],
+      "properties": {
+        "task_description": {"type": "string"},
+        "result_summary": {"type": "string"},
+        "variables": {"type": "object"}
+      },
+      "description": "Contextual information preserved at event time"
+    },
+    "performance": {
+      "type": ["object", "null"],
+      "properties": {
+        "queue_time_ms": {"type": "number"},
+        "execution_time_ms": {"type": "number"},
+        "total_time_ms": {"type": "number"}
+      },
+      "description": "Performance metrics for the event"
+    }
+  },
+  "additionalProperties": false
+}
