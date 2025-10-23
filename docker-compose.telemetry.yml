@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  telemetry-collector:
+    image: otel/opentelemetry-collector:latest
+    container_name: mycelium-telemetry
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./telemetry-config.yaml:/etc/otel-collector-config.yaml
+    ports:
+      - "8080:8080"   # HTTP receiver
+      - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP
+    networks:
+      - mycelium
+
+networks:
+  mycelium:
+    external: true
+    name: mycelium_default
