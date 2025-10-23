@@ -72,3 +72,14 @@ credentials.json
 .credentials.json
 .envrc
 .worktrees/
+
+# Test artifacts and CI outputs
+htmlcov/
+coverage.xml
+.pytest_cache/
+.benchmarks/
+benchmark-results.json
+*-report.json
+tests/docs/snippets/
+licenses.json
+licenses.md
