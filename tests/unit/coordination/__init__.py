@@ -1,1 +1,0 @@
-"""Coordination tests package."""
