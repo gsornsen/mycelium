@@ -143,7 +143,7 @@ def rotate_if_old(manager: SecretsManager, max_age_days: int = 90) -> None:
 
     # Check file modification time
     mtime = datetime.fromtimestamp(secrets_file.stat().st_mtime)
-    age = datetime.now() - mtime
+    age = datetime.now(UTC) - mtime
 
     if age > timedelta(days=max_age_days):
         print(f"Secrets are {age.days} days old - rotating")

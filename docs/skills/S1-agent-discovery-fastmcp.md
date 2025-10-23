@@ -380,8 +380,8 @@ async def get_agent_details(
         avg_response_time_ms=details.get("avg_response_time_ms", 0.0),
         success_rate=details.get("success_rate", 0.95),
         usage_count=details.get("usage_count", 0),
-        created_at=details.get("created_at", datetime.now()),
-        updated_at=details.get("updated_at", datetime.now()),
+        created_at=details.get("created_at", datetime.now(UTC)),
+        updated_at=details.get("updated_at", datetime.now(UTC)),
         last_used_at=details.get("last_used_at")
     )
 

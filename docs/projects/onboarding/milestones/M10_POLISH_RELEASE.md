@@ -950,7 +950,7 @@ def categorize_commits(commits: List[Dict]) -> Dict[str, List[Dict]]:
 
 def generate_changelog(version: str) -> str:
     """Generate changelog in markdown format."""
-    today = datetime.now().strftime('%Y-%m-%d')
+    today = datetime.now(UTC).strftime('%Y-%m-%d')
 
     changelog = f"# Release {version}\n\n"
     changelog += f"**Release Date**: {today}\n\n"

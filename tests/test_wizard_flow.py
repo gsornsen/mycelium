@@ -290,7 +290,7 @@ class TestWizardState:
         data: dict[str, Any] = {
             "project_name": "test",
             "current_step": "services",
-            "started_at": datetime.now().isoformat(),
+            "started_at": datetime.now(UTC).isoformat(),
             "deployment_method": "kubernetes",
             "services_enabled": {"redis": True, "postgres": False, "temporal": False},
             "detection_results": None,
@@ -466,7 +466,7 @@ class TestWizardFlow:
         state_data = {
             "project_name": "test-load",
             "current_step": "deployment",
-            "started_at": datetime.now().isoformat(),
+            "started_at": datetime.now(UTC).isoformat(),
             "deployment_method": "kubernetes",
             "services_enabled": {"redis": True, "postgres": True, "temporal": False},
             "detection_results": None,

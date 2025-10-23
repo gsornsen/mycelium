@@ -180,7 +180,7 @@ class TestMigrationHistory:
 
     def test_history_with_values(self):
         """Test MigrationHistory with explicit values."""
-        timestamp = datetime.now()
+        timestamp = datetime.now(UTC)
         changes = {"added": {"monitoring": {}}}
 
         history = MigrationHistory(

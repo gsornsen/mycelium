@@ -773,7 +773,7 @@ class DetectionResults:
         self.postgres = postgres
         self.temporal = temporal
         self.gpu = gpu
-        self.timestamp = timestamp or datetime.now()
+        self.timestamp = timestamp or datetime.now(UTC)
 
     def to_dict(self) -> dict:
         """Convert to dictionary for serialization."""
@@ -870,7 +870,7 @@ def _load_from_cache(ttl: int) -> Optional[DetectionResults]:
         results = DetectionResults.from_dict(data)
 
         # Check if cache is fresh
-        age = datetime.now() - results.timestamp
+        age = datetime.now(UTC) - results.timestamp
         if age > timedelta(seconds=ttl):
             logger.debug("Cache expired")
             return None

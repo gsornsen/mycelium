@@ -390,7 +390,7 @@ class TestSerializationDeserialization:
 
         state_dict = {
             "current_step": "services",
-            "started_at": datetime.now().isoformat(),
+            "started_at": datetime.now(UTC).isoformat(),
             "project_name": "test",
             "services_enabled": {"redis": True},
             "deployment_method": "docker-compose",
