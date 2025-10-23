@@ -13,7 +13,7 @@ from uuid import UUID
 import pytest
 import asyncpg
 
-from plugins.mycelium_core.registry import (
+from registry import (
     AgentAlreadyExistsError,
     AgentNotFoundError,
     AgentRegistry,

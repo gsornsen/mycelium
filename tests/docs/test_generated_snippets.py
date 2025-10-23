@@ -130,7 +130,7 @@ def test_snippet_api_discovery_quickstart_7():
 
 def test_snippet_api_registry_api_1():
     """Test code snippet from api/registry-api.md (line 66)."""
-    code = 'from plugins.mycelium_core.registry import AgentRegistry\n\n# Initialize with connection string\nregistry = AgentRegistry(\n    connection_string="postgresql://localhost:5432/mycelium_registry"\n)\nawait registry.initialize()\n\n# Initialize with existing pool\nimport asyncpg\npool = await asyncpg.create_pool(connection_string)\nregistry = AgentRegistry(pool=pool)\nawait registry.initialize()\n\n# Use as context manager (recommended)\nasync with AgentRegistry(connection_string) as registry:\n    # Use registry\n    pass'
+    code = 'from registry import AgentRegistry\n\n# Initialize with connection string\nregistry = AgentRegistry(\n    connection_string="postgresql://localhost:5432/mycelium_registry"\n)\nawait registry.initialize()\n\n# Initialize with existing pool\nimport asyncpg\npool = await asyncpg.create_pool(connection_string)\nregistry = AgentRegistry(pool=pool)\nawait registry.initialize()\n\n# Use as context manager (recommended)\nasync with AgentRegistry(connection_string) as registry:\n    # Use registry\n    pass'
 
     # Test 1: Syntax validation
     try:
@@ -606,7 +606,7 @@ def test_snippet_api_registry_api_28():
 
 def test_snippet_api_registry_api_29():
     """Test code snippet from api/registry-api.md (line 527)."""
-    code = 'from plugins.mycelium_core.registry import load_agents_from_index\n\nasync with AgentRegistry(connection_string) as registry:\n    count = await load_agents_from_index(\n        "plugins/mycelium-core/agents/index.json",\n        registry\n    )\n    print(f"Loaded {count} agents")'
+    code = 'from registry import load_agents_from_index\n\nasync with AgentRegistry(connection_string) as registry:\n    count = await load_agents_from_index(\n        "plugins/mycelium-core/agents/index.json",\n        registry\n    )\n    print(f"Loaded {count} agents")'
 
     # Test 1: Syntax validation
     try:
@@ -657,7 +657,7 @@ def test_snippet_api_registry_api_31():
 
 def test_snippet_api_registry_api_32():
     """Test code snippet from api/registry-api.md (line 576)."""
-    code = 'import asyncio\nfrom plugins.mycelium_core.registry import AgentRegistry, load_agents_from_index\n\nasync def main():\n    # Initialize registry\n    async with AgentRegistry() as registry:\n        # Load agents from index.json\n        count = await load_agents_from_index(\n            "plugins/mycelium-core/agents/index.json",\n            registry\n        )\n        print(f"Loaded {count} agents")\n\n        # Get agent count by category\n        categories = await registry.get_categories()\n        for category in categories:\n            count = await registry.get_agent_count(category=category)\n            print(f"{category}: {count} agents")\n\n        # Search for agents\n        results = await registry.search_agents("backend development")\n        print(f"\\nFound {len(results)} agents matching \'backend development\':")\n        for agent in results[:5]:\n            print(f"  - {agent[\'name\']}: {agent[\'description\']}")\n\n        # Get specific agent\n        agent = await registry.get_agent_by_type("backend-developer")\n        print(f"\\nAgent details:")\n        print(f"  Name: {agent[\'display_name\']}")\n        print(f"  Category: {agent[\'category\']}")\n        print(f"  Tools: {\', \'.join(agent[\'tools\'])}")\n        print(f"  Usage count: {agent[\'usage_count\']}")\n\nasyncio.run(main())'
+    code = 'import asyncio\nfrom registry import AgentRegistry, load_agents_from_index\n\nasync def main():\n    # Initialize registry\n    async with AgentRegistry() as registry:\n        # Load agents from index.json\n        count = await load_agents_from_index(\n            "plugins/mycelium-core/agents/index.json",\n            registry\n        )\n        print(f"Loaded {count} agents")\n\n        # Get agent count by category\n        categories = await registry.get_categories()\n        for category in categories:\n            count = await registry.get_agent_count(category=category)\n            print(f"{category}: {count} agents")\n\n        # Search for agents\n        results = await registry.search_agents("backend development")\n        print(f"\\nFound {len(results)} agents matching \'backend development\':")\n        for agent in results[:5]:\n            print(f"  - {agent[\'name\']}: {agent[\'description\']}")\n\n        # Get specific agent\n        agent = await registry.get_agent_by_type("backend-developer")\n        print(f"\\nAgent details:")\n        print(f"  Name: {agent[\'display_name\']}")\n        print(f"  Category: {agent[\'category\']}")\n        print(f"  Tools: {\', \'.join(agent[\'tools\'])}")\n        print(f"  Usage count: {agent[\'usage_count\']}")\n\nasyncio.run(main())'
 
     # Test 1: Syntax validation
     try:
@@ -674,7 +674,7 @@ def test_snippet_api_registry_api_32():
 
 def test_snippet_api_registry_api_33():
     """Test code snippet from api/registry-api.md (line 615)."""
-    code = 'from sentence_transformers import SentenceTransformer\nfrom plugins.mycelium_core.registry import AgentRegistry\n\nasync def semantic_agent_discovery(query: str):\n    # Initialize embedding model\n    model = SentenceTransformer(\'all-MiniLM-L6-v2\')\n\n    async with AgentRegistry() as registry:\n        # Generate query embedding\n        query_embedding = model.encode(query).tolist()\n\n        # Perform similarity search\n        results = await registry.similarity_search(\n            embedding=query_embedding,\n            limit=5,\n            threshold=0.6\n        )\n\n        print(f"Top agents for \'{query}\':")\n        for agent, similarity in results:\n            print(f"  {similarity:.1%} - {agent[\'name\']}: {agent[\'description\']}")\n\n# Usage\nimport asyncio\nasyncio.run(semantic_agent_discovery(\n    "I need to build a REST API with authentication"\n))'
+    code = 'from sentence_transformers import SentenceTransformer\nfrom registry import AgentRegistry\n\nasync def semantic_agent_discovery(query: str):\n    # Initialize embedding model\n    model = SentenceTransformer(\'all-MiniLM-L6-v2\')\n\n    async with AgentRegistry() as registry:\n        # Generate query embedding\n        query_embedding = model.encode(query).tolist()\n\n        # Perform similarity search\n        results = await registry.similarity_search(\n            embedding=query_embedding,\n            limit=5,\n            threshold=0.6\n        )\n\n        print(f"Top agents for \'{query}\':")\n        for agent, similarity in results:\n            print(f"  {similarity:.1%} - {agent[\'name\']}: {agent[\'description\']}")\n\n# Usage\nimport asyncio\nasyncio.run(semantic_agent_discovery(\n    "I need to build a REST API with authentication"\n))'
 
     # Test 1: Syntax validation
     try:
@@ -691,7 +691,7 @@ def test_snippet_api_registry_api_33():
 
 def test_snippet_api_registry_api_34():
     """Test code snippet from api/registry-api.md (line 647)."""
-    code = 'import time\nfrom plugins.mycelium_core.registry import AgentRegistry\n\nasync def benchmark_queries():\n    async with AgentRegistry() as registry:\n        # Benchmark get_agent_by_id\n        start = time.time()\n        await registry.get_agent_by_id("01-core-backend-developer")\n        duration = (time.time() - start) * 1000\n        print(f"get_agent_by_id: {duration:.2f}ms")\n\n        # Benchmark search\n        start = time.time()\n        await registry.search_agents("backend")\n        duration = (time.time() - start) * 1000\n        print(f"search_agents: {duration:.2f}ms")\n\n        # Health check\n        health = await registry.health_check()\n        print(f"Health: {health[\'status\']}")\n        print(f"Agents: {health[\'agent_count\']}")\n        print(f"DB size: {health[\'database_size\']}")\n\nimport asyncio\nasyncio.run(benchmark_queries())'
+    code = 'import time\nfrom registry import AgentRegistry\n\nasync def benchmark_queries():\n    async with AgentRegistry() as registry:\n        # Benchmark get_agent_by_id\n        start = time.time()\n        await registry.get_agent_by_id("01-core-backend-developer")\n        duration = (time.time() - start) * 1000\n        print(f"get_agent_by_id: {duration:.2f}ms")\n\n        # Benchmark search\n        start = time.time()\n        await registry.search_agents("backend")\n        duration = (time.time() - start) * 1000\n        print(f"search_agents: {duration:.2f}ms")\n\n        # Health check\n        health = await registry.health_check()\n        print(f"Health: {health[\'status\']}")\n        print(f"Agents: {health[\'agent_count\']}")\n        print(f"DB size: {health[\'database_size\']}")\n\nimport asyncio\nasyncio.run(benchmark_queries())'
 
     # Test 1: Syntax validation
     try:
@@ -3445,7 +3445,7 @@ def test_snippet_guides_coordination_best_practices_25():
 
 def test_snippet_guides_discovery_coordination_quickstart_1():
     """Test code snippet from guides/discovery-coordination-quickstart.md (line 59)."""
-    code = 'from plugins.mycelium_core.mcp.tools.discovery_tools import discover_agents\n\n# Natural language query\nresult = discover_agents(\n    query="optimize slow API performance and reduce latency",\n    limit=5\n)\n\n# View results\nfor agent in result["agents"]:\n    print(f"{agent[\'name\']} (confidence: {agent[\'confidence\']})")\n    print(f"  → {agent[\'reason\']}")\n    print()\n\n# Example output:\n# Performance Engineer (confidence: 0.94)\n#   → Matches keywords: API, performance, latency\n#\n# API Designer (confidence: 0.89)\n#   → Matches keywords: API, optimization\n#\n# Backend Developer (confidence: 0.82)\n#   → Matches keywords: API'
+    code = 'from mcp.tools.discovery_tools import discover_agents\n\n# Natural language query\nresult = discover_agents(\n    query="optimize slow API performance and reduce latency",\n    limit=5\n)\n\n# View results\nfor agent in result["agents"]:\n    print(f"{agent[\'name\']} (confidence: {agent[\'confidence\']})")\n    print(f"  → {agent[\'reason\']}")\n    print()\n\n# Example output:\n# Performance Engineer (confidence: 0.94)\n#   → Matches keywords: API, performance, latency\n#\n# API Designer (confidence: 0.89)\n#   → Matches keywords: API, optimization\n#\n# Backend Developer (confidence: 0.82)\n#   → Matches keywords: API'
 
     # Test 1: Syntax validation
     try:
@@ -3462,7 +3462,7 @@ def test_snippet_guides_discovery_coordination_quickstart_1():
 
 def test_snippet_guides_discovery_coordination_quickstart_2():
     """Test code snippet from guides/discovery-coordination-quickstart.md (line 87)."""
-    code = 'from plugins.mycelium_core.mcp.tools.discovery_tools import get_agent_details\n\n# Get full details on top match\nagent_id = result["agents"][0]["id"]\ndetails = get_agent_details(agent_id)\n\nprint(f"Agent: {details[\'agent\'][\'name\']}")\nprint(f"Capabilities: {\', \'.join(details[\'agent\'][\'capabilities\'])}")\nprint(f"Tools: {\', \'.join(details[\'agent\'][\'tools\'])}")\nprint(f"Success Rate: {details[\'agent\'][\'success_rate\']*100}%")\n\n# Example output:\n# Agent: Performance Engineer\n# Capabilities: Performance profiling, Load testing, Query optimization\n# Tools: pytest-benchmark, locust, py-spy\n# Success Rate: 95%'
+    code = 'from mcp.tools.discovery_tools import get_agent_details\n\n# Get full details on top match\nagent_id = result["agents"][0]["id"]\ndetails = get_agent_details(agent_id)\n\nprint(f"Agent: {details[\'agent\'][\'name\']}")\nprint(f"Capabilities: {\', \'.join(details[\'agent\'][\'capabilities\'])}")\nprint(f"Tools: {\', \'.join(details[\'agent\'][\'tools\'])}")\nprint(f"Success Rate: {details[\'agent\'][\'success_rate\']*100}%")\n\n# Example output:\n# Agent: Performance Engineer\n# Capabilities: Performance profiling, Load testing, Query optimization\n# Tools: pytest-benchmark, locust, py-spy\n# Success Rate: 95%'
 
     # Test 1: Syntax validation
     try:
@@ -3479,7 +3479,7 @@ def test_snippet_guides_discovery_coordination_quickstart_2():
 
 def test_snippet_guides_discovery_coordination_quickstart_3():
     """Test code snippet from guides/discovery-coordination-quickstart.md (line 114)."""
-    code = 'from plugins.mycelium_core.mcp.tools.coordination_tools import handoff_to_agent\n\n# Hand off to database specialist\nresult = handoff_to_agent(\n    target_agent="postgres-pro",\n    task="Optimize slow queries in user_analytics table",\n    context={\n        "schema": "database/schema.sql",\n        "slow_queries": [\n            "SELECT * FROM user_analytics WHERE created_at > NOW() - INTERVAL \'7 days\'",\n            "SELECT user_id, COUNT(*) FROM events GROUP BY user_id"\n        ],\n        "performance_targets": {\n            "p95_latency_ms": 100,\n            "queries_per_second": 1000\n        }\n    }\n)\n\nprint(f"Handoff Status: {result[\'status\']}")\nprint(f"Result: {result[\'result\'][\'message\']}")\nprint(f"Duration: {result[\'duration_ms\']}ms")\n\n# Example output:\n# Handoff Status: completed\n# Result: Optimized 2 slow queries - added indexes, rewrote GROUP BY\n# Duration: 2300ms'
+    code = 'from mcp.tools.coordination_tools import handoff_to_agent\n\n# Hand off to database specialist\nresult = handoff_to_agent(\n    target_agent="postgres-pro",\n    task="Optimize slow queries in user_analytics table",\n    context={\n        "schema": "database/schema.sql",\n        "slow_queries": [\n            "SELECT * FROM user_analytics WHERE created_at > NOW() - INTERVAL \'7 days\'",\n            "SELECT user_id, COUNT(*) FROM events GROUP BY user_id"\n        ],\n        "performance_targets": {\n            "p95_latency_ms": 100,\n            "queries_per_second": 1000\n        }\n    }\n)\n\nprint(f"Handoff Status: {result[\'status\']}")\nprint(f"Result: {result[\'result\'][\'message\']}")\nprint(f"Duration: {result[\'duration_ms\']}ms")\n\n# Example output:\n# Handoff Status: completed\n# Result: Optimized 2 slow queries - added indexes, rewrote GROUP BY\n# Duration: 2300ms'
 
     # Test 1: Syntax validation
     try:
@@ -3496,7 +3496,7 @@ def test_snippet_guides_discovery_coordination_quickstart_3():
 
 def test_snippet_guides_discovery_coordination_quickstart_4():
     """Test code snippet from guides/discovery-coordination-quickstart.md (line 152)."""
-    code = 'from plugins.mycelium_core.mcp.tools.coordination_tools import coordinate_workflow\n\n# Create a code review workflow\nworkflow = coordinate_workflow(\n    steps=[\n        {\n            "agent": "python-pro",\n            "task": "Review Python code style and best practices",\n            "params": {"file": "api/endpoints.py"}\n        },\n        {\n            "agent": "security-expert",\n            "task": "Security audit focusing on injection and auth",\n            "depends_on": ["step-0"],\n            "params": {"file": "api/endpoints.py"}\n        },\n        {\n            "agent": "performance-optimizer",\n            "task": "Performance analysis and optimization recommendations",\n            "depends_on": ["step-0"],\n            "params": {"file": "api/endpoints.py"}\n        }\n    ],\n    execution_mode="sequential",\n    failure_strategy="retry"\n)\n\nprint(f"Workflow ID: {workflow[\'workflow_id\']}")\nprint(f"Status: {workflow[\'status\']}")\nprint(f"Completed {workflow[\'steps_completed\']}/{workflow[\'steps_total\']} steps")\nprint(f"Total Duration: {workflow[\'total_duration_ms\']}ms")\nprint()\n\n# View results\nfor result in workflow["results"]:\n    print(f"{result[\'agent\']}:")\n    print(f"  {result[\'output\']}")\n    print(f"  (took {result[\'duration_ms\']}ms)")\n    print()\n\n# Example output:\n# Workflow ID: wf-abc-123\n# Status: completed\n# Completed 3/3 steps\n# Total Duration: 4500ms\n#\n# python-pro:\n#   Found 3 style issues: inconsistent naming, missing docstrings\n#   (took 1200ms)\n#\n# security-expert:\n#   Found 1 critical issue: SQL injection vulnerability in search endpoint\n#   (took 1800ms)\n#\n# performance-optimizer:\n#   Found 2 optimization opportunities: add caching, use bulk operations\n#   (took 1500ms)'
+    code = 'from mcp.tools.coordination_tools import coordinate_workflow\n\n# Create a code review workflow\nworkflow = coordinate_workflow(\n    steps=[\n        {\n            "agent": "python-pro",\n            "task": "Review Python code style and best practices",\n            "params": {"file": "api/endpoints.py"}\n        },\n        {\n            "agent": "security-expert",\n            "task": "Security audit focusing on injection and auth",\n            "depends_on": ["step-0"],\n            "params": {"file": "api/endpoints.py"}\n        },\n        {\n            "agent": "performance-optimizer",\n            "task": "Performance analysis and optimization recommendations",\n            "depends_on": ["step-0"],\n            "params": {"file": "api/endpoints.py"}\n        }\n    ],\n    execution_mode="sequential",\n    failure_strategy="retry"\n)\n\nprint(f"Workflow ID: {workflow[\'workflow_id\']}")\nprint(f"Status: {workflow[\'status\']}")\nprint(f"Completed {workflow[\'steps_completed\']}/{workflow[\'steps_total\']} steps")\nprint(f"Total Duration: {workflow[\'total_duration_ms\']}ms")\nprint()\n\n# View results\nfor result in workflow["results"]:\n    print(f"{result[\'agent\']}:")\n    print(f"  {result[\'output\']}")\n    print(f"  (took {result[\'duration_ms\']}ms)")\n    print()\n\n# Example output:\n# Workflow ID: wf-abc-123\n# Status: completed\n# Completed 3/3 steps\n# Total Duration: 4500ms\n#\n# python-pro:\n#   Found 3 style issues: inconsistent naming, missing docstrings\n#   (took 1200ms)\n#\n# security-expert:\n#   Found 1 critical issue: SQL injection vulnerability in search endpoint\n#   (took 1800ms)\n#\n# performance-optimizer:\n#   Found 2 optimization opportunities: add caching, use bulk operations\n#   (took 1500ms)'
 
     # Test 1: Syntax validation
     try:
@@ -3513,7 +3513,7 @@ def test_snippet_guides_discovery_coordination_quickstart_4():
 
 def test_snippet_guides_discovery_coordination_quickstart_5():
     """Test code snippet from guides/discovery-coordination-quickstart.md (line 214)."""
-    code = 'from plugins.mycelium_core.mcp.tools.coordination_tools import get_workflow_status\nimport time\n\n# Monitor long-running workflow\nworkflow_id = "wf-abc-123"\n\nwhile True:\n    status = get_workflow_status(workflow_id, include_steps=False)\n\n    if status["status"] == "completed":\n        print(f"\\n✓ Workflow completed in {status[\'total_duration_ms\']}ms")\n        break\n    elif status["status"] == "failed":\n        print(f"\\n✗ Workflow failed at step {status[\'current_step\']}")\n        break\n    else:\n        print(f"Progress: {status[\'progress_percent\']}% (step {status[\'current_step\']}/{status[\'steps_total\']})")\n        time.sleep(2)'
+    code = 'from mcp.tools.coordination_tools import get_workflow_status\nimport time\n\n# Monitor long-running workflow\nworkflow_id = "wf-abc-123"\n\nwhile True:\n    status = get_workflow_status(workflow_id, include_steps=False)\n\n    if status["status"] == "completed":\n        print(f"\\n✓ Workflow completed in {status[\'total_duration_ms\']}ms")\n        break\n    elif status["status"] == "failed":\n        print(f"\\n✗ Workflow failed at step {status[\'current_step\']}")\n        break\n    else:\n        print(f"Progress: {status[\'progress_percent\']}% (step {status[\'current_step\']}/{status[\'steps_total\']})")\n        time.sleep(2)'
 
     # Test 1: Syntax validation
     try:
@@ -3530,7 +3530,7 @@ def test_snippet_guides_discovery_coordination_quickstart_5():
 
 def test_snippet_guides_discovery_coordination_quickstart_6():
     """Test code snippet from guides/discovery-coordination-quickstart.md (line 243)."""
-    code = 'from plugins.mycelium_core.mcp.tools.discovery_tools import discover_agents\nfrom plugins.mycelium_core.mcp.tools.coordination_tools import coordinate_workflow\n\n# 1. Discover agents for each phase\ndesign_agents = discover_agents("API design REST best practices", limit=1)\nbackend_agents = discover_agents("Python FastAPI development", limit=1)\ndb_agents = discover_agents("PostgreSQL database schema design", limit=1)\ntest_agents = discover_agents("API testing integration tests", limit=1)\n\n# 2. Build workflow\nworkflow = coordinate_workflow(\n    steps=[\n        {\n            "agent": design_agents["agents"][0]["id"],\n            "task": "Design REST API for user management (CRUD operations)",\n            "params": {\n                "requirements": ["create user", "update user", "delete user", "list users"],\n                "standards": "REST best practices, OpenAPI 3.0"\n            }\n        },\n        {\n            "agent": db_agents["agents"][0]["id"],\n            "task": "Design database schema for user management",\n            "depends_on": ["step-0"],\n            "params": {\n                "tables": ["users", "user_profiles"],\n                "requirements": ["email uniqueness", "soft deletes"]\n            }\n        },\n        {\n            "agent": backend_agents["agents"][0]["id"],\n            "task": "Implement API endpoints based on design",\n            "depends_on": ["step-0", "step-1"],\n            "params": {\n                "framework": "FastAPI",\n                "database": "PostgreSQL",\n                "include": ["validation", "error handling"]\n            }\n        },\n        {\n            "agent": test_agents["agents"][0]["id"],\n            "task": "Create integration tests for API endpoints",\n            "depends_on": ["step-2"],\n            "params": {\n                "test_framework": "pytest",\n                "coverage_target": 90\n            }\n        }\n    ],\n    execution_mode="sequential",\n    failure_strategy="retry"\n)\n\n# 3. Review deliverables\nprint("API Development Workflow Complete!")\nprint(f"Duration: {workflow[\'total_duration_ms\']/1000:.1f}s")\nprint(f"Agents involved: {len(workflow[\'results\'])}")\nprint()\n\nfor step in workflow["results"]:\n    print(f"✓ {step[\'agent\']}: {step[\'output\']}")'
+    code = 'from mcp.tools.discovery_tools import discover_agents\nfrom mcp.tools.coordination_tools import coordinate_workflow\n\n# 1. Discover agents for each phase\ndesign_agents = discover_agents("API design REST best practices", limit=1)\nbackend_agents = discover_agents("Python FastAPI development", limit=1)\ndb_agents = discover_agents("PostgreSQL database schema design", limit=1)\ntest_agents = discover_agents("API testing integration tests", limit=1)\n\n# 2. Build workflow\nworkflow = coordinate_workflow(\n    steps=[\n        {\n            "agent": design_agents["agents"][0]["id"],\n            "task": "Design REST API for user management (CRUD operations)",\n            "params": {\n                "requirements": ["create user", "update user", "delete user", "list users"],\n                "standards": "REST best practices, OpenAPI 3.0"\n            }\n        },\n        {\n            "agent": db_agents["agents"][0]["id"],\n            "task": "Design database schema for user management",\n            "depends_on": ["step-0"],\n            "params": {\n                "tables": ["users", "user_profiles"],\n                "requirements": ["email uniqueness", "soft deletes"]\n            }\n        },\n        {\n            "agent": backend_agents["agents"][0]["id"],\n            "task": "Implement API endpoints based on design",\n            "depends_on": ["step-0", "step-1"],\n            "params": {\n                "framework": "FastAPI",\n                "database": "PostgreSQL",\n                "include": ["validation", "error handling"]\n            }\n        },\n        {\n            "agent": test_agents["agents"][0]["id"],\n            "task": "Create integration tests for API endpoints",\n            "depends_on": ["step-2"],\n            "params": {\n                "test_framework": "pytest",\n                "coverage_target": 90\n            }\n        }\n    ],\n    execution_mode="sequential",\n    failure_strategy="retry"\n)\n\n# 3. Review deliverables\nprint("API Development Workflow Complete!")\nprint(f"Duration: {workflow[\'total_duration_ms\']/1000:.1f}s")\nprint(f"Agents involved: {len(workflow[\'results\'])}")\nprint()\n\nfor step in workflow["results"]:\n    print(f"✓ {step[\'agent\']}: {step[\'output\']}")'
 
     # Test 1: Syntax validation
     try:
@@ -3598,7 +3598,7 @@ def test_snippet_guides_discovery_coordination_quickstart_9():
 
 def test_snippet_guides_discovery_coordination_quickstart_10():
     """Test code snippet from guides/discovery-coordination-quickstart.md (line 383)."""
-    code = '# Problem: Workflow not progressing\nstatus = get_workflow_status("wf-123")\n# status["status"] == "in_progress" for too long\n\n# Solution 1: Check events\nevents = get_coordination_events(\n    workflow_id="wf-123",\n    event_type="failure"\n)\nfor event in events["events"]:\n    print(f"Error: {event[\'metadata\']}")\n\n# Solution 2: Verify agent availability\nfrom plugins.mycelium_core.agent_discovery import check_discovery_health\nhealth = check_discovery_health()\n\n# Solution 3: Retry with different agent\n# Manually abort and restart with fallback agent'
+    code = '# Problem: Workflow not progressing\nstatus = get_workflow_status("wf-123")\n# status["status"] == "in_progress" for too long\n\n# Solution 1: Check events\nevents = get_coordination_events(\n    workflow_id="wf-123",\n    event_type="failure"\n)\nfor event in events["events"]:\n    print(f"Error: {event[\'metadata\']}")\n\n# Solution 2: Verify agent availability\nfrom agent_discovery import check_discovery_health\nhealth = check_discovery_health()\n\n# Solution 3: Retry with different agent\n# Manually abort and restart with fallback agent'
 
     # Test 1: Syntax validation
     try:
@@ -3666,7 +3666,7 @@ def test_snippet_guides_discovery_coordination_quickstart_13():
 
 def test_snippet_guides_discovery_coordination_quickstart_14():
     """Test code snippet from guides/discovery-coordination-quickstart.md (line 481)."""
-    code = 'from plugins.mycelium_core.mcp.tools.discovery_tools import (\n    discover_agents,\n    get_agent_details\n)\n\nfrom plugins.mycelium_core.mcp.tools.coordination_tools import (\n    coordinate_workflow,\n    handoff_to_agent,\n    get_workflow_status,\n    get_coordination_events\n)'
+    code = 'from mcp.tools.discovery_tools import (\n    discover_agents,\n    get_agent_details\n)\n\nfrom mcp.tools.coordination_tools import (\n    coordinate_workflow,\n    handoff_to_agent,\n    get_workflow_status,\n    get_coordination_events\n)'
 
     # Test 1: Syntax validation
     try:
@@ -6148,7 +6148,7 @@ def test_snippet_skills_S1_agent_discovery_9():
 
 def test_snippet_skills_S1_agent_discovery_10():
     """Test code snippet from skills/S1-agent-discovery.md (line 413)."""
-    code = '# Check API health\nfrom plugins.mycelium_core.mcp.tools.discovery_tools import check_discovery_health\n\nhealth = await check_discovery_health()\nprint(f"Status: {health[\'status\']}")\nprint(f"Agents: {health[\'agent_count\']}")\n\n# Test with broad query\nresult = await discover_agents("development", limit=20, threshold=0.3)\nprint(f"Found {result[\'total_count\']} agents")\n\n# Verify specific agent exists\ntry:\n    details = await get_agent_details("backend-developer")\n    print(f"Agent found: {details[\'agent\'][\'name\']}")\nexcept DiscoveryAPIError:\n    print("Agent not in registry")'
+    code = '# Check API health\nfrom mcp.tools.discovery_tools import check_discovery_health\n\nhealth = await check_discovery_health()\nprint(f"Status: {health[\'status\']}")\nprint(f"Agents: {health[\'agent_count\']}")\n\n# Test with broad query\nresult = await discover_agents("development", limit=20, threshold=0.3)\nprint(f"Found {result[\'total_count\']} agents")\n\n# Verify specific agent exists\ntry:\n    details = await get_agent_details("backend-developer")\n    print(f"Agent found: {details[\'agent\'][\'name\']}")\nexcept DiscoveryAPIError:\n    print("Agent not in registry")'
 
     # Test 1: Syntax validation
     try:
@@ -6505,7 +6505,7 @@ def test_snippet_skills_S2_coordination_20():
 
 def test_snippet_skills_S2_coordination_21():
     """Test code snippet from skills/S2-coordination.md (line 825)."""
-    code = '# Check orchestration system health\nfrom plugins.mycelium_core.coordination import check_coordination_health\n\nhealth = await check_coordination_health()\nprint(f"Status: {health[\'status\']}")\nprint(f"Active workflows: {health[\'active_workflows\']}")\nprint(f"Queue depth: {health[\'queue_depth\']}")\n\n# Analyze workflow performance\nevents = await get_coordination_events(workflow_id="wf-abc-123")\ntotal_handoff_time = sum(\n    e["metadata"]["duration_ms"]\n    for e in events["events"]\n    if e["event_type"] == "handoff"\n)\nprint(f"Total handoff overhead: {total_handoff_time}ms")\n\n# Debug failed workflow\nworkflow_id = "wf-failed-123"\nstatus = await get_workflow_status(workflow_id)\nfailed_step = status["steps"][status["current_step"]]\nprint(f"Failed at step {status[\'current_step\']}: {failed_step[\'agent\']}")\n\nevents = await get_coordination_events(\n    workflow_id=workflow_id,\n    event_type="failure"\n)\nprint(f"Failure reason: {events[\'events\'][0][\'metadata\'][\'error\']}")'
+    code = '# Check orchestration system health\nfrom coordination import check_coordination_health\n\nhealth = await check_coordination_health()\nprint(f"Status: {health[\'status\']}")\nprint(f"Active workflows: {health[\'active_workflows\']}")\nprint(f"Queue depth: {health[\'queue_depth\']}")\n\n# Analyze workflow performance\nevents = await get_coordination_events(workflow_id="wf-abc-123")\ntotal_handoff_time = sum(\n    e["metadata"]["duration_ms"]\n    for e in events["events"]\n    if e["event_type"] == "handoff"\n)\nprint(f"Total handoff overhead: {total_handoff_time}ms")\n\n# Debug failed workflow\nworkflow_id = "wf-failed-123"\nstatus = await get_workflow_status(workflow_id)\nfailed_step = status["steps"][status["current_step"]]\nprint(f"Failed at step {status[\'current_step\']}: {failed_step[\'agent\']}")\n\nevents = await get_coordination_events(\n    workflow_id=workflow_id,\n    event_type="failure"\n)\nprint(f"Failure reason: {events[\'events\'][0][\'metadata\'][\'error\']}")'
 
     # Test 1: Syntax validation
     try:
@@ -6590,7 +6590,7 @@ def test_snippet_technical_orchestration_engine_4():
 
 def test_snippet_technical_orchestration_engine_5():
     """Test code snippet from technical/orchestration-engine.md (line 140)."""
-    code = 'from plugins.mycelium_core.coordination import (\n    WorkflowOrchestrator,\n    StateManager,\n    TaskDefinition,\n)\n\n# Initialize\nstate_manager = StateManager()\nawait state_manager.initialize()\norchestrator = WorkflowOrchestrator(state_manager)\n\n# Define tasks\ntasks = [\n    TaskDefinition(\n        task_id="parse",\n        agent_id="parser-1",\n        agent_type="python-parser",\n    ),\n    TaskDefinition(\n        task_id="analyze",\n        agent_id="analyzer-1",\n        agent_type="code-analyzer",\n        dependencies=["parse"],\n    ),\n    TaskDefinition(\n        task_id="report",\n        agent_id="reporter-1",\n        agent_type="report-generator",\n        dependencies=["analyze"],\n    ),\n]\n\n# Create and execute\nworkflow_id = await orchestrator.create_workflow(tasks)\nresult = await orchestrator.execute_workflow(workflow_id)'
+    code = 'from coordination import (\n    WorkflowOrchestrator,\n    StateManager,\n    TaskDefinition,\n)\n\n# Initialize\nstate_manager = StateManager()\nawait state_manager.initialize()\norchestrator = WorkflowOrchestrator(state_manager)\n\n# Define tasks\ntasks = [\n    TaskDefinition(\n        task_id="parse",\n        agent_id="parser-1",\n        agent_type="python-parser",\n    ),\n    TaskDefinition(\n        task_id="analyze",\n        agent_id="analyzer-1",\n        agent_type="code-analyzer",\n        dependencies=["parse"],\n    ),\n    TaskDefinition(\n        task_id="report",\n        agent_id="reporter-1",\n        agent_type="report-generator",\n        dependencies=["analyze"],\n    ),\n]\n\n# Create and execute\nworkflow_id = await orchestrator.create_workflow(tasks)\nresult = await orchestrator.execute_workflow(workflow_id)'
 
     # Test 1: Syntax validation
     try:
@@ -6641,7 +6641,7 @@ def test_snippet_technical_orchestration_engine_7():
 
 def test_snippet_technical_orchestration_engine_8():
     """Test code snippet from technical/orchestration-engine.md (line 230)."""
-    code = 'from plugins.mycelium_core.coordination.orchestrator import RetryPolicy\n\ntask = TaskDefinition(\n    task_id="flaky-task",\n    agent_id="agent-1",\n    agent_type="network-caller",\n    retry_policy=RetryPolicy(\n        max_attempts=5,\n        initial_delay=2.0,\n        max_delay=30.0,\n        exponential_base=2.0,\n    ),\n)'
+    code = 'from coordination.orchestrator import RetryPolicy\n\ntask = TaskDefinition(\n    task_id="flaky-task",\n    agent_id="agent-1",\n    agent_type="network-caller",\n    retry_policy=RetryPolicy(\n        max_attempts=5,\n        initial_delay=2.0,\n        max_delay=30.0,\n        exponential_base=2.0,\n    ),\n)'
 
     # Test 1: Syntax validation
     try:
@@ -6726,7 +6726,7 @@ def test_snippet_technical_orchestration_engine_12():
 
 def test_snippet_technical_orchestration_engine_13():
     """Test code snippet from technical/orchestration-engine.md (line 300)."""
-    code = 'from plugins.mycelium_core.coordination.orchestrator import TaskExecutionContext\n\nasync def my_task_executor(ctx: TaskExecutionContext) -> Dict[str, Any]:\n    """\n    Task executor function.\n\n    Args:\n        ctx: Execution context containing:\n            - task_def: TaskDefinition\n            - workflow_id: str\n            - workflow_context: HandoffContext\n            - previous_results: List[Dict] (from dependencies)\n            - variables: Dict (workflow variables)\n\n    Returns:\n        Result dictionary to be stored in task state\n    """\n    # Access task definition\n    task_id = ctx.task_def.task_id\n\n    # Access results from dependencies\n    for prev in ctx.previous_results:\n        dep_task_id = prev["task_id"]\n        dep_result = prev["result"]\n        # Process dependency result\n\n    # Access workflow variables\n    config = ctx.variables.get("config", {})\n\n    # Perform task work\n    result = await perform_work(ctx)\n\n    return {"output": result, "status": "success"}\n\n# Register executor\norchestrator.register_executor("my-agent-type", my_task_executor)'
+    code = 'from coordination.orchestrator import TaskExecutionContext\n\nasync def my_task_executor(ctx: TaskExecutionContext) -> Dict[str, Any]:\n    """\n    Task executor function.\n\n    Args:\n        ctx: Execution context containing:\n            - task_def: TaskDefinition\n            - workflow_id: str\n            - workflow_context: HandoffContext\n            - previous_results: List[Dict] (from dependencies)\n            - variables: Dict (workflow variables)\n\n    Returns:\n        Result dictionary to be stored in task state\n    """\n    # Access task definition\n    task_id = ctx.task_def.task_id\n\n    # Access results from dependencies\n    for prev in ctx.previous_results:\n        dep_task_id = prev["task_id"]\n        dep_result = prev["result"]\n        # Process dependency result\n\n    # Access workflow variables\n    config = ctx.variables.get("config", {})\n\n    # Perform task work\n    result = await perform_work(ctx)\n\n    return {"output": result, "status": "success"}\n\n# Register executor\norchestrator.register_executor("my-agent-type", my_task_executor)'
 
     # Test 1: Syntax validation
     try:
@@ -6777,7 +6777,7 @@ def test_snippet_technical_orchestration_engine_15():
 
 def test_snippet_technical_orchestration_engine_16():
     """Test code snippet from technical/orchestration-engine.md (line 426)."""
-    code = 'from plugins.mycelium_core.coordination import HandoffProtocol\n\nmessage = HandoffProtocol.create_handoff(\n    source_agent_id="agent-1",\n    source_agent_type="parser",\n    target_agent_id="agent-2",\n    target_agent_type="analyzer",\n    task_description="Analyze parsed code",\n    workflow_id=workflow_id,\n)\n\n# Validate\nHandoffProtocol.validate(message)\n\n# Serialize\njson_str = HandoffProtocol.serialize(message)\n\n# Deserialize\nrestored = HandoffProtocol.deserialize(json_str)'
+    code = 'from coordination import HandoffProtocol\n\nmessage = HandoffProtocol.create_handoff(\n    source_agent_id="agent-1",\n    source_agent_type="parser",\n    target_agent_id="agent-2",\n    target_agent_type="analyzer",\n    task_description="Analyze parsed code",\n    workflow_id=workflow_id,\n)\n\n# Validate\nHandoffProtocol.validate(message)\n\n# Serialize\njson_str = HandoffProtocol.serialize(message)\n\n# Deserialize\nrestored = HandoffProtocol.deserialize(json_str)'
 
     # Test 1: Syntax validation
     try:
@@ -6998,7 +6998,7 @@ def test_snippet_technical_orchestration_engine_28():
 
 def test_snippet_telemetry_configuration_1():
     """Test code snippet from telemetry-configuration.md (line 226)."""
-    code = 'from plugins.mycelium_core.telemetry import TelemetryClient\n\n# Client automatically loads configuration from environment\nclient = TelemetryClient()\n\n# Track agent usage\nclient.track_agent_usage(\n    agent_id="backend-developer",\n    operation="discover",\n    metadata={"duration_ms": 150, "success": True}\n)\n\n# Track performance metrics\nclient.track_performance(\n    metric_name="query_latency",\n    value=95.5,\n    unit="ms",\n    tags={"operation": "search"}\n)\n\n# Track errors\nclient.track_error(\n    error_type="ConnectionError",\n    error_message="Failed to connect",\n    stack_trace=traceback.format_exc()\n)\n\n# Graceful shutdown\nclient.shutdown()'
+    code = 'from telemetry import TelemetryClient\n\n# Client automatically loads configuration from environment\nclient = TelemetryClient()\n\n# Track agent usage\nclient.track_agent_usage(\n    agent_id="backend-developer",\n    operation="discover",\n    metadata={"duration_ms": 150, "success": True}\n)\n\n# Track performance metrics\nclient.track_performance(\n    metric_name="query_latency",\n    value=95.5,\n    unit="ms",\n    tags={"operation": "search"}\n)\n\n# Track errors\nclient.track_error(\n    error_type="ConnectionError",\n    error_message="Failed to connect",\n    stack_trace=traceback.format_exc()\n)\n\n# Graceful shutdown\nclient.shutdown()'
 
     # Test 1: Syntax validation
     try:
@@ -7015,7 +7015,7 @@ def test_snippet_telemetry_configuration_1():
 
 def test_snippet_telemetry_configuration_2():
     """Test code snippet from telemetry-configuration.md (line 260)."""
-    code = 'from plugins.mycelium_core.telemetry import TelemetryClient\n\nwith TelemetryClient() as client:\n    client.track_agent_usage("agent-id", "operation")\n    # Client automatically shuts down when exiting context'
+    code = 'from telemetry import TelemetryClient\n\nwith TelemetryClient() as client:\n    client.track_agent_usage("agent-id", "operation")\n    # Client automatically shuts down when exiting context'
 
     # Test 1: Syntax validation
     try:
@@ -7032,7 +7032,7 @@ def test_snippet_telemetry_configuration_2():
 
 def test_snippet_telemetry_configuration_3():
     """Test code snippet from telemetry-configuration.md (line 270)."""
-    code = 'from plugins.mycelium_core.telemetry import TelemetryClient, TelemetryConfig\n\n# Custom configuration\nconfig = TelemetryConfig(\n    enabled=True,\n    endpoint="https://my-endpoint.com",\n    timeout=10,\n    batch_size=50\n)\n\nclient = TelemetryClient(config=config)'
+    code = 'from telemetry import TelemetryClient, TelemetryConfig\n\n# Custom configuration\nconfig = TelemetryConfig(\n    enabled=True,\n    endpoint="https://my-endpoint.com",\n    timeout=10,\n    batch_size=50\n)\n\nclient = TelemetryClient(config=config)'
 
     # Test 1: Syntax validation
     try:
@@ -7049,7 +7049,7 @@ def test_snippet_telemetry_configuration_3():
 
 def test_snippet_telemetry_configuration_4():
     """Test code snippet from telemetry-configuration.md (line 360)."""
-    code = '   from plugins.mycelium_core.telemetry import TelemetryConfig\n\n   config = TelemetryConfig.from_env()\n   print(f"Enabled: {config.enabled}")\n   print(f"Endpoint: {config.endpoint}")'
+    code = '   from telemetry import TelemetryConfig\n\n   config = TelemetryConfig.from_env()\n   print(f"Enabled: {config.enabled}")\n   print(f"Endpoint: {config.endpoint}")'
 
     # Test 1: Syntax validation
     try:
@@ -7117,7 +7117,7 @@ def test_snippet_troubleshooting_discovery_coordination_1():
 
 def test_snippet_troubleshooting_discovery_coordination_2():
     """Test code snippet from troubleshooting/discovery-coordination.md (line 42)."""
-    code = '# Step 1: Check registry health\nfrom plugins.mycelium_core.agent_discovery import check_discovery_health\n\nhealth = check_discovery_health()\nprint(f"Agent Count: {health[\'agent_count\']}")\nprint(f"API Status: {health[\'status\']}")\n\n# If agent_count == 0 → Registry not loaded\n# If status != \'healthy\' → API issue\n\n# Step 2: Try broader query with lower threshold\nresult = discover_agents(\n    query="general category",  # Broader\n    threshold=0.3,  # Lower\n    limit=20  # More results\n)\n\n# Step 3: Check if any agents match at all\nresult = discover_agents(query="agent", limit=100, threshold=0.0)\nprint(f"Found {len(result[\'agents\'])} agents total")'
+    code = '# Step 1: Check registry health\nfrom agent_discovery import check_discovery_health\n\nhealth = check_discovery_health()\nprint(f"Agent Count: {health[\'agent_count\']}")\nprint(f"API Status: {health[\'status\']}")\n\n# If agent_count == 0 → Registry not loaded\n# If status != \'healthy\' → API issue\n\n# Step 2: Try broader query with lower threshold\nresult = discover_agents(\n    query="general category",  # Broader\n    threshold=0.3,  # Lower\n    limit=20  # More results\n)\n\n# Step 3: Check if any agents match at all\nresult = discover_agents(query="agent", limit=100, threshold=0.0)\nprint(f"Found {len(result[\'agents\'])} agents total")'
 
     # Test 1: Syntax validation
     try:
@@ -7134,7 +7134,7 @@ def test_snippet_troubleshooting_discovery_coordination_2():
 
 def test_snippet_troubleshooting_discovery_coordination_3():
     """Test code snippet from troubleshooting/discovery-coordination.md (line 67)."""
-    code = '# Solution 1: Broaden query\n# Instead of: "PostgreSQL 15.2 pg_stat_statements performance tuning"\n# Try: "database optimization" or "PostgreSQL performance"\n\n# Solution 2: Lower threshold\nresult = discover_agents(query="your query", threshold=0.4)\n\n# Solution 3: Reload registry\nfrom plugins.mycelium_core.agent_discovery import reload_registry\nreload_registry()\n\n# Solution 4: Check API configuration\nimport os\nprint(f"Discovery API URL: {os.getenv(\'DISCOVERY_API_URL\')}")\n# Default should be: http://localhost:8000'
+    code = '# Solution 1: Broaden query\n# Instead of: "PostgreSQL 15.2 pg_stat_statements performance tuning"\n# Try: "database optimization" or "PostgreSQL performance"\n\n# Solution 2: Lower threshold\nresult = discover_agents(query="your query", threshold=0.4)\n\n# Solution 3: Reload registry\nfrom agent_discovery import reload_registry\nreload_registry()\n\n# Solution 4: Check API configuration\nimport os\nprint(f"Discovery API URL: {os.getenv(\'DISCOVERY_API_URL\')}")\n# Default should be: http://localhost:8000'
 
     # Test 1: Syntax validation
     try:
@@ -7168,7 +7168,7 @@ def test_snippet_troubleshooting_discovery_coordination_4():
 
 def test_snippet_troubleshooting_discovery_coordination_5():
     """Test code snippet from troubleshooting/discovery-coordination.md (line 101)."""
-    code = '# Check what keywords agents actually have\nfrom plugins.mycelium_core.agent_discovery import get_agent_details\n\nfor agent in result["agents"]:\n    details = get_agent_details(agent["id"])\n    print(f"\\n{agent[\'name\']}:")\n    print(f"  Keywords: {details[\'agent\'][\'keywords\']}")\n    print(f"  Description: {details[\'agent\'][\'description\'][:100]}...")\n    print(f"  Confidence: {agent[\'confidence\']}")\n\n# Compare your query terms with agent keywords'
+    code = '# Check what keywords agents actually have\nfrom agent_discovery import get_agent_details\n\nfor agent in result["agents"]:\n    details = get_agent_details(agent["id"])\n    print(f"\\n{agent[\'name\']}:")\n    print(f"  Keywords: {details[\'agent\'][\'keywords\']}")\n    print(f"  Description: {details[\'agent\'][\'description\'][:100]}...")\n    print(f"  Confidence: {agent[\'confidence\']}")\n\n# Compare your query terms with agent keywords'
 
     # Test 1: Syntax validation
     try:
@@ -7287,7 +7287,7 @@ def test_snippet_troubleshooting_discovery_coordination_11():
 
 def test_snippet_troubleshooting_discovery_coordination_12():
     """Test code snippet from troubleshooting/discovery-coordination.md (line 229)."""
-    code = '# Solution 1: Increase timeout\nimport os\nos.environ["DISCOVERY_TIMEOUT_SECONDS"] = "60"\n\nresult = discover_agents("query")\n\n# Solution 2: Check API server\n# Restart API server if needed\n# Check logs: tail -f logs/discovery-api.log\n\n# Solution 3: Use cached results if available\ntry:\n    result = discover_agents("query")\nexcept DiscoveryTimeoutError:\n    # Fallback to previously cached agents\n    from plugins.mycelium_core.agent_discovery import get_cached_results\n    result = get_cached_results("query")'
+    code = '# Solution 1: Increase timeout\nimport os\nos.environ["DISCOVERY_TIMEOUT_SECONDS"] = "60"\n\nresult = discover_agents("query")\n\n# Solution 2: Check API server\n# Restart API server if needed\n# Check logs: tail -f logs/discovery-api.log\n\n# Solution 3: Use cached results if available\ntry:\n    result = discover_agents("query")\nexcept DiscoveryTimeoutError:\n    # Fallback to previously cached agents\n    from agent_discovery import get_cached_results\n    result = get_cached_results("query")'
 
     # Test 1: Syntax validation
     try:
@@ -7338,7 +7338,7 @@ def test_snippet_troubleshooting_discovery_coordination_14():
 
 def test_snippet_troubleshooting_discovery_coordination_15():
     """Test code snippet from troubleshooting/discovery-coordination.md (line 295)."""
-    code = '# Solution 1: Abort and restart\nfrom plugins.mycelium_core.coordination import abort_workflow\n\nabort_workflow(workflow["workflow_id"], reason="Stuck, restarting")\n\n# Restart with adjusted parameters\nworkflow = coordinate_workflow(\n    steps=[...],\n    timeout_per_step_seconds=300  # Increased timeout\n)\n\n# Solution 2: Skip problematic step\n# If step is optional, mark as skipped and continue\nfrom plugins.mycelium_core.coordination import skip_workflow_step\n\nskip_workflow_step(\n    workflow_id=workflow["workflow_id"],\n    step_index=2,\n    reason="Agent unavailable"\n)\n\n# Solution 3: Check agent availability\nfrom plugins.mycelium_core.agent_discovery import check_agent_health\n\nagent_id = status["steps"][status["current_step"]]["agent"]\nagent_health = check_agent_health(agent_id)\n\nif not agent_health["available"]:\n    print(f"Agent {agent_id} is unavailable")\n    # Use alternative agent'
+    code = '# Solution 1: Abort and restart\nfrom coordination import abort_workflow\n\nabort_workflow(workflow["workflow_id"], reason="Stuck, restarting")\n\n# Restart with adjusted parameters\nworkflow = coordinate_workflow(\n    steps=[...],\n    timeout_per_step_seconds=300  # Increased timeout\n)\n\n# Solution 2: Skip problematic step\n# If step is optional, mark as skipped and continue\nfrom coordination import skip_workflow_step\n\nskip_workflow_step(\n    workflow_id=workflow["workflow_id"],\n    step_index=2,\n    reason="Agent unavailable"\n)\n\n# Solution 3: Check agent availability\nfrom agent_discovery import check_agent_health\n\nagent_id = status["steps"][status["current_step"]]["agent"]\nagent_health = check_agent_health(agent_id)\n\nif not agent_health["available"]:\n    print(f"Agent {agent_id} is unavailable")\n    # Use alternative agent'
 
     # Test 1: Syntax validation
     try:
@@ -7474,7 +7474,7 @@ def test_snippet_troubleshooting_discovery_coordination_22():
 
 def test_snippet_troubleshooting_discovery_coordination_23():
     """Test code snippet from troubleshooting/discovery-coordination.md (line 535)."""
-    code = '# Check agent performance history\nfrom plugins.mycelium_core.agent_discovery import get_agent_details\n\ndetails = get_agent_details("slow-agent")\nprint(f"Average Response Time: {details[\'agent\'][\'avg_response_time_ms\']}ms")\n\n# If avg_response_time_ms > 10000 → Agent is consistently slow\n\n# Check recent handoffs\nevents = get_coordination_events(\n    agent_id="slow-agent",\n    event_type="handoff",\n    limit=20\n)\n\ndurations = [e["metadata"]["duration_ms"] for e in events["events"]]\nprint(f"Handoff durations: p50={percentile(durations, 50)}ms, "\n      f"p95={percentile(durations, 95)}ms")'
+    code = '# Check agent performance history\nfrom agent_discovery import get_agent_details\n\ndetails = get_agent_details("slow-agent")\nprint(f"Average Response Time: {details[\'agent\'][\'avg_response_time_ms\']}ms")\n\n# If avg_response_time_ms > 10000 → Agent is consistently slow\n\n# Check recent handoffs\nevents = get_coordination_events(\n    agent_id="slow-agent",\n    event_type="handoff",\n    limit=20\n)\n\ndurations = [e["metadata"]["duration_ms"] for e in events["events"]]\nprint(f"Handoff durations: p50={percentile(durations, 50)}ms, "\n      f"p95={percentile(durations, 95)}ms")'
 
     # Test 1: Syntax validation
     try:
@@ -7593,7 +7593,7 @@ def test_snippet_troubleshooting_discovery_coordination_29():
 
 def test_snippet_troubleshooting_discovery_coordination_30():
     """Test code snippet from troubleshooting/discovery-coordination.md (line 725)."""
-    code = '# Solution 1: Reduce context size\n# Before:\ncontext = {\n    "entire_file": read_file("large_file.txt"),  # 5MB\n    "all_data": load_all_data()  # 10MB\n}\n\n# After:\ncontext = {\n    "file_path": "large_file.txt",  # Reference\n    "data_summary": {\n        "row_count": 10000,\n        "columns": ["id", "name", "email"],\n        "sample": data[:100]  # Small sample\n    }\n}\n\n# Solution 2: Clear completed workflows\nfrom plugins.mycelium_core.coordination import cleanup_workflows\n\n# Clean up workflows older than 24 hours\ncleanup_workflows(older_than_hours=24)\n\n# Solution 3: Use workflow checkpoints\n# Enable checkpointing to disk instead of keeping in memory\nworkflow = coordinate_workflow(\n    steps=[...],\n    checkpoint_to_disk=True  # Reduces memory usage\n)'
+    code = '# Solution 1: Reduce context size\n# Before:\ncontext = {\n    "entire_file": read_file("large_file.txt"),  # 5MB\n    "all_data": load_all_data()  # 10MB\n}\n\n# After:\ncontext = {\n    "file_path": "large_file.txt",  # Reference\n    "data_summary": {\n        "row_count": 10000,\n        "columns": ["id", "name", "email"],\n        "sample": data[:100]  # Small sample\n    }\n}\n\n# Solution 2: Clear completed workflows\nfrom coordination import cleanup_workflows\n\n# Clean up workflows older than 24 hours\ncleanup_workflows(older_than_hours=24)\n\n# Solution 3: Use workflow checkpoints\n# Enable checkpointing to disk instead of keeping in memory\nworkflow = coordinate_workflow(\n    steps=[...],\n    checkpoint_to_disk=True  # Reduces memory usage\n)'
 
     # Test 1: Syntax validation
     try:
@@ -7627,7 +7627,7 @@ def test_snippet_troubleshooting_discovery_coordination_31():
 
 def test_snippet_troubleshooting_discovery_coordination_32():
     """Test code snippet from troubleshooting/discovery-coordination.md (line 767)."""
-    code = '# Check cache statistics\nfrom plugins.mycelium_core.agent_discovery import get_cache_stats\n\nstats = get_cache_stats()\nprint(f"Cache Hit Rate: {stats[\'hit_rate\']}%")\nprint(f"Cache Size: {stats[\'size\']} / {stats[\'max_size\']}")\nprint(f"Total Queries: {stats[\'total_queries\']}")\n\n# If hit_rate < 50% → Cache not being utilized effectively'
+    code = '# Check cache statistics\nfrom agent_discovery import get_cache_stats\n\nstats = get_cache_stats()\nprint(f"Cache Hit Rate: {stats[\'hit_rate\']}%")\nprint(f"Cache Size: {stats[\'size\']} / {stats[\'max_size\']}")\nprint(f"Total Queries: {stats[\'total_queries\']}")\n\n# If hit_rate < 50% → Cache not being utilized effectively'
 
     # Test 1: Syntax validation
     try:
@@ -7763,7 +7763,7 @@ def test_snippet_troubleshooting_discovery_coordination_39():
 
 def test_snippet_troubleshooting_discovery_coordination_40():
     """Test code snippet from troubleshooting/discovery-coordination.md (line 962)."""
-    code = '# Solution 1: Restart API service\nimport subprocess\nsubprocess.run(["systemctl", "restart", "mycelium-discovery-api"])\n\n# Solution 2: Reload registry\nfrom plugins.mycelium_core.agent_discovery import reload_registry\n\nreload_registry(force=True)\n\n# Solution 3: Check database connection\nfrom plugins.mycelium_core.registry import check_database_health\n\ndb_health = check_database_health()\nif not db_health["connected"]:\n    print(f"Database connection failed: {db_health[\'error\']}")\n    # Fix database connection\n\n# Solution 4: Rebuild registry\nfrom plugins.mycelium_core.registry import rebuild_registry\n\nrebuild_registry(\n    source="plugins/mycelium-core/agents/index.json"\n)'
+    code = '# Solution 1: Restart API service\nimport subprocess\nsubprocess.run(["systemctl", "restart", "mycelium-discovery-api"])\n\n# Solution 2: Reload registry\nfrom agent_discovery import reload_registry\n\nreload_registry(force=True)\n\n# Solution 3: Check database connection\nfrom registry import check_database_health\n\ndb_health = check_database_health()\nif not db_health["connected"]:\n    print(f"Database connection failed: {db_health[\'error\']}")\n    # Fix database connection\n\n# Solution 4: Rebuild registry\nfrom registry import rebuild_registry\n\nrebuild_registry(\n    source="plugins/mycelium-core/agents/index.json"\n)'
 
     # Test 1: Syntax validation
     try:
@@ -7797,7 +7797,7 @@ def test_snippet_troubleshooting_discovery_coordination_41():
 
 def test_snippet_troubleshooting_discovery_coordination_42():
     """Test code snippet from troubleshooting/discovery-coordination.md (line 998)."""
-    code = '# Check coordination service health\nfrom plugins.mycelium_core.coordination import check_coordination_health\n\nhealth = check_coordination_health()\nprint(f"Status: {health[\'status\']}")\nprint(f"Active Workflows: {health.get(\'active_workflows\', 0)}")\nprint(f"Queue Depth: {health.get(\'queue_depth\', 0)}")\nprint(f"Errors: {health.get(\'errors\', [])}")\n\n# If queue_depth > 100 → Service overloaded\n# If active_workflows > 50 → At capacity'
+    code = '# Check coordination service health\nfrom coordination import check_coordination_health\n\nhealth = check_coordination_health()\nprint(f"Status: {health[\'status\']}")\nprint(f"Active Workflows: {health.get(\'active_workflows\', 0)}")\nprint(f"Queue Depth: {health.get(\'queue_depth\', 0)}")\nprint(f"Errors: {health.get(\'errors\', [])}")\n\n# If queue_depth > 100 → Service overloaded\n# If active_workflows > 50 → At capacity'
 
     # Test 1: Syntax validation
     try:
@@ -7814,7 +7814,7 @@ def test_snippet_troubleshooting_discovery_coordination_42():
 
 def test_snippet_troubleshooting_discovery_coordination_43():
     """Test code snippet from troubleshooting/discovery-coordination.md (line 1014)."""
-    code = '# Solution 1: Wait for queue to drain\nimport time\n\nwhile True:\n    health = check_coordination_health()\n    if health["queue_depth"] < 10:\n        break\n    print(f"Waiting for queue to drain: {health[\'queue_depth\']} items")\n    time.sleep(5)\n\nworkflow = coordinate_workflow(steps=[...])\n\n# Solution 2: Increase service capacity\n# In configuration:\n# MAX_CONCURRENT_WORKFLOWS=100  # Increase from 50\n# WORKER_THREADS=8  # Increase from 4\n\n# Solution 3: Clean up stuck workflows\nfrom plugins.mycelium_core.coordination import cleanup_stuck_workflows\n\ncleanup_stuck_workflows(stuck_for_hours=2)\n\n# Solution 4: Use fallback mode\n# If coordination service unavailable, execute steps manually\ntry:\n    workflow = coordinate_workflow(steps=[...])\nexcept CoordinationServiceError:\n    # Manual execution fallback\n    results = []\n    for step in steps:\n        result = handoff_to_agent(\n            step["agent"],\n            step["task"],\n            context=step.get("params", {})\n        )\n        results.append(result)'
+    code = '# Solution 1: Wait for queue to drain\nimport time\n\nwhile True:\n    health = check_coordination_health()\n    if health["queue_depth"] < 10:\n        break\n    print(f"Waiting for queue to drain: {health[\'queue_depth\']} items")\n    time.sleep(5)\n\nworkflow = coordinate_workflow(steps=[...])\n\n# Solution 2: Increase service capacity\n# In configuration:\n# MAX_CONCURRENT_WORKFLOWS=100  # Increase from 50\n# WORKER_THREADS=8  # Increase from 4\n\n# Solution 3: Clean up stuck workflows\nfrom coordination import cleanup_stuck_workflows\n\ncleanup_stuck_workflows(stuck_for_hours=2)\n\n# Solution 4: Use fallback mode\n# If coordination service unavailable, execute steps manually\ntry:\n    workflow = coordinate_workflow(steps=[...])\nexcept CoordinationServiceError:\n    # Manual execution fallback\n    results = []\n    for step in steps:\n        result = handoff_to_agent(\n            step["agent"],\n            step["task"],\n            context=step.get("params", {})\n        )\n        results.append(result)'
 
     # Test 1: Syntax validation
     try:

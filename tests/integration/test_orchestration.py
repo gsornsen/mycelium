@@ -17,7 +17,7 @@ from typing import Any, Dict
 # Set test database URL
 os.environ["DATABASE_URL"] = "postgresql://localhost:5432/mycelium_test"
 
-from plugins.mycelium_core.coordination import (
+from coordination import (
     WorkflowOrchestrator,
     StateManager,
     WorkflowStatus,
@@ -25,7 +25,7 @@ from plugins.mycelium_core.coordination import (
     HandoffProtocol,
     HandoffContext,
 )
-from plugins.mycelium_core.coordination.orchestrator import (
+from coordination.orchestrator import (
     TaskDefinition,
     TaskExecutionContext,
     RetryPolicy,

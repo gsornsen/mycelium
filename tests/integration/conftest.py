@@ -3,7 +3,7 @@ import os
 import pytest
 import pytest_asyncio
 from typing import AsyncGenerator
-from plugins.mycelium_core.registry import AgentRegistry
+from registry import AgentRegistry
 
 @pytest.fixture(scope="session")
 def database_url():

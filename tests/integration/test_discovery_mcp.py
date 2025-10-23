@@ -9,14 +9,14 @@ from unittest.mock import AsyncMock, Mock, patch
 import httpx
 import pytest
 
-from plugins.mycelium_core.mcp.models import (
+from mcp.models import (
     AgentDetails,
     AgentMatch,
     DiscoverAgentsResponse,
     GetAgentDetailsResponse,
     HealthCheckResponse,
 )
-from plugins.mycelium_core.mcp.tools.discovery_tools import (
+from mcp.tools.discovery_tools import (
     DiscoveryAPIError,
     DiscoveryTimeoutError,
     DiscoveryToolError,
