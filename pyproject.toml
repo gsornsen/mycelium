@@ -163,10 +163,9 @@ addopts = [
     "--strict-markers",
     "--strict-config",
     "--showlocals",
-    "--import-mode=importlib",
 ]
 testpaths = ["tests"]
-pythonpath = ["."]
+pythonpath = [".", "plugins/mycelium-core"]
 markers = [
     "benchmark: marks tests as benchmarks (deselect with '-m \"not benchmark\"')",
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
