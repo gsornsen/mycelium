@@ -165,7 +165,7 @@ addopts = [
     "--showlocals",
 ]
 testpaths = ["tests"]
-pythonpath = [".", "plugins/mycelium-core"]
+pythonpath = [".", "plugins/mycelium-core", "scripts"]
 markers = [
     "benchmark: marks tests as benchmarks (deselect with '-m \"not benchmark\"')",
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
