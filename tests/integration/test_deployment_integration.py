@@ -18,21 +18,16 @@ Test Coverage:
 
 from __future__ import annotations
 
-import json
-import subprocess
 from pathlib import Path
-from unittest.mock import MagicMock, patch
 
 import pytest
 import yaml
 from click.testing import CliRunner
 
 from mycelium_onboarding.cli import cli
-from mycelium_onboarding.config.manager import ConfigManager
 from mycelium_onboarding.config.schema import DeploymentMethod, MyceliumConfig
 from mycelium_onboarding.deployment.generator import DeploymentGenerator
 from mycelium_onboarding.deployment.secrets import SecretsManager
-
 
 # ============================================================================
 # Docker Compose Integration Tests

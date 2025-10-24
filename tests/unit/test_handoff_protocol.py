@@ -1,19 +1,18 @@
 """Unit tests for handoff protocol implementation."""
 
 import json
-import pytest
-from datetime import datetime
 
+import pytest
 from coordination.protocol import (
-    HandoffProtocol,
-    HandoffMessage,
     AgentInfo,
     HandoffContext,
-    HandoffState,
+    HandoffMessage,
     HandoffMetadata,
-    WorkflowProgress,
-    HandoffValidationError,
+    HandoffProtocol,
     HandoffProtocolError,
+    HandoffState,
+    HandoffValidationError,
+    WorkflowProgress,
 )
 
 

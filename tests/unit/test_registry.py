@@ -6,13 +6,12 @@ and edge cases for the agent registry.
 
 import json
 import os
+from collections.abc import AsyncGenerator
 from pathlib import Path
-from typing import AsyncGenerator
 from uuid import UUID
 
-import pytest
 import asyncpg
-
+import pytest
 from registry import (
     AgentAlreadyExistsError,
     AgentNotFoundError,
@@ -20,7 +19,6 @@ from registry import (
     AgentRegistryError,
     load_agents_from_index,
 )
-
 
 # Test Configuration
 TEST_DB_URL = os.getenv(
@@ -79,7 +77,7 @@ async def schema_setup(db_pool):
         pytest.skip(f"Schema file not found: {schema_path}")
 
     async with db_pool.acquire() as conn:
-        with open(schema_path, 'r') as f:
+        with open(schema_path) as f:
             schema_sql = f.read()
         await conn.execute(schema_sql)
 

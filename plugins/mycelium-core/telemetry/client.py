@@ -9,10 +9,9 @@ import atexit
 import json
 import logging
 import queue
-import sys
 import threading
 import time
-from typing import Any, Dict, List, Optional
+from typing import Any
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
@@ -32,7 +31,7 @@ class TelemetryClient:
     When telemetry is disabled, all methods become no-ops with zero overhead.
     """
 
-    def __init__(self, config: Optional[TelemetryConfig] = None) -> None:
+    def __init__(self, config: TelemetryConfig | None = None) -> None:
         """Initialize telemetry client.
 
         Args:
@@ -40,10 +39,10 @@ class TelemetryClient:
         """
         self.config = config or TelemetryConfig.from_env()
         self.anonymizer = DataAnonymizer(self.config.salt)
-        self._event_queue: queue.Queue[Dict[str, Any]] = queue.Queue(
+        self._event_queue: queue.Queue[dict[str, Any]] = queue.Queue(
             maxsize=self.config.batch_size * 2
         )
-        self._worker_thread: Optional[threading.Thread] = None
+        self._worker_thread: threading.Thread | None = None
         self._shutdown = threading.Event()
         self._enabled = self.config.is_enabled()
 
@@ -65,7 +64,7 @@ class TelemetryClient:
 
     def _worker_loop(self) -> None:
         """Background worker loop that processes and sends events."""
-        batch: List[Dict[str, Any]] = []
+        batch: list[dict[str, Any]] = []
         last_send = time.time()
         batch_timeout = 30.0  # Send batch every 30 seconds even if not full
 
@@ -102,7 +101,7 @@ class TelemetryClient:
         if batch:
             self._send_batch(batch)
 
-    def _send_batch(self, events: List[Dict[str, Any]]) -> None:
+    def _send_batch(self, events: list[dict[str, Any]]) -> None:
         """Send a batch of events to the telemetry endpoint.
 
         Args:
@@ -139,10 +138,9 @@ class TelemetryClient:
                             f"Successfully sent {len(events)} telemetry events"
                         )
                         return
-                    else:
-                        logger.debug(
-                            f"Telemetry endpoint returned status {response.status}"
-                        )
+                    logger.debug(
+                        f"Telemetry endpoint returned status {response.status}"
+                    )
 
             except HTTPError as e:
                 logger.debug(f"HTTP error sending telemetry: {e.code}")
@@ -168,7 +166,7 @@ class TelemetryClient:
         # Failed to send after retries - log and discard
         logger.debug(f"Failed to send {len(events)} telemetry events after retries")
 
-    def _enqueue_event(self, event: Dict[str, Any]) -> None:
+    def _enqueue_event(self, event: dict[str, Any]) -> None:
         """Enqueue an event for sending.
 
         Args:
@@ -188,7 +186,7 @@ class TelemetryClient:
         self,
         agent_id: str,
         operation: str,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: dict[str, Any] | None = None
     ) -> None:
         """Track agent usage event.
 
@@ -211,7 +209,7 @@ class TelemetryClient:
         metric_name: str,
         value: float,
         unit: str = "ms",
-        tags: Optional[Dict[str, str]] = None
+        tags: dict[str, str] | None = None
     ) -> None:
         """Track performance metric.
 
@@ -234,8 +232,8 @@ class TelemetryClient:
         self,
         error_type: str,
         error_message: str,
-        stack_trace: Optional[str] = None,
-        context: Optional[Dict[str, Any]] = None
+        stack_trace: str | None = None,
+        context: dict[str, Any] | None = None
     ) -> None:
         """Track error event.
 
@@ -316,7 +314,7 @@ class TelemetryClient:
 
 
 # Global telemetry client instance
-_global_client: Optional[TelemetryClient] = None
+_global_client: TelemetryClient | None = None
 _client_lock = threading.Lock()
 
 

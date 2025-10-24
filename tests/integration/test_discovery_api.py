@@ -4,15 +4,13 @@ These tests validate the complete Discovery API functionality including
 all endpoints, error handling, and integration with the agent registry.
 """
 
-import json
 import os
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
 
 import pytest
 import pytest_asyncio
-from fastapi.testclient import TestClient
-
 from api.discovery import create_app
+from fastapi.testclient import TestClient
 from registry import AgentRegistry
 
 

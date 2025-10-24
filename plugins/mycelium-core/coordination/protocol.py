@@ -6,13 +6,12 @@ enabling seamless state transfer and context preservation across workflow transi
 
 import json
 import uuid
-from dataclasses import dataclass, field, asdict
-from datetime import datetime, UTC
+from dataclasses import asdict, dataclass, field
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import jsonschema
-
 
 # Load handoff schema
 SCHEMA_PATH = Path(__file__).parent / "schemas" / "handoff.json"
@@ -35,10 +34,10 @@ class AgentInfo:
     """Agent information for handoff."""
     agent_id: str
     agent_type: str
-    execution_time: Optional[float] = None
-    requirements: Optional[Dict[str, Any]] = None
+    execution_time: float | None = None
+    requirements: dict[str, Any] | None = None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary, excluding None values."""
         return {k: v for k, v in asdict(self).items() if v is not None}
 
@@ -46,13 +45,13 @@ class AgentInfo:
 @dataclass
 class HandoffContext:
     """Context information for handoff."""
-    task_description: Optional[str] = None
-    previous_results: List[Dict[str, Any]] = field(default_factory=list)
-    conversation_history: List[Dict[str, Any]] = field(default_factory=list)
-    files: List[Dict[str, Any]] = field(default_factory=list)
-    user_preferences: Dict[str, Any] = field(default_factory=dict)
+    task_description: str | None = None
+    previous_results: list[dict[str, Any]] = field(default_factory=list)
+    conversation_history: list[dict[str, Any]] = field(default_factory=list)
+    files: list[dict[str, Any]] = field(default_factory=list)
+    user_preferences: dict[str, Any] = field(default_factory=dict)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary, excluding empty collections."""
         result = {}
         if self.task_description:
@@ -71,11 +70,11 @@ class HandoffContext:
 @dataclass
 class WorkflowProgress:
     """Workflow progress tracking."""
-    completed_steps: List[str] = field(default_factory=list)
-    pending_steps: List[str] = field(default_factory=list)
+    completed_steps: list[str] = field(default_factory=list)
+    pending_steps: list[str] = field(default_factory=list)
     percentage: float = 0.0
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return asdict(self)
 
@@ -83,11 +82,11 @@ class WorkflowProgress:
 @dataclass
 class HandoffState:
     """Workflow execution state."""
-    variables: Dict[str, Any] = field(default_factory=dict)
-    progress: Optional[WorkflowProgress] = None
-    errors: List[Dict[str, Any]] = field(default_factory=list)
+    variables: dict[str, Any] = field(default_factory=dict)
+    progress: WorkflowProgress | None = None
+    errors: list[dict[str, Any]] = field(default_factory=list)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         result = {}
         if self.variables:
@@ -103,12 +102,12 @@ class HandoffState:
 class HandoffMetadata:
     """Handoff metadata for tracking and debugging."""
     priority: str = "normal"
-    timeout: Optional[int] = None
+    timeout: int | None = None
     retry_count: int = 0
-    tags: List[str] = field(default_factory=list)
-    correlation_id: Optional[str] = None
+    tags: list[str] = field(default_factory=list)
+    correlation_id: str | None = None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary, excluding None values."""
         return {k: v for k, v in asdict(self).items() if v is not None}
 
@@ -121,12 +120,12 @@ class HandoffMessage:
     context: HandoffContext
     version: str = "1.0"
     handoff_id: str = field(default_factory=lambda: str(uuid.uuid4()))
-    workflow_id: Optional[str] = None
+    workflow_id: str | None = None
     state: HandoffState = field(default_factory=HandoffState)
     metadata: HandoffMetadata = field(default_factory=HandoffMetadata)
     timestamp: str = field(default_factory=lambda: datetime.now(UTC).isoformat() + "Z")
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert handoff message to dictionary."""
         result = {
             "version": self.version,
@@ -143,12 +142,12 @@ class HandoffMessage:
             result["workflow_id"] = self.workflow_id
         return result
 
-    def to_json(self, indent: Optional[int] = None) -> str:
+    def to_json(self, indent: int | None = None) -> str:
         """Serialize handoff message to JSON string."""
         return json.dumps(self.to_dict(), indent=indent)
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "HandoffMessage":
+    def from_dict(cls, data: dict[str, Any]) -> "HandoffMessage":
         """Create handoff message from dictionary."""
         # Parse source
         source_data = data["source"]
@@ -248,11 +247,11 @@ class HandoffProtocol:
         source_agent_type: str,
         target_agent_id: str,
         target_agent_type: str,
-        task_description: Optional[str] = None,
-        workflow_id: Optional[str] = None,
-        context: Optional[HandoffContext] = None,
-        state: Optional[HandoffState] = None,
-        metadata: Optional[HandoffMetadata] = None,
+        task_description: str | None = None,
+        workflow_id: str | None = None,
+        context: HandoffContext | None = None,
+        state: HandoffState | None = None,
+        metadata: HandoffMetadata | None = None,
     ) -> HandoffMessage:
         """Create a new handoff message.
 
@@ -341,7 +340,7 @@ class HandoffProtocol:
     def add_result_to_context(
         message: HandoffMessage,
         agent_id: str,
-        result: Dict[str, Any],
+        result: dict[str, Any],
     ) -> HandoffMessage:
         """Add agent execution result to handoff context.
 
@@ -364,9 +363,9 @@ class HandoffProtocol:
     @staticmethod
     def update_progress(
         message: HandoffMessage,
-        completed_steps: Optional[List[str]] = None,
-        pending_steps: Optional[List[str]] = None,
-        percentage: Optional[float] = None,
+        completed_steps: list[str] | None = None,
+        pending_steps: list[str] | None = None,
+        percentage: float | None = None,
     ) -> HandoffMessage:
         """Update workflow progress in handoff message.
 

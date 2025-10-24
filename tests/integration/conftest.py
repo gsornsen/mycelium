@@ -1,9 +1,11 @@
 """Pytest configuration for integration tests."""
 import os
+from collections.abc import AsyncGenerator
+
 import pytest
 import pytest_asyncio
-from typing import AsyncGenerator
 from registry import AgentRegistry
+
 
 @pytest.fixture(scope="session")
 def database_url():

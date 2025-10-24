@@ -9,19 +9,17 @@ from __future__ import annotations
 
 from pathlib import Path
 from unittest.mock import MagicMock, Mock, patch
-from datetime import datetime
 
 import pytest
 from click.testing import CliRunner
 
 from mycelium_onboarding.cli import cli
-from mycelium_onboarding.wizard.flow import WizardState, WizardStep, WizardFlow
+from mycelium_onboarding.config.manager import ConfigManager
+from mycelium_onboarding.detection.orchestrator import DetectionSummary
+from mycelium_onboarding.wizard.flow import WizardFlow, WizardState, WizardStep
+from mycelium_onboarding.wizard.persistence import WizardStatePersistence
 from mycelium_onboarding.wizard.screens import WizardScreens
 from mycelium_onboarding.wizard.validation import WizardValidator
-from mycelium_onboarding.wizard.persistence import WizardStatePersistence
-from mycelium_onboarding.detection.orchestrator import DetectionSummary
-from mycelium_onboarding.config.manager import ConfigManager
-
 
 # ============================================================================
 # Test Fixtures
@@ -199,22 +197,21 @@ class TestWizardE2EQuickMode:
                 with patch(
                     "mycelium_onboarding.wizard.screens.detect_all",
                     return_value=mock_detection_summary,
-                ):
-                    with patch(
-                        "mycelium_onboarding.config.manager.ConfigManager"
-                    ) as mock_config_class:
-                        mock_config = MagicMock()
-                        mock_config._determine_save_path.return_value = (
-                            tmp_path / "config.yaml"
-                        )
-                        mock_config_class.return_value = mock_config
+                ), patch(
+                    "mycelium_onboarding.config.manager.ConfigManager"
+                ) as mock_config_class:
+                    mock_config = MagicMock()
+                    mock_config._determine_save_path.return_value = (
+                        tmp_path / "config.yaml"
+                    )
+                    mock_config_class.return_value = mock_config
 
-                        with patch("click.prompt", return_value="test-project"):
-                            result = runner.invoke(cli, ["init", "--no-resume"])
+                    with patch("click.prompt", return_value="test-project"):
+                        result = runner.invoke(cli, ["init", "--no-resume"])
 
-                        # Advanced screen should not be called (number port not set)
-                        # This is validated by checking state transitions
-                        assert result.exit_code == 0
+                    # Advanced screen should not be called (number port not set)
+                    # This is validated by checking state transitions
+                    assert result.exit_code == 0
 
     def test_quick_mode_with_minimal_services(
         self,
@@ -247,20 +244,19 @@ class TestWizardE2EQuickMode:
                 with patch(
                     "mycelium_onboarding.wizard.screens.detect_all",
                     return_value=mock_detection_summary,
-                ):
-                    with patch(
-                        "mycelium_onboarding.config.manager.ConfigManager"
-                    ) as mock_config_class:
-                        mock_config = MagicMock()
-                        mock_config._determine_save_path.return_value = (
-                            tmp_path / "config.yaml"
-                        )
-                        mock_config_class.return_value = mock_config
+                ), patch(
+                    "mycelium_onboarding.config.manager.ConfigManager"
+                ) as mock_config_class:
+                    mock_config = MagicMock()
+                    mock_config._determine_save_path.return_value = (
+                        tmp_path / "config.yaml"
+                    )
+                    mock_config_class.return_value = mock_config
 
-                        with patch("click.prompt", return_value="minimal-project"):
-                            result = runner.invoke(cli, ["init", "--no-resume"])
+                    with patch("click.prompt", return_value="minimal-project"):
+                        result = runner.invoke(cli, ["init", "--no-resume"])
 
-                        assert result.exit_code == 0
+                    assert result.exit_code == 0
 
 
 # ============================================================================
@@ -323,20 +319,19 @@ class TestWizardE2ECustomMode:
                 with patch(
                     "mycelium_onboarding.wizard.screens.detect_all",
                     return_value=mock_detection_summary,
-                ):
-                    with patch(
-                        "mycelium_onboarding.config.manager.ConfigManager"
-                    ) as mock_config_class:
-                        mock_config = MagicMock()
-                        mock_config._determine_save_path.return_value = (
-                            tmp_path / "config.yaml"
-                        )
-                        mock_config_class.return_value = mock_config
+                ), patch(
+                    "mycelium_onboarding.config.manager.ConfigManager"
+                ) as mock_config_class:
+                    mock_config = MagicMock()
+                    mock_config._determine_save_path.return_value = (
+                        tmp_path / "config.yaml"
+                    )
+                    mock_config_class.return_value = mock_config
 
-                        with patch("click.prompt", return_value="custom-project"):
-                            result = runner.invoke(cli, ["init", "--no-resume"])
+                    with patch("click.prompt", return_value="custom-project"):
+                        result = runner.invoke(cli, ["init", "--no-resume"])
 
-                        assert result.exit_code == 0
+                    assert result.exit_code == 0
 
     def test_custom_mode_all_services_enabled(
         self,
@@ -392,20 +387,19 @@ class TestWizardE2ECustomMode:
                 with patch(
                     "mycelium_onboarding.wizard.screens.detect_all",
                     return_value=mock_detection_summary,
-                ):
-                    with patch(
-                        "mycelium_onboarding.config.manager.ConfigManager"
-                    ) as mock_config_class:
-                        mock_config = MagicMock()
-                        mock_config._determine_save_path.return_value = (
-                            tmp_path / "config.yaml"
-                        )
-                        mock_config_class.return_value = mock_config
+                ), patch(
+                    "mycelium_onboarding.config.manager.ConfigManager"
+                ) as mock_config_class:
+                    mock_config = MagicMock()
+                    mock_config._determine_save_path.return_value = (
+                        tmp_path / "config.yaml"
+                    )
+                    mock_config_class.return_value = mock_config
 
-                        with patch("click.prompt", return_value="full-stack"):
-                            result = runner.invoke(cli, ["init", "--no-resume"])
+                    with patch("click.prompt", return_value="full-stack"):
+                        result = runner.invoke(cli, ["init", "--no-resume"])
 
-                        assert result.exit_code == 0
+                    assert result.exit_code == 0
 
 
 # ============================================================================

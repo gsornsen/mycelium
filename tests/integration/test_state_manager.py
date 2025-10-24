@@ -1,6 +1,7 @@
 """Unit tests for state manager."""
 
 import os
+
 import pytest
 
 # Set test database URL
@@ -8,11 +9,10 @@ os.environ["DATABASE_URL"] = "postgresql://localhost:5432/mycelium_test"
 
 from coordination.state_manager import (
     StateManager,
-    WorkflowState,
-    WorkflowStatus,
+    StateNotFoundError,
     TaskState,
     TaskStatus,
-    StateNotFoundError,
+    WorkflowStatus,
 )
 
 

@@ -12,8 +12,7 @@ Privacy principles:
 
 import hashlib
 import re
-from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 class DataAnonymizer:
@@ -134,8 +133,8 @@ class DataAnonymizer:
         self,
         error_type: str,
         error_message: str,
-        stack_trace: Optional[str] = None
-    ) -> Dict[str, Any]:
+        stack_trace: str | None = None
+    ) -> dict[str, Any]:
         """Anonymize error information.
 
         Args:
@@ -212,8 +211,8 @@ class DataAnonymizer:
         self,
         agent_id: str,
         operation: str,
-        metadata: Optional[Dict[str, Any]] = None
-    ) -> Dict[str, Any]:
+        metadata: dict[str, Any] | None = None
+    ) -> dict[str, Any]:
         """Anonymize agent usage data.
 
         Args:
@@ -239,8 +238,8 @@ class DataAnonymizer:
 
     def _filter_safe_metadata(
         self,
-        metadata: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        metadata: dict[str, Any]
+    ) -> dict[str, Any]:
         """Filter metadata to keep only safe, non-sensitive fields.
 
         Args:
@@ -269,8 +268,8 @@ class DataAnonymizer:
         metric_name: str,
         value: float,
         unit: str,
-        tags: Optional[Dict[str, str]] = None
-    ) -> Dict[str, Any]:
+        tags: dict[str, str] | None = None
+    ) -> dict[str, Any]:
         """Anonymize performance metric data.
 
         Args:

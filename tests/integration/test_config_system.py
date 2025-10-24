@@ -14,7 +14,6 @@ from __future__ import annotations
 import shutil
 import tempfile
 from pathlib import Path
-from typing import Any
 
 import pytest
 import yaml
@@ -24,10 +23,6 @@ from mycelium_onboarding.config.manager import (
     ConfigManager,
     ConfigSaveError,
     ConfigValidationError,
-)
-from mycelium_onboarding.config.migrations import (
-    MigrationError,
-    get_default_registry,
 )
 from mycelium_onboarding.config.schema import (
     DeploymentMethod,
@@ -478,7 +473,6 @@ class TestErrorHandlingAndRecovery:
         manager.save(initial_config)
 
         # Simulate write failure by making temp file creation fail
-        import tempfile
         original_mkstemp = tempfile.mkstemp
 
         def failing_mkstemp(*args, **kwargs):

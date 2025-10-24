@@ -4,7 +4,6 @@ This test suite ensures cryptographic security, proper file permissions,
 and correct secret management functionality.
 """
 
-import json
 import stat
 from pathlib import Path
 

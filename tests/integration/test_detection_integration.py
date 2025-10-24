@@ -7,11 +7,10 @@ from CLI commands to config updates.
 
 from __future__ import annotations
 
-import asyncio
 import json
 import time
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 import yaml
@@ -21,7 +20,11 @@ from mycelium_onboarding.cli import cli
 from mycelium_onboarding.config.manager import ConfigManager
 from mycelium_onboarding.config.schema import MyceliumConfig
 from mycelium_onboarding.detection.docker_detector import DockerDetectionResult
-from mycelium_onboarding.detection.gpu_detector import GPUInfo, GPUDetectionResult, GPUVendor
+from mycelium_onboarding.detection.gpu_detector import (
+    GPUDetectionResult,
+    GPUInfo,
+    GPUVendor,
+)
 from mycelium_onboarding.detection.orchestrator import (
     DetectionSummary,
     detect_all,
@@ -32,7 +35,6 @@ from mycelium_onboarding.detection.orchestrator import (
 from mycelium_onboarding.detection.postgres_detector import PostgresDetectionResult
 from mycelium_onboarding.detection.redis_detector import RedisDetectionResult
 from mycelium_onboarding.detection.temporal_detector import TemporalDetectionResult
-
 
 # ============================================================================
 # Fixtures
