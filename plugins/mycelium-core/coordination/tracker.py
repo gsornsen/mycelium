@@ -8,16 +8,15 @@ in PostgreSQL with efficient indexing for history retrieval and analysis.
 import json
 import logging
 import uuid
-from dataclasses import dataclass, field, asdict
+from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import asyncpg
 import jsonschema
 from asyncpg import Pool
-
 
 # Load event schema
 SCHEMA_PATH = Path(__file__).parent / "schemas" / "events.json"
@@ -76,7 +75,7 @@ class AgentInfo:
     agent_id: str
     agent_type: str
 
-    def to_dict(self) -> Dict[str, str]:
+    def to_dict(self) -> dict[str, str]:
         """Convert to dictionary."""
         return {"agent_id": self.agent_id, "agent_type": self.agent_type}
 
@@ -87,9 +86,9 @@ class ErrorInfo:
     error_type: str
     message: str
     attempt: int = 0
-    stack_trace: Optional[str] = None
+    stack_trace: str | None = None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         result = {
             "error_type": self.error_type,
@@ -104,11 +103,11 @@ class ErrorInfo:
 @dataclass
 class PerformanceMetrics:
     """Performance metrics for events."""
-    queue_time_ms: Optional[float] = None
-    execution_time_ms: Optional[float] = None
-    total_time_ms: Optional[float] = None
+    queue_time_ms: float | None = None
+    execution_time_ms: float | None = None
+    total_time_ms: float | None = None
 
-    def to_dict(self) -> Dict[str, float]:
+    def to_dict(self) -> dict[str, float]:
         """Convert to dictionary, excluding None values."""
         return {k: v for k, v in asdict(self).items() if v is not None}
 
@@ -120,19 +119,19 @@ class CoordinationEvent:
     workflow_id: str
     timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat() + "Z")
     event_id: str = field(default_factory=lambda: str(uuid.uuid4()))
-    task_id: Optional[str] = None
-    agent_id: Optional[str] = None
-    agent_type: Optional[str] = None
-    source_agent: Optional[AgentInfo] = None
-    target_agent: Optional[AgentInfo] = None
-    status: Optional[str] = None
-    duration_ms: Optional[float] = None
-    error: Optional[ErrorInfo] = None
-    metadata: Optional[Dict[str, Any]] = None
-    context: Optional[Dict[str, Any]] = None
-    performance: Optional[PerformanceMetrics] = None
+    task_id: str | None = None
+    agent_id: str | None = None
+    agent_type: str | None = None
+    source_agent: AgentInfo | None = None
+    target_agent: AgentInfo | None = None
+    status: str | None = None
+    duration_ms: float | None = None
+    error: ErrorInfo | None = None
+    metadata: dict[str, Any] | None = None
+    context: dict[str, Any] | None = None
+    performance: PerformanceMetrics | None = None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert event to dictionary for storage/validation."""
         result = {
             "event_id": self.event_id,
@@ -169,7 +168,7 @@ class CoordinationEvent:
 
         return result
 
-    def to_json(self, indent: Optional[int] = None) -> str:
+    def to_json(self, indent: int | None = None) -> str:
         """Serialize event to JSON string."""
         return json.dumps(self.to_dict(), indent=indent)
 
@@ -187,8 +186,8 @@ class CoordinationTracker:
 
     def __init__(
         self,
-        pool: Optional[Pool] = None,
-        connection_string: Optional[str] = None,
+        pool: Pool | None = None,
+        connection_string: str | None = None,
         enable_validation: bool = True,
     ):
         """Initialize coordination tracker.
@@ -203,11 +202,11 @@ class CoordinationTracker:
             self._owns_pool = False
         else:
             self._connection_string = connection_string or "postgresql://localhost:5432/mycelium_registry"
-            self._pool: Optional[Pool] = None
+            self._pool: Pool | None = None
             self._owns_pool = True
 
         self._enable_validation = enable_validation
-        self._event_counts: Dict[str, int] = {}  # For performance monitoring
+        self._event_counts: dict[str, int] = {}  # For performance monitoring
 
     async def initialize(self) -> None:
         """Initialize database connection and schema."""
@@ -358,9 +357,9 @@ class CoordinationTracker:
     async def get_workflow_events(
         self,
         workflow_id: str,
-        event_type: Optional[EventType] = None,
+        event_type: EventType | None = None,
         limit: int = 1000,
-    ) -> List[CoordinationEvent]:
+    ) -> list[CoordinationEvent]:
         """Retrieve events for a workflow.
 
         Args:
@@ -405,7 +404,7 @@ class CoordinationTracker:
         self,
         task_id: str,
         limit: int = 100,
-    ) -> List[CoordinationEvent]:
+    ) -> list[CoordinationEvent]:
         """Retrieve events for a specific task.
 
         Args:
@@ -435,9 +434,9 @@ class CoordinationTracker:
     async def get_agent_events(
         self,
         agent_id: str,
-        event_type: Optional[EventType] = None,
+        event_type: EventType | None = None,
         limit: int = 100,
-    ) -> List[CoordinationEvent]:
+    ) -> list[CoordinationEvent]:
         """Retrieve events for a specific agent.
 
         Args:
@@ -478,7 +477,7 @@ class CoordinationTracker:
 
             return [self._row_to_event(row) for row in rows]
 
-    async def get_handoff_chain(self, workflow_id: str) -> List[CoordinationEvent]:
+    async def get_handoff_chain(self, workflow_id: str) -> list[CoordinationEvent]:
         """Retrieve complete handoff chain for a workflow.
 
         Args:
@@ -495,7 +494,7 @@ class CoordinationTracker:
     async def get_workflow_timeline(
         self,
         workflow_id: str,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Get complete timeline of workflow execution.
 
         Args:
@@ -545,8 +544,8 @@ class CoordinationTracker:
 
     async def get_statistics(
         self,
-        workflow_id: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        workflow_id: str | None = None,
+    ) -> dict[str, Any]:
         """Get tracking statistics.
 
         Args:
@@ -714,9 +713,9 @@ async def track_handoff(
     source_agent_type: str,
     target_agent_id: str,
     target_agent_type: str,
-    task_id: Optional[str] = None,
-    context: Optional[Dict[str, Any]] = None,
-    metadata: Optional[Dict[str, Any]] = None,
+    task_id: str | None = None,
+    context: dict[str, Any] | None = None,
+    metadata: dict[str, Any] | None = None,
 ) -> str:
     """Track a handoff event.
 
@@ -753,9 +752,9 @@ async def track_task_execution(
     agent_id: str,
     agent_type: str,
     status: str,
-    duration_ms: Optional[float] = None,
-    result_summary: Optional[str] = None,
-    performance: Optional[PerformanceMetrics] = None,
+    duration_ms: float | None = None,
+    result_summary: str | None = None,
+    performance: PerformanceMetrics | None = None,
 ) -> str:
     """Track task execution start or end.
 
@@ -802,7 +801,7 @@ async def track_failure(
     error_type: str,
     error_message: str,
     attempt: int = 1,
-    stack_trace: Optional[str] = None,
+    stack_trace: str | None = None,
 ) -> str:
     """Track a failure event.
 

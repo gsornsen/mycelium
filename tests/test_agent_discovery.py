@@ -14,18 +14,19 @@ Phase: 1 Week 3
 Date: 2025-10-17
 """
 
-import pytest
 import json
 import tempfile
 from pathlib import Path
-from scripts.agent_discovery import (
-    AgentDiscovery,
-    AgentCache,
-    benchmark_discovery,
-    IndexNotFoundError,
-    MalformedIndexError
-)
 
+import pytest
+
+from scripts.agent_discovery import (
+    AgentCache,
+    AgentDiscovery,
+    IndexNotFoundError,
+    MalformedIndexError,
+    benchmark_discovery,
+)
 
 # ============================================================================
 # Fixtures

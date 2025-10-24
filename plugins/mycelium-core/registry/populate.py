@@ -44,7 +44,7 @@ async def main() -> int:
             print(f"  Database size: {health['database_size']}")
 
             # Load agents
-            print(f"\nLoading agents from index.json...")
+            print("\nLoading agents from index.json...")
             count = await load_agents_from_index(index_path, registry)
 
             print(f"\nSuccessfully loaded {count} agents")

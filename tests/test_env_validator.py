@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import Any
 
 import pytest
 
@@ -517,7 +516,6 @@ class TestEdgeCases:
     ) -> None:
         """Should handle relative paths correctly."""
         # Change to tmp directory
-        import os
 
         original_cwd = os.getcwd()
         try:

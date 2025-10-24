@@ -219,7 +219,7 @@ class WizardStatePersistence:
             state = WizardState(
                 current_step=WizardStep(str(state_dict["current_step"])),
                 started_at=datetime.fromisoformat(
-                    str(state_dict.get("started_at", datetime.now().isoformat()))
+                    str(state_dict.get("started_at", datetime.now(UTC).isoformat()))
                 ),
                 project_name=str(state_dict.get("project_name", "")),
                 services_enabled=services_enabled,
@@ -260,7 +260,7 @@ class WizardStatePersistence:
             return None
 
         try:
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            timestamp = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
             backup_file = self.state_dir / f"wizard_state_backup_{timestamp}.json"
 
             # Copy current state to backup

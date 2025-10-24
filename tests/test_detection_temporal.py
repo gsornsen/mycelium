@@ -2,12 +2,10 @@
 
 from __future__ import annotations
 
-import socket
-from unittest.mock import Mock, patch
-
-import pytest
+from unittest.mock import Mock
 
 import pytest_mock
+
 from mycelium_onboarding.detection.temporal_detector import (
     TemporalDetectionResult,
     detect_temporal,
@@ -234,7 +232,7 @@ class TestAttemptVersionFromUI:
         )
 
         mock_socket = Mock()
-        mock_socket.recv.side_effect = socket.timeout()
+        mock_socket.recv.side_effect = TimeoutError()
 
         mock_socket_class = mocker.patch("socket.socket")
         mock_socket_class.return_value = mock_socket

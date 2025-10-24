@@ -257,7 +257,7 @@ class TestWizardState:
     def test_to_config_without_project_name(self) -> None:
         """Test to_config uses default when project name is empty."""
         state = WizardState(project_name="")
-        
+
         config = state.to_config()
         assert config.project_name == "mycelium"
 
@@ -290,7 +290,7 @@ class TestWizardState:
         data: dict[str, Any] = {
             "project_name": "test",
             "current_step": "services",
-            "started_at": datetime.now().isoformat(),
+            "started_at": datetime.now(UTC).isoformat(),
             "deployment_method": "kubernetes",
             "services_enabled": {"redis": True, "postgres": False, "temporal": False},
             "detection_results": None,
@@ -356,7 +356,7 @@ class TestWizardFlow:
         """Test advancing through wizard steps."""
         flow = WizardFlow()
         flow.state.detection_results = {"test": "data"}
-        
+
         assert flow.state.current_step == WizardStep.WELCOME
 
         flow.advance()
@@ -466,7 +466,7 @@ class TestWizardFlow:
         state_data = {
             "project_name": "test-load",
             "current_step": "deployment",
-            "started_at": datetime.now().isoformat(),
+            "started_at": datetime.now(UTC).isoformat(),
             "deployment_method": "kubernetes",
             "services_enabled": {"redis": True, "postgres": True, "temporal": False},
             "detection_results": None,
@@ -535,7 +535,7 @@ class TestWizardFlow:
 
         # Verify we're at REVIEW
         assert flow.state.current_step == WizardStep.REVIEW
-        
+
         # Mark complete manually for final step
         flow.mark_complete()
         assert flow.state.current_step == WizardStep.COMPLETE
@@ -565,7 +565,7 @@ class TestWizardFlow:
 
         # Verify we're at REVIEW
         assert flow.state.current_step == WizardStep.REVIEW
-        
+
         # Mark complete manually for final step
         flow.mark_complete()
         assert flow.state.current_step == WizardStep.COMPLETE
@@ -653,7 +653,7 @@ class TestEdgeCases:
     def test_empty_project_name_to_config(self) -> None:
         """Test to_config with empty project name uses default."""
         state = WizardState(project_name="")
-        
+
         config = state.to_config()
         assert config.project_name == "mycelium"
 

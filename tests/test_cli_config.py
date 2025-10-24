@@ -5,15 +5,13 @@ testing framework (CliRunner) to ensure robust command-line interface.
 """
 
 import json
-from pathlib import Path
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 import pytest
 import yaml
 from click.testing import CliRunner
 
 from mycelium_onboarding.cli import cli
-from mycelium_onboarding.config.manager import ConfigManager
 from mycelium_onboarding.config.schema import MyceliumConfig
 
 

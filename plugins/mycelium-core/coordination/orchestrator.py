@@ -7,19 +7,18 @@ state management, and failure recovery mechanisms.
 
 import asyncio
 import time
-import uuid
 from collections import defaultdict
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Optional, Set
+from typing import Any
 
-from .protocol import HandoffMessage, HandoffProtocol, AgentInfo, HandoffContext
+from .protocol import HandoffContext
 from .state_manager import (
     StateManager,
-    WorkflowState,
-    WorkflowStatus,
     TaskState,
     TaskStatus,
-    StateManagerError,
+    WorkflowState,
+    WorkflowStatus,
 )
 
 
@@ -58,11 +57,11 @@ class TaskDefinition:
     task_id: str
     agent_id: str
     agent_type: str
-    dependencies: List[str] = field(default_factory=list)
+    dependencies: list[str] = field(default_factory=list)
     retry_policy: RetryPolicy = field(default_factory=RetryPolicy)
-    timeout: Optional[float] = None  # seconds
+    timeout: float | None = None  # seconds
     allow_failure: bool = False  # if True, workflow continues even if task fails
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -71,8 +70,8 @@ class TaskExecutionContext:
     task_def: TaskDefinition
     workflow_id: str
     workflow_context: HandoffContext
-    previous_results: List[Dict[str, Any]] = field(default_factory=list)
-    variables: Dict[str, Any] = field(default_factory=dict)
+    previous_results: list[dict[str, Any]] = field(default_factory=list)
+    variables: dict[str, Any] = field(default_factory=dict)
 
 
 # Type alias for task executor function
@@ -94,7 +93,7 @@ class WorkflowOrchestrator:
     def __init__(
         self,
         state_manager: StateManager,
-        default_retry_policy: Optional[RetryPolicy] = None,
+        default_retry_policy: RetryPolicy | None = None,
         max_parallel_tasks: int = 10,
     ):
         """Initialize workflow orchestrator.
@@ -107,8 +106,8 @@ class WorkflowOrchestrator:
         self.state_manager = state_manager
         self.default_retry_policy = default_retry_policy or RetryPolicy()
         self.max_parallel_tasks = max_parallel_tasks
-        self._task_executors: Dict[str, TaskExecutor] = {}
-        self._active_workflows: Dict[str, asyncio.Task] = {}
+        self._task_executors: dict[str, TaskExecutor] = {}
+        self._active_workflows: dict[str, asyncio.Task] = {}
 
     def register_executor(self, agent_type: str, executor: TaskExecutor) -> None:
         """Register task executor for agent type.
@@ -121,10 +120,10 @@ class WorkflowOrchestrator:
 
     async def create_workflow(
         self,
-        tasks: List[TaskDefinition],
-        workflow_id: Optional[str] = None,
-        context: Optional[HandoffContext] = None,
-        metadata: Optional[Dict[str, Any]] = None,
+        tasks: list[TaskDefinition],
+        workflow_id: str | None = None,
+        context: HandoffContext | None = None,
+        metadata: dict[str, Any] | None = None,
     ) -> str:
         """Create a new workflow.
 
@@ -191,7 +190,7 @@ class WorkflowOrchestrator:
         self,
         workflow_id: str,
         background: bool = False,
-    ) -> Optional[WorkflowState]:
+    ) -> WorkflowState | None:
         """Execute workflow with dependency resolution.
 
         Args:
@@ -208,8 +207,7 @@ class WorkflowOrchestrator:
             task = asyncio.create_task(self._execute_workflow_impl(workflow_id))
             self._active_workflows[workflow_id] = task
             return None
-        else:
-            return await self._execute_workflow_impl(workflow_id)
+        return await self._execute_workflow_impl(workflow_id)
 
     async def _execute_workflow_impl(self, workflow_id: str) -> WorkflowState:
         """Internal workflow execution implementation."""
@@ -273,7 +271,7 @@ class WorkflowOrchestrator:
             if workflow_id in self._active_workflows:
                 del self._active_workflows[workflow_id]
 
-    def _reconstruct_tasks(self, state: WorkflowState) -> List[TaskDefinition]:
+    def _reconstruct_tasks(self, state: WorkflowState) -> list[TaskDefinition]:
         """Reconstruct task definitions from workflow metadata."""
         task_defs = []
         for task_data in state.metadata.get("tasks", []):
@@ -297,7 +295,7 @@ class WorkflowOrchestrator:
             task_defs.append(task_def)
         return task_defs
 
-    def _validate_dependencies(self, tasks: List[TaskDefinition]) -> None:
+    def _validate_dependencies(self, tasks: list[TaskDefinition]) -> None:
         """Validate task dependencies for cycles.
 
         Args:
@@ -320,7 +318,7 @@ class WorkflowOrchestrator:
         visited = set()
         rec_stack = set()
 
-        def has_cycle(task_id: str, adj_list: Dict[str, List[str]]) -> bool:
+        def has_cycle(task_id: str, adj_list: dict[str, list[str]]) -> bool:
             visited.add(task_id)
             rec_stack.add(task_id)
 
@@ -343,8 +341,8 @@ class WorkflowOrchestrator:
                     raise DependencyError("Task dependencies contain a cycle")
 
     def _build_dependency_graph(
-        self, tasks: List[TaskDefinition]
-    ) -> Dict[str, List[str]]:
+        self, tasks: list[TaskDefinition]
+    ) -> dict[str, list[str]]:
         """Build dependency graph (task -> dependent tasks).
 
         Args:
@@ -362,8 +360,8 @@ class WorkflowOrchestrator:
     async def _execute_tasks(
         self,
         workflow_id: str,
-        tasks: List[TaskDefinition],
-        dep_graph: Dict[str, List[str]],
+        tasks: list[TaskDefinition],
+        dep_graph: dict[str, list[str]],
         state: WorkflowState,
     ) -> None:
         """Execute tasks respecting dependencies and parallelism.
@@ -412,7 +410,7 @@ class WorkflowOrchestrator:
                         try:
                             await future
                             completed.add(task_id)
-                        except ExecutionError as e:
+                        except ExecutionError:
                             # Check if failure is allowed
                             if not tasks_by_id[task_id].allow_failure:
                                 raise
@@ -514,7 +512,7 @@ class WorkflowOrchestrator:
                 )
                 return
 
-            except asyncio.TimeoutError as e:
+            except asyncio.TimeoutError:
                 error_info = {
                     "error_type": "timeout",
                     "message": f"Task exceeded timeout of {task_def.timeout}s",
@@ -550,7 +548,7 @@ class WorkflowOrchestrator:
         workflow_id: str,
         task_def: TaskDefinition,
         attempt: int,
-        error_info: Dict[str, Any],
+        error_info: dict[str, Any],
     ) -> None:
         """Handle task execution failure.
 

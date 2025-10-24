@@ -637,7 +637,7 @@ from datetime import datetime
 
 def version_deployment(config: MyceliumConfig):
     """Version control generated deployments."""
-    timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    timestamp = datetime.now(UTC).strftime("%Y%m%d-%H%M%S")
     output_dir = Path(f"./deployments/{timestamp}")
 
     # Generate deployment

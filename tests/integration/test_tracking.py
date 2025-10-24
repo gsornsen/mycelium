@@ -9,31 +9,28 @@ Tests cover:
 """
 
 import asyncio
-import json
-import time
-from datetime import datetime
-from typing import List
-
-import pytest
-import asyncpg
 
 # Import coordination modules
 import sys
+import time
 from pathlib import Path
+
+import asyncpg
+import pytest
+
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "plugins" / "mycelium-core"))
 
 from coordination.tracker import (
-    CoordinationTracker,
-    CoordinationEvent,
-    EventType,
     AgentInfo,
+    CoordinationEvent,
+    CoordinationTracker,
     ErrorInfo,
+    EventType,
     PerformanceMetrics,
+    track_failure,
     track_handoff,
     track_task_execution,
-    track_failure,
 )
-
 
 # Test database configuration
 TEST_DB_URL = "postgresql://mycelium:mycelium_dev_password@localhost:5432/mycelium_registry"

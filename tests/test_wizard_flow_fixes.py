@@ -1,5 +1,6 @@
 # Quick fixes for failing tests
 import sys
+
 sys.path.insert(0, '/home/gerald/git/mycelium')
 
 from mycelium_onboarding.wizard.flow import WizardState

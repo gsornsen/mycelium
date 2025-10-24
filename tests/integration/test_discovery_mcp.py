@@ -3,23 +3,20 @@
 Simplified test suite using Pydantic models and reduced fixture complexity.
 """
 
-import json
-from unittest.mock import AsyncMock, Mock, patch
+from unittest.mock import Mock
 
 import httpx
 import pytest
-
-from plugins.mycelium_core.mcp.models import (
+from mcp.models import (
     AgentDetails,
     AgentMatch,
     DiscoverAgentsResponse,
     GetAgentDetailsResponse,
     HealthCheckResponse,
 )
-from plugins.mycelium_core.mcp.tools.discovery_tools import (
+from mcp.tools.discovery_tools import (
     DiscoveryAPIError,
     DiscoveryTimeoutError,
-    DiscoveryToolError,
     check_discovery_health,
     close_http_client,
     discover_agents,

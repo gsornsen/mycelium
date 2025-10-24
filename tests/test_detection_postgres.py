@@ -3,11 +3,10 @@
 from __future__ import annotations
 
 import socket
-from unittest.mock import Mock, patch
-
-import pytest
+from unittest.mock import Mock
 
 import pytest_mock
+
 from mycelium_onboarding.detection.postgres_detector import (
     PostgresDetectionResult,
     detect_postgres,
@@ -80,7 +79,7 @@ class TestDetectPostgres:
     def test_detect_postgres_timeout(self, mocker: pytest_mock.MockerFixture) -> None:
         """Test PostgreSQL connection timeout."""
         mock_socket = Mock()
-        mock_socket.connect.side_effect = socket.timeout()
+        mock_socket.connect.side_effect = TimeoutError()
 
         mock_socket_class = mocker.patch("socket.socket")
         mock_socket_class.return_value = mock_socket
@@ -366,9 +365,9 @@ class TestPostgresDetectionResult:
 
         mock_socket = Mock()
         mock_socket.recv.return_value = b"EFATAL\x00PostgreSQL 16.1 server error"
-        
+
         version = _attempt_version_detection(mock_socket, 2.0)
-        
+
         assert version == "16.1"
 
     def test_attempt_version_detection_with_exception(self, mocker: pytest_mock.MockerFixture) -> None:
@@ -379,10 +378,10 @@ class TestPostgresDetectionResult:
 
         mock_socket = Mock()
         mock_socket.sendall.side_effect = Exception("Network error")
-        
+
         # Should not raise, should return None
         version = _attempt_version_detection(mock_socket, 2.0)
-        
+
         assert version is None
 
     def test_parse_error_message_version_with_exception(self, mocker: pytest_mock.MockerFixture) -> None:
@@ -393,7 +392,7 @@ class TestPostgresDetectionResult:
 
         # Invalid byte sequence that might cause decode issues
         result = _parse_error_message_version(b"\xff\xfe")
-        
+
         # Should handle gracefully
         assert result is None
 

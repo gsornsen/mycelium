@@ -1,14 +1,11 @@
 """Unit tests for telemetry infrastructure."""
 
 import json
-import os
-import queue
 import sys
 import time
 from pathlib import Path
-from typing import Any, Dict
 from unittest.mock import MagicMock, patch
-from urllib.error import HTTPError, URLError
+from urllib.error import URLError
 
 import pytest
 

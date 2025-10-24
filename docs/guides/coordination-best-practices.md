@@ -710,7 +710,7 @@ async def audited_workflow(workflow_spec):
         "event": "workflow_started",
         "workflow_spec": workflow_spec,
         "user": get_current_user(),
-        "timestamp": datetime.now()
+        "timestamp": datetime.now(UTC)
     })
 
     try:
@@ -721,7 +721,7 @@ async def audited_workflow(workflow_spec):
             "event": "workflow_completed",
             "workflow_id": workflow["workflow_id"],
             "duration_ms": workflow["total_duration_ms"],
-            "timestamp": datetime.now()
+            "timestamp": datetime.now(UTC)
         })
 
         return workflow
@@ -731,7 +731,7 @@ async def audited_workflow(workflow_spec):
         audit_log.record({
             "event": "workflow_failed",
             "error": str(e),
-            "timestamp": datetime.now()
+            "timestamp": datetime.now(UTC)
         })
         raise
 

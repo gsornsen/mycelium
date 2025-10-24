@@ -16,9 +16,6 @@ import yaml
 from mycelium_onboarding.config.schema import (
     DeploymentMethod,
     MyceliumConfig,
-    PostgresConfig,
-    RedisConfig,
-    TemporalConfig,
 )
 from mycelium_onboarding.deployment import TemplateRenderer
 

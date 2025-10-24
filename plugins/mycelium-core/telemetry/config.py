@@ -5,7 +5,6 @@ Telemetry is DISABLED BY DEFAULT - explicit opt-in required.
 """
 
 import os
-from typing import Optional
 
 from pydantic import BaseModel, Field, HttpUrl, field_validator
 

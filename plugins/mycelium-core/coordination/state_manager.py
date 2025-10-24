@@ -6,13 +6,13 @@ including state persistence, versioning, and rollback mechanisms.
 
 import json
 import uuid
-from dataclasses import dataclass, field, asdict
+from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import asyncpg
-from asyncpg import Connection, Pool
+from asyncpg import Pool
 
 
 class StateManagerError(Exception):
@@ -53,22 +53,22 @@ class TaskState:
     agent_id: str
     agent_type: str
     status: TaskStatus = TaskStatus.PENDING
-    started_at: Optional[str] = None
-    completed_at: Optional[str] = None
-    execution_time: Optional[float] = None
-    result: Optional[Dict[str, Any]] = None
-    error: Optional[Dict[str, Any]] = None
+    started_at: str | None = None
+    completed_at: str | None = None
+    execution_time: float | None = None
+    result: dict[str, Any] | None = None
+    error: dict[str, Any] | None = None
     retry_count: int = 0
-    dependencies: List[str] = field(default_factory=list)
+    dependencies: list[str] = field(default_factory=list)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         data = asdict(self)
         data["status"] = self.status.value
         return data
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "TaskState":
+    def from_dict(cls, data: dict[str, Any]) -> "TaskState":
         """Create from dictionary."""
         data = data.copy()
         data["status"] = TaskStatus(data["status"])
@@ -80,17 +80,17 @@ class WorkflowState:
     """Complete workflow execution state."""
     workflow_id: str
     status: WorkflowStatus
-    tasks: Dict[str, TaskState]
+    tasks: dict[str, TaskState]
     created_at: str
     updated_at: str
-    started_at: Optional[str] = None
-    completed_at: Optional[str] = None
-    variables: Dict[str, Any] = field(default_factory=dict)
-    metadata: Dict[str, Any] = field(default_factory=dict)
-    error: Optional[str] = None
+    started_at: str | None = None
+    completed_at: str | None = None
+    variables: dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
+    error: str | None = None
     version: int = 1
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "workflow_id": self.workflow_id,
@@ -107,7 +107,7 @@ class WorkflowState:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "WorkflowState":
+    def from_dict(cls, data: dict[str, Any]) -> "WorkflowState":
         """Create from dictionary."""
         data = data.copy()
         data["status"] = WorkflowStatus(data["status"])
@@ -122,7 +122,7 @@ class StateManager:
     Supports concurrent workflow execution with isolation.
     """
 
-    def __init__(self, pool: Optional[Pool] = None, connection_string: Optional[str] = None):
+    def __init__(self, pool: Pool | None = None, connection_string: str | None = None):
         """Initialize state manager.
 
         Args:
@@ -134,7 +134,7 @@ class StateManager:
             self._owns_pool = False
         else:
             self._connection_string = connection_string or "postgresql://localhost:5432/mycelium_registry"
-            self._pool: Optional[Pool] = None
+            self._pool: Pool | None = None
             self._owns_pool = True
 
     async def initialize(self) -> None:
@@ -209,9 +209,9 @@ class StateManager:
 
     async def create_workflow(
         self,
-        workflow_id: Optional[str] = None,
-        tasks: Optional[List[TaskState]] = None,
-        metadata: Optional[Dict[str, Any]] = None,
+        workflow_id: str | None = None,
+        tasks: list[TaskState] | None = None,
+        metadata: dict[str, Any] | None = None,
     ) -> WorkflowState:
         """Create a new workflow state.
 
@@ -337,10 +337,10 @@ class StateManager:
         self,
         workflow_id: str,
         task_id: str,
-        status: Optional[TaskStatus] = None,
-        result: Optional[Dict[str, Any]] = None,
-        error: Optional[Dict[str, Any]] = None,
-        execution_time: Optional[float] = None,
+        status: TaskStatus | None = None,
+        result: dict[str, Any] | None = None,
+        error: dict[str, Any] | None = None,
+        execution_time: float | None = None,
     ) -> WorkflowState:
         """Update individual task state.
 
@@ -432,9 +432,9 @@ class StateManager:
 
     async def list_workflows(
         self,
-        status: Optional[WorkflowStatus] = None,
+        status: WorkflowStatus | None = None,
         limit: int = 100,
-    ) -> List[WorkflowState]:
+    ) -> list[WorkflowState]:
         """List workflows with optional status filter.
 
         Args:

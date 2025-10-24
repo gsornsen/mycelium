@@ -3,10 +3,8 @@
 from __future__ import annotations
 
 import subprocess
-from pathlib import Path
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import Mock
 
-import pytest
 import pytest_mock
 
 from mycelium_onboarding.detection.docker_detector import (

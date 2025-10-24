@@ -8,12 +8,10 @@ import json
 import os
 import time
 from contextlib import asynccontextmanager
-from typing import Optional
 
 from fastapi import FastAPI, HTTPException, Path, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-
 from plugins.mycelium_core.registry import (
     AgentNotFoundError,
     AgentRegistry,
@@ -27,8 +25,8 @@ from .middleware import (
 )
 from .models import (
     AgentDetailResponse,
-    AgentMetadata,
     AgentMatch,
+    AgentMetadata,
     AgentSearchResponse,
     DiscoverRequest,
     DiscoverResponse,
@@ -37,7 +35,7 @@ from .models import (
 )
 
 # Global registry instance
-_registry: Optional[AgentRegistry] = None
+_registry: AgentRegistry | None = None
 
 
 def get_registry() -> AgentRegistry:
@@ -86,7 +84,7 @@ async def lifespan(app: FastAPI):
 def create_app(
     rate_limit: int = 100,
     enable_cors: bool = True,
-    cors_origins: Optional[list] = None,
+    cors_origins: list | None = None,
 ) -> FastAPI:
     """Create and configure FastAPI application.
 
@@ -381,13 +379,13 @@ def create_app(
         },
     )
     async def search_agents(
-        q: Optional[str] = Query(
+        q: str | None = Query(
             None,
             description="Search query for full-text search",
             min_length=1,
             max_length=500,
         ),
-        category: Optional[str] = Query(
+        category: str | None = Query(
             None,
             description="Filter by category",
         ),
