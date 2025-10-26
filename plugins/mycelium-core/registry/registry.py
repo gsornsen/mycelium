@@ -490,10 +490,11 @@ class AgentRegistry:
         try:
             if category:
                 query = "SELECT COUNT(*) FROM agents WHERE category = $1"
-                result: int = await conn.fetchval(query, category)
-                return result
-            query = "SELECT COUNT(*) FROM agents"
-            return await conn.fetchval(query)
+                count: int = await conn.fetchval(query, category)
+            else:
+                query = "SELECT COUNT(*) FROM agents"
+                count = await conn.fetchval(query)
+            return count
 
         finally:
             await self._release_connection(conn)
