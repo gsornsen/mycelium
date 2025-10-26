@@ -56,10 +56,9 @@ class TelemetryConfig(BaseModel):
     @classmethod
     def validate_endpoint(cls, v: str) -> str:
         """Validate and normalize endpoint URL."""
-        if isinstance(v, str):
+        if isinstance(v, str) and not v.startswith(("http://", "https://")):
             # Ensure URL has scheme
-            if not v.startswith(("http://", "https://")):
-                v = f"https://{v}"
+            v = f"https://{v}"
         return v
 
     @classmethod

@@ -55,7 +55,7 @@ def get_registry() -> AgentRegistry:
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
     """Application lifespan manager.
 
     Handles startup and shutdown of database connections.
@@ -125,7 +125,7 @@ def create_app(
     # Exception handlers
     @app.exception_handler(AgentNotFoundError)
     async def agent_not_found_handler(
-        request: Any, exc: AgentNotFoundError
+        _request: Any, exc: AgentNotFoundError
     ) -> JSONResponse:
         """Handle agent not found errors."""
         return JSONResponse(
@@ -139,7 +139,7 @@ def create_app(
 
     @app.exception_handler(AgentRegistryError)
     async def registry_error_handler(
-        request: Any, exc: AgentRegistryError
+        _request: Any, exc: AgentRegistryError
     ) -> JSONResponse:
         """Handle registry errors."""
         return JSONResponse(
@@ -152,7 +152,7 @@ def create_app(
         )
 
     @app.exception_handler(ValueError)
-    async def value_error_handler(request: Any, exc: ValueError) -> JSONResponse:
+    async def value_error_handler(_request: Any, exc: ValueError) -> JSONResponse:
         """Handle validation errors."""
         return JSONResponse(
             status_code=400,
@@ -307,7 +307,9 @@ def create_app(
     async def get_agent_details(
         agent_id: str = Path(
             ...,
-            description="Agent ID (e.g., 'backend-developer' or '01-core-backend-developer')",
+            description=(
+                "Agent ID (e.g., 'backend-developer' or '01-core-backend-developer')"
+            ),
             examples=["backend-developer", "01-core-backend-developer"],
         ),
     ) -> AgentDetailResponse:
@@ -331,11 +333,11 @@ def create_app(
             # Try by agent_type
             try:
                 agent_data = await registry.get_agent_by_type(agent_id)
-            except AgentNotFoundError:
+            except AgentNotFoundError as e:
                 raise HTTPException(
                     status_code=404,
                     detail=f"Agent with ID or type '{agent_id}' not found",
-                )
+                ) from e
 
         # Parse metadata
         metadata_str = agent_data.get("metadata", "{}")

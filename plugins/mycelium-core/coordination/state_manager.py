@@ -183,7 +183,8 @@ class StateManager:
 
         CREATE TABLE IF NOT EXISTS task_states (
             task_id TEXT PRIMARY KEY,
-            workflow_id TEXT NOT NULL REFERENCES workflow_states(workflow_id) ON DELETE CASCADE,
+            workflow_id TEXT NOT NULL
+                REFERENCES workflow_states(workflow_id) ON DELETE CASCADE,
             agent_id TEXT NOT NULL,
             agent_type TEXT NOT NULL,
             status TEXT NOT NULL,
@@ -209,7 +210,8 @@ class StateManager:
             UNIQUE(workflow_id, version)
         );
 
-        CREATE INDEX IF NOT EXISTS idx_history_workflow ON workflow_state_history(workflow_id);
+        CREATE INDEX IF NOT EXISTS idx_history_workflow
+            ON workflow_state_history(workflow_id);
         """
 
         async with self._pool.acquire() as conn:
@@ -584,7 +586,8 @@ class StateManager:
         async with self._pool.acquire() as conn:
             await conn.execute(
                 """
-                INSERT INTO workflow_state_history (workflow_id, version, state_snapshot)
+                INSERT INTO workflow_state_history
+                    (workflow_id, version, state_snapshot)
                 VALUES ($1, $2, $3)
                 ON CONFLICT (workflow_id, version) DO NOTHING
                 """,

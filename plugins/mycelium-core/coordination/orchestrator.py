@@ -344,9 +344,8 @@ class WorkflowOrchestrator:
         adj_list = {t.task_id: list(t.dependencies) for t in tasks}
 
         for task in tasks:
-            if task.task_id not in visited:
-                if has_cycle(task.task_id, adj_list):
-                    raise DependencyError("Task dependencies contain a cycle")
+            if task.task_id not in visited and has_cycle(task.task_id, adj_list):
+                raise DependencyError("Task dependencies contain a cycle")
 
     def _build_dependency_graph(
         self, tasks: list[TaskDefinition]
@@ -369,7 +368,7 @@ class WorkflowOrchestrator:
         self,
         workflow_id: str,
         tasks: list[TaskDefinition],
-        dep_graph: dict[str, list[str]],
+        _dep_graph: dict[str, list[str]],
         state: WorkflowState,
     ) -> None:
         """Execute tasks respecting dependencies and parallelism.

@@ -15,7 +15,7 @@ import jsonschema
 
 # Load handoff schema
 SCHEMA_PATH = Path(__file__).parent / "schemas" / "handoff.json"
-with open(SCHEMA_PATH) as f:
+with SCHEMA_PATH.open() as f:
     HANDOFF_SCHEMA = json.load(f)
 
 
@@ -131,7 +131,9 @@ class HandoffMessage:
     workflow_id: str | None = None
     state: HandoffState = field(default_factory=HandoffState)
     metadata: HandoffMetadata = field(default_factory=HandoffMetadata)
-    timestamp: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat() + "Z")
+    timestamp: str = field(
+        default_factory=lambda: datetime.now(timezone.utc).isoformat() + "Z"
+    )
 
     def to_dict(self) -> dict[str, Any]:
         """Convert handoff message to dictionary."""
@@ -218,7 +220,9 @@ class HandoffMessage:
             context=context,
             state=state,
             metadata=metadata,
-            timestamp=data.get("timestamp", datetime.now(timezone.utc).isoformat() + "Z"),
+            timestamp=data.get(
+                "timestamp", datetime.now(timezone.utc).isoformat() + "Z"
+            ),
         )
 
     @classmethod

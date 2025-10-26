@@ -20,7 +20,7 @@ from asyncpg import Pool
 
 # Load event schema
 SCHEMA_PATH = Path(__file__).parent / "schemas" / "events.json"
-with open(SCHEMA_PATH) as f:
+with SCHEMA_PATH.open() as f:
     EVENT_SCHEMA = json.load(f)
 
 
@@ -262,14 +262,22 @@ class CoordinationTracker:
         );
 
         -- Indexes for efficient queries
-        CREATE INDEX IF NOT EXISTS idx_events_workflow ON coordination_events(workflow_id, timestamp DESC);
-        CREATE INDEX IF NOT EXISTS idx_events_task ON coordination_events(task_id, timestamp DESC) WHERE task_id IS NOT NULL;
-        CREATE INDEX IF NOT EXISTS idx_events_agent ON coordination_events(agent_id, timestamp DESC) WHERE agent_id IS NOT NULL;
-        CREATE INDEX IF NOT EXISTS idx_events_type ON coordination_events(event_type, timestamp DESC);
-        CREATE INDEX IF NOT EXISTS idx_events_timestamp ON coordination_events(timestamp DESC);
+        CREATE INDEX IF NOT EXISTS idx_events_workflow
+            ON coordination_events(workflow_id, timestamp DESC);
+        CREATE INDEX IF NOT EXISTS idx_events_task
+            ON coordination_events(task_id, timestamp DESC)
+            WHERE task_id IS NOT NULL;
+        CREATE INDEX IF NOT EXISTS idx_events_agent
+            ON coordination_events(agent_id, timestamp DESC)
+            WHERE agent_id IS NOT NULL;
+        CREATE INDEX IF NOT EXISTS idx_events_type
+            ON coordination_events(event_type, timestamp DESC);
+        CREATE INDEX IF NOT EXISTS idx_events_timestamp
+            ON coordination_events(timestamp DESC);
 
         -- Composite index for common query patterns
-        CREATE INDEX IF NOT EXISTS idx_events_workflow_type ON coordination_events(workflow_id, event_type, timestamp DESC);
+        CREATE INDEX IF NOT EXISTS idx_events_workflow_type
+            ON coordination_events(workflow_id, event_type, timestamp DESC);
         """
 
         async with self._pool.acquire() as conn:
@@ -323,7 +331,10 @@ class CoordinationTracker:
                         event_id, event_type, workflow_id, task_id, timestamp,
                         agent_id, agent_type, source_agent, target_agent, status,
                         duration_ms, error, metadata, context, performance
-                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+                    ) VALUES (
+                        $1, $2, $3, $4, $5, $6, $7, $8,
+                        $9, $10, $11, $12, $13, $14, $15
+                    )
                     """,
                     event.event_id,
                     event.event_type.value,

@@ -178,13 +178,12 @@ def _attempt_version_detection(sock: socket.socket, timeout: float) -> str | Non
         sock.settimeout(timeout)
         response = sock.recv(4096)
 
-        if response:
+        if response and response[0:1] == b"E":
             # Parse for error message which might contain version
             # PostgreSQL error messages start with 'E' and contain fields
-            if response[0:1] == b"E":
-                version = _parse_error_message_version(response)
-                if version:
-                    return version
+            version = _parse_error_message_version(response)
+            if version:
+                return version
 
         return None
 
@@ -207,9 +206,7 @@ def _build_startup_message() -> bytes:
 
     # Length prefix (including itself)
     length = len(protocol) + len(params) + 4
-    message = struct.pack("!I", length) + protocol + params
-
-    return message
+    return struct.pack("!I", length) + protocol + params
 
 
 def _parse_error_message_version(response: bytes) -> str | None:

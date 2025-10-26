@@ -82,10 +82,7 @@ class DataAnonymizer:
             try:
                 parts = original_path.replace("\\", "/").split("/")
                 parts = [p for p in parts if p and p not in ("C:", "D:", "")]
-                if len(parts) > 3:
-                    path = "/".join(parts[-3:])
-                else:
-                    path = "/".join(parts)
+                path = "/".join(parts[-3:]) if len(parts) > 3 else "/".join(parts)
             except Exception:
                 pass
 
@@ -118,9 +115,7 @@ class DataAnonymizer:
 
         # Also anonymize any error messages within the stack trace
         # (which may contain emails, paths, etc.)
-        trace = self._anonymize_message(trace)
-
-        return trace
+        return self._anonymize_message(trace)
 
     def anonymize_error(
         self, error_type: str, error_message: str, stack_trace: str | None = None
@@ -184,11 +179,9 @@ class DataAnonymizer:
         message = re.sub(r"://[^:]+:([^@]+)@", "://<user>:<password>@", message)
 
         # Remove any potential email addresses
-        message = re.sub(
+        return re.sub(
             r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b", "<email>", message
         )
-
-        return message
 
     def anonymize_agent_usage(
         self, agent_id: str, operation: str, metadata: dict[str, Any] | None = None

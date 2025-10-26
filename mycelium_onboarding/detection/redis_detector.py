@@ -168,7 +168,6 @@ def _parse_redis_version(info_response: str) -> str | None:
     for line in info_response.split("\n"):
         line = line.strip()
         if line.startswith("redis_version:"):
-            version = line.split(":", 1)[1].strip()
-            return version
+            return line.split(":", 1)[1].strip()
 
     return None

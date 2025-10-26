@@ -84,7 +84,7 @@ class WizardStatePersistence:
 
             # Write atomically using temp file
             temp_file = self.state_file.with_suffix(".tmp")
-            with open(temp_file, "w") as f:
+            with temp_file.open("w") as f:
                 json.dump(state_dict, f, indent=2)
 
             # Atomic rename
@@ -113,7 +113,7 @@ class WizardStatePersistence:
             return None
 
         try:
-            with open(self.state_file) as f:
+            with self.state_file.open() as f:
                 state_dict: dict[str, Any] = json.load(f)
 
             # Deserialize dict to WizardState
@@ -219,7 +219,11 @@ class WizardStatePersistence:
             return WizardState(
                 current_step=WizardStep(str(state_dict["current_step"])),
                 started_at=datetime.fromisoformat(
-                    str(state_dict.get("started_at", datetime.now(timezone.utc).isoformat()))
+                    str(
+                        state_dict.get(
+                            "started_at", datetime.now(timezone.utc).isoformat()
+                        )
+                    )
                 ),
                 project_name=str(state_dict.get("project_name", "")),
                 services_enabled=services_enabled,

@@ -163,7 +163,8 @@ class AgentRegistry:
 
         except asyncpg.UniqueViolationError as e:
             raise AgentAlreadyExistsError(
-                f"Agent with agent_id '{agent_id}' or agent_type '{agent_type}' already exists"
+                f"Agent with agent_id '{agent_id}' or "
+                f"agent_type '{agent_type}' already exists"
             ) from e
         finally:
             await self._release_connection(conn)
@@ -618,7 +619,7 @@ async def load_agents_from_index(
     if not index_path.exists():
         raise FileNotFoundError(f"Index file not found: {index_path}")
 
-    with open(index_path, encoding="utf-8") as f:
+    with Path(index_path).open(encoding="utf-8") as f:
         data = json.load(f)
 
     agents_data = []

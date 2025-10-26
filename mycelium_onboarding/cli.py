@@ -391,7 +391,8 @@ def init(resume: bool | None, reset: bool) -> None:
                     manager.save(config)
 
                     # Mark complete and transition to COMPLETE step
-                    # Transition to COMPLETE step (loop will continue one more time to show completion screen)
+                    # Transition to COMPLETE step
+                    # (loop continues to show completion screen)
                     state.current_step = WizardStep.COMPLETE
 
                 elif action.startswith("edit:"):
@@ -416,10 +417,11 @@ def init(resume: bool | None, reset: bool) -> None:
 
     except KeyboardInterrupt:
         console.print(
-            "\n[yellow]Wizard interrupted. Run 'mycelium init --resume' to continue.[/yellow]"
+            "\n[yellow]Wizard interrupted. "
+            "Run 'mycelium init --resume' to continue.[/yellow]"
         )
         persistence.save(state)
-        raise SystemExit(1)
+        raise SystemExit(1) from None
     except Exception as e:
         console.print(f"\n[red]Error: {e}[/red]")
         persistence.save(state)
@@ -1255,7 +1257,7 @@ def generate(method: str | None, output: str | None, generate_secrets: bool) -> 
     except Exception as e:
         console.print(f"[red]Error loading config: {e}[/red]")
         console.print("[yellow]Run 'mycelium init' to create a configuration.[/yellow]")
-        raise SystemExit(1)
+        raise SystemExit(1) from e
 
     # Determine deployment method
     deploy_method = (
@@ -1411,13 +1413,13 @@ def start(method: str | None) -> None:
         console.print(f"[red]Error starting services: {e}[/red]")
         if e.stderr:
             console.print(f"[red]{e.stderr}[/red]")
-        raise SystemExit(1)
+        raise SystemExit(1) from e
     except FileNotFoundError as e:
         console.print(f"[red]Command not found: {e}[/red]")
         console.print(
             f"[yellow]Ensure {deploy_method.value} tools are installed[/yellow]"
         )
-        raise SystemExit(1)
+        raise SystemExit(1) from e
 
 
 @deploy.command()
@@ -1492,13 +1494,13 @@ def stop(method: str | None) -> None:
         console.print(f"[red]Error stopping services: {e}[/red]")
         if e.stderr:
             console.print(f"[red]{e.stderr}[/red]")
-        raise SystemExit(1)
+        raise SystemExit(1) from e
     except FileNotFoundError as e:
         console.print(f"[red]Command not found: {e}[/red]")
         console.print(
             f"[yellow]Ensure {deploy_method.value} tools are installed[/yellow]"
         )
-        raise SystemExit(1)
+        raise SystemExit(1) from e
 
 
 @deploy.command()
@@ -1575,7 +1577,7 @@ def status(method: str | None, watch: bool) -> None:
             return
         except FileNotFoundError:
             console.print("[red]docker-compose command not found[/red]")
-            raise SystemExit(1)
+            raise SystemExit(1) from None
 
     elif deploy_method == DeploymentMethod.KUBERNETES:
         try:
@@ -1618,7 +1620,7 @@ def status(method: str | None, watch: bool) -> None:
             return
         except FileNotFoundError:
             console.print("[red]kubectl command not found[/red]")
-            raise SystemExit(1)
+            raise SystemExit(1) from None
 
     elif deploy_method == DeploymentMethod.SYSTEMD:
         services = []
@@ -1675,21 +1677,23 @@ def secrets(secret_type: str | None, rotate: bool) -> None:
     if rotate:
         if not secret_type:
             console.print(
-                "[red]Error: Specify secret type to rotate (postgres, redis, temporal)[/red]"
+                "[red]Error: Specify secret type to rotate "
+                "(postgres, redis, temporal)[/red]"
             )
             raise SystemExit(1)
 
         try:
             with console.status(f"[bold green]Rotating {secret_type} secret..."):
-                rotated_secrets = secrets_mgr.rotate_secret(secret_type)
+                secrets_mgr.rotate_secret(secret_type)
             console.print(f"[green]✓[/green] Successfully rotated {secret_type} secret")
             console.print(
-                "[yellow]Note: Update deployment with new secret to apply changes[/yellow]"
+                "[yellow]Note: Update deployment with new secret "
+                "to apply changes[/yellow]"
             )
             return
         except ValueError as e:
             console.print(f"[red]Error: {e}[/red]")
-            raise SystemExit(1)
+            raise SystemExit(1) from e
 
     # Display secrets (masked)
     secrets_obj: DeploymentSecrets | None = secrets_mgr.load_secrets()
