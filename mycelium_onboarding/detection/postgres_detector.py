@@ -96,14 +96,21 @@ def detect_postgres(
             available=False,
             host=host,
             port=port,
-                error_message=f"Connection to PostgreSQL at {host}:{port} timed out after {timeout}s. " f"Check if PostgreSQL is running and accessible.",
+                error_message=(
+                f"Connection to PostgreSQL at {host}:{port} timed out after {timeout}s. "
+                "Check if PostgreSQL is running and accessible."
+            ),
         )
     except ConnectionRefusedError:
         return PostgresDetectionResult(
             available=False,
             host=host,
             port=port,
-                error_message=f"Could not connect to {host}:{port}. PostgreSQL is not running on this port. " f"Start PostgreSQL: sudo systemctl start postgresql",
+                error_message=(
+                f"Could not connect to {host}:{port}. "
+                "PostgreSQL is not running on this port. "
+                "Start PostgreSQL: sudo systemctl start postgresql"
+            ),
         )
     except socket.gaierror:
         return PostgresDetectionResult(

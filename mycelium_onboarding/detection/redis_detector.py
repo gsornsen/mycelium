@@ -99,14 +99,21 @@ def detect_redis(
             available=False,
             host=host,
             port=port,
-                error_message=f"Connection to Redis at {host}:{port} timed out after {timeout}s. " f"Check if Redis is running and accessible.",
+                error_message=(
+                f"Connection to Redis at {host}:{port} timed out after {timeout}s. "
+                "Check if Redis is running and accessible."
+            ),
         )
     except ConnectionRefusedError:
         return RedisDetectionResult(
             available=False,
             host=host,
             port=port,
-                error_message=f"Could not connect to {host}:{port}. Redis is not running on this port. " f"Start Redis: redis-server",
+                error_message=(
+                f"Could not connect to {host}:{port}. "
+                "Redis is not running on this port. "
+                "Start Redis: redis-server"
+            ),
         )
     except socket.gaierror:
         return RedisDetectionResult(

@@ -98,7 +98,10 @@ def detect_docker() -> DockerDetectionResult:
                 return DockerDetectionResult(
                     available=False,
                     version=version,
-                    error_message="Docker daemon is running but you don't have permissions. Add your user to the 'docker' group: sudo usermod -aG docker $USER",
+                    error_message=(
+                    "Docker daemon is running but you don't have permissions. "
+                    "Add your user to the 'docker' group: sudo usermod -aG docker $USER"
+                ),
                 )
             if (
                 "cannot connect" in error_msg.lower()

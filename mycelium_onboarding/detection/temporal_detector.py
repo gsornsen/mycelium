@@ -58,7 +58,10 @@ def detect_temporal(
             available=False,
             frontend_port=frontend_port,
             ui_port=ui_port,
-            error_message=f"Temporal frontend not responding on port {frontend_port}. " f"Start Temporal: temporal server start-dev",
+            error_message=(
+            f"Temporal frontend not responding on port {frontend_port}. "
+            "Start Temporal: temporal server start-dev"
+        ),
         )
 
     # If frontend is available, consider Temporal as available
