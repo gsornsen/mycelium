@@ -244,17 +244,22 @@ jobs:
       - name: Install dependencies
         run: uv sync --frozen --all-extras --group dev
 
-      - name: Wait for PostgreSQL
+      - name: Verify PostgreSQL is ready
         run: |
-          until pg_isready -h localhost -p 5432 -U mycelium; do
-            echo "Waiting for PostgreSQL..."
-            sleep 2
-          done
+          timeout 60 bash -c 'until pg_isready -h localhost -p 5432 -U mycelium; do echo "Waiting for PostgreSQL..."; sleep 2; done'
+
+      - name: Verify pgvector extension
+        run: |
+          PGPASSWORD=mycelium_test psql -h localhost -U mycelium -d mycelium_test -c "CREATE EXTENSION IF NOT EXISTS vector;"
+          PGPASSWORD=mycelium_test psql -h localhost -U mycelium -d mycelium_test -c "SELECT * FROM pg_extension WHERE extname='vector';" | grep vector
 
       - name: Initialize database schema
         run: |
-          PGPASSWORD=mycelium_test psql -h localhost -U mycelium -d mycelium_test -f plugins/mycelium-core/registry/schema.sql || true
-        continue-on-error: true
+          PGPASSWORD=mycelium_test psql -h localhost -U mycelium -d mycelium_test -f plugins/mycelium-core/registry/schema.sql
+
+      - name: Verify schema loaded
+        run: |
+          PGPASSWORD=mycelium_test psql -h localhost -U mycelium -d mycelium_test -c "\dt" | grep agents
 
       - name: Run integration tests
         env:
