@@ -23,40 +23,33 @@ class TelemetryConfig(BaseModel):
     """
 
     enabled: bool = Field(
-        default=False,
-        description="Enable telemetry collection (default: disabled)"
+        default=False, description="Enable telemetry collection (default: disabled)"
     )
     endpoint: HttpUrl = Field(
         default="https://mycelium-telemetry.sornsen.io",
-        description="Telemetry collection endpoint"
+        description="Telemetry collection endpoint",
     )
     timeout: int = Field(
-        default=5,
-        ge=1,
-        le=30,
-        description="Request timeout in seconds"
+        default=5, ge=1, le=30, description="Request timeout in seconds"
     )
     batch_size: int = Field(
         default=100,
         ge=1,
         le=1000,
-        description="Number of events to batch before sending"
+        description="Number of events to batch before sending",
     )
     retry_attempts: int = Field(
-        default=3,
-        ge=0,
-        le=10,
-        description="Number of retry attempts on failure"
+        default=3, ge=0, le=10, description="Number of retry attempts on failure"
     )
     retry_backoff: float = Field(
         default=2.0,
         ge=1.0,
         le=10.0,
-        description="Exponential backoff multiplier for retries"
+        description="Exponential backoff multiplier for retries",
     )
     salt: str = Field(
         default_factory=lambda: os.urandom(32).hex(),
-        description="Salt for hashing identifiers"
+        description="Salt for hashing identifiers",
     )
 
     @field_validator("endpoint", mode="before")
@@ -86,7 +79,10 @@ class TelemetryConfig(BaseModel):
             TelemetryConfig instance with values from environment
         """
         enabled = os.getenv("TELEMETRY_ENABLED", "false").lower() in (
-            "true", "1", "yes", "on"
+            "true",
+            "1",
+            "yes",
+            "on",
         )
 
         config_data = {

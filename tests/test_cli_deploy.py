@@ -75,12 +75,18 @@ def mock_secrets():
 # ============================================================================
 
 
-def test_deploy_generate_docker_compose(runner, mock_config, mock_generation_result, mock_secrets):
+def test_deploy_generate_docker_compose(
+    runner, mock_config, mock_generation_result, mock_secrets
+):
     """Test 'mycelium deploy generate' for Docker Compose."""
     with (
         patch("mycelium_onboarding.cli.ConfigManager") as mock_manager_cls,
-        patch("mycelium_onboarding.deployment.generator.DeploymentGenerator") as mock_gen_cls,
-        patch("mycelium_onboarding.deployment.secrets.SecretsManager") as mock_secrets_cls,
+        patch(
+            "mycelium_onboarding.deployment.generator.DeploymentGenerator"
+        ) as mock_gen_cls,
+        patch(
+            "mycelium_onboarding.deployment.secrets.SecretsManager"
+        ) as mock_secrets_cls,
     ):
         # Setup mocks
         mock_manager = Mock()
@@ -124,8 +130,12 @@ def test_deploy_generate_kubernetes(runner, mock_config, tmp_path):
 
     with (
         patch("mycelium_onboarding.cli.ConfigManager") as mock_manager_cls,
-        patch("mycelium_onboarding.deployment.generator.DeploymentGenerator") as mock_gen_cls,
-        patch("mycelium_onboarding.deployment.secrets.SecretsManager") as mock_secrets_cls,
+        patch(
+            "mycelium_onboarding.deployment.generator.DeploymentGenerator"
+        ) as mock_gen_cls,
+        patch(
+            "mycelium_onboarding.deployment.secrets.SecretsManager"
+        ) as mock_secrets_cls,
     ):
         mock_manager = Mock()
         mock_manager.load.return_value = mock_config
@@ -161,8 +171,12 @@ def test_deploy_generate_systemd(runner, mock_config, tmp_path):
 
     with (
         patch("mycelium_onboarding.cli.ConfigManager") as mock_manager_cls,
-        patch("mycelium_onboarding.deployment.generator.DeploymentGenerator") as mock_gen_cls,
-        patch("mycelium_onboarding.deployment.secrets.SecretsManager") as mock_secrets_cls,
+        patch(
+            "mycelium_onboarding.deployment.generator.DeploymentGenerator"
+        ) as mock_gen_cls,
+        patch(
+            "mycelium_onboarding.deployment.secrets.SecretsManager"
+        ) as mock_secrets_cls,
     ):
         mock_manager = Mock()
         mock_manager.load.return_value = mock_config
@@ -197,8 +211,12 @@ def test_deploy_generate_custom_output(runner, mock_config, tmp_path, mock_secre
 
     with (
         patch("mycelium_onboarding.cli.ConfigManager") as mock_manager_cls,
-        patch("mycelium_onboarding.deployment.generator.DeploymentGenerator") as mock_gen_cls,
-        patch("mycelium_onboarding.deployment.secrets.SecretsManager") as mock_secrets_cls,
+        patch(
+            "mycelium_onboarding.deployment.generator.DeploymentGenerator"
+        ) as mock_gen_cls,
+        patch(
+            "mycelium_onboarding.deployment.secrets.SecretsManager"
+        ) as mock_secrets_cls,
     ):
         mock_manager = Mock()
         mock_manager.load.return_value = mock_config
@@ -212,9 +230,7 @@ def test_deploy_generate_custom_output(runner, mock_config, tmp_path, mock_secre
         mock_secrets_mgr.generate_secrets.return_value = mock_secrets
         mock_secrets_cls.return_value = mock_secrets_mgr
 
-        result = runner.invoke(
-            cli, ["deploy", "generate", "--output", str(custom_dir)]
-        )
+        result = runner.invoke(cli, ["deploy", "generate", "--output", str(custom_dir)])
 
         assert result.exit_code == 0
         assert "docker-compose.yml" in result.output
@@ -224,8 +240,12 @@ def test_deploy_generate_no_secrets(runner, mock_config, mock_generation_result)
     """Test deployment generation without secrets."""
     with (
         patch("mycelium_onboarding.cli.ConfigManager") as mock_manager_cls,
-        patch("mycelium_onboarding.deployment.generator.DeploymentGenerator") as mock_gen_cls,
-        patch("mycelium_onboarding.deployment.secrets.SecretsManager") as mock_secrets_cls,
+        patch(
+            "mycelium_onboarding.deployment.generator.DeploymentGenerator"
+        ) as mock_gen_cls,
+        patch(
+            "mycelium_onboarding.deployment.secrets.SecretsManager"
+        ) as mock_secrets_cls,
     ):
         mock_manager = Mock()
         mock_manager.load.return_value = mock_config
@@ -268,8 +288,12 @@ def test_deploy_generate_failure(runner, mock_config, tmp_path):
 
     with (
         patch("mycelium_onboarding.cli.ConfigManager") as mock_manager_cls,
-        patch("mycelium_onboarding.deployment.generator.DeploymentGenerator") as mock_gen_cls,
-        patch("mycelium_onboarding.deployment.secrets.SecretsManager") as mock_secrets_cls,
+        patch(
+            "mycelium_onboarding.deployment.generator.DeploymentGenerator"
+        ) as mock_gen_cls,
+        patch(
+            "mycelium_onboarding.deployment.secrets.SecretsManager"
+        ) as mock_secrets_cls,
     ):
         mock_manager = Mock()
         mock_manager.load.return_value = mock_config
@@ -382,7 +406,9 @@ def test_deploy_start_error(runner, mock_config):
 
         import subprocess
 
-        mock_run.side_effect = subprocess.CalledProcessError(1, "docker-compose", stderr="Error")
+        mock_run.side_effect = subprocess.CalledProcessError(
+            1, "docker-compose", stderr="Error"
+        )
 
         result = runner.invoke(cli, ["deploy", "start"])
 
@@ -500,11 +526,13 @@ def test_deploy_status_docker_compose(runner, mock_config):
         mock_manager_cls.return_value = mock_manager
 
         # Mock docker-compose ps output
-        container_json = json.dumps({
-            "Service": "redis",
-            "State": "running",
-            "Status": "Up 10 minutes",
-        })
+        container_json = json.dumps(
+            {
+                "Service": "redis",
+                "State": "running",
+                "Status": "Up 10 minutes",
+            }
+        )
         mock_run.return_value = Mock(stdout=container_json, stderr="")
 
         result = runner.invoke(cli, ["deploy", "status"])
@@ -548,17 +576,19 @@ def test_deploy_status_kubernetes(runner):
         mock_manager_cls.return_value = mock_manager
 
         # Mock kubectl get pods output
-        pods_json = json.dumps({
-            "items": [
-                {
-                    "metadata": {"name": "redis-pod"},
-                    "status": {
-                        "phase": "Running",
-                        "containerStatuses": [{"ready": True}],
-                    },
-                }
-            ]
-        })
+        pods_json = json.dumps(
+            {
+                "items": [
+                    {
+                        "metadata": {"name": "redis-pod"},
+                        "status": {
+                            "phase": "Running",
+                            "containerStatuses": [{"ready": True}],
+                        },
+                    }
+                ]
+            }
+        )
         mock_run.return_value = Mock(stdout=pods_json, stderr="")
 
         result = runner.invoke(cli, ["deploy", "status"])
@@ -621,7 +651,9 @@ def test_deploy_secrets_show(runner, mock_config, mock_secrets):
     """Test showing deployment secrets."""
     with (
         patch("mycelium_onboarding.cli.ConfigManager") as mock_manager_cls,
-        patch("mycelium_onboarding.deployment.secrets.SecretsManager") as mock_secrets_cls,
+        patch(
+            "mycelium_onboarding.deployment.secrets.SecretsManager"
+        ) as mock_secrets_cls,
     ):
         mock_manager = Mock()
         mock_manager.load.return_value = mock_config
@@ -643,7 +675,9 @@ def test_deploy_secrets_no_secrets(runner, mock_config):
     """Test secrets command when no secrets exist."""
     with (
         patch("mycelium_onboarding.cli.ConfigManager") as mock_manager_cls,
-        patch("mycelium_onboarding.deployment.secrets.SecretsManager") as mock_secrets_cls,
+        patch(
+            "mycelium_onboarding.deployment.secrets.SecretsManager"
+        ) as mock_secrets_cls,
     ):
         mock_manager = Mock()
         mock_manager.load.return_value = mock_config
@@ -663,7 +697,9 @@ def test_deploy_secrets_rotate(runner, mock_config, mock_secrets):
     """Test rotating a secret."""
     with (
         patch("mycelium_onboarding.cli.ConfigManager") as mock_manager_cls,
-        patch("mycelium_onboarding.deployment.secrets.SecretsManager") as mock_secrets_cls,
+        patch(
+            "mycelium_onboarding.deployment.secrets.SecretsManager"
+        ) as mock_secrets_cls,
     ):
         mock_manager = Mock()
         mock_manager.load.return_value = mock_config
@@ -684,7 +720,9 @@ def test_deploy_secrets_rotate_no_type(runner, mock_config):
     """Test rotate without specifying secret type."""
     with (
         patch("mycelium_onboarding.cli.ConfigManager") as mock_manager_cls,
-        patch("mycelium_onboarding.deployment.secrets.SecretsManager") as mock_secrets_cls,
+        patch(
+            "mycelium_onboarding.deployment.secrets.SecretsManager"
+        ) as mock_secrets_cls,
     ):
         mock_manager = Mock()
         mock_manager.load.return_value = mock_config
@@ -700,14 +738,18 @@ def test_deploy_secrets_rotate_invalid_type(runner, mock_config):
     """Test rotating an invalid secret type."""
     with (
         patch("mycelium_onboarding.cli.ConfigManager") as mock_manager_cls,
-        patch("mycelium_onboarding.deployment.secrets.SecretsManager") as mock_secrets_cls,
+        patch(
+            "mycelium_onboarding.deployment.secrets.SecretsManager"
+        ) as mock_secrets_cls,
     ):
         mock_manager = Mock()
         mock_manager.load.return_value = mock_config
         mock_manager_cls.return_value = mock_manager
 
         mock_secrets_mgr = Mock()
-        mock_secrets_mgr.rotate_secret.side_effect = ValueError("Unknown secret type: invalid")
+        mock_secrets_mgr.rotate_secret.side_effect = ValueError(
+            "Unknown secret type: invalid"
+        )
         mock_secrets_cls.return_value = mock_secrets_mgr
 
         result = runner.invoke(cli, ["deploy", "secrets", "invalid", "--rotate"])
@@ -734,8 +776,12 @@ def test_deploy_generate_method_override(runner, mock_config, tmp_path):
 
     with (
         patch("mycelium_onboarding.cli.ConfigManager") as mock_manager_cls,
-        patch("mycelium_onboarding.deployment.generator.DeploymentGenerator") as mock_gen_cls,
-        patch("mycelium_onboarding.deployment.secrets.SecretsManager") as mock_secrets_cls,
+        patch(
+            "mycelium_onboarding.deployment.generator.DeploymentGenerator"
+        ) as mock_gen_cls,
+        patch(
+            "mycelium_onboarding.deployment.secrets.SecretsManager"
+        ) as mock_secrets_cls,
     ):
         mock_manager = Mock()
         mock_manager.load.return_value = mock_config
@@ -779,12 +825,18 @@ def test_deploy_start_method_override(runner, mock_config):
 # ============================================================================
 
 
-def test_deploy_full_workflow(runner, mock_config, mock_generation_result, mock_secrets, tmp_path):
+def test_deploy_full_workflow(
+    runner, mock_config, mock_generation_result, mock_secrets, tmp_path
+):
     """Test full deployment workflow: generate -> start -> status -> stop."""
     with (
         patch("mycelium_onboarding.cli.ConfigManager") as mock_manager_cls,
-        patch("mycelium_onboarding.deployment.generator.DeploymentGenerator") as mock_gen_cls,
-        patch("mycelium_onboarding.deployment.secrets.SecretsManager") as mock_secrets_cls,
+        patch(
+            "mycelium_onboarding.deployment.generator.DeploymentGenerator"
+        ) as mock_gen_cls,
+        patch(
+            "mycelium_onboarding.deployment.secrets.SecretsManager"
+        ) as mock_secrets_cls,
         patch("mycelium_onboarding.cli.subprocess.run") as mock_run,
     ):
         mock_manager = Mock()
@@ -840,8 +892,12 @@ def test_deploy_generate_all_services(runner, tmp_path):
 
     with (
         patch("mycelium_onboarding.cli.ConfigManager") as mock_manager_cls,
-        patch("mycelium_onboarding.deployment.generator.DeploymentGenerator") as mock_gen_cls,
-        patch("mycelium_onboarding.deployment.secrets.SecretsManager") as mock_secrets_cls,
+        patch(
+            "mycelium_onboarding.deployment.generator.DeploymentGenerator"
+        ) as mock_gen_cls,
+        patch(
+            "mycelium_onboarding.deployment.secrets.SecretsManager"
+        ) as mock_secrets_cls,
     ):
         mock_manager = Mock()
         mock_manager.load.return_value = all_services_config
@@ -899,10 +955,12 @@ def test_deploy_status_multiline_json(runner, mock_config):
         mock_manager_cls.return_value = mock_manager
 
         # Multiple containers as separate JSON objects
-        json_lines = '\n'.join([
-            json.dumps({"Service": "redis", "State": "running", "Status": "Up"}),
-            json.dumps({"Service": "postgres", "State": "running", "Status": "Up"}),
-        ])
+        json_lines = "\n".join(
+            [
+                json.dumps({"Service": "redis", "State": "running", "Status": "Up"}),
+                json.dumps({"Service": "postgres", "State": "running", "Status": "Up"}),
+            ]
+        )
         mock_run.return_value = Mock(stdout=json_lines, stderr="")
 
         result = runner.invoke(cli, ["deploy", "status"])

@@ -8,7 +8,6 @@ Phase: 2 Performance Analytics - Day 2
 Date: 2025-10-18
 """
 
-
 import pytest
 
 from scripts.health_check import format_duration, generate_health_report, status_icon

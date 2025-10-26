@@ -358,9 +358,7 @@ def setup_direnv(project_root: Path | None = None) -> tuple[bool, str]:
         # .envrc already exists
         return (
             True,
-            f"{copy_message}\n\n"
-            "To activate the environment:\n"
-            "  direnv allow",
+            f"{copy_message}\n\nTo activate the environment:\n  direnv allow",
         )
 
     # Success - template copied

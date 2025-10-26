@@ -16,7 +16,7 @@ from pathlib import Path
 import pytest
 
 # Add scripts directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent / 'scripts'))
+sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
 
 from generate_agent_index import AgentIndexGenerator, AgentMetadata
 
@@ -31,13 +31,13 @@ def repo_root():
 @pytest.fixture
 def agents_dir(repo_root):
     """Get agents directory."""
-    return repo_root / 'plugins' / 'mycelium-core' / 'agents'
+    return repo_root / "plugins" / "mycelium-core" / "agents"
 
 
 @pytest.fixture
 def index_path(repo_root):
     """Get index file path."""
-    return repo_root / 'plugins' / 'mycelium-core' / 'agents' / 'index.json'
+    return repo_root / "plugins" / "mycelium-core" / "agents" / "index.json"
 
 
 @pytest.fixture
@@ -81,18 +81,18 @@ class TestAgentIndexSchema:
             index = json.load(f)
 
         # Check required top-level fields
-        assert 'version' in index
-        assert 'generated' in index
-        assert 'agent_count' in index
-        assert 'categories' in index
-        assert 'agents' in index
+        assert "version" in index
+        assert "generated" in index
+        assert "agent_count" in index
+        assert "categories" in index
+        assert "agents" in index
 
         # Check types
-        assert isinstance(index['version'], str)
-        assert isinstance(index['generated'], str)
-        assert isinstance(index['agent_count'], int)
-        assert isinstance(index['categories'], list)
-        assert isinstance(index['agents'], list)
+        assert isinstance(index["version"], str)
+        assert isinstance(index["generated"], str)
+        assert isinstance(index["agent_count"], int)
+        assert isinstance(index["categories"], list)
+        assert isinstance(index["agents"], list)
 
     def test_agent_metadata_schema(self, index_path):
         """Each agent should have complete metadata."""
@@ -103,26 +103,32 @@ class TestAgentIndexSchema:
             index = json.load(f)
 
         required_fields = [
-            'id', 'name', 'display_name', 'category',
-            'description', 'tools', 'keywords',
-            'file_path', 'estimated_tokens'
+            "id",
+            "name",
+            "display_name",
+            "category",
+            "description",
+            "tools",
+            "keywords",
+            "file_path",
+            "estimated_tokens",
         ]
 
-        for agent in index['agents']:
+        for agent in index["agents"]:
             for field in required_fields:
                 assert field in agent, f"Agent {agent.get('id')} missing field: {field}"
 
             # Check types
-            assert isinstance(agent['id'], str)
-            assert isinstance(agent['name'], str)
-            assert isinstance(agent['display_name'], str)
-            assert isinstance(agent['category'], str)
-            assert isinstance(agent['description'], str)
-            assert isinstance(agent['tools'], list)
-            assert isinstance(agent['keywords'], list)
-            assert isinstance(agent['file_path'], str)
-            assert isinstance(agent['estimated_tokens'], int)
-            assert agent['estimated_tokens'] > 0
+            assert isinstance(agent["id"], str)
+            assert isinstance(agent["name"], str)
+            assert isinstance(agent["display_name"], str)
+            assert isinstance(agent["category"], str)
+            assert isinstance(agent["description"], str)
+            assert isinstance(agent["tools"], list)
+            assert isinstance(agent["keywords"], list)
+            assert isinstance(agent["file_path"], str)
+            assert isinstance(agent["estimated_tokens"], int)
+            assert agent["estimated_tokens"] > 0
 
     def test_no_duplicate_agents(self, index_path):
         """Index should not contain duplicate agent IDs."""
@@ -132,7 +138,7 @@ class TestAgentIndexSchema:
         with open(index_path) as f:
             index = json.load(f)
 
-        agent_ids = [agent['id'] for agent in index['agents']]
+        agent_ids = [agent["id"] for agent in index["agents"]]
         assert len(agent_ids) == len(set(agent_ids)), "Duplicate agent IDs found"
 
 
@@ -148,8 +154,10 @@ class TestAgentIndexCompleteness:
             index = json.load(f)
 
         # According to AGENT_STRUCTURE_CHANGE.md, there are 119 agents
-        assert index['agent_count'] == 119, f"Expected 119 agents, got {index['agent_count']}"
-        assert len(index['agents']) == 119
+        assert index["agent_count"] == 119, (
+            f"Expected 119 agents, got {index['agent_count']}"
+        )
+        assert len(index["agents"]) == 119
 
     def test_all_agent_files_indexed(self, agents_dir, index_path):
         """All .md files in agents directory should be indexed."""
@@ -157,13 +165,14 @@ class TestAgentIndexCompleteness:
             pytest.skip("Index not generated yet")
 
         # Get all .md files (excluding index.json)
-        agent_files = list(agents_dir.glob('*.md'))
+        agent_files = list(agents_dir.glob("*.md"))
 
         with open(index_path) as f:
             index = json.load(f)
 
-        assert len(index['agents']) == len(agent_files), \
+        assert len(index["agents"]) == len(agent_files), (
             f"Agent count mismatch: {len(index['agents'])} indexed vs {len(agent_files)} files"
+        )
 
     def test_all_categories_present(self, index_path):
         """Index should contain all expected categories."""
@@ -185,12 +194,13 @@ class TestAgentIndexCompleteness:
             "Project Management",
             "Quality & Security",
             "Research & Analysis",
-            "Specialized Domains"
+            "Specialized Domains",
         }
 
-        actual_categories = set(index['categories'])
-        assert actual_categories == expected_categories, \
+        actual_categories = set(index["categories"])
+        assert actual_categories == expected_categories, (
             f"Category mismatch: {actual_categories ^ expected_categories}"
+        )
 
 
 class TestAgentMetadataExtraction:
@@ -198,7 +208,7 @@ class TestAgentMetadataExtraction:
 
     def test_parse_frontmatter(self, generator, tmp_path):
         """Generator should correctly parse YAML frontmatter."""
-        agent_file = tmp_path / 'test-agent.md'
+        agent_file = tmp_path / "test-agent.md"
         agent_file.write_text("""---
 name: test-agent
 description: Test agent for validation
@@ -211,31 +221,32 @@ Agent content here.
         metadata = generator.parse_agent_file(agent_file)
 
         assert metadata is not None
-        assert metadata.name == 'test-agent'
-        assert metadata.description == 'Test agent for validation'
-        assert sorted(metadata.tools) == ['Bash', 'Read', 'Write']
+        assert metadata.name == "test-agent"
+        assert metadata.description == "Test agent for validation"
+        assert sorted(metadata.tools) == ["Bash", "Read", "Write"]
 
     def test_extract_category_from_filename(self, generator):
         """Generator should extract category from filename prefix."""
         # Test various filename patterns
         test_cases = [
-            ('01-core-api-designer.md', 'Core Development'),
-            ('02-language-python-pro.md', 'Language Specialists'),
-            ('09-meta-multi-agent-coordinator.md', 'Meta-Orchestration'),
-            ('11-claude-plugin-developer.md', 'Claude Code'),
+            ("01-core-api-designer.md", "Core Development"),
+            ("02-language-python-pro.md", "Language Specialists"),
+            ("09-meta-multi-agent-coordinator.md", "Meta-Orchestration"),
+            ("11-claude-plugin-developer.md", "Claude Code"),
         ]
 
         for filename, expected_category in test_cases:
             category = generator._extract_category_from_filename(filename)
-            assert category == expected_category, \
+            assert category == expected_category, (
                 f"Filename {filename} should map to {expected_category}, got {category}"
+            )
 
     def test_generate_display_name(self, generator):
         """Generator should create proper display names."""
         test_cases = [
-            ('api-designer', 'Api Designer'),
-            ('multi-agent-coordinator', 'Multi Agent Coordinator'),
-            ('python-pro', 'Python Pro'),
+            ("api-designer", "Api Designer"),
+            ("multi-agent-coordinator", "Multi Agent Coordinator"),
+            ("python-pro", "Python Pro"),
         ]
 
         for name, expected_display in test_cases:
@@ -284,10 +295,10 @@ class TestGeneratorValidation:
         """Invalid version should fail validation."""
         generator.agents = []
         invalid_index = {
-            'version': '2.0.0',  # Wrong version
-            'agent_count': 0,
-            'categories': [],
-            'agents': []
+            "version": "2.0.0",  # Wrong version
+            "agent_count": 0,
+            "categories": [],
+            "agents": [],
         }
 
         assert not generator.validate_index(invalid_index)
@@ -296,46 +307,46 @@ class TestGeneratorValidation:
         """Duplicate agent IDs should fail validation."""
         generator.agents = [
             AgentMetadata(
-                id='test-agent',
-                name='test-agent',
-                display_name='Test Agent',
-                category='Test',
-                description='Test',
+                id="test-agent",
+                name="test-agent",
+                display_name="Test Agent",
+                category="Test",
+                description="Test",
                 tools=[],
                 keywords=[],
-                file_path='test.md',
-                estimated_tokens=100
+                file_path="test.md",
+                estimated_tokens=100,
             )
         ]
 
         invalid_index = {
-            'version': '1.0.0',
-            'agent_count': 1,
-            'categories': ['Test'],
-            'agents': [
+            "version": "1.0.0",
+            "agent_count": 1,
+            "categories": ["Test"],
+            "agents": [
                 {
-                    'id': 'test-agent',
-                    'name': 'test-agent',
-                    'display_name': 'Test Agent',
-                    'category': 'Test',
-                    'description': 'Test',
-                    'tools': [],
-                    'keywords': [],
-                    'file_path': 'test.md',
-                    'estimated_tokens': 100
+                    "id": "test-agent",
+                    "name": "test-agent",
+                    "display_name": "Test Agent",
+                    "category": "Test",
+                    "description": "Test",
+                    "tools": [],
+                    "keywords": [],
+                    "file_path": "test.md",
+                    "estimated_tokens": 100,
                 },
                 {
-                    'id': 'test-agent',  # Duplicate
-                    'name': 'test-agent',
-                    'display_name': 'Test Agent',
-                    'category': 'Test',
-                    'description': 'Test',
-                    'tools': [],
-                    'keywords': [],
-                    'file_path': 'test2.md',
-                    'estimated_tokens': 100
-                }
-            ]
+                    "id": "test-agent",  # Duplicate
+                    "name": "test-agent",
+                    "display_name": "Test Agent",
+                    "category": "Test",
+                    "description": "Test",
+                    "tools": [],
+                    "keywords": [],
+                    "file_path": "test2.md",
+                    "estimated_tokens": 100,
+                },
+            ],
         }
 
         assert not generator.validate_index(invalid_index)
@@ -357,11 +368,11 @@ class TestIndexGeneration:
         generator.scan_agents()
         index = generator.generate_index()
 
-        assert index['version'] == '1.0.0'
-        assert index['agent_count'] == len(generator.agents)
-        assert len(index['agents']) == len(generator.agents)
-        assert 'generated' in index
-        assert 'categories' in index
+        assert index["version"] == "1.0.0"
+        assert index["agent_count"] == len(generator.agents)
+        assert len(index["agents"]) == len(generator.agents)
+        assert "generated" in index
+        assert "categories" in index
 
 
 # Integration test
@@ -376,5 +387,5 @@ class TestEndToEnd:
         assert success, "Index generation workflow should succeed"
 
 
-if __name__ == '__main__':
-    pytest.main([__file__, '-v'])
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

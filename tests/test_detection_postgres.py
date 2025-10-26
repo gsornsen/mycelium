@@ -61,7 +61,9 @@ class TestDetectPostgres:
         assert result.port == 5433
         assert result.authentication_method == "ssl"
 
-    def test_detect_postgres_not_running(self, mocker: pytest_mock.MockerFixture) -> None:
+    def test_detect_postgres_not_running(
+        self, mocker: pytest_mock.MockerFixture
+    ) -> None:
         """Test PostgreSQL not running scenario."""
         mock_socket = Mock()
         mock_socket.connect.side_effect = ConnectionRefusedError()
@@ -90,7 +92,9 @@ class TestDetectPostgres:
         assert result.error_message is not None
         assert "timed out" in result.error_message
 
-    def test_detect_postgres_no_response(self, mocker: pytest_mock.MockerFixture) -> None:
+    def test_detect_postgres_no_response(
+        self, mocker: pytest_mock.MockerFixture
+    ) -> None:
         """Test PostgreSQL not responding."""
         mock_socket = Mock()
         mock_socket.recv.return_value = b""
@@ -120,7 +124,9 @@ class TestDetectPostgres:
         assert result.error_message is not None
         assert "Cannot resolve hostname" in result.error_message
 
-    def test_detect_postgres_network_error(self, mocker: pytest_mock.MockerFixture) -> None:
+    def test_detect_postgres_network_error(
+        self, mocker: pytest_mock.MockerFixture
+    ) -> None:
         """Test PostgreSQL network error."""
         mock_socket = Mock()
         mock_socket.connect.side_effect = OSError("Network unreachable")
@@ -134,7 +140,9 @@ class TestDetectPostgres:
         assert result.error_message is not None
         assert "Network error" in result.error_message
 
-    def test_detect_postgres_ssl_supported(self, mocker: pytest_mock.MockerFixture) -> None:
+    def test_detect_postgres_ssl_supported(
+        self, mocker: pytest_mock.MockerFixture
+    ) -> None:
         """Test PostgreSQL with SSL support."""
         mock_socket = Mock()
         mock_socket.recv.return_value = b"S"
@@ -152,7 +160,9 @@ class TestDetectPostgres:
         assert result.available is True
         assert result.authentication_method == "ssl"
 
-    def test_detect_postgres_ssl_not_supported(self, mocker: pytest_mock.MockerFixture) -> None:
+    def test_detect_postgres_ssl_not_supported(
+        self, mocker: pytest_mock.MockerFixture
+    ) -> None:
         """Test PostgreSQL without SSL support."""
         mock_socket = Mock()
         mock_socket.recv.return_value = b"N"
@@ -170,7 +180,9 @@ class TestDetectPostgres:
         assert result.available is True
         assert result.authentication_method == "password"
 
-    def test_detect_postgres_socket_cleanup(self, mocker: pytest_mock.MockerFixture) -> None:
+    def test_detect_postgres_socket_cleanup(
+        self, mocker: pytest_mock.MockerFixture
+    ) -> None:
         """Test that socket is properly closed even on error."""
         mock_socket = Mock()
         mock_socket.connect.side_effect = Exception("Test error")
@@ -187,7 +199,9 @@ class TestDetectPostgres:
 class TestScanCommonPostgresPorts:
     """Tests for scan_common_postgres_ports function."""
 
-    def test_scan_common_ports_all_available(self, mocker: pytest_mock.MockerFixture) -> None:
+    def test_scan_common_ports_all_available(
+        self, mocker: pytest_mock.MockerFixture
+    ) -> None:
         """Test scanning when all common ports have PostgreSQL."""
         mock_detect = mocker.patch(
             "mycelium_onboarding.detection.postgres_detector.detect_postgres"
@@ -207,7 +221,9 @@ class TestScanCommonPostgresPorts:
         assert all(r.available for r in results)
         assert [r.port for r in results] == [5432, 5433]
 
-    def test_scan_common_ports_some_available(self, mocker: pytest_mock.MockerFixture) -> None:
+    def test_scan_common_ports_some_available(
+        self, mocker: pytest_mock.MockerFixture
+    ) -> None:
         """Test scanning when only some ports have PostgreSQL."""
         mock_detect = mocker.patch(
             "mycelium_onboarding.detection.postgres_detector.detect_postgres"
@@ -229,7 +245,9 @@ class TestScanCommonPostgresPorts:
         assert len(results) == 1
         assert results[0].port == 5432
 
-    def test_scan_common_ports_none_available(self, mocker: pytest_mock.MockerFixture) -> None:
+    def test_scan_common_ports_none_available(
+        self, mocker: pytest_mock.MockerFixture
+    ) -> None:
         """Test scanning when no ports have PostgreSQL."""
         mock_detect = mocker.patch(
             "mycelium_onboarding.detection.postgres_detector.detect_postgres"
@@ -253,7 +271,9 @@ class TestScanCommonPostgresPorts:
 
         assert len(results) == 0
 
-    def test_scan_common_ports_custom_host(self, mocker: pytest_mock.MockerFixture) -> None:
+    def test_scan_common_ports_custom_host(
+        self, mocker: pytest_mock.MockerFixture
+    ) -> None:
         """Test scanning with custom host."""
         mock_detect = mocker.patch(
             "mycelium_onboarding.detection.postgres_detector.detect_postgres"
@@ -279,7 +299,9 @@ class TestScanCommonPostgresPorts:
 class TestVersionDetection:
     """Tests for PostgreSQL version detection helper functions."""
 
-    def test_parse_error_message_version(self, mocker: pytest_mock.MockerFixture) -> None:
+    def test_parse_error_message_version(
+        self, mocker: pytest_mock.MockerFixture
+    ) -> None:
         """Test parsing version from error message."""
         from mycelium_onboarding.detection.postgres_detector import (
             _parse_error_message_version,
@@ -357,7 +379,9 @@ class TestPostgresDetectionResult:
         assert result.available is False
         assert result.error_message == "PostgreSQL not found"
 
-    def test_attempt_version_detection_with_error_response(self, mocker: pytest_mock.MockerFixture) -> None:
+    def test_attempt_version_detection_with_error_response(
+        self, mocker: pytest_mock.MockerFixture
+    ) -> None:
         """Test version detection with PostgreSQL error response."""
         from mycelium_onboarding.detection.postgres_detector import (
             _attempt_version_detection,
@@ -370,7 +394,9 @@ class TestPostgresDetectionResult:
 
         assert version == "16.1"
 
-    def test_attempt_version_detection_with_exception(self, mocker: pytest_mock.MockerFixture) -> None:
+    def test_attempt_version_detection_with_exception(
+        self, mocker: pytest_mock.MockerFixture
+    ) -> None:
         """Test version detection handles exceptions gracefully."""
         from mycelium_onboarding.detection.postgres_detector import (
             _attempt_version_detection,
@@ -384,7 +410,9 @@ class TestPostgresDetectionResult:
 
         assert version is None
 
-    def test_parse_error_message_version_with_exception(self, mocker: pytest_mock.MockerFixture) -> None:
+    def test_parse_error_message_version_with_exception(
+        self, mocker: pytest_mock.MockerFixture
+    ) -> None:
         """Test error message parsing handles exceptions."""
         from mycelium_onboarding.detection.postgres_detector import (
             _parse_error_message_version,
@@ -395,5 +423,3 @@ class TestPostgresDetectionResult:
 
         # Should handle gracefully
         assert result is None
-
-

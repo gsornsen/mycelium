@@ -147,7 +147,7 @@ def test_snippet_api_registry_api_1():
 
 def test_snippet_api_registry_api_2():
     """Test code snippet from api/registry-api.md (line 100)."""
-    code = 'async def create_agent(\n    agent_id: str,\n    agent_type: str,\n    name: str,\n    display_name: str,\n    category: str,\n    description: str,\n    file_path: str,\n    capabilities: Optional[List[str]] = None,\n    tools: Optional[List[str]] = None,\n    keywords: Optional[List[str]] = None,\n    embedding: Optional[List[float]] = None,\n    estimated_tokens: Optional[int] = None,\n    metadata: Optional[Dict[str, Any]] = None,\n) -> UUID'
+    code = "async def create_agent(\n    agent_id: str,\n    agent_type: str,\n    name: str,\n    display_name: str,\n    category: str,\n    description: str,\n    file_path: str,\n    capabilities: Optional[List[str]] = None,\n    tools: Optional[List[str]] = None,\n    keywords: Optional[List[str]] = None,\n    embedding: Optional[List[float]] = None,\n    estimated_tokens: Optional[int] = None,\n    metadata: Optional[Dict[str, Any]] = None,\n) -> UUID"
 
     # Test 1: Syntax validation
     try:
@@ -181,7 +181,7 @@ def test_snippet_api_registry_api_3():
 
 def test_snippet_api_registry_api_4():
     """Test code snippet from api/registry-api.md (line 163)."""
-    code = 'async def get_agent_by_id(agent_id: str) -> Dict[str, Any]'
+    code = "async def get_agent_by_id(agent_id: str) -> Dict[str, Any]"
 
     # Test 1: Syntax validation
     try:
@@ -215,7 +215,7 @@ def test_snippet_api_registry_api_5():
 
 def test_snippet_api_registry_api_6():
     """Test code snippet from api/registry-api.md (line 190)."""
-    code = 'async def get_agent_by_type(agent_type: str) -> Dict[str, Any]'
+    code = "async def get_agent_by_type(agent_type: str) -> Dict[str, Any]"
 
     # Test 1: Syntax validation
     try:
@@ -249,7 +249,7 @@ def test_snippet_api_registry_api_7():
 
 def test_snippet_api_registry_api_8():
     """Test code snippet from api/registry-api.md (line 214)."""
-    code = 'async def get_agent_by_uuid(uuid: UUID) -> Dict[str, Any]'
+    code = "async def get_agent_by_uuid(uuid: UUID) -> Dict[str, Any]"
 
     # Test 1: Syntax validation
     try:
@@ -283,7 +283,7 @@ def test_snippet_api_registry_api_9():
 
 def test_snippet_api_registry_api_10():
     """Test code snippet from api/registry-api.md (line 241)."""
-    code = 'async def update_agent(agent_id: str, **fields: Any) -> None'
+    code = "async def update_agent(agent_id: str, **fields: Any) -> None"
 
     # Test 1: Syntax validation
     try:
@@ -317,7 +317,7 @@ def test_snippet_api_registry_api_11():
 
 def test_snippet_api_registry_api_12():
     """Test code snippet from api/registry-api.md (line 269)."""
-    code = 'async def delete_agent(agent_id: str) -> None'
+    code = "async def delete_agent(agent_id: str) -> None"
 
     # Test 1: Syntax validation
     try:
@@ -351,7 +351,7 @@ def test_snippet_api_registry_api_13():
 
 def test_snippet_api_registry_api_14():
     """Test code snippet from api/registry-api.md (line 293)."""
-    code = 'async def list_agents(\n    category: Optional[str] = None,\n    limit: int = 100,\n    offset: int = 0,\n) -> List[Dict[str, Any]]'
+    code = "async def list_agents(\n    category: Optional[str] = None,\n    limit: int = 100,\n    offset: int = 0,\n) -> List[Dict[str, Any]]"
 
     # Test 1: Syntax validation
     try:
@@ -385,7 +385,7 @@ def test_snippet_api_registry_api_15():
 
 def test_snippet_api_registry_api_16():
     """Test code snippet from api/registry-api.md (line 328)."""
-    code = 'async def search_agents(\n    query: str,\n    limit: int = 10,\n) -> List[Dict[str, Any]]'
+    code = "async def search_agents(\n    query: str,\n    limit: int = 10,\n) -> List[Dict[str, Any]]"
 
     # Test 1: Syntax validation
     try:
@@ -402,7 +402,7 @@ def test_snippet_api_registry_api_16():
 
 def test_snippet_api_registry_api_17():
     """Test code snippet from api/registry-api.md (line 342)."""
-    code = '# Search for backend-related agents\nresults = await registry.search_agents("backend api development")\n\nfor agent in results:\n    print(f"{agent[\'name\']}: {agent[\'description\']}")'
+    code = "# Search for backend-related agents\nresults = await registry.search_agents(\"backend api development\")\n\nfor agent in results:\n    print(f\"{agent['name']}: {agent['description']}\")"
 
     # Test 1: Syntax validation
     try:
@@ -419,7 +419,7 @@ def test_snippet_api_registry_api_17():
 
 def test_snippet_api_registry_api_18():
     """Test code snippet from api/registry-api.md (line 357)."""
-    code = 'async def similarity_search(\n    embedding: List[float],\n    limit: int = 10,\n    threshold: float = 0.5,\n) -> List[Tuple[Dict[str, Any], float]]'
+    code = "async def similarity_search(\n    embedding: List[float],\n    limit: int = 10,\n    threshold: float = 0.5,\n) -> List[Tuple[Dict[str, Any], float]]"
 
     # Test 1: Syntax validation
     try:
@@ -436,7 +436,7 @@ def test_snippet_api_registry_api_18():
 
 def test_snippet_api_registry_api_19():
     """Test code snippet from api/registry-api.md (line 373)."""
-    code = '# Generate embedding for query\nfrom sentence_transformers import SentenceTransformer\nmodel = SentenceTransformer(\'all-MiniLM-L6-v2\')\nquery_embedding = model.encode("backend API development").tolist()\n\n# Search for similar agents\nresults = await registry.similarity_search(\n    embedding=query_embedding,\n    limit=5,\n    threshold=0.7\n)\n\nfor agent, similarity in results:\n    print(f"{agent[\'name\']}: {similarity:.2%} match")'
+    code = "# Generate embedding for query\nfrom sentence_transformers import SentenceTransformer\nmodel = SentenceTransformer('all-MiniLM-L6-v2')\nquery_embedding = model.encode(\"backend API development\").tolist()\n\n# Search for similar agents\nresults = await registry.similarity_search(\n    embedding=query_embedding,\n    limit=5,\n    threshold=0.7\n)\n\nfor agent, similarity in results:\n    print(f\"{agent['name']}: {similarity:.2%} match\")"
 
     # Test 1: Syntax validation
     try:
@@ -453,7 +453,7 @@ def test_snippet_api_registry_api_19():
 
 def test_snippet_api_registry_api_20():
     """Test code snippet from api/registry-api.md (line 397)."""
-    code = 'async def get_agent_count(category: Optional[str] = None) -> int'
+    code = "async def get_agent_count(category: Optional[str] = None) -> int"
 
     # Test 1: Syntax validation
     try:
@@ -487,7 +487,7 @@ def test_snippet_api_registry_api_21():
 
 def test_snippet_api_registry_api_22():
     """Test code snippet from api/registry-api.md (line 422)."""
-    code = 'async def get_categories() -> List[str]'
+    code = "async def get_categories() -> List[str]"
 
     # Test 1: Syntax validation
     try:
@@ -521,7 +521,7 @@ def test_snippet_api_registry_api_23():
 
 def test_snippet_api_registry_api_24():
     """Test code snippet from api/registry-api.md (line 443)."""
-    code = 'async def bulk_insert_agents(\n    agents: List[Dict[str, Any]],\n    batch_size: int = 100,\n) -> int'
+    code = "async def bulk_insert_agents(\n    agents: List[Dict[str, Any]],\n    batch_size: int = 100,\n) -> int"
 
     # Test 1: Syntax validation
     try:
@@ -555,7 +555,7 @@ def test_snippet_api_registry_api_25():
 
 def test_snippet_api_registry_api_26():
     """Test code snippet from api/registry-api.md (line 486)."""
-    code = 'async def health_check() -> Dict[str, Any]'
+    code = "async def health_check() -> Dict[str, Any]"
 
     # Test 1: Syntax validation
     try:
@@ -572,7 +572,7 @@ def test_snippet_api_registry_api_26():
 
 def test_snippet_api_registry_api_27():
     """Test code snippet from api/registry-api.md (line 493)."""
-    code = 'health = await registry.health_check()\nprint(f"Status: {health[\'status\']}")\nprint(f"pgvector installed: {health[\'pgvector_installed\']}")\nprint(f"Agent count: {health[\'agent_count\']}")\nprint(f"Database size: {health[\'database_size\']}")'
+    code = "health = await registry.health_check()\nprint(f\"Status: {health['status']}\")\nprint(f\"pgvector installed: {health['pgvector_installed']}\")\nprint(f\"Agent count: {health['agent_count']}\")\nprint(f\"Database size: {health['database_size']}\")"
 
     # Test 1: Syntax validation
     try:
@@ -589,7 +589,7 @@ def test_snippet_api_registry_api_27():
 
 def test_snippet_api_registry_api_28():
     """Test code snippet from api/registry-api.md (line 510)."""
-    code = 'async def load_agents_from_index(\n    index_path: str | Path,\n    registry: AgentRegistry,\n) -> int'
+    code = "async def load_agents_from_index(\n    index_path: str | Path,\n    registry: AgentRegistry,\n) -> int"
 
     # Test 1: Syntax validation
     try:
@@ -674,7 +674,7 @@ def test_snippet_api_registry_api_32():
 
 def test_snippet_api_registry_api_33():
     """Test code snippet from api/registry-api.md (line 615)."""
-    code = 'from sentence_transformers import SentenceTransformer\nfrom registry import AgentRegistry\n\nasync def semantic_agent_discovery(query: str):\n    # Initialize embedding model\n    model = SentenceTransformer(\'all-MiniLM-L6-v2\')\n\n    async with AgentRegistry() as registry:\n        # Generate query embedding\n        query_embedding = model.encode(query).tolist()\n\n        # Perform similarity search\n        results = await registry.similarity_search(\n            embedding=query_embedding,\n            limit=5,\n            threshold=0.6\n        )\n\n        print(f"Top agents for \'{query}\':")\n        for agent, similarity in results:\n            print(f"  {similarity:.1%} - {agent[\'name\']}: {agent[\'description\']}")\n\n# Usage\nimport asyncio\nasyncio.run(semantic_agent_discovery(\n    "I need to build a REST API with authentication"\n))'
+    code = "from sentence_transformers import SentenceTransformer\nfrom registry import AgentRegistry\n\nasync def semantic_agent_discovery(query: str):\n    # Initialize embedding model\n    model = SentenceTransformer('all-MiniLM-L6-v2')\n\n    async with AgentRegistry() as registry:\n        # Generate query embedding\n        query_embedding = model.encode(query).tolist()\n\n        # Perform similarity search\n        results = await registry.similarity_search(\n            embedding=query_embedding,\n            limit=5,\n            threshold=0.6\n        )\n\n        print(f\"Top agents for '{query}':\")\n        for agent, similarity in results:\n            print(f\"  {similarity:.1%} - {agent['name']}: {agent['description']}\")\n\n# Usage\nimport asyncio\nasyncio.run(semantic_agent_discovery(\n    \"I need to build a REST API with authentication\"\n))"
 
     # Test 1: Syntax validation
     try:
@@ -708,7 +708,7 @@ def test_snippet_api_registry_api_34():
 
 def test_snippet_api_registry_api_35():
     """Test code snippet from api/registry-api.md (line 697)."""
-    code = '# For high-concurrency workloads\npool = await asyncpg.create_pool(\n    connection_string,\n    min_size=10,\n    max_size=50,\n    command_timeout=30,\n)\nregistry = AgentRegistry(pool=pool)'
+    code = "# For high-concurrency workloads\npool = await asyncpg.create_pool(\n    connection_string,\n    min_size=10,\n    max_size=50,\n    command_timeout=30,\n)\nregistry = AgentRegistry(pool=pool)"
 
     # Test 1: Syntax validation
     try:
@@ -725,7 +725,7 @@ def test_snippet_api_registry_api_35():
 
 def test_snippet_api_registry_api_36():
     """Test code snippet from api/registry-api.md (line 729)."""
-    code = '# Increase pool size or timeout\npool = await asyncpg.create_pool(\n    connection_string,\n    max_size=20,\n    command_timeout=120\n)'
+    code = "# Increase pool size or timeout\npool = await asyncpg.create_pool(\n    connection_string,\n    max_size=20,\n    command_timeout=120\n)"
 
     # Test 1: Syntax validation
     try:
@@ -827,7 +827,7 @@ def test_snippet_deployment_integration_5():
 
 def test_snippet_deployment_integration_6():
     """Test code snippet from deployment-integration.md (line 297)."""
-    code = '# In Jinja2 templates, access:\n{{ config.project_name }}              # Project name\n{{ config.services.redis.enabled }}    # Service enabled status\n{{ config.services.redis.port }}       # Redis port\n{{ config.services.redis.max_memory }} # Redis memory limit\n{{ config.services.postgres.database }}# PostgreSQL database name\n{{ config.deployment.method }}         # Deployment method'
+    code = "# In Jinja2 templates, access:\n{{ config.project_name }}              # Project name\n{{ config.services.redis.enabled }}    # Service enabled status\n{{ config.services.redis.port }}       # Redis port\n{{ config.services.redis.max_memory }} # Redis memory limit\n{{ config.services.postgres.database }}# PostgreSQL database name\n{{ config.deployment.method }}         # Deployment method"
 
     # Test 1: Syntax validation
     try:
@@ -1065,7 +1065,7 @@ def test_snippet_deployment_reference_1():
 
 def test_snippet_deployment_reference_2():
     """Test code snippet from deployment-reference.md (line 30)."""
-    code = 'def __init__(self, config: MyceliumConfig, output_dir: Path | None = None) -> None'
+    code = "def __init__(self, config: MyceliumConfig, output_dir: Path | None = None) -> None"
 
     # Test 1: Syntax validation
     try:
@@ -1099,7 +1099,7 @@ def test_snippet_deployment_reference_3():
 
 def test_snippet_deployment_reference_4():
     """Test code snippet from deployment-reference.md (line 54)."""
-    code = 'def generate(self, method: DeploymentMethod) -> GenerationResult'
+    code = "def generate(self, method: DeploymentMethod) -> GenerationResult"
 
     # Test 1: Syntax validation
     try:
@@ -1133,7 +1133,7 @@ def test_snippet_deployment_reference_5():
 
 def test_snippet_deployment_reference_6():
     """Test code snippet from deployment-reference.md (line 93)."""
-    code = 'def _validate_config(self, method: DeploymentMethod) -> list[str]'
+    code = "def _validate_config(self, method: DeploymentMethod) -> list[str]"
 
     # Test 1: Syntax validation
     try:
@@ -1167,7 +1167,7 @@ def test_snippet_deployment_reference_7():
 
 def test_snippet_deployment_reference_8():
     """Test code snippet from deployment-reference.md (line 127)."""
-    code = '@dataclass\nclass GenerationResult:\n    success: bool\n    method: DeploymentMethod\n    output_dir: Path\n    files_generated: list[Path]\n    errors: list[str] = field(default_factory=list)\n    warnings: list[str] = field(default_factory=list)'
+    code = "@dataclass\nclass GenerationResult:\n    success: bool\n    method: DeploymentMethod\n    output_dir: Path\n    files_generated: list[Path]\n    errors: list[str] = field(default_factory=list)\n    warnings: list[str] = field(default_factory=list)"
 
     # Test 1: Syntax validation
     try:
@@ -1252,7 +1252,9 @@ def test_snippet_deployment_reference_12():
 
 def test_snippet_deployment_reference_13():
     """Test code snippet from deployment-reference.md (line 211)."""
-    code = 'def __init__(self, project_name: str, secrets_dir: Path | None = None) -> None'
+    code = (
+        "def __init__(self, project_name: str, secrets_dir: Path | None = None) -> None"
+    )
 
     # Test 1: Syntax validation
     try:
@@ -1286,7 +1288,7 @@ def test_snippet_deployment_reference_14():
 
 def test_snippet_deployment_reference_15():
     """Test code snippet from deployment-reference.md (line 235)."""
-    code = 'def generate_secrets(\n    self,\n    postgres: bool = False,\n    redis: bool = False,\n    temporal: bool = False,\n    overwrite: bool = False,\n) -> DeploymentSecrets'
+    code = "def generate_secrets(\n    self,\n    postgres: bool = False,\n    redis: bool = False,\n    temporal: bool = False,\n    overwrite: bool = False,\n) -> DeploymentSecrets"
 
     # Test 1: Syntax validation
     try:
@@ -1303,7 +1305,7 @@ def test_snippet_deployment_reference_15():
 
 def test_snippet_deployment_reference_16():
     """Test code snippet from deployment-reference.md (line 255)."""
-    code = '# Generate secrets for PostgreSQL and Redis\nsecrets = manager.generate_secrets(postgres=True, redis=True)\n\n# Preserve existing secrets (default)\nsecrets = manager.generate_secrets(postgres=True, overwrite=False)\n\n# Force regenerate all secrets\nsecrets = manager.generate_secrets(\n    postgres=True,\n    redis=True,\n    temporal=True,\n    overwrite=True\n)'
+    code = "# Generate secrets for PostgreSQL and Redis\nsecrets = manager.generate_secrets(postgres=True, redis=True)\n\n# Preserve existing secrets (default)\nsecrets = manager.generate_secrets(postgres=True, overwrite=False)\n\n# Force regenerate all secrets\nsecrets = manager.generate_secrets(\n    postgres=True,\n    redis=True,\n    temporal=True,\n    overwrite=True\n)"
 
     # Test 1: Syntax validation
     try:
@@ -1320,7 +1322,7 @@ def test_snippet_deployment_reference_16():
 
 def test_snippet_deployment_reference_17():
     """Test code snippet from deployment-reference.md (line 275)."""
-    code = 'def save_secrets(self, secrets_obj: DeploymentSecrets) -> None'
+    code = "def save_secrets(self, secrets_obj: DeploymentSecrets) -> None"
 
     # Test 1: Syntax validation
     try:
@@ -1354,7 +1356,7 @@ def test_snippet_deployment_reference_18():
 
 def test_snippet_deployment_reference_19():
     """Test code snippet from deployment-reference.md (line 304)."""
-    code = 'def load_secrets(self) -> DeploymentSecrets | None'
+    code = "def load_secrets(self) -> DeploymentSecrets | None"
 
     # Test 1: Syntax validation
     try:
@@ -1388,7 +1390,7 @@ def test_snippet_deployment_reference_20():
 
 def test_snippet_deployment_reference_21():
     """Test code snippet from deployment-reference.md (line 326)."""
-    code = 'def rotate_secret(self, secret_type: str) -> DeploymentSecrets'
+    code = "def rotate_secret(self, secret_type: str) -> DeploymentSecrets"
 
     # Test 1: Syntax validation
     try:
@@ -1422,7 +1424,7 @@ def test_snippet_deployment_reference_22():
 
 def test_snippet_deployment_reference_23():
     """Test code snippet from deployment-reference.md (line 357)."""
-    code = 'def delete_secrets(self) -> bool'
+    code = "def delete_secrets(self) -> bool"
 
     # Test 1: Syntax validation
     try:
@@ -1456,7 +1458,7 @@ def test_snippet_deployment_reference_24():
 
 def test_snippet_deployment_reference_25():
     """Test code snippet from deployment-reference.md (line 376)."""
-    code = '@dataclass\nclass DeploymentSecrets:\n    project_name: str\n    postgres_password: str | None = None\n    redis_password: str | None = None\n    temporal_admin_password: str | None = None'
+    code = "@dataclass\nclass DeploymentSecrets:\n    project_name: str\n    postgres_password: str | None = None\n    redis_password: str | None = None\n    temporal_admin_password: str | None = None"
 
     # Test 1: Syntax validation
     try:
@@ -1473,7 +1475,7 @@ def test_snippet_deployment_reference_25():
 
 def test_snippet_deployment_reference_26():
     """Test code snippet from deployment-reference.md (line 397)."""
-    code = 'def to_env_vars(self) -> dict[str, str]'
+    code = "def to_env_vars(self) -> dict[str, str]"
 
     # Test 1: Syntax validation
     try:
@@ -1507,7 +1509,9 @@ def test_snippet_deployment_reference_27():
 
 def test_snippet_deployment_reference_28():
     """Test code snippet from deployment-reference.md (line 430)."""
-    code = 'def generate_env_file(secrets: DeploymentSecrets, output_path: Path) -> None'
+    code = (
+        "def generate_env_file(secrets: DeploymentSecrets, output_path: Path) -> None"
+    )
 
     # Test 1: Syntax validation
     try:
@@ -1541,7 +1545,7 @@ def test_snippet_deployment_reference_29():
 
 def test_snippet_deployment_reference_30():
     """Test code snippet from deployment-reference.md (line 453)."""
-    code = 'class SecretsError(Exception):\n    pass'
+    code = "class SecretsError(Exception):\n    pass"
 
     # Test 1: Syntax validation
     try:
@@ -1575,7 +1579,7 @@ def test_snippet_deployment_reference_31():
 
 def test_snippet_deployment_reference_32():
     """Test code snippet from deployment-reference.md (line 475)."""
-    code = 'from mycelium_onboarding.deployment.renderer import TemplateRenderer\n\nrenderer = TemplateRenderer()\ncontent = renderer.render_docker_compose(config)'
+    code = "from mycelium_onboarding.deployment.renderer import TemplateRenderer\n\nrenderer = TemplateRenderer()\ncontent = renderer.render_docker_compose(config)"
 
     # Test 1: Syntax validation
     try:
@@ -1592,7 +1596,7 @@ def test_snippet_deployment_reference_32():
 
 def test_snippet_deployment_reference_33():
     """Test code snippet from deployment-reference.md (line 484)."""
-    code = 'def __init__(self, templates_dir: Path | None = None) -> None'
+    code = "def __init__(self, templates_dir: Path | None = None) -> None"
 
     # Test 1: Syntax validation
     try:
@@ -1626,7 +1630,7 @@ def test_snippet_deployment_reference_34():
 
 def test_snippet_deployment_reference_35():
     """Test code snippet from deployment-reference.md (line 507)."""
-    code = 'def render_docker_compose(self, config: MyceliumConfig) -> str'
+    code = "def render_docker_compose(self, config: MyceliumConfig) -> str"
 
     # Test 1: Syntax validation
     try:
@@ -1660,7 +1664,7 @@ def test_snippet_deployment_reference_36():
 
 def test_snippet_deployment_reference_37():
     """Test code snippet from deployment-reference.md (line 532)."""
-    code = 'def render_kubernetes(self, config: MyceliumConfig) -> dict[str, str]'
+    code = "def render_kubernetes(self, config: MyceliumConfig) -> dict[str, str]"
 
     # Test 1: Syntax validation
     try:
@@ -1694,7 +1698,7 @@ def test_snippet_deployment_reference_38():
 
 def test_snippet_deployment_reference_39():
     """Test code snippet from deployment-reference.md (line 555)."""
-    code = 'def render_systemd(self, config: MyceliumConfig) -> dict[str, str]'
+    code = "def render_systemd(self, config: MyceliumConfig) -> dict[str, str]"
 
     # Test 1: Syntax validation
     try:
@@ -1813,7 +1817,7 @@ def test_snippet_deployment_reference_45():
 
 def test_snippet_deployment_reference_46():
     """Test code snippet from deployment-reference.md (line 700)."""
-    code = 'from __future__ import annotations\n\nfrom pathlib import Path\nfrom typing import Any\n\nfrom mycelium_onboarding.config.schema import (\n    MyceliumConfig,\n    DeploymentMethod,\n    ServicesConfig,\n)\nfrom mycelium_onboarding.deployment.generator import (\n    DeploymentGenerator,\n    GenerationResult,\n)\nfrom mycelium_onboarding.deployment.secrets import (\n    SecretsManager,\n    DeploymentSecrets,\n    SecretsError,\n    generate_env_file,\n)\nfrom mycelium_onboarding.deployment.renderer import TemplateRenderer'
+    code = "from __future__ import annotations\n\nfrom pathlib import Path\nfrom typing import Any\n\nfrom mycelium_onboarding.config.schema import (\n    MyceliumConfig,\n    DeploymentMethod,\n    ServicesConfig,\n)\nfrom mycelium_onboarding.deployment.generator import (\n    DeploymentGenerator,\n    GenerationResult,\n)\nfrom mycelium_onboarding.deployment.secrets import (\n    SecretsManager,\n    DeploymentSecrets,\n    SecretsError,\n    generate_env_file,\n)\nfrom mycelium_onboarding.deployment.renderer import TemplateRenderer"
 
     # Test 1: Syntax validation
     try:
@@ -2289,7 +2293,7 @@ def test_snippet_detection_integration_27():
 
 def test_snippet_detection_reference_1():
     """Test code snippet from detection-reference.md (line 22)."""
-    code = 'from mycelium_onboarding.detection import (\n    detect_all,\n    detect_all_async,\n    DetectionSummary,\n    generate_detection_report,\n    update_config_from_detection,\n)\n\nfrom mycelium_onboarding.detection.docker_detector import detect_docker\nfrom mycelium_onboarding.detection.redis_detector import detect_redis, scan_common_redis_ports\nfrom mycelium_onboarding.detection.postgres_detector import detect_postgres, scan_common_postgres_ports\nfrom mycelium_onboarding.detection.temporal_detector import detect_temporal\nfrom mycelium_onboarding.detection.gpu_detector import detect_gpus'
+    code = "from mycelium_onboarding.detection import (\n    detect_all,\n    detect_all_async,\n    DetectionSummary,\n    generate_detection_report,\n    update_config_from_detection,\n)\n\nfrom mycelium_onboarding.detection.docker_detector import detect_docker\nfrom mycelium_onboarding.detection.redis_detector import detect_redis, scan_common_redis_ports\nfrom mycelium_onboarding.detection.postgres_detector import detect_postgres, scan_common_postgres_ports\nfrom mycelium_onboarding.detection.temporal_detector import detect_temporal\nfrom mycelium_onboarding.detection.gpu_detector import detect_gpus"
 
     # Test 1: Syntax validation
     try:
@@ -2306,7 +2310,7 @@ def test_snippet_detection_reference_1():
 
 def test_snippet_detection_reference_2():
     """Test code snippet from detection-reference.md (line 47)."""
-    code = 'def detect_all() -> DetectionSummary'
+    code = "def detect_all() -> DetectionSummary"
 
     # Test 1: Syntax validation
     try:
@@ -2340,7 +2344,7 @@ def test_snippet_detection_reference_3():
 
 def test_snippet_detection_reference_4():
     """Test code snippet from detection-reference.md (line 87)."""
-    code = 'async def detect_all_async() -> DetectionSummary'
+    code = "async def detect_all_async() -> DetectionSummary"
 
     # Test 1: Syntax validation
     try:
@@ -2408,7 +2412,7 @@ def test_snippet_detection_reference_7():
 
 def test_snippet_detection_reference_8():
     """Test code snippet from detection-reference.md (line 161)."""
-    code = 'def update_config_from_detection(\n    summary: DetectionSummary,\n    base_config: MyceliumConfig | None = None\n) -> MyceliumConfig'
+    code = "def update_config_from_detection(\n    summary: DetectionSummary,\n    base_config: MyceliumConfig | None = None\n) -> MyceliumConfig"
 
     # Test 1: Syntax validation
     try:
@@ -2425,7 +2429,7 @@ def test_snippet_detection_reference_8():
 
 def test_snippet_detection_reference_9():
     """Test code snippet from detection-reference.md (line 182)."""
-    code = 'from mycelium_onboarding.detection import detect_all, update_config_from_detection\nfrom mycelium_onboarding.config.manager import ConfigManager\n\n# Detect services\nsummary = detect_all()\n\n# Load existing config\nmanager = ConfigManager()\nexisting_config = manager.load()\n\n# Update config with detected values\nupdated_config = update_config_from_detection(summary, existing_config)\n\n# Save updated config\nmanager.save(updated_config)'
+    code = "from mycelium_onboarding.detection import detect_all, update_config_from_detection\nfrom mycelium_onboarding.config.manager import ConfigManager\n\n# Detect services\nsummary = detect_all()\n\n# Load existing config\nmanager = ConfigManager()\nexisting_config = manager.load()\n\n# Update config with detected values\nupdated_config = update_config_from_detection(summary, existing_config)\n\n# Save updated config\nmanager.save(updated_config)"
 
     # Test 1: Syntax validation
     try:
@@ -2442,7 +2446,7 @@ def test_snippet_detection_reference_9():
 
 def test_snippet_detection_reference_10():
     """Test code snippet from detection-reference.md (line 207)."""
-    code = '@dataclass\nclass DetectionSummary:\n    docker: DockerDetectionResult\n    redis: list[RedisDetectionResult]\n    postgres: list[PostgresDetectionResult]\n    temporal: TemporalDetectionResult\n    gpu: GPUDetectionResult\n    detection_time: float  # Total time in seconds'
+    code = "@dataclass\nclass DetectionSummary:\n    docker: DockerDetectionResult\n    redis: list[RedisDetectionResult]\n    postgres: list[PostgresDetectionResult]\n    temporal: TemporalDetectionResult\n    gpu: GPUDetectionResult\n    detection_time: float  # Total time in seconds"
 
     # Test 1: Syntax validation
     try:
@@ -2493,7 +2497,7 @@ def test_snippet_detection_reference_12():
 
 def test_snippet_detection_reference_13():
     """Test code snippet from detection-reference.md (line 273)."""
-    code = 'def detect_docker() -> DockerDetectionResult'
+    code = "def detect_docker() -> DockerDetectionResult"
 
     # Test 1: Syntax validation
     try:
@@ -2527,7 +2531,7 @@ def test_snippet_detection_reference_14():
 
 def test_snippet_detection_reference_15():
     """Test code snippet from detection-reference.md (line 303)."""
-    code = 'def verify_docker_permissions() -> tuple[bool, str]'
+    code = "def verify_docker_permissions() -> tuple[bool, str]"
 
     # Test 1: Syntax validation
     try:
@@ -2561,7 +2565,7 @@ def test_snippet_detection_reference_16():
 
 def test_snippet_detection_reference_17():
     """Test code snippet from detection-reference.md (line 329)."""
-    code = '@dataclass\nclass DockerDetectionResult:\n    available: bool\n    version: str | None\n    socket_path: str | None\n    error_message: str | None'
+    code = "@dataclass\nclass DockerDetectionResult:\n    available: bool\n    version: str | None\n    socket_path: str | None\n    error_message: str | None"
 
     # Test 1: Syntax validation
     try:
@@ -2646,7 +2650,7 @@ def test_snippet_detection_reference_21():
 
 def test_snippet_detection_reference_22():
     """Test code snippet from detection-reference.md (line 426)."""
-    code = '@dataclass\nclass RedisDetectionResult:\n    available: bool\n    host: str\n    port: int\n    version: str | None\n    password_required: bool\n    error_message: str | None'
+    code = "@dataclass\nclass RedisDetectionResult:\n    available: bool\n    host: str\n    port: int\n    version: str | None\n    password_required: bool\n    error_message: str | None"
 
     # Test 1: Syntax validation
     try:
@@ -2731,7 +2735,7 @@ def test_snippet_detection_reference_26():
 
 def test_snippet_detection_reference_27():
     """Test code snippet from detection-reference.md (line 518)."""
-    code = '@dataclass\nclass PostgresDetectionResult:\n    available: bool\n    host: str\n    port: int\n    version: str | None\n    authentication_method: str | None\n    error_message: str | None'
+    code = "@dataclass\nclass PostgresDetectionResult:\n    available: bool\n    host: str\n    port: int\n    version: str | None\n    authentication_method: str | None\n    error_message: str | None"
 
     # Test 1: Syntax validation
     try:
@@ -2782,7 +2786,7 @@ def test_snippet_detection_reference_29():
 
 def test_snippet_detection_reference_30():
     """Test code snippet from detection-reference.md (line 586)."""
-    code = '@dataclass\nclass TemporalDetectionResult:\n    available: bool\n    frontend_port: int\n    ui_port: int\n    version: str | None\n    error_message: str | None'
+    code = "@dataclass\nclass TemporalDetectionResult:\n    available: bool\n    frontend_port: int\n    ui_port: int\n    version: str | None\n    error_message: str | None"
 
     # Test 1: Syntax validation
     try:
@@ -2799,7 +2803,7 @@ def test_snippet_detection_reference_30():
 
 def test_snippet_detection_reference_31():
     """Test code snippet from detection-reference.md (line 612)."""
-    code = 'def detect_gpus() -> GPUDetectionResult'
+    code = "def detect_gpus() -> GPUDetectionResult"
 
     # Test 1: Syntax validation
     try:
@@ -2833,7 +2837,7 @@ def test_snippet_detection_reference_32():
 
 def test_snippet_detection_reference_33():
     """Test code snippet from detection-reference.md (line 652)."""
-    code = '@dataclass\nclass GPUDetectionResult:\n    available: bool\n    gpus: list[GPU]\n    total_memory_mb: int\n    error_message: str | None'
+    code = "@dataclass\nclass GPUDetectionResult:\n    available: bool\n    gpus: list[GPU]\n    total_memory_mb: int\n    error_message: str | None"
 
     # Test 1: Syntax validation
     try:
@@ -2850,7 +2854,7 @@ def test_snippet_detection_reference_33():
 
 def test_snippet_detection_reference_34():
     """Test code snippet from detection-reference.md (line 672)."""
-    code = '@dataclass\nclass GPU:\n    vendor: GPUVendor\n    model: str\n    memory_mb: int | None\n    driver_version: str | None\n    cuda_version: str | None\n    rocm_version: str | None\n    index: int'
+    code = "@dataclass\nclass GPU:\n    vendor: GPUVendor\n    model: str\n    memory_mb: int | None\n    driver_version: str | None\n    cuda_version: str | None\n    rocm_version: str | None\n    index: int"
 
     # Test 1: Syntax validation
     try:
@@ -2935,7 +2939,7 @@ def test_snippet_detection_reference_38():
 
 def test_snippet_detection_reference_39():
     """Test code snippet from detection-reference.md (line 796)."""
-    code = 'import asyncio\nfrom mycelium_onboarding.detection import detect_all_async\n\nasync def check_services():\n    summary = await detect_all_async()\n    return summary.has_docker and summary.has_redis\n\n# In async context\nresult = await check_services()'
+    code = "import asyncio\nfrom mycelium_onboarding.detection import detect_all_async\n\nasync def check_services():\n    summary = await detect_all_async()\n    return summary.has_docker and summary.has_redis\n\n# In async context\nresult = await check_services()"
 
     # Test 1: Syntax validation
     try:
@@ -2952,7 +2956,7 @@ def test_snippet_detection_reference_39():
 
 def test_snippet_detection_reference_40():
     """Test code snippet from detection-reference.md (line 810)."""
-    code = 'from mycelium_onboarding.detection import detect_all, update_config_from_detection\nfrom mycelium_onboarding.config.manager import ConfigManager\n\n# Detect and update config\nsummary = detect_all()\nconfig = update_config_from_detection(summary)\n\n# Save config\nmanager = ConfigManager()\nmanager.save(config)'
+    code = "from mycelium_onboarding.detection import detect_all, update_config_from_detection\nfrom mycelium_onboarding.config.manager import ConfigManager\n\n# Detect and update config\nsummary = detect_all()\nconfig = update_config_from_detection(summary)\n\n# Save config\nmanager = ConfigManager()\nmanager.save(config)"
 
     # Test 1: Syntax validation
     try:
@@ -2986,7 +2990,7 @@ def test_snippet_detection_reference_41():
 
 def test_snippet_detection_reference_42():
     """Test code snippet from detection-reference.md (line 861)."""
-    code = 'import time\nfrom functools import lru_cache\n\n@lru_cache(maxsize=1)\ndef cached_detect_all():\n    return detect_all()\n\n# Clear cache every 60 seconds\nlast_detection = time.time()\nif time.time() - last_detection > 60:\n    cached_detect_all.cache_clear()\n    last_detection = time.time()'
+    code = "import time\nfrom functools import lru_cache\n\n@lru_cache(maxsize=1)\ndef cached_detect_all():\n    return detect_all()\n\n# Clear cache every 60 seconds\nlast_detection = time.time()\nif time.time() - last_detection > 60:\n    cached_detect_all.cache_clear()\n    last_detection = time.time()"
 
     # Test 1: Syntax validation
     try:
@@ -3207,7 +3211,7 @@ def test_snippet_guides_coordination_best_practices_11():
 
 def test_snippet_guides_coordination_best_practices_12():
     """Test code snippet from guides/coordination-best-practices.md (line 470)."""
-    code = '# ✅ GOOD: Rich error context\ntry:\n    workflow = coordinate_workflow(steps=[...])\nexcept WorkflowExecutionError as e:\n    # Get detailed failure information\n    events = get_coordination_events(\n        workflow_id=e.workflow_id,\n        event_type="failure"\n    )\n\n    for event in events["events"]:\n        print(f"Failed Step: {event[\'metadata\'][\'step\']}")\n        print(f"Agent: {event[\'metadata\'][\'agent\']}")\n        print(f"Error: {event[\'metadata\'][\'error\']}")\n        print(f"Context: {event[\'metadata\'][\'context\']}")\n        print(f"Timestamp: {event[\'timestamp\']}")\n\n        # Log to monitoring system\n        logger.error(\n            "Workflow step failed",\n            extra={\n                "workflow_id": e.workflow_id,\n                "step": event[\'metadata\'][\'step\'],\n                "agent": event[\'metadata\'][\'agent\'],\n                "error": event[\'metadata\'][\'error\']\n            }\n        )\n\n# ❌ BAD: Minimal error handling\ntry:\n    workflow = coordinate_workflow(steps=[...])\nexcept Exception as e:\n    print(f"Failed: {e}")  # No context, hard to debug'
+    code = "# ✅ GOOD: Rich error context\ntry:\n    workflow = coordinate_workflow(steps=[...])\nexcept WorkflowExecutionError as e:\n    # Get detailed failure information\n    events = get_coordination_events(\n        workflow_id=e.workflow_id,\n        event_type=\"failure\"\n    )\n\n    for event in events[\"events\"]:\n        print(f\"Failed Step: {event['metadata']['step']}\")\n        print(f\"Agent: {event['metadata']['agent']}\")\n        print(f\"Error: {event['metadata']['error']}\")\n        print(f\"Context: {event['metadata']['context']}\")\n        print(f\"Timestamp: {event['timestamp']}\")\n\n        # Log to monitoring system\n        logger.error(\n            \"Workflow step failed\",\n            extra={\n                \"workflow_id\": e.workflow_id,\n                \"step\": event['metadata']['step'],\n                \"agent\": event['metadata']['agent'],\n                \"error\": event['metadata']['error']\n            }\n        )\n\n# ❌ BAD: Minimal error handling\ntry:\n    workflow = coordinate_workflow(steps=[...])\nexcept Exception as e:\n    print(f\"Failed: {e}\")  # No context, hard to debug"
 
     # Test 1: Syntax validation
     try:
@@ -3462,7 +3466,7 @@ def test_snippet_guides_discovery_coordination_quickstart_1():
 
 def test_snippet_guides_discovery_coordination_quickstart_2():
     """Test code snippet from guides/discovery-coordination-quickstart.md (line 87)."""
-    code = 'from mcp.tools.discovery_tools import get_agent_details\n\n# Get full details on top match\nagent_id = result["agents"][0]["id"]\ndetails = get_agent_details(agent_id)\n\nprint(f"Agent: {details[\'agent\'][\'name\']}")\nprint(f"Capabilities: {\', \'.join(details[\'agent\'][\'capabilities\'])}")\nprint(f"Tools: {\', \'.join(details[\'agent\'][\'tools\'])}")\nprint(f"Success Rate: {details[\'agent\'][\'success_rate\']*100}%")\n\n# Example output:\n# Agent: Performance Engineer\n# Capabilities: Performance profiling, Load testing, Query optimization\n# Tools: pytest-benchmark, locust, py-spy\n# Success Rate: 95%'
+    code = "from mcp.tools.discovery_tools import get_agent_details\n\n# Get full details on top match\nagent_id = result[\"agents\"][0][\"id\"]\ndetails = get_agent_details(agent_id)\n\nprint(f\"Agent: {details['agent']['name']}\")\nprint(f\"Capabilities: {', '.join(details['agent']['capabilities'])}\")\nprint(f\"Tools: {', '.join(details['agent']['tools'])}\")\nprint(f\"Success Rate: {details['agent']['success_rate']*100}%\")\n\n# Example output:\n# Agent: Performance Engineer\n# Capabilities: Performance profiling, Load testing, Query optimization\n# Tools: pytest-benchmark, locust, py-spy\n# Success Rate: 95%"
 
     # Test 1: Syntax validation
     try:
@@ -3632,7 +3636,7 @@ def test_snippet_guides_discovery_coordination_quickstart_11():
 
 def test_snippet_guides_discovery_coordination_quickstart_12():
     """Test code snippet from guides/discovery-coordination-quickstart.md (line 455)."""
-    code = '# Find agents\ndiscover_agents(query, limit=5, threshold=0.6)\n\n# Get details\nget_agent_details(agent_id)'
+    code = "# Find agents\ndiscover_agents(query, limit=5, threshold=0.6)\n\n# Get details\nget_agent_details(agent_id)"
 
     # Test 1: Syntax validation
     try:
@@ -3666,7 +3670,7 @@ def test_snippet_guides_discovery_coordination_quickstart_13():
 
 def test_snippet_guides_discovery_coordination_quickstart_14():
     """Test code snippet from guides/discovery-coordination-quickstart.md (line 481)."""
-    code = 'from mcp.tools.discovery_tools import (\n    discover_agents,\n    get_agent_details\n)\n\nfrom mcp.tools.coordination_tools import (\n    coordinate_workflow,\n    handoff_to_agent,\n    get_workflow_status,\n    get_coordination_events\n)'
+    code = "from mcp.tools.discovery_tools import (\n    discover_agents,\n    get_agent_details\n)\n\nfrom mcp.tools.coordination_tools import (\n    coordinate_workflow,\n    handoff_to_agent,\n    get_workflow_status,\n    get_coordination_events\n)"
 
     # Test 1: Syntax validation
     try:
@@ -3683,7 +3687,7 @@ def test_snippet_guides_discovery_coordination_quickstart_14():
 
 def test_snippet_migration_guide_1():
     """Test code snippet from migration-guide.md (line 57)."""
-    code = 'from mycelium_onboarding.config.manager import ConfigManager\n\nmanager = ConfigManager()\nconfig = manager.load_and_migrate()  # Auto-migrates to latest'
+    code = "from mycelium_onboarding.config.manager import ConfigManager\n\nmanager = ConfigManager()\nconfig = manager.load_and_migrate()  # Auto-migrates to latest"
 
     # Test 1: Syntax validation
     try:
@@ -4210,7 +4214,7 @@ def test_snippet_projects_backlog_OPTION_A_AGENT_USAGE_ANALYTICS_5():
 
 def test_snippet_projects_backlog_OPTION_B_AGENT_PROMPT_OPTIMIZATION_1():
     """Test code snippet from projects/backlog/OPTION_B_AGENT_PROMPT_OPTIMIZATION.md (line 387)."""
-    code = '"""Prompt quality analysis using rubric and NLP.\n\nAnalyzes agent prompts against quality rubric to identify improvement\nopportunities. Combines static analysis (readability, structure) with\ndynamic metrics (usage analytics).\n\nAuthor: @claude-code-developer\nDate: 2025-10-18\n"""\n\nimport re\nimport yaml\nfrom pathlib import Path\nfrom typing import Any\nimport textstat  # For readability metrics\nfrom mycelium_analytics import EventStorage\nfrom mycelium_analytics.metrics import UsageAnalyzer\n\n\nclass PromptAnalyzer:\n    """Analyzes agent prompt quality against rubric.\n\n    Computes scores for clarity, specificity, consistency, effectiveness,\n    and constraints based on automated analysis and analytics data.\n\n    Attributes:\n        rubric: Quality rubric configuration (from YAML)\n        usage_analyzer: UsageAnalyzer for effectiveness metrics\n\n    Example:\n        >>> analyzer = PromptAnalyzer()\n        >>> result = analyzer.analyze_prompt("path/to/agent.md")\n        >>> result[\'total_score\']\n        82.5\n        >>> result[\'grade\']\n        \'B\'\n    """\n\n    def __init__(\n        self,\n        rubric_path: Path | None = None,\n        usage_analyzer: UsageAnalyzer | None = None\n    ):\n        """Initialize analyzer with rubric and analytics.\n\n        Args:\n            rubric_path: Path to rubric YAML (default: config/prompt_quality_rubric.yaml)\n            usage_analyzer: Optional UsageAnalyzer for effectiveness metrics\n        """\n        if rubric_path is None:\n            rubric_path = Path("config/prompt_quality_rubric.yaml")\n\n        with open(rubric_path) as f:\n            self.rubric = yaml.safe_load(f)\n\n        self.usage_analyzer = usage_analyzer\n\n    def analyze_prompt(\n        self,\n        prompt_path: Path,\n        agent_id: str | None = None\n    ) -> dict[str, Any]:\n        """Analyze prompt against quality rubric.\n\n        Args:\n            prompt_path: Path to agent markdown file\n            agent_id: Optional agent ID for analytics lookup\n\n        Returns:\n            Analysis result dictionary:\n            {\n                "total_score": 82.5,\n                "grade": "B",\n                "criteria_scores": {\n                    "clarity": {"score": 85.0, "metrics": {...}},\n                    "specificity": {...},\n                    ...\n                },\n                "suggestions": ["Improve readability...", ...]\n            }\n\n        Example:\n            >>> analyzer = PromptAnalyzer()\n            >>> result = analyzer.analyze_prompt(Path("agents/01-core-api-designer.md"))\n            >>> result[\'grade\'] in [\'A\', \'B\', \'C\', \'D\', \'F\']\n            True\n        """\n        # Read prompt content\n        content = prompt_path.read_text(encoding=\'utf-8\')\n\n        # Analyze each criterion\n        criteria_scores = {}\n\n        criteria_scores[\'clarity\'] = self._analyze_clarity(content)\n        criteria_scores[\'specificity\'] = self._analyze_specificity(content)\n        criteria_scores[\'consistency\'] = self._analyze_consistency(content)\n        criteria_scores[\'effectiveness\'] = self._analyze_effectiveness(\n            agent_id=agent_id\n        )\n        criteria_scores[\'constraints\'] = self._analyze_constraints(content)\n\n        # Compute total score\n        total_score = 0.0\n        for criterion_name, criterion_data in criteria_scores.items():\n            criterion_weight = self.rubric[\'criteria\'][criterion_name][\'weight\']\n            criterion_score = criterion_data[\'score\']\n            total_score += criterion_weight * criterion_score\n\n        # Determine grade\n        grade = self._get_grade(total_score)\n\n        # Generate suggestions\n        suggestions = self._generate_suggestions(criteria_scores)\n\n        return {\n            "total_score": round(total_score, 2),\n            "grade": grade,\n            "criteria_scores": criteria_scores,\n            "suggestions": suggestions,\n            "token_count": len(content.split()),  # Rough estimate\n            "char_count": len(content),\n        }\n\n    def _analyze_clarity(self, content: str) -> dict[str, Any]:\n        """Analyze clarity metrics (readability, sentence complexity, jargon)."""\n        metrics = {}\n\n        # Readability score (Flesch Reading Ease)\n        readability = textstat.flesch_reading_ease(content)\n        metrics[\'readability_score\'] = {\n            "value": readability,\n            "score": self._score_metric(readability, \'clarity\', \'readability_score\'),\n        }\n\n        # Sentence complexity (average sentence length)\n        sentences = re.split(r\'[.!?]+\', content)\n        words = content.split()\n        avg_sentence_length = len(words) / max(len(sentences), 1)\n        metrics[\'sentence_complexity\'] = {\n            "value": avg_sentence_length,\n            "score": self._score_metric(avg_sentence_length, \'clarity\', \'sentence_complexity\'),\n        }\n\n        # Jargon ratio (technical terms / total words)\n        # Load technical terms list\n        tech_terms_path = Path(self.rubric[\'criteria\'][\'clarity\'][\'metrics\'][\'jargon_ratio\'].get(\'technical_terms_list\', \'config/technical_terms.txt\'))\n        tech_terms = set()\n        if tech_terms_path.exists():\n            tech_terms = set(tech_terms_path.read_text().strip().split(\'\\n\'))\n\n        content_lower = content.lower()\n        jargon_count = sum(1 for term in tech_terms if term.lower() in content_lower)\n        jargon_ratio = jargon_count / max(len(words), 1)\n        metrics[\'jargon_ratio\'] = {\n            "value": jargon_ratio,\n            "score": self._score_metric(jargon_ratio, \'clarity\', \'jargon_ratio\'),\n        }\n\n        # Weighted average of clarity metrics\n        total_score = sum(\n            m[\'score\'] * self.rubric[\'criteria\'][\'clarity\'][\'metrics\'][metric_name][\'weight\']\n            for metric_name, m in metrics.items()\n        )\n\n        return {\n            "score": round(total_score, 2),\n            "metrics": metrics,\n        }\n\n    def _analyze_specificity(self, content: str) -> dict[str, Any]:\n        """Analyze specificity metrics (examples, code snippets, concrete language)."""\n        metrics = {}\n\n        # Example count\n        example_patterns = self.rubric[\'criteria\'][\'specificity\'][\'metrics\'][\'example_count\'][\'patterns\']\n        example_count = sum(\n            len(re.findall(pattern, content, re.IGNORECASE))\n            for pattern in example_patterns\n        )\n        metrics[\'example_count\'] = {\n            "value": example_count,\n            "score": self._score_metric(example_count, \'specificity\', \'example_count\'),\n        }\n\n        # Code snippet count\n        code_snippet_count = content.count(\''
+    code = "\"\"\"Prompt quality analysis using rubric and NLP.\n\nAnalyzes agent prompts against quality rubric to identify improvement\nopportunities. Combines static analysis (readability, structure) with\ndynamic metrics (usage analytics).\n\nAuthor: @claude-code-developer\nDate: 2025-10-18\n\"\"\"\n\nimport re\nimport yaml\nfrom pathlib import Path\nfrom typing import Any\nimport textstat  # For readability metrics\nfrom mycelium_analytics import EventStorage\nfrom mycelium_analytics.metrics import UsageAnalyzer\n\n\nclass PromptAnalyzer:\n    \"\"\"Analyzes agent prompt quality against rubric.\n\n    Computes scores for clarity, specificity, consistency, effectiveness,\n    and constraints based on automated analysis and analytics data.\n\n    Attributes:\n        rubric: Quality rubric configuration (from YAML)\n        usage_analyzer: UsageAnalyzer for effectiveness metrics\n\n    Example:\n        >>> analyzer = PromptAnalyzer()\n        >>> result = analyzer.analyze_prompt(\"path/to/agent.md\")\n        >>> result['total_score']\n        82.5\n        >>> result['grade']\n        'B'\n    \"\"\"\n\n    def __init__(\n        self,\n        rubric_path: Path | None = None,\n        usage_analyzer: UsageAnalyzer | None = None\n    ):\n        \"\"\"Initialize analyzer with rubric and analytics.\n\n        Args:\n            rubric_path: Path to rubric YAML (default: config/prompt_quality_rubric.yaml)\n            usage_analyzer: Optional UsageAnalyzer for effectiveness metrics\n        \"\"\"\n        if rubric_path is None:\n            rubric_path = Path(\"config/prompt_quality_rubric.yaml\")\n\n        with open(rubric_path) as f:\n            self.rubric = yaml.safe_load(f)\n\n        self.usage_analyzer = usage_analyzer\n\n    def analyze_prompt(\n        self,\n        prompt_path: Path,\n        agent_id: str | None = None\n    ) -> dict[str, Any]:\n        \"\"\"Analyze prompt against quality rubric.\n\n        Args:\n            prompt_path: Path to agent markdown file\n            agent_id: Optional agent ID for analytics lookup\n\n        Returns:\n            Analysis result dictionary:\n            {\n                \"total_score\": 82.5,\n                \"grade\": \"B\",\n                \"criteria_scores\": {\n                    \"clarity\": {\"score\": 85.0, \"metrics\": {...}},\n                    \"specificity\": {...},\n                    ...\n                },\n                \"suggestions\": [\"Improve readability...\", ...]\n            }\n\n        Example:\n            >>> analyzer = PromptAnalyzer()\n            >>> result = analyzer.analyze_prompt(Path(\"agents/01-core-api-designer.md\"))\n            >>> result['grade'] in ['A', 'B', 'C', 'D', 'F']\n            True\n        \"\"\"\n        # Read prompt content\n        content = prompt_path.read_text(encoding='utf-8')\n\n        # Analyze each criterion\n        criteria_scores = {}\n\n        criteria_scores['clarity'] = self._analyze_clarity(content)\n        criteria_scores['specificity'] = self._analyze_specificity(content)\n        criteria_scores['consistency'] = self._analyze_consistency(content)\n        criteria_scores['effectiveness'] = self._analyze_effectiveness(\n            agent_id=agent_id\n        )\n        criteria_scores['constraints'] = self._analyze_constraints(content)\n\n        # Compute total score\n        total_score = 0.0\n        for criterion_name, criterion_data in criteria_scores.items():\n            criterion_weight = self.rubric['criteria'][criterion_name]['weight']\n            criterion_score = criterion_data['score']\n            total_score += criterion_weight * criterion_score\n\n        # Determine grade\n        grade = self._get_grade(total_score)\n\n        # Generate suggestions\n        suggestions = self._generate_suggestions(criteria_scores)\n\n        return {\n            \"total_score\": round(total_score, 2),\n            \"grade\": grade,\n            \"criteria_scores\": criteria_scores,\n            \"suggestions\": suggestions,\n            \"token_count\": len(content.split()),  # Rough estimate\n            \"char_count\": len(content),\n        }\n\n    def _analyze_clarity(self, content: str) -> dict[str, Any]:\n        \"\"\"Analyze clarity metrics (readability, sentence complexity, jargon).\"\"\"\n        metrics = {}\n\n        # Readability score (Flesch Reading Ease)\n        readability = textstat.flesch_reading_ease(content)\n        metrics['readability_score'] = {\n            \"value\": readability,\n            \"score\": self._score_metric(readability, 'clarity', 'readability_score'),\n        }\n\n        # Sentence complexity (average sentence length)\n        sentences = re.split(r'[.!?]+', content)\n        words = content.split()\n        avg_sentence_length = len(words) / max(len(sentences), 1)\n        metrics['sentence_complexity'] = {\n            \"value\": avg_sentence_length,\n            \"score\": self._score_metric(avg_sentence_length, 'clarity', 'sentence_complexity'),\n        }\n\n        # Jargon ratio (technical terms / total words)\n        # Load technical terms list\n        tech_terms_path = Path(self.rubric['criteria']['clarity']['metrics']['jargon_ratio'].get('technical_terms_list', 'config/technical_terms.txt'))\n        tech_terms = set()\n        if tech_terms_path.exists():\n            tech_terms = set(tech_terms_path.read_text().strip().split('\\n'))\n\n        content_lower = content.lower()\n        jargon_count = sum(1 for term in tech_terms if term.lower() in content_lower)\n        jargon_ratio = jargon_count / max(len(words), 1)\n        metrics['jargon_ratio'] = {\n            \"value\": jargon_ratio,\n            \"score\": self._score_metric(jargon_ratio, 'clarity', 'jargon_ratio'),\n        }\n\n        # Weighted average of clarity metrics\n        total_score = sum(\n            m['score'] * self.rubric['criteria']['clarity']['metrics'][metric_name]['weight']\n            for metric_name, m in metrics.items()\n        )\n\n        return {\n            \"score\": round(total_score, 2),\n            \"metrics\": metrics,\n        }\n\n    def _analyze_specificity(self, content: str) -> dict[str, Any]:\n        \"\"\"Analyze specificity metrics (examples, code snippets, concrete language).\"\"\"\n        metrics = {}\n\n        # Example count\n        example_patterns = self.rubric['criteria']['specificity']['metrics']['example_count']['patterns']\n        example_count = sum(\n            len(re.findall(pattern, content, re.IGNORECASE))\n            for pattern in example_patterns\n        )\n        metrics['example_count'] = {\n            \"value\": example_count,\n            \"score\": self._score_metric(example_count, 'specificity', 'example_count'),\n        }\n\n        # Code snippet count\n        code_snippet_count = content.count('"
 
     # Test 1: Syntax validation
     try:
@@ -4363,7 +4367,7 @@ def test_snippet_projects_backlog_OPTION_D_MULTI_AGENT_ORCHESTRATION_UI_1():
 
 def test_snippet_projects_backlog_OPTION_D_MULTI_AGENT_ORCHESTRATION_UI_2():
     """Test code snippet from projects/backlog/OPTION_D_MULTI_AGENT_ORCHESTRATION_UI.md (line 986)."""
-    code = '# backend/tasks.py\nfrom celery import Celery\nimport subprocess\nimport json\nfrom datetime import datetime\nimport redis\n\ncelery_app = Celery(\n    \'mycelium_orchestrator\',\n    broker=\'redis://localhost:6379/0\',\n    backend=\'redis://localhost:6379/1\'\n)\n\nredis_client = redis.Redis(host=\'localhost\', port=6379, decode_responses=True)\n\n\n@celery_app.task\ndef execute_workflow(execution_id: str):\n    """Execute workflow asynchronously.\n\n    Loads workflow DAG, performs topological sort, and executes nodes\n    in dependency order. Publishes real-time updates via Redis Pub/Sub.\n\n    Args:\n        execution_id: UUID of execution record\n    """\n    # Load execution from database\n    # TODO: Query PostgreSQL for execution + workflow\n\n    # Publish execution started event\n    publish_event({\n        \'event\': \'execution_started\',\n        \'execution_id\': execution_id,\n        \'timestamp\': datetime.utcnow().isoformat(),\n    })\n\n    try:\n        # Topological sort of DAG\n        # TODO: Implement topological sort\n        execution_order = topological_sort(workflow[\'nodes\'], workflow[\'edges\'])\n\n        # Execute nodes in order\n        for node_id in execution_order:\n            execute_node(execution_id, node_id, workflow[\'nodes\'])\n\n        # Mark execution as completed\n        # TODO: Update PostgreSQL execution record\n        publish_event({\n            \'event\': \'execution_completed\',\n            \'execution_id\': execution_id,\n            \'timestamp\': datetime.utcnow().isoformat(),\n        })\n\n    except Exception as e:\n        # Mark execution as failed\n        # TODO: Update PostgreSQL with error\n        publish_event({\n            \'event\': \'execution_failed\',\n            \'execution_id\': execution_id,\n            \'error\': str(e),\n            \'timestamp\': datetime.utcnow().isoformat(),\n        })\n        raise\n\n\ndef execute_node(execution_id: str, node_id: str, nodes: list):\n    """Execute single agent node.\n\n    Args:\n        execution_id: Execution UUID\n        node_id: Node ID to execute\n        nodes: List of all nodes (for config lookup)\n    """\n    node = next(n for n in nodes if n[\'id\'] == node_id)\n    agent_type = node[\'agent_type\']\n\n    # Publish node started event\n    publish_event({\n        \'event\': \'node_status_update\',\n        \'execution_id\': execution_id,\n        \'node_id\': node_id,\n        \'status\': \'running\',\n        \'timestamp\': datetime.utcnow().isoformat(),\n    })\n\n    try:\n        # Invoke Claude Code with agent\n        # TODO: Construct prompt from node config\n        result = subprocess.run(\n            [\'claude\', \'--agents\', agent_type, \'-p\', \'Execute node task\'],\n            capture_output=True,\n            text=True,\n            timeout=300  # 5 minute timeout\n        )\n\n        if result.returncode == 0:\n            # Node succeeded\n            publish_event({\n                \'event\': \'node_status_update\',\n                \'execution_id\': execution_id,\n                \'node_id\': node_id,\n                \'status\': \'completed\',\n                \'output\': result.stdout,\n                \'timestamp\': datetime.utcnow().isoformat(),\n            })\n        else:\n            # Node failed\n            publish_event({\n                \'event\': \'node_status_update\',\n                \'execution_id\': execution_id,\n                \'node_id\': node_id,\n                \'status\': \'failed\',\n                \'error\': result.stderr,\n                \'timestamp\': datetime.utcnow().isoformat(),\n            })\n            raise RuntimeError(f"Node {node_id} failed: {result.stderr}")\n\n    except subprocess.TimeoutExpired:\n        publish_event({\n            \'event\': \'node_status_update\',\n            \'execution_id\': execution_id,\n            \'node_id\': node_id,\n            \'status\': \'failed\',\n            \'error\': \'Execution timeout (5 minutes)\',\n            \'timestamp\': datetime.utcnow().isoformat(),\n        })\n        raise\n    except Exception as e:\n        publish_event({\n            \'event\': \'node_status_update\',\n            \'execution_id\': execution_id,\n            \'node_id\': node_id,\n            \'status\': \'failed\',\n            \'error\': str(e),\n            \'timestamp\': datetime.utcnow().isoformat(),\n        })\n        raise\n\n\ndef publish_event(event: dict):\n    """Publish event to Redis Pub/Sub.\n\n    Args:\n        event: Event dictionary to publish\n    """\n    channel = f"mycelium:events:{event[\'execution_id\']}"\n    redis_client.publish(channel, json.dumps(event))\n\n\ndef topological_sort(nodes: list, edges: list) -> list:\n    """Perform topological sort on DAG.\n\n    Args:\n        nodes: List of node dictionaries\n        edges: List of edge dictionaries\n\n    Returns:\n        Ordered list of node IDs (execution order)\n\n    Raises:\n        ValueError: If DAG contains cycles\n    """\n    # TODO: Implement topological sort (Kahn\'s algorithm)\n    # For now, return nodes in order\n    return [n[\'id\'] for n in nodes]'
+    code = "# backend/tasks.py\nfrom celery import Celery\nimport subprocess\nimport json\nfrom datetime import datetime\nimport redis\n\ncelery_app = Celery(\n    'mycelium_orchestrator',\n    broker='redis://localhost:6379/0',\n    backend='redis://localhost:6379/1'\n)\n\nredis_client = redis.Redis(host='localhost', port=6379, decode_responses=True)\n\n\n@celery_app.task\ndef execute_workflow(execution_id: str):\n    \"\"\"Execute workflow asynchronously.\n\n    Loads workflow DAG, performs topological sort, and executes nodes\n    in dependency order. Publishes real-time updates via Redis Pub/Sub.\n\n    Args:\n        execution_id: UUID of execution record\n    \"\"\"\n    # Load execution from database\n    # TODO: Query PostgreSQL for execution + workflow\n\n    # Publish execution started event\n    publish_event({\n        'event': 'execution_started',\n        'execution_id': execution_id,\n        'timestamp': datetime.utcnow().isoformat(),\n    })\n\n    try:\n        # Topological sort of DAG\n        # TODO: Implement topological sort\n        execution_order = topological_sort(workflow['nodes'], workflow['edges'])\n\n        # Execute nodes in order\n        for node_id in execution_order:\n            execute_node(execution_id, node_id, workflow['nodes'])\n\n        # Mark execution as completed\n        # TODO: Update PostgreSQL execution record\n        publish_event({\n            'event': 'execution_completed',\n            'execution_id': execution_id,\n            'timestamp': datetime.utcnow().isoformat(),\n        })\n\n    except Exception as e:\n        # Mark execution as failed\n        # TODO: Update PostgreSQL with error\n        publish_event({\n            'event': 'execution_failed',\n            'execution_id': execution_id,\n            'error': str(e),\n            'timestamp': datetime.utcnow().isoformat(),\n        })\n        raise\n\n\ndef execute_node(execution_id: str, node_id: str, nodes: list):\n    \"\"\"Execute single agent node.\n\n    Args:\n        execution_id: Execution UUID\n        node_id: Node ID to execute\n        nodes: List of all nodes (for config lookup)\n    \"\"\"\n    node = next(n for n in nodes if n['id'] == node_id)\n    agent_type = node['agent_type']\n\n    # Publish node started event\n    publish_event({\n        'event': 'node_status_update',\n        'execution_id': execution_id,\n        'node_id': node_id,\n        'status': 'running',\n        'timestamp': datetime.utcnow().isoformat(),\n    })\n\n    try:\n        # Invoke Claude Code with agent\n        # TODO: Construct prompt from node config\n        result = subprocess.run(\n            ['claude', '--agents', agent_type, '-p', 'Execute node task'],\n            capture_output=True,\n            text=True,\n            timeout=300  # 5 minute timeout\n        )\n\n        if result.returncode == 0:\n            # Node succeeded\n            publish_event({\n                'event': 'node_status_update',\n                'execution_id': execution_id,\n                'node_id': node_id,\n                'status': 'completed',\n                'output': result.stdout,\n                'timestamp': datetime.utcnow().isoformat(),\n            })\n        else:\n            # Node failed\n            publish_event({\n                'event': 'node_status_update',\n                'execution_id': execution_id,\n                'node_id': node_id,\n                'status': 'failed',\n                'error': result.stderr,\n                'timestamp': datetime.utcnow().isoformat(),\n            })\n            raise RuntimeError(f\"Node {node_id} failed: {result.stderr}\")\n\n    except subprocess.TimeoutExpired:\n        publish_event({\n            'event': 'node_status_update',\n            'execution_id': execution_id,\n            'node_id': node_id,\n            'status': 'failed',\n            'error': 'Execution timeout (5 minutes)',\n            'timestamp': datetime.utcnow().isoformat(),\n        })\n        raise\n    except Exception as e:\n        publish_event({\n            'event': 'node_status_update',\n            'execution_id': execution_id,\n            'node_id': node_id,\n            'status': 'failed',\n            'error': str(e),\n            'timestamp': datetime.utcnow().isoformat(),\n        })\n        raise\n\n\ndef publish_event(event: dict):\n    \"\"\"Publish event to Redis Pub/Sub.\n\n    Args:\n        event: Event dictionary to publish\n    \"\"\"\n    channel = f\"mycelium:events:{event['execution_id']}\"\n    redis_client.publish(channel, json.dumps(event))\n\n\ndef topological_sort(nodes: list, edges: list) -> list:\n    \"\"\"Perform topological sort on DAG.\n\n    Args:\n        nodes: List of node dictionaries\n        edges: List of edge dictionaries\n\n    Returns:\n        Ordered list of node IDs (execution order)\n\n    Raises:\n        ValueError: If DAG contains cycles\n    \"\"\"\n    # TODO: Implement topological sort (Kahn's algorithm)\n    # For now, return nodes in order\n    return [n['id'] for n in nodes]"
 
     # Test 1: Syntax validation
     try:
@@ -4516,7 +4520,7 @@ def test_snippet_projects_claude_code_skills_FEEDBACK_INCORPORATION_PLAN_7():
 
 def test_snippet_projects_claude_code_skills_success_metrics_1():
     """Test code snippet from projects/claude-code-skills/success-metrics.md (line 401)."""
-    code = '# Session token consumption\nbaseline_tokens = 21150  # Phase 1 with lazy loading\ncurrent_tokens = measure_session_tokens()\n\nreduction_percentage = ((baseline_tokens - current_tokens) / baseline_tokens) * 100\n\n# Success: reduction_percentage >= 40 for M03'
+    code = "# Session token consumption\nbaseline_tokens = 21150  # Phase 1 with lazy loading\ncurrent_tokens = measure_session_tokens()\n\nreduction_percentage = ((baseline_tokens - current_tokens) / baseline_tokens) * 100\n\n# Success: reduction_percentage >= 40 for M03"
 
     # Test 1: Syntax validation
     try:
@@ -4550,7 +4554,7 @@ def test_snippet_projects_claude_code_skills_success_metrics_2():
 
 def test_snippet_projects_claude_code_skills_success_metrics_3():
     """Test code snippet from projects/claude-code-skills/success-metrics.md (line 429)."""
-    code = '# Survey responses (1-5 scale)\nresponses = [5, 4, 5, 4, 3, 5, 4, 5, 4, 4]  # 10 respondents\n\naverage_score = sum(responses) / len(responses)\npercentage_satisfied = (average_score / 5) * 100\n\n# Success: percentage_satisfied >= 85'
+    code = "# Survey responses (1-5 scale)\nresponses = [5, 4, 5, 4, 3, 5, 4, 5, 4, 4]  # 10 respondents\n\naverage_score = sum(responses) / len(responses)\npercentage_satisfied = (average_score / 5) * 100\n\n# Success: percentage_satisfied >= 85"
 
     # Test 1: Syntax validation
     try:
@@ -4567,7 +4571,7 @@ def test_snippet_projects_claude_code_skills_success_metrics_3():
 
 def test_snippet_projects_onboarding_ORIGINAL_PLAN_1():
     """Test code snippet from projects/onboarding/ORIGINAL_PLAN.md (line 77)."""
-    code = '# ~/.claude/plugins/mycelium-core/lib/onboarding/tui.py\nfrom textual.app import App\nfrom textual.widgets import Checkbox, Button, SelectionList\n\nclass MyceliumOnboarding(App):\n    def compose(self):\n        yield Header()\n        yield ServiceSelector(detected_services)\n        yield DeploymentMethodSelector()\n        yield EnvironmentIsolationSelector()\n        yield ProgressView()\n        yield Footer()'
+    code = "# ~/.claude/plugins/mycelium-core/lib/onboarding/tui.py\nfrom textual.app import App\nfrom textual.widgets import Checkbox, Button, SelectionList\n\nclass MyceliumOnboarding(App):\n    def compose(self):\n        yield Header()\n        yield ServiceSelector(detected_services)\n        yield DeploymentMethodSelector()\n        yield EnvironmentIsolationSelector()\n        yield ProgressView()\n        yield Footer()"
 
     # Test 1: Syntax validation
     try:
@@ -4618,7 +4622,7 @@ def test_snippet_projects_onboarding_ORIGINAL_PLAN_3():
 
 def test_snippet_projects_onboarding_ORIGINAL_PLAN_4():
     """Test code snippet from projects/onboarding/ORIGINAL_PLAN.md (line 532)."""
-    code = '# In command execution context\ndef validate_python_command(cmd: str) -> bool:\n    """Ensure python commands use uv"""\n    blocked_patterns = [\n        r\'\\bpython\\s\',\n        r\'\\bpython3\\s\',\n        r\'\\bpip\\s\',\n        r\'\\bpip3\\s\',\n    ]\n\n    for pattern in blocked_patterns:\n        if re.search(pattern, cmd):\n            raise ValueError(\n                f"Direct python execution blocked. Use: uv run python ..."\n            )\n\n    return True'
+    code = "# In command execution context\ndef validate_python_command(cmd: str) -> bool:\n    \"\"\"Ensure python commands use uv\"\"\"\n    blocked_patterns = [\n        r'\\bpython\\s',\n        r'\\bpython3\\s',\n        r'\\bpip\\s',\n        r'\\bpip3\\s',\n    ]\n\n    for pattern in blocked_patterns:\n        if re.search(pattern, cmd):\n            raise ValueError(\n                f\"Direct python execution blocked. Use: uv run python ...\"\n            )\n\n    return True"
 
     # Test 1: Syntax validation
     try:
@@ -4873,7 +4877,7 @@ def test_snippet_projects_onboarding_milestones_M02_CONFIGURATION_SYSTEM_2():
 
 def test_snippet_projects_onboarding_milestones_M02_CONFIGURATION_SYSTEM_3():
     """Test code snippet from projects/onboarding/milestones/M02_CONFIGURATION_SYSTEM.md (line 372)."""
-    code = '# Load configuration (auto-detects location)\nconfig = ConfigManager.load()\n\n# Modify configuration\nconfig.deployment.method = DeploymentMethod.JUSTFILE\nconfig.services.redis.port = 6380\n\n# Save to user-global config\nConfigManager.save(config, project_local=False)\n\n# Save to project-local config\nConfigManager.save(config, project_local=True)'
+    code = "# Load configuration (auto-detects location)\nconfig = ConfigManager.load()\n\n# Modify configuration\nconfig.deployment.method = DeploymentMethod.JUSTFILE\nconfig.services.redis.port = 6380\n\n# Save to user-global config\nConfigManager.save(config, project_local=False)\n\n# Save to project-local config\nConfigManager.save(config, project_local=True)"
 
     # Test 1: Syntax validation
     try:
@@ -5162,7 +5166,7 @@ def test_snippet_projects_onboarding_milestones_M04_INTERACTIVE_ONBOARDING_5():
 
 def test_snippet_projects_onboarding_milestones_M04_INTERACTIVE_ONBOARDING_6():
     """Test code snippet from projects/onboarding/milestones/M04_INTERACTIVE_ONBOARDING.md (line 636)."""
-    code = '# mycelium_onboarding/cli.py\n"""CLI entry point for onboarding command."""\n\nimport asyncio\nimport click\nfrom rich.console import Console\n\nfrom mycelium_onboarding.wizard.integration import run_wizard_with_detection\nfrom mycelium_onboarding.wizard.persistence import save_configuration, resume_from_previous\n\nconsole = Console()\n\n@click.command()\n@click.option(\n    \'--project-local\',\n    is_flag=True,\n    help=\'Save configuration to project directory\'\n)\n@click.option(\n    \'--force\',\n    is_flag=True,\n    help=\'Skip resume prompt and start fresh\'\n)\n@click.option(\n    \'--no-cache\',\n    is_flag=True,\n    help=\'Re-run service detection\'\n)\n@click.option(\n    \'--non-interactive\',\n    is_flag=True,\n    help=\'Run in non-interactive mode using defaults\'\n)\ndef onboard(project_local: bool, force: bool, no_cache: bool, non_interactive: bool):\n    """Launch Mycelium onboarding wizard."""\n\n    # Check for resume unless --force\n    if not force and not non_interactive:\n        previous_config = resume_from_previous()\n        if previous_config is not None:\n            # User chose to cancel\n            return\n\n    # Run wizard\n    config = asyncio.run(run_wizard_with_detection(use_cache=not no_cache))\n\n    if config is None:\n        # User cancelled during wizard\n        console.print("[yellow]Onboarding cancelled.[/yellow]")\n        return\n\n    # Save configuration\n    success, config_path = save_configuration(config, project_local=project_local)\n\n    if not success:\n        raise click.ClickException("Failed to save configuration")\n\nif __name__ == \'__main__\':\n    onboard()'
+    code = "# mycelium_onboarding/cli.py\n\"\"\"CLI entry point for onboarding command.\"\"\"\n\nimport asyncio\nimport click\nfrom rich.console import Console\n\nfrom mycelium_onboarding.wizard.integration import run_wizard_with_detection\nfrom mycelium_onboarding.wizard.persistence import save_configuration, resume_from_previous\n\nconsole = Console()\n\n@click.command()\n@click.option(\n    '--project-local',\n    is_flag=True,\n    help='Save configuration to project directory'\n)\n@click.option(\n    '--force',\n    is_flag=True,\n    help='Skip resume prompt and start fresh'\n)\n@click.option(\n    '--no-cache',\n    is_flag=True,\n    help='Re-run service detection'\n)\n@click.option(\n    '--non-interactive',\n    is_flag=True,\n    help='Run in non-interactive mode using defaults'\n)\ndef onboard(project_local: bool, force: bool, no_cache: bool, non_interactive: bool):\n    \"\"\"Launch Mycelium onboarding wizard.\"\"\"\n\n    # Check for resume unless --force\n    if not force and not non_interactive:\n        previous_config = resume_from_previous()\n        if previous_config is not None:\n            # User chose to cancel\n            return\n\n    # Run wizard\n    config = asyncio.run(run_wizard_with_detection(use_cache=not no_cache))\n\n    if config is None:\n        # User cancelled during wizard\n        console.print(\"[yellow]Onboarding cancelled.[/yellow]\")\n        return\n\n    # Save configuration\n    success, config_path = save_configuration(config, project_local=project_local)\n\n    if not success:\n        raise click.ClickException(\"Failed to save configuration\")\n\nif __name__ == '__main__':\n    onboard()"
 
     # Test 1: Syntax validation
     try:
@@ -5179,7 +5183,7 @@ def test_snippet_projects_onboarding_milestones_M04_INTERACTIVE_ONBOARDING_6():
 
 def test_snippet_projects_onboarding_milestones_M04_INTERACTIVE_ONBOARDING_7():
     """Test code snippet from projects/onboarding/milestones/M04_INTERACTIVE_ONBOARDING.md (line 713)."""
-    code = '# tests/integration/test_wizard_flow.py\n"""Integration tests for complete wizard flow."""\n\nimport pytest\nfrom unittest.mock import patch, AsyncMock\nfrom mycelium_onboarding.wizard.integration import run_wizard_with_detection\n\n@pytest.mark.asyncio\nasync def test_complete_wizard_flow():\n    """Test complete wizard flow from detection to config."""\n\n    # Mock detection results\n    mock_detection = AsyncMock(return_value=mock_detection_results())\n\n    # Mock user inputs\n    mock_inputs = {\n        \'service_selection\': {\'redis\', \'temporal\'},\n        \'deployment_method\': \'docker-compose\',\n        \'project_name\': \'test-project\',\n        \'confirm\': True,\n    }\n\n    with patch(\'mycelium_onboarding.wizard.integration.detect_all_services\', mock_detection):\n        with patch_wizard_prompts(mock_inputs):\n            config = await run_wizard_with_detection()\n\n    assert config is not None\n    assert config.project_name == \'test-project\'\n    assert config.services.redis.enabled is True\n    assert config.services.temporal.enabled is True\n    assert config.deployment.method == \'docker-compose\'\n\n@pytest.mark.asyncio\nasync def test_wizard_handles_no_docker():\n    """Wizard should default to Justfile when Docker unavailable."""\n    mock_detection = AsyncMock(return_value=mock_detection_results(docker_available=False))\n\n    with patch(\'mycelium_onboarding.wizard.integration.detect_all_services\', mock_detection):\n        # ... run wizard ...\n        config = await run_wizard_with_detection()\n\n    assert config.deployment.method == \'justfile\'\n\ndef test_wizard_resume_functionality():\n    """Resume should load previous config and offer choices."""\n    # Create previous config\n    # Mock resume prompt\n    # Verify correct behavior\n    pass'
+    code = "# tests/integration/test_wizard_flow.py\n\"\"\"Integration tests for complete wizard flow.\"\"\"\n\nimport pytest\nfrom unittest.mock import patch, AsyncMock\nfrom mycelium_onboarding.wizard.integration import run_wizard_with_detection\n\n@pytest.mark.asyncio\nasync def test_complete_wizard_flow():\n    \"\"\"Test complete wizard flow from detection to config.\"\"\"\n\n    # Mock detection results\n    mock_detection = AsyncMock(return_value=mock_detection_results())\n\n    # Mock user inputs\n    mock_inputs = {\n        'service_selection': {'redis', 'temporal'},\n        'deployment_method': 'docker-compose',\n        'project_name': 'test-project',\n        'confirm': True,\n    }\n\n    with patch('mycelium_onboarding.wizard.integration.detect_all_services', mock_detection):\n        with patch_wizard_prompts(mock_inputs):\n            config = await run_wizard_with_detection()\n\n    assert config is not None\n    assert config.project_name == 'test-project'\n    assert config.services.redis.enabled is True\n    assert config.services.temporal.enabled is True\n    assert config.deployment.method == 'docker-compose'\n\n@pytest.mark.asyncio\nasync def test_wizard_handles_no_docker():\n    \"\"\"Wizard should default to Justfile when Docker unavailable.\"\"\"\n    mock_detection = AsyncMock(return_value=mock_detection_results(docker_available=False))\n\n    with patch('mycelium_onboarding.wizard.integration.detect_all_services', mock_detection):\n        # ... run wizard ...\n        config = await run_wizard_with_detection()\n\n    assert config.deployment.method == 'justfile'\n\ndef test_wizard_resume_functionality():\n    \"\"\"Resume should load previous config and offer choices.\"\"\"\n    # Create previous config\n    # Mock resume prompt\n    # Verify correct behavior\n    pass"
 
     # Test 1: Syntax validation
     try:
@@ -5213,7 +5217,7 @@ def test_snippet_projects_onboarding_milestones_M05_DEPLOYMENT_GENERATION_1():
 
 def test_snippet_projects_onboarding_milestones_M05_DEPLOYMENT_GENERATION_2():
     """Test code snippet from projects/onboarding/milestones/M05_DEPLOYMENT_GENERATION.md (line 411)."""
-    code = '# tests/test_docker_compose_generator.py\n"""Tests for Docker Compose generator."""\n\nimport pytest\nfrom pathlib import Path\nimport yaml\n\nfrom mycelium_onboarding.generators.docker_compose import DockerComposeGenerator\nfrom mycelium_onboarding.config.schema import MyceliumConfig\n\ndef test_generate_valid_yaml():\n    """Generated content should be valid YAML."""\n    config = MyceliumConfig()  # Default config\n    generator = DockerComposeGenerator()\n\n    content = generator.generate(config)\n\n    # Should parse without errors\n    parsed = yaml.safe_load(content)\n    assert \'version\' in parsed\n    assert \'services\' in parsed\n\ndef test_redis_service_included_when_enabled():\n    """Redis service should be included when enabled."""\n    config = MyceliumConfig()\n    config.services.redis.enabled = True\n\n    generator = DockerComposeGenerator()\n    content = generator.generate(config)\n    parsed = yaml.safe_load(content)\n\n    assert \'redis\' in parsed[\'services\']\n    assert parsed[\'services\'][\'redis\'][\'image\'].startswith(\'redis:\')\n\ndef test_healthchecks_included():\n    """All services should have healthchecks."""\n    config = MyceliumConfig()\n    config.services.redis.enabled = True\n    config.services.postgres.enabled = True\n\n    generator = DockerComposeGenerator()\n    content = generator.generate(config)\n    parsed = yaml.safe_load(content)\n\n    for service_name in [\'redis\', \'postgres\']:\n        assert \'healthcheck\' in parsed[\'services\'][service_name]\n        hc = parsed[\'services\'][service_name][\'healthcheck\']\n        assert \'test\' in hc\n        assert \'interval\' in hc\n        assert \'retries\' in hc\n\ndef test_volumes_created_for_persistence():\n    """Volumes should be created when persistence enabled."""\n    config = MyceliumConfig()\n    config.services.redis.enabled = True\n    config.services.redis.persistence = True\n\n    generator = DockerComposeGenerator()\n    content = generator.generate(config)\n    parsed = yaml.safe_load(content)\n\n    assert \'volumes\' in parsed\n    assert \'redis-data\' in parsed[\'volumes\']\n\ndef test_env_example_generation():\n    """Should generate .env.example with required variables."""\n    config = MyceliumConfig()\n    config.services.postgres.enabled = True\n\n    generator = DockerComposeGenerator()\n    env_content = generator.generate_env_example(config)\n\n    assert \'POSTGRES_USER\' in env_content\n    assert \'POSTGRES_PASSWORD\' in env_content\n    assert \'<generate-secure-password>\' in env_content'
+    code = "# tests/test_docker_compose_generator.py\n\"\"\"Tests for Docker Compose generator.\"\"\"\n\nimport pytest\nfrom pathlib import Path\nimport yaml\n\nfrom mycelium_onboarding.generators.docker_compose import DockerComposeGenerator\nfrom mycelium_onboarding.config.schema import MyceliumConfig\n\ndef test_generate_valid_yaml():\n    \"\"\"Generated content should be valid YAML.\"\"\"\n    config = MyceliumConfig()  # Default config\n    generator = DockerComposeGenerator()\n\n    content = generator.generate(config)\n\n    # Should parse without errors\n    parsed = yaml.safe_load(content)\n    assert 'version' in parsed\n    assert 'services' in parsed\n\ndef test_redis_service_included_when_enabled():\n    \"\"\"Redis service should be included when enabled.\"\"\"\n    config = MyceliumConfig()\n    config.services.redis.enabled = True\n\n    generator = DockerComposeGenerator()\n    content = generator.generate(config)\n    parsed = yaml.safe_load(content)\n\n    assert 'redis' in parsed['services']\n    assert parsed['services']['redis']['image'].startswith('redis:')\n\ndef test_healthchecks_included():\n    \"\"\"All services should have healthchecks.\"\"\"\n    config = MyceliumConfig()\n    config.services.redis.enabled = True\n    config.services.postgres.enabled = True\n\n    generator = DockerComposeGenerator()\n    content = generator.generate(config)\n    parsed = yaml.safe_load(content)\n\n    for service_name in ['redis', 'postgres']:\n        assert 'healthcheck' in parsed['services'][service_name]\n        hc = parsed['services'][service_name]['healthcheck']\n        assert 'test' in hc\n        assert 'interval' in hc\n        assert 'retries' in hc\n\ndef test_volumes_created_for_persistence():\n    \"\"\"Volumes should be created when persistence enabled.\"\"\"\n    config = MyceliumConfig()\n    config.services.redis.enabled = True\n    config.services.redis.persistence = True\n\n    generator = DockerComposeGenerator()\n    content = generator.generate(config)\n    parsed = yaml.safe_load(content)\n\n    assert 'volumes' in parsed\n    assert 'redis-data' in parsed['volumes']\n\ndef test_env_example_generation():\n    \"\"\"Should generate .env.example with required variables.\"\"\"\n    config = MyceliumConfig()\n    config.services.postgres.enabled = True\n\n    generator = DockerComposeGenerator()\n    env_content = generator.generate_env_example(config)\n\n    assert 'POSTGRES_USER' in env_content\n    assert 'POSTGRES_PASSWORD' in env_content\n    assert '<generate-secure-password>' in env_content"
 
     # Test 1: Syntax validation
     try:
@@ -5264,7 +5268,7 @@ def test_snippet_projects_onboarding_milestones_M05_DEPLOYMENT_GENERATION_4():
 
 def test_snippet_projects_onboarding_milestones_M05_DEPLOYMENT_GENERATION_5():
     """Test code snippet from projects/onboarding/milestones/M05_DEPLOYMENT_GENERATION.md (line 942)."""
-    code = '# mycelium_onboarding/cli/generate.py\n"""CLI command for deployment generation."""\n\nimport click\nfrom pathlib import Path\nfrom rich.console import Console\nfrom rich.panel import Panel\n\nfrom mycelium_onboarding.config.manager import ConfigManager\nfrom mycelium_onboarding.generators.docker_compose import DockerComposeGenerator\nfrom mycelium_onboarding.generators.justfile import JustfileGenerator\nfrom mycelium_onboarding.generators.secrets import generate_env_file\n\nconsole = Console()\n\n@click.command()\n@click.option(\n    \'--method\',\n    type=click.Choice([\'docker-compose\', \'justfile\'], case_sensitive=False),\n    help=\'Deployment method (auto-detected if not specified)\'\n)\n@click.option(\n    \'--output\',\n    type=click.Path(),\n    default=\'.\',\n    help=\'Output directory for generated files\'\n)\n@click.option(\n    \'--force\',\n    is_flag=True,\n    help=\'Overwrite existing files\'\n)\n@click.option(\n    \'--no-secrets\',\n    is_flag=True,\n    help=\'Skip .env file generation\'\n)\ndef generate(method: str, output: str, force: bool, no_secrets: bool):\n    """Generate deployment files from configuration."""\n\n    # Load configuration\n    try:\n        config = ConfigManager.load()\n    except FileNotFoundError:\n        console.print("[red]✗ No configuration found. Run /mycelium-onboarding first.[/red]")\n        raise click.Abort()\n\n    # Determine deployment method\n    if method is None:\n        method = config.deployment.method\n\n    output_dir = Path(output).resolve()\n    output_dir.mkdir(parents=True, exist_ok=True)\n\n    console.print(f"[cyan]Generating {method} deployment...[/cyan]\\n")\n\n    # Generate based on method\n    generated_files = []\n\n    if method == \'docker-compose\':\n        generator = DockerComposeGenerator()\n\n        compose_file = output_dir / \'docker-compose.yml\'\n        generator.generate_to_file(config, compose_file, overwrite=force)\n        generated_files.append(compose_file)\n\n        env_example = output_dir / \'.env.example\'\n        env_example.write_text(generator.generate_env_example(config))\n        generated_files.append(env_example)\n\n    elif method == \'justfile\':\n        generator = JustfileGenerator()\n\n        justfile = output_dir / \'Justfile\'\n        generator.generate_to_file(config, justfile, overwrite=force)\n        generated_files.append(justfile)\n\n        scripts = generator.generate_service_scripts(config, output_dir / \'bin\')\n        generated_files.extend(scripts)\n\n    # Generate .env file with secrets\n    if not no_secrets:\n        env_file = output_dir / \'.env\'\n        generate_env_file(config, env_file, overwrite=force)\n        generated_files.append(env_file)\n\n    # Show success message\n    console.print(Panel(\n        f"[bold green]✓ Deployment files generated![/bold green]\\n\\n"\n        f"Output directory: [cyan]{output_dir}[/cyan]\\n\\n"\n        f"Generated files:\\n" +\n        "\\n".join(f"  • {f.relative_to(output_dir)}" for f in generated_files) +\n        f"\\n\\nNext steps:\\n"\n        f"1. Review generated files\\n"\n        f"2. Start services: [bold]just up[/bold] or [bold]docker-compose up[/bold]\\n"\n        f"3. Test coordination: [bold]/mycelium-test[/bold]",\n        border_style="green"\n    ))\n\nif __name__ == \'__main__\':\n    generate()'
+    code = "# mycelium_onboarding/cli/generate.py\n\"\"\"CLI command for deployment generation.\"\"\"\n\nimport click\nfrom pathlib import Path\nfrom rich.console import Console\nfrom rich.panel import Panel\n\nfrom mycelium_onboarding.config.manager import ConfigManager\nfrom mycelium_onboarding.generators.docker_compose import DockerComposeGenerator\nfrom mycelium_onboarding.generators.justfile import JustfileGenerator\nfrom mycelium_onboarding.generators.secrets import generate_env_file\n\nconsole = Console()\n\n@click.command()\n@click.option(\n    '--method',\n    type=click.Choice(['docker-compose', 'justfile'], case_sensitive=False),\n    help='Deployment method (auto-detected if not specified)'\n)\n@click.option(\n    '--output',\n    type=click.Path(),\n    default='.',\n    help='Output directory for generated files'\n)\n@click.option(\n    '--force',\n    is_flag=True,\n    help='Overwrite existing files'\n)\n@click.option(\n    '--no-secrets',\n    is_flag=True,\n    help='Skip .env file generation'\n)\ndef generate(method: str, output: str, force: bool, no_secrets: bool):\n    \"\"\"Generate deployment files from configuration.\"\"\"\n\n    # Load configuration\n    try:\n        config = ConfigManager.load()\n    except FileNotFoundError:\n        console.print(\"[red]✗ No configuration found. Run /mycelium-onboarding first.[/red]\")\n        raise click.Abort()\n\n    # Determine deployment method\n    if method is None:\n        method = config.deployment.method\n\n    output_dir = Path(output).resolve()\n    output_dir.mkdir(parents=True, exist_ok=True)\n\n    console.print(f\"[cyan]Generating {method} deployment...[/cyan]\\n\")\n\n    # Generate based on method\n    generated_files = []\n\n    if method == 'docker-compose':\n        generator = DockerComposeGenerator()\n\n        compose_file = output_dir / 'docker-compose.yml'\n        generator.generate_to_file(config, compose_file, overwrite=force)\n        generated_files.append(compose_file)\n\n        env_example = output_dir / '.env.example'\n        env_example.write_text(generator.generate_env_example(config))\n        generated_files.append(env_example)\n\n    elif method == 'justfile':\n        generator = JustfileGenerator()\n\n        justfile = output_dir / 'Justfile'\n        generator.generate_to_file(config, justfile, overwrite=force)\n        generated_files.append(justfile)\n\n        scripts = generator.generate_service_scripts(config, output_dir / 'bin')\n        generated_files.extend(scripts)\n\n    # Generate .env file with secrets\n    if not no_secrets:\n        env_file = output_dir / '.env'\n        generate_env_file(config, env_file, overwrite=force)\n        generated_files.append(env_file)\n\n    # Show success message\n    console.print(Panel(\n        f\"[bold green]✓ Deployment files generated![/bold green]\\n\\n\"\n        f\"Output directory: [cyan]{output_dir}[/cyan]\\n\\n\"\n        f\"Generated files:\\n\" +\n        \"\\n\".join(f\"  • {f.relative_to(output_dir)}\" for f in generated_files) +\n        f\"\\n\\nNext steps:\\n\"\n        f\"1. Review generated files\\n\"\n        f\"2. Start services: [bold]just up[/bold] or [bold]docker-compose up[/bold]\\n\"\n        f\"3. Test coordination: [bold]/mycelium-test[/bold]\",\n        border_style=\"green\"\n    ))\n\nif __name__ == '__main__':\n    generate()"
 
     # Test 1: Syntax validation
     try:
@@ -5298,7 +5302,7 @@ def test_snippet_projects_onboarding_milestones_M06_COORDINATION_TESTING_1():
 
 def test_snippet_projects_onboarding_milestones_M06_COORDINATION_TESTING_2():
     """Test code snippet from projects/onboarding/milestones/M06_COORDINATION_TESTING.md (line 281)."""
-    code = '# tests/fixtures/mcp_clients.py\n"""Pytest fixtures for MCP client management."""\n\nimport pytest\nimport asyncio\nimport os\nfrom typing import AsyncGenerator\nfrom unittest.mock import AsyncMock\n\n# Real MCP client imports\ntry:\n    from mcp_redis import RedisClient\n    from mcp_taskqueue import TaskQueueClient\n    from mcp_temporal import TemporalClient\n    HAS_REAL_MCP = True\nexcept ImportError:\n    HAS_REAL_MCP = False\n\nUSE_MOCK_MCP = os.getenv(\'USE_MOCK_MCP\', \'false\').lower() == \'true\'\n\n@pytest.fixture\nasync def redis_client() -> AsyncGenerator:\n    """\n    Provide Redis MCP client (mock or real based on environment).\n\n    Set USE_MOCK_MCP=true to use mocks during development.\n    """\n    if USE_MOCK_MCP or not HAS_REAL_MCP:\n        # Mock Redis client for development\n        mock_client = AsyncMock()\n        mock_client.publish = AsyncMock(return_value=1)\n        mock_client.subscribe = AsyncMock()\n        mock_client.get = AsyncMock(return_value=None)\n        mock_client.set = AsyncMock(return_value=True)\n\n        yield mock_client\n    else:\n        # Real Redis client for CI/CD\n        client = RedisClient(\n            host=os.getenv(\'REDIS_HOST\', \'localhost\'),\n            port=int(os.getenv(\'REDIS_PORT\', 6379)),\n        )\n\n        await client.connect()\n\n        try:\n            yield client\n        finally:\n            await client.disconnect()\n\n@pytest.fixture\nasync def taskqueue_client() -> AsyncGenerator:\n    """\n    Provide TaskQueue MCP client (mock or real based on environment).\n    """\n    if USE_MOCK_MCP or not HAS_REAL_MCP:\n        # Mock TaskQueue client\n        mock_client = AsyncMock()\n        mock_client.create_project = AsyncMock(return_value={\'project_id\': \'proj-test-1\'})\n        mock_client.add_task = AsyncMock(return_value={\'task_id\': \'task-test-1\'})\n        mock_client.get_next_task = AsyncMock(return_value=None)\n\n        yield mock_client\n    else:\n        # Real TaskQueue client\n        client = TaskQueueClient()\n\n        await client.connect()\n\n        try:\n            yield client\n        finally:\n            await client.disconnect()\n\n@pytest.fixture\nasync def temporal_client() -> AsyncGenerator:\n    """\n    Provide Temporal MCP client (mock or real based on environment).\n    """\n    if USE_MOCK_MCP or not HAS_REAL_MCP:\n        # Mock Temporal client\n        mock_client = AsyncMock()\n        mock_client.start_workflow = AsyncMock(return_value={\'workflow_id\': \'wf-test-1\'})\n        mock_client.get_workflow_status = AsyncMock(return_value={\'status\': \'COMPLETED\'})\n\n        yield mock_client\n    else:\n        # Real Temporal client\n        client = TemporalClient(\n            host=os.getenv(\'TEMPORAL_HOST\', \'localhost\'),\n            port=int(os.getenv(\'TEMPORAL_PORT\', 7233)),\n        )\n\n        await client.connect()\n\n        try:\n            yield client\n        finally:\n            await client.disconnect()\n\n@pytest.fixture\nasync def mcp_clients(\n    redis_client,\n    taskqueue_client,\n    temporal_client,\n) -> dict:\n    """Provide all MCP clients as dictionary."""\n    return {\n        \'redis\': redis_client,\n        \'taskqueue\': taskqueue_client,\n        \'temporal\': temporal_client,\n    }\n\n@pytest.fixture(autouse=True)\nasync def cleanup_test_data(mcp_clients):\n    """Automatically cleanup test data after each test."""\n    yield\n\n    # Cleanup Redis test keys\n    if not USE_MOCK_MCP and HAS_REAL_MCP:\n        redis = mcp_clients[\'redis\']\n        test_keys = await redis.keys(\'test:*\')\n        if test_keys:\n            await redis.delete(*test_keys)'
+    code = "# tests/fixtures/mcp_clients.py\n\"\"\"Pytest fixtures for MCP client management.\"\"\"\n\nimport pytest\nimport asyncio\nimport os\nfrom typing import AsyncGenerator\nfrom unittest.mock import AsyncMock\n\n# Real MCP client imports\ntry:\n    from mcp_redis import RedisClient\n    from mcp_taskqueue import TaskQueueClient\n    from mcp_temporal import TemporalClient\n    HAS_REAL_MCP = True\nexcept ImportError:\n    HAS_REAL_MCP = False\n\nUSE_MOCK_MCP = os.getenv('USE_MOCK_MCP', 'false').lower() == 'true'\n\n@pytest.fixture\nasync def redis_client() -> AsyncGenerator:\n    \"\"\"\n    Provide Redis MCP client (mock or real based on environment).\n\n    Set USE_MOCK_MCP=true to use mocks during development.\n    \"\"\"\n    if USE_MOCK_MCP or not HAS_REAL_MCP:\n        # Mock Redis client for development\n        mock_client = AsyncMock()\n        mock_client.publish = AsyncMock(return_value=1)\n        mock_client.subscribe = AsyncMock()\n        mock_client.get = AsyncMock(return_value=None)\n        mock_client.set = AsyncMock(return_value=True)\n\n        yield mock_client\n    else:\n        # Real Redis client for CI/CD\n        client = RedisClient(\n            host=os.getenv('REDIS_HOST', 'localhost'),\n            port=int(os.getenv('REDIS_PORT', 6379)),\n        )\n\n        await client.connect()\n\n        try:\n            yield client\n        finally:\n            await client.disconnect()\n\n@pytest.fixture\nasync def taskqueue_client() -> AsyncGenerator:\n    \"\"\"\n    Provide TaskQueue MCP client (mock or real based on environment).\n    \"\"\"\n    if USE_MOCK_MCP or not HAS_REAL_MCP:\n        # Mock TaskQueue client\n        mock_client = AsyncMock()\n        mock_client.create_project = AsyncMock(return_value={'project_id': 'proj-test-1'})\n        mock_client.add_task = AsyncMock(return_value={'task_id': 'task-test-1'})\n        mock_client.get_next_task = AsyncMock(return_value=None)\n\n        yield mock_client\n    else:\n        # Real TaskQueue client\n        client = TaskQueueClient()\n\n        await client.connect()\n\n        try:\n            yield client\n        finally:\n            await client.disconnect()\n\n@pytest.fixture\nasync def temporal_client() -> AsyncGenerator:\n    \"\"\"\n    Provide Temporal MCP client (mock or real based on environment).\n    \"\"\"\n    if USE_MOCK_MCP or not HAS_REAL_MCP:\n        # Mock Temporal client\n        mock_client = AsyncMock()\n        mock_client.start_workflow = AsyncMock(return_value={'workflow_id': 'wf-test-1'})\n        mock_client.get_workflow_status = AsyncMock(return_value={'status': 'COMPLETED'})\n\n        yield mock_client\n    else:\n        # Real Temporal client\n        client = TemporalClient(\n            host=os.getenv('TEMPORAL_HOST', 'localhost'),\n            port=int(os.getenv('TEMPORAL_PORT', 7233)),\n        )\n\n        await client.connect()\n\n        try:\n            yield client\n        finally:\n            await client.disconnect()\n\n@pytest.fixture\nasync def mcp_clients(\n    redis_client,\n    taskqueue_client,\n    temporal_client,\n) -> dict:\n    \"\"\"Provide all MCP clients as dictionary.\"\"\"\n    return {\n        'redis': redis_client,\n        'taskqueue': taskqueue_client,\n        'temporal': temporal_client,\n    }\n\n@pytest.fixture(autouse=True)\nasync def cleanup_test_data(mcp_clients):\n    \"\"\"Automatically cleanup test data after each test.\"\"\"\n    yield\n\n    # Cleanup Redis test keys\n    if not USE_MOCK_MCP and HAS_REAL_MCP:\n        redis = mcp_clients['redis']\n        test_keys = await redis.keys('test:*')\n        if test_keys:\n            await redis.delete(*test_keys)"
 
     # Test 1: Syntax validation
     try:
@@ -5366,7 +5370,7 @@ def test_snippet_projects_onboarding_milestones_M06_COORDINATION_TESTING_5():
 
 def test_snippet_projects_onboarding_milestones_M06_COORDINATION_TESTING_6():
     """Test code snippet from projects/onboarding/milestones/M06_COORDINATION_TESTING.md (line 983)."""
-    code = '# mycelium_onboarding/cli/test.py\n"""CLI command for coordination testing."""\n\nimport click\nimport asyncio\nimport os\nfrom rich.console import Console\n\nfrom mycelium_testing.orchestrator import TestOrchestrator, TestSuite\nfrom tests.functional import test_coordination_patterns\n\nconsole = Console()\n\n@click.command()\n@click.option(\n    \'--pattern\',\n    type=click.Choice([\'pubsub\', \'taskqueue\', \'request-reply\', \'scatter-gather\', \'barrier\', \'circuit-breaker\', \'all\']),\n    default=\'all\',\n    help=\'Test pattern to run\'\n)\n@click.option(\'--mock\', is_flag=True, help=\'Use mock MCP servers\')\n@click.option(\'--verbose\', is_flag=True, help=\'Verbose output\')\n@click.option(\'--report\', is_flag=True, help=\'Generate metrics report\')\n@click.option(\'--fail-fast\', is_flag=True, help=\'Stop on first failure\')\ndef test(pattern: str, mock: bool, verbose: bool, report: bool, fail_fast: bool):\n    """Run coordination pattern tests."""\n\n    # Set mock mode\n    if mock:\n        os.environ[\'USE_MOCK_MCP\'] = \'true\'\n\n    console.print(f"[cyan]Running {pattern} tests...[/cyan]\\n")\n\n    # Create test suite\n    suite = TestSuite(\n        name=f"coordination-{pattern}",\n        tests=_get_tests_for_pattern(pattern),\n    )\n\n    # Run tests\n    orchestrator = TestOrchestrator()\n    results = asyncio.run(orchestrator.run_suite(suite, fail_fast=fail_fast))\n\n    # Show report\n    console.print(orchestrator.generate_report())\n\n    if report:\n        # Generate metrics report if requested\n        console.print("\\n" + metrics.generate_report())\n\n    # Exit with appropriate code\n    failed = sum(1 for r in results if r.status == \'failed\')\n    if failed > 0:\n        raise click.ClickException(f"{failed} tests failed")\n\ndef _get_tests_for_pattern(pattern: str) -> list:\n    """Get test functions for pattern."""\n    # Import test module and filter by pattern\n    import tests.functional.test_coordination_patterns as tests_module\n\n    if pattern == \'all\':\n        return [\n            getattr(tests_module, name)\n            for name in dir(tests_module)\n            if name.startswith(\'test_\')\n        ]\n    else:\n        pattern_prefix = f"test_{pattern.replace(\'-\', \'_\')}"\n        return [\n            getattr(tests_module, name)\n            for name in dir(tests_module)\n            if name.startswith(pattern_prefix)\n        ]\n\nif __name__ == \'__main__\':\n    test()'
+    code = "# mycelium_onboarding/cli/test.py\n\"\"\"CLI command for coordination testing.\"\"\"\n\nimport click\nimport asyncio\nimport os\nfrom rich.console import Console\n\nfrom mycelium_testing.orchestrator import TestOrchestrator, TestSuite\nfrom tests.functional import test_coordination_patterns\n\nconsole = Console()\n\n@click.command()\n@click.option(\n    '--pattern',\n    type=click.Choice(['pubsub', 'taskqueue', 'request-reply', 'scatter-gather', 'barrier', 'circuit-breaker', 'all']),\n    default='all',\n    help='Test pattern to run'\n)\n@click.option('--mock', is_flag=True, help='Use mock MCP servers')\n@click.option('--verbose', is_flag=True, help='Verbose output')\n@click.option('--report', is_flag=True, help='Generate metrics report')\n@click.option('--fail-fast', is_flag=True, help='Stop on first failure')\ndef test(pattern: str, mock: bool, verbose: bool, report: bool, fail_fast: bool):\n    \"\"\"Run coordination pattern tests.\"\"\"\n\n    # Set mock mode\n    if mock:\n        os.environ['USE_MOCK_MCP'] = 'true'\n\n    console.print(f\"[cyan]Running {pattern} tests...[/cyan]\\n\")\n\n    # Create test suite\n    suite = TestSuite(\n        name=f\"coordination-{pattern}\",\n        tests=_get_tests_for_pattern(pattern),\n    )\n\n    # Run tests\n    orchestrator = TestOrchestrator()\n    results = asyncio.run(orchestrator.run_suite(suite, fail_fast=fail_fast))\n\n    # Show report\n    console.print(orchestrator.generate_report())\n\n    if report:\n        # Generate metrics report if requested\n        console.print(\"\\n\" + metrics.generate_report())\n\n    # Exit with appropriate code\n    failed = sum(1 for r in results if r.status == 'failed')\n    if failed > 0:\n        raise click.ClickException(f\"{failed} tests failed\")\n\ndef _get_tests_for_pattern(pattern: str) -> list:\n    \"\"\"Get test functions for pattern.\"\"\"\n    # Import test module and filter by pattern\n    import tests.functional.test_coordination_patterns as tests_module\n\n    if pattern == 'all':\n        return [\n            getattr(tests_module, name)\n            for name in dir(tests_module)\n            if name.startswith('test_')\n        ]\n    else:\n        pattern_prefix = f\"test_{pattern.replace('-', '_')}\"\n        return [\n            getattr(tests_module, name)\n            for name in dir(tests_module)\n            if name.startswith(pattern_prefix)\n        ]\n\nif __name__ == '__main__':\n    test()"
 
     # Test 1: Syntax validation
     try:
@@ -5995,7 +5999,7 @@ def test_snippet_skills_S1_agent_discovery_fastmcp_15():
 
 def test_snippet_skills_S1_agent_discovery_1():
     """Test code snippet from skills/S1-agent-discovery.md (line 38)."""
-    code = 'async def discover_agents(\n    query: str,\n    limit: int = 5,\n    threshold: float = 0.6,\n) -> dict'
+    code = "async def discover_agents(\n    query: str,\n    limit: int = 5,\n    threshold: float = 0.6,\n) -> dict"
 
     # Test 1: Syntax validation
     try:
@@ -6029,7 +6033,7 @@ def test_snippet_skills_S1_agent_discovery_2():
 
 def test_snippet_skills_S1_agent_discovery_3():
     """Test code snippet from skills/S1-agent-discovery.md (line 110)."""
-    code = 'async def get_agent_details(\n    agent_id: str,\n) -> dict'
+    code = "async def get_agent_details(\n    agent_id: str,\n) -> dict"
 
     # Test 1: Syntax validation
     try:
@@ -6199,7 +6203,7 @@ def test_snippet_skills_S2_coordination_2():
 
 def test_snippet_skills_S2_coordination_3():
     """Test code snippet from skills/S2-coordination.md (line 151)."""
-    code = 'async def handoff_to_agent(\n    target_agent: str,\n    task: str,\n    context: Dict = None,\n    wait_for_completion: bool = True,\n) -> dict'
+    code = "async def handoff_to_agent(\n    target_agent: str,\n    task: str,\n    context: Dict = None,\n    wait_for_completion: bool = True,\n) -> dict"
 
     # Test 1: Syntax validation
     try:
@@ -6233,7 +6237,7 @@ def test_snippet_skills_S2_coordination_4():
 
 def test_snippet_skills_S2_coordination_5():
     """Test code snippet from skills/S2-coordination.md (line 221)."""
-    code = 'async def get_workflow_status(\n    workflow_id: str,\n    include_steps: bool = True,\n) -> dict'
+    code = "async def get_workflow_status(\n    workflow_id: str,\n    include_steps: bool = True,\n) -> dict"
 
     # Test 1: Syntax validation
     try:
@@ -6267,7 +6271,7 @@ def test_snippet_skills_S2_coordination_6():
 
 def test_snippet_skills_S2_coordination_7():
     """Test code snippet from skills/S2-coordination.md (line 298)."""
-    code = 'async def get_coordination_events(\n    workflow_id: str = None,\n    agent_id: str = None,\n    event_type: str = None,\n    limit: int = 100,\n) -> dict'
+    code = "async def get_coordination_events(\n    workflow_id: str = None,\n    agent_id: str = None,\n    event_type: str = None,\n    limit: int = 100,\n) -> dict"
 
     # Test 1: Syntax validation
     try:
@@ -6522,7 +6526,7 @@ def test_snippet_skills_S2_coordination_21():
 
 def test_snippet_technical_orchestration_engine_1():
     """Test code snippet from technical/orchestration-engine.md (line 70)."""
-    code = '@dataclass\nclass WorkflowState:\n    workflow_id: str\n    status: WorkflowStatus  # PENDING, RUNNING, COMPLETED, FAILED, CANCELLED\n    tasks: Dict[str, TaskState]\n    created_at: str\n    updated_at: str\n    started_at: Optional[str]\n    completed_at: Optional[str]\n    variables: Dict[str, Any]\n    metadata: Dict[str, Any]\n    error: Optional[str]\n    version: int'
+    code = "@dataclass\nclass WorkflowState:\n    workflow_id: str\n    status: WorkflowStatus  # PENDING, RUNNING, COMPLETED, FAILED, CANCELLED\n    tasks: Dict[str, TaskState]\n    created_at: str\n    updated_at: str\n    started_at: Optional[str]\n    completed_at: Optional[str]\n    variables: Dict[str, Any]\n    metadata: Dict[str, Any]\n    error: Optional[str]\n    version: int"
 
     # Test 1: Syntax validation
     try:
@@ -6539,7 +6543,7 @@ def test_snippet_technical_orchestration_engine_1():
 
 def test_snippet_technical_orchestration_engine_2():
     """Test code snippet from technical/orchestration-engine.md (line 90)."""
-    code = '@dataclass\nclass TaskState:\n    task_id: str\n    agent_id: str\n    agent_type: str\n    status: TaskStatus  # PENDING, READY, RUNNING, COMPLETED, FAILED, SKIPPED\n    started_at: Optional[str]\n    completed_at: Optional[str]\n    execution_time: Optional[float]  # milliseconds\n    result: Optional[Dict[str, Any]]\n    error: Optional[Dict[str, Any]]\n    retry_count: int\n    dependencies: List[str]'
+    code = "@dataclass\nclass TaskState:\n    task_id: str\n    agent_id: str\n    agent_type: str\n    status: TaskStatus  # PENDING, READY, RUNNING, COMPLETED, FAILED, SKIPPED\n    started_at: Optional[str]\n    completed_at: Optional[str]\n    execution_time: Optional[float]  # milliseconds\n    result: Optional[Dict[str, Any]]\n    error: Optional[Dict[str, Any]]\n    retry_count: int\n    dependencies: List[str]"
 
     # Test 1: Syntax validation
     try:
@@ -6556,7 +6560,7 @@ def test_snippet_technical_orchestration_engine_2():
 
 def test_snippet_technical_orchestration_engine_3():
     """Test code snippet from technical/orchestration-engine.md (line 110)."""
-    code = '@dataclass\nclass TaskDefinition:\n    task_id: str\n    agent_id: str\n    agent_type: str\n    dependencies: List[str] = []\n    retry_policy: RetryPolicy = RetryPolicy()\n    timeout: Optional[float] = None  # seconds\n    allow_failure: bool = False\n    metadata: Dict[str, Any] = {}'
+    code = "@dataclass\nclass TaskDefinition:\n    task_id: str\n    agent_id: str\n    agent_type: str\n    dependencies: List[str] = []\n    retry_policy: RetryPolicy = RetryPolicy()\n    timeout: Optional[float] = None  # seconds\n    allow_failure: bool = False\n    metadata: Dict[str, Any] = {}"
 
     # Test 1: Syntax validation
     try:
@@ -6573,7 +6577,7 @@ def test_snippet_technical_orchestration_engine_3():
 
 def test_snippet_technical_orchestration_engine_4():
     """Test code snippet from technical/orchestration-engine.md (line 127)."""
-    code = '@dataclass\nclass RetryPolicy:\n    max_attempts: int = 3\n    initial_delay: float = 1.0  # seconds\n    max_delay: float = 60.0  # seconds\n    exponential_base: float = 2.0'
+    code = "@dataclass\nclass RetryPolicy:\n    max_attempts: int = 3\n    initial_delay: float = 1.0  # seconds\n    max_delay: float = 60.0  # seconds\n    exponential_base: float = 2.0"
 
     # Test 1: Syntax validation
     try:
@@ -6709,7 +6713,7 @@ def test_snippet_technical_orchestration_engine_11():
 
 def test_snippet_technical_orchestration_engine_12():
     """Test code snippet from technical/orchestration-engine.md (line 282)."""
-    code = '# Pause workflow\nawait orchestrator.pause_workflow(workflow_id)\n\n# Resume workflow\nawait orchestrator.resume_workflow(workflow_id)\n\n# Cancel workflow\nawait orchestrator.cancel_workflow(workflow_id)\n\n# Rollback to previous version\nawait orchestrator.rollback_workflow(workflow_id, version=1)'
+    code = "# Pause workflow\nawait orchestrator.pause_workflow(workflow_id)\n\n# Resume workflow\nawait orchestrator.resume_workflow(workflow_id)\n\n# Cancel workflow\nawait orchestrator.cancel_workflow(workflow_id)\n\n# Rollback to previous version\nawait orchestrator.rollback_workflow(workflow_id, version=1)"
 
     # Test 1: Syntax validation
     try:
@@ -6743,7 +6747,7 @@ def test_snippet_technical_orchestration_engine_13():
 
 def test_snippet_technical_orchestration_engine_14():
     """Test code snippet from technical/orchestration-engine.md (line 389)."""
-    code = '# Initial version\nstate = await state_manager.create_workflow(tasks)\nassert state.version == 1\n\n# After update\nstate.status = WorkflowStatus.RUNNING\nupdated = await state_manager.update_workflow(state)\nassert updated.version == 2\n\n# Rollback to previous version\nrestored = await state_manager.rollback_workflow(workflow_id, version=1)\nassert restored.version == 1'
+    code = "# Initial version\nstate = await state_manager.create_workflow(tasks)\nassert state.version == 1\n\n# After update\nstate.status = WorkflowStatus.RUNNING\nupdated = await state_manager.update_workflow(state)\nassert updated.version == 2\n\n# Rollback to previous version\nrestored = await state_manager.rollback_workflow(workflow_id, version=1)\nassert restored.version == 1"
 
     # Test 1: Syntax validation
     try:
@@ -6760,7 +6764,7 @@ def test_snippet_technical_orchestration_engine_14():
 
 def test_snippet_technical_orchestration_engine_15():
     """Test code snippet from technical/orchestration-engine.md (line 410)."""
-    code = '@dataclass\nclass HandoffMessage:\n    version: str\n    handoff_id: str\n    workflow_id: str\n    source: AgentInfo\n    target: AgentInfo\n    context: HandoffContext\n    state: HandoffState\n    metadata: HandoffMetadata\n    timestamp: str'
+    code = "@dataclass\nclass HandoffMessage:\n    version: str\n    handoff_id: str\n    workflow_id: str\n    source: AgentInfo\n    target: AgentInfo\n    context: HandoffContext\n    state: HandoffState\n    metadata: HandoffMetadata\n    timestamp: str"
 
     # Test 1: Syntax validation
     try:
@@ -6811,7 +6815,7 @@ def test_snippet_technical_orchestration_engine_17():
 
 def test_snippet_technical_orchestration_engine_18():
     """Test code snippet from technical/orchestration-engine.md (line 534)."""
-    code = '# List all workflows\nall_workflows = await state_manager.list_workflows()\n\n# List by status\nrunning = await state_manager.list_workflows(status=WorkflowStatus.RUNNING)\nfailed = await state_manager.list_workflows(status=WorkflowStatus.FAILED)\n\n# Limit results\nrecent = await state_manager.list_workflows(limit=10)'
+    code = "# List all workflows\nall_workflows = await state_manager.list_workflows()\n\n# List by status\nrunning = await state_manager.list_workflows(status=WorkflowStatus.RUNNING)\nfailed = await state_manager.list_workflows(status=WorkflowStatus.FAILED)\n\n# Limit results\nrecent = await state_manager.list_workflows(limit=10)"
 
     # Test 1: Syntax validation
     try:
@@ -6930,7 +6934,7 @@ def test_snippet_technical_orchestration_engine_24():
 
 def test_snippet_technical_orchestration_engine_25():
     """Test code snippet from technical/orchestration-engine.md (line 618)."""
-    code = '# Quick operations - fail fast\nfast_task = TaskDefinition(\n    retry_policy=RetryPolicy(max_attempts=2, initial_delay=0.5)\n)\n\n# Network operations - more retries\nnetwork_task = TaskDefinition(\n    retry_policy=RetryPolicy(max_attempts=5, initial_delay=2.0, max_delay=30.0)\n)'
+    code = "# Quick operations - fail fast\nfast_task = TaskDefinition(\n    retry_policy=RetryPolicy(max_attempts=2, initial_delay=0.5)\n)\n\n# Network operations - more retries\nnetwork_task = TaskDefinition(\n    retry_policy=RetryPolicy(max_attempts=5, initial_delay=2.0, max_delay=30.0)\n)"
 
     # Test 1: Syntax validation
     try:
@@ -6947,7 +6951,7 @@ def test_snippet_technical_orchestration_engine_25():
 
 def test_snippet_technical_orchestration_engine_26():
     """Test code snippet from technical/orchestration-engine.md (line 633)."""
-    code = 'state_manager = StateManager()\ntry:\n    await state_manager.initialize()\n    # Use state manager\nfinally:\n    await state_manager.close()'
+    code = "state_manager = StateManager()\ntry:\n    await state_manager.initialize()\n    # Use state manager\nfinally:\n    await state_manager.close()"
 
     # Test 1: Syntax validation
     try:
@@ -6964,7 +6968,7 @@ def test_snippet_technical_orchestration_engine_26():
 
 def test_snippet_technical_orchestration_engine_27():
     """Test code snippet from technical/orchestration-engine.md (line 691)."""
-    code = 'class WorkflowOrchestrator:\n    def __init__(\n        self,\n        state_manager: StateManager,\n        default_retry_policy: Optional[RetryPolicy] = None,\n        max_parallel_tasks: int = 10,\n    )\n\n    def register_executor(self, agent_type: str, executor: TaskExecutor) -> None\n\n    async def create_workflow(\n        self,\n        tasks: List[TaskDefinition],\n        workflow_id: Optional[str] = None,\n        context: Optional[HandoffContext] = None,\n        metadata: Optional[Dict[str, Any]] = None,\n    ) -> str\n\n    async def execute_workflow(\n        self,\n        workflow_id: str,\n        background: bool = False,\n    ) -> Optional[WorkflowState]\n\n    async def get_workflow_status(self, workflow_id: str) -> WorkflowState\n    async def cancel_workflow(self, workflow_id: str) -> WorkflowState\n    async def pause_workflow(self, workflow_id: str) -> WorkflowState\n    async def resume_workflow(self, workflow_id: str) -> WorkflowState\n    async def rollback_workflow(self, workflow_id: str, version: int) -> WorkflowState'
+    code = "class WorkflowOrchestrator:\n    def __init__(\n        self,\n        state_manager: StateManager,\n        default_retry_policy: Optional[RetryPolicy] = None,\n        max_parallel_tasks: int = 10,\n    )\n\n    def register_executor(self, agent_type: str, executor: TaskExecutor) -> None\n\n    async def create_workflow(\n        self,\n        tasks: List[TaskDefinition],\n        workflow_id: Optional[str] = None,\n        context: Optional[HandoffContext] = None,\n        metadata: Optional[Dict[str, Any]] = None,\n    ) -> str\n\n    async def execute_workflow(\n        self,\n        workflow_id: str,\n        background: bool = False,\n    ) -> Optional[WorkflowState]\n\n    async def get_workflow_status(self, workflow_id: str) -> WorkflowState\n    async def cancel_workflow(self, workflow_id: str) -> WorkflowState\n    async def pause_workflow(self, workflow_id: str) -> WorkflowState\n    async def resume_workflow(self, workflow_id: str) -> WorkflowState\n    async def rollback_workflow(self, workflow_id: str, version: int) -> WorkflowState"
 
     # Test 1: Syntax validation
     try:
@@ -6981,7 +6985,7 @@ def test_snippet_technical_orchestration_engine_27():
 
 def test_snippet_technical_orchestration_engine_28():
     """Test code snippet from technical/orchestration-engine.md (line 725)."""
-    code = 'class StateManager:\n    def __init__(\n        self,\n        pool: Optional[Pool] = None,\n        connection_string: Optional[str] = None,\n    )\n\n    async def initialize() -> None\n    async def close() -> None\n\n    async def create_workflow(\n        self,\n        workflow_id: Optional[str] = None,\n        tasks: Optional[List[TaskState]] = None,\n        metadata: Optional[Dict[str, Any]] = None,\n    ) -> WorkflowState\n\n    async def get_workflow(self, workflow_id: str) -> WorkflowState\n    async def update_workflow(self, state: WorkflowState) -> WorkflowState\n    async def update_task(\n        self,\n        workflow_id: str,\n        task_id: str,\n        status: Optional[TaskStatus] = None,\n        result: Optional[Dict[str, Any]] = None,\n        error: Optional[Dict[str, Any]] = None,\n        execution_time: Optional[float] = None,\n    ) -> WorkflowState\n\n    async def rollback_workflow(self, workflow_id: str, version: int) -> WorkflowState\n    async def delete_workflow(self, workflow_id: str) -> None\n    async def list_workflows(\n        self,\n        status: Optional[WorkflowStatus] = None,\n        limit: int = 100,\n    ) -> List[WorkflowState]'
+    code = "class StateManager:\n    def __init__(\n        self,\n        pool: Optional[Pool] = None,\n        connection_string: Optional[str] = None,\n    )\n\n    async def initialize() -> None\n    async def close() -> None\n\n    async def create_workflow(\n        self,\n        workflow_id: Optional[str] = None,\n        tasks: Optional[List[TaskState]] = None,\n        metadata: Optional[Dict[str, Any]] = None,\n    ) -> WorkflowState\n\n    async def get_workflow(self, workflow_id: str) -> WorkflowState\n    async def update_workflow(self, state: WorkflowState) -> WorkflowState\n    async def update_task(\n        self,\n        workflow_id: str,\n        task_id: str,\n        status: Optional[TaskStatus] = None,\n        result: Optional[Dict[str, Any]] = None,\n        error: Optional[Dict[str, Any]] = None,\n        execution_time: Optional[float] = None,\n    ) -> WorkflowState\n\n    async def rollback_workflow(self, workflow_id: str, version: int) -> WorkflowState\n    async def delete_workflow(self, workflow_id: str) -> None\n    async def list_workflows(\n        self,\n        status: Optional[WorkflowStatus] = None,\n        limit: int = 100,\n    ) -> List[WorkflowState]"
 
     # Test 1: Syntax validation
     try:
@@ -7168,7 +7172,7 @@ def test_snippet_troubleshooting_discovery_coordination_4():
 
 def test_snippet_troubleshooting_discovery_coordination_5():
     """Test code snippet from troubleshooting/discovery-coordination.md (line 101)."""
-    code = '# Check what keywords agents actually have\nfrom agent_discovery import get_agent_details\n\nfor agent in result["agents"]:\n    details = get_agent_details(agent["id"])\n    print(f"\\n{agent[\'name\']}:")\n    print(f"  Keywords: {details[\'agent\'][\'keywords\']}")\n    print(f"  Description: {details[\'agent\'][\'description\'][:100]}...")\n    print(f"  Confidence: {agent[\'confidence\']}")\n\n# Compare your query terms with agent keywords'
+    code = "# Check what keywords agents actually have\nfrom agent_discovery import get_agent_details\n\nfor agent in result[\"agents\"]:\n    details = get_agent_details(agent[\"id\"])\n    print(f\"\\n{agent['name']}:\")\n    print(f\"  Keywords: {details['agent']['keywords']}\")\n    print(f\"  Description: {details['agent']['description'][:100]}...\")\n    print(f\"  Confidence: {agent['confidence']}\")\n\n# Compare your query terms with agent keywords"
 
     # Test 1: Syntax validation
     try:
@@ -7219,7 +7223,7 @@ def test_snippet_troubleshooting_discovery_coordination_7():
 
 def test_snippet_troubleshooting_discovery_coordination_8():
     """Test code snippet from troubleshooting/discovery-coordination.md (line 156)."""
-    code = '# Check match reasons\nfor agent in result["agents"]:\n    print(f"{agent[\'name\']}: {agent[\'match_reason\']}")\n\n# Example output:\n# frontend-developer: Matches keyword \'development\'\n# data-scientist: Matches keyword \'Python\'\n# devops-engineer: Matches keyword \'backend\'\n\n# The matching is too broad!'
+    code = "# Check match reasons\nfor agent in result[\"agents\"]:\n    print(f\"{agent['name']}: {agent['match_reason']}\")\n\n# Example output:\n# frontend-developer: Matches keyword 'development'\n# data-scientist: Matches keyword 'Python'\n# devops-engineer: Matches keyword 'backend'\n\n# The matching is too broad!"
 
     # Test 1: Syntax validation
     try:
@@ -7372,7 +7376,7 @@ def test_snippet_troubleshooting_discovery_coordination_16():
 
 def test_snippet_troubleshooting_discovery_coordination_17():
     """Test code snippet from troubleshooting/discovery-coordination.md (line 339)."""
-    code = '# Check failure reason\nprint(f"Status: {workflow[\'status\']}")\n\n# Get failure events\nevents = get_coordination_events(\n    workflow_id=workflow["workflow_id"],\n    event_type="failure"\n)\n\nfor event in events["events"]:\n    print(f"\\nFailure at step {event[\'metadata\'][\'step\']}:")\n    print(f"  Error: {event[\'metadata\'][\'error\']}")\n    print(f"  Details: {event[\'metadata\'].get(\'details\', \'N/A\')}")\n\n# Common error types:\n# - ValueError: Invalid workflow structure\n# - DependencyError: Unresolved dependencies\n# - ValidationError: Invalid parameters'
+    code = "# Check failure reason\nprint(f\"Status: {workflow['status']}\")\n\n# Get failure events\nevents = get_coordination_events(\n    workflow_id=workflow[\"workflow_id\"],\n    event_type=\"failure\"\n)\n\nfor event in events[\"events\"]:\n    print(f\"\\nFailure at step {event['metadata']['step']}:\")\n    print(f\"  Error: {event['metadata']['error']}\")\n    print(f\"  Details: {event['metadata'].get('details', 'N/A')}\")\n\n# Common error types:\n# - ValueError: Invalid workflow structure\n# - DependencyError: Unresolved dependencies\n# - ValidationError: Invalid parameters"
 
     # Test 1: Syntax validation
     try:
@@ -7559,7 +7563,7 @@ def test_snippet_troubleshooting_discovery_coordination_27():
 
 def test_snippet_troubleshooting_discovery_coordination_28():
     """Test code snippet from troubleshooting/discovery-coordination.md (line 696)."""
-    code = '# System monitoring shows high memory usage during workflows\n# Memory usage > 500MB per workflow'
+    code = "# System monitoring shows high memory usage during workflows\n# Memory usage > 500MB per workflow"
 
     # Test 1: Syntax validation
     try:
@@ -7610,7 +7614,7 @@ def test_snippet_troubleshooting_discovery_coordination_30():
 
 def test_snippet_troubleshooting_discovery_coordination_31():
     """Test code snippet from troubleshooting/discovery-coordination.md (line 760)."""
-    code = '# Repeated discovery calls have low cache hit rate\n# Every call takes 50-100ms instead of <10ms'
+    code = "# Repeated discovery calls have low cache hit rate\n# Every call takes 50-100ms instead of <10ms"
 
     # Test 1: Syntax validation
     try:
@@ -7627,7 +7631,7 @@ def test_snippet_troubleshooting_discovery_coordination_31():
 
 def test_snippet_troubleshooting_discovery_coordination_32():
     """Test code snippet from troubleshooting/discovery-coordination.md (line 767)."""
-    code = '# Check cache statistics\nfrom agent_discovery import get_cache_stats\n\nstats = get_cache_stats()\nprint(f"Cache Hit Rate: {stats[\'hit_rate\']}%")\nprint(f"Cache Size: {stats[\'size\']} / {stats[\'max_size\']}")\nprint(f"Total Queries: {stats[\'total_queries\']}")\n\n# If hit_rate < 50% → Cache not being utilized effectively'
+    code = "# Check cache statistics\nfrom agent_discovery import get_cache_stats\n\nstats = get_cache_stats()\nprint(f\"Cache Hit Rate: {stats['hit_rate']}%\")\nprint(f\"Cache Size: {stats['size']} / {stats['max_size']}\")\nprint(f\"Total Queries: {stats['total_queries']}\")\n\n# If hit_rate < 50% → Cache not being utilized effectively"
 
     # Test 1: Syntax validation
     try:
@@ -7746,7 +7750,7 @@ def test_snippet_troubleshooting_discovery_coordination_38():
 
 def test_snippet_troubleshooting_discovery_coordination_39():
     """Test code snippet from troubleshooting/discovery-coordination.md (line 949)."""
-    code = '# Check detailed health\nprint(f"Status: {health[\'status\']}")\nprint(f"Agent Count: {health[\'agent_count\']}")\nprint(f"Last Updated: {health.get(\'last_updated\', \'Unknown\')}")\nprint(f"Errors: {health.get(\'errors\', [])}")\n\n# Check API logs\n# tail -f logs/discovery-api.log'
+    code = "# Check detailed health\nprint(f\"Status: {health['status']}\")\nprint(f\"Agent Count: {health['agent_count']}\")\nprint(f\"Last Updated: {health.get('last_updated', 'Unknown')}\")\nprint(f\"Errors: {health.get('errors', [])}\")\n\n# Check API logs\n# tail -f logs/discovery-api.log"
 
     # Test 1: Syntax validation
     try:
@@ -7780,7 +7784,7 @@ def test_snippet_troubleshooting_discovery_coordination_40():
 
 def test_snippet_troubleshooting_discovery_coordination_41():
     """Test code snippet from troubleshooting/discovery-coordination.md (line 991)."""
-    code = 'workflow = coordinate_workflow(steps=[...])\n# CoordinationServiceError: Service unavailable'
+    code = "workflow = coordinate_workflow(steps=[...])\n# CoordinationServiceError: Service unavailable"
 
     # Test 1: Syntax validation
     try:
@@ -7797,7 +7801,7 @@ def test_snippet_troubleshooting_discovery_coordination_41():
 
 def test_snippet_troubleshooting_discovery_coordination_42():
     """Test code snippet from troubleshooting/discovery-coordination.md (line 998)."""
-    code = '# Check coordination service health\nfrom coordination import check_coordination_health\n\nhealth = check_coordination_health()\nprint(f"Status: {health[\'status\']}")\nprint(f"Active Workflows: {health.get(\'active_workflows\', 0)}")\nprint(f"Queue Depth: {health.get(\'queue_depth\', 0)}")\nprint(f"Errors: {health.get(\'errors\', [])}")\n\n# If queue_depth > 100 → Service overloaded\n# If active_workflows > 50 → At capacity'
+    code = "# Check coordination service health\nfrom coordination import check_coordination_health\n\nhealth = check_coordination_health()\nprint(f\"Status: {health['status']}\")\nprint(f\"Active Workflows: {health.get('active_workflows', 0)}\")\nprint(f\"Queue Depth: {health.get('queue_depth', 0)}\")\nprint(f\"Errors: {health.get('errors', [])}\")\n\n# If queue_depth > 100 → Service overloaded\n# If active_workflows > 50 → At capacity"
 
     # Test 1: Syntax validation
     try:
@@ -7882,7 +7886,7 @@ def test_snippet_wizard_flow_diagram_1():
 
 def test_snippet_wizard_flow_diagram_2():
     """Test code snippet from wizard-flow-diagram.md (line 388)."""
-    code = 'def can_proceed_to(self, step: WizardStep) -> bool:\n    if step == WizardStep.SERVICES:\n        return self.detection_results is not None\n\n    if step == WizardStep.REVIEW:\n        return (\n            bool(self.project_name) and\n            any(self.services_enabled.values())\n        )\n\n    if step == WizardStep.COMPLETE:\n        return self.completed\n\n    return True'
+    code = "def can_proceed_to(self, step: WizardStep) -> bool:\n    if step == WizardStep.SERVICES:\n        return self.detection_results is not None\n\n    if step == WizardStep.REVIEW:\n        return (\n            bool(self.project_name) and\n            any(self.services_enabled.values())\n        )\n\n    if step == WizardStep.COMPLETE:\n        return self.completed\n\n    return True"
 
     # Test 1: Syntax validation
     try:
@@ -7933,7 +7937,7 @@ def test_snippet_wizard_flow_diagram_4():
 
 def test_snippet_wizard_flow_diagram_5():
     """Test code snippet from wizard-flow-diagram.md (line 443)."""
-    code = 'def test_quick_setup_flow():\n    flow = WizardFlow()\n    steps = [WizardStep.WELCOME, WizardStep.DETECTION,\n             WizardStep.SERVICES, WizardStep.DEPLOYMENT,\n             WizardStep.REVIEW, WizardStep.COMPLETE]\n\n    for expected_step in steps:\n        assert flow.state.current_step == expected_step\n        if expected_step != WizardStep.COMPLETE:\n            flow.advance()'
+    code = "def test_quick_setup_flow():\n    flow = WizardFlow()\n    steps = [WizardStep.WELCOME, WizardStep.DETECTION,\n             WizardStep.SERVICES, WizardStep.DEPLOYMENT,\n             WizardStep.REVIEW, WizardStep.COMPLETE]\n\n    for expected_step in steps:\n        assert flow.state.current_step == expected_step\n        if expected_step != WizardStep.COMPLETE:\n            flow.advance()"
 
     # Test 1: Syntax validation
     try:
@@ -8103,7 +8107,7 @@ def test_snippet_wizard_integration_9():
 
 def test_snippet_wizard_integration_10():
     """Test code snippet from wizard-integration.md (line 633)."""
-    code = '# Always save state before potentially failing operations\npersistence.save(state)\ntry:\n    risky_operation()\nexcept Exception:\n    # State is already saved for resume\n    raise'
+    code = "# Always save state before potentially failing operations\npersistence.save(state)\ntry:\n    risky_operation()\nexcept Exception:\n    # State is already saved for resume\n    raise"
 
     # Test 1: Syntax validation
     try:
@@ -8409,7 +8413,7 @@ def test_snippet_wizard_reference_5():
 
 def test_snippet_wizard_reference_6():
     """Test code snippet from wizard-reference.md (line 209)."""
-    code = 'state = WizardState()\nstate.current_step = WizardStep.SERVICES\n\nprev_step = state.get_previous_step()\n# Returns WizardStep.DETECTION'
+    code = "state = WizardState()\nstate.current_step = WizardStep.SERVICES\n\nprev_step = state.get_previous_step()\n# Returns WizardStep.DETECTION"
 
     # Test 1: Syntax validation
     try:
@@ -8511,7 +8515,7 @@ def test_snippet_wizard_reference_11():
 
 def test_snippet_wizard_reference_12():
     """Test code snippet from wizard-reference.md (line 325)."""
-    code = '# New flow\nflow = WizardFlow()\n\n# With existing state\nstate = WizardState()\nflow = WizardFlow(state)'
+    code = "# New flow\nflow = WizardFlow()\n\n# With existing state\nstate = WizardState()\nflow = WizardFlow(state)"
 
     # Test 1: Syntax validation
     try:
@@ -8545,7 +8549,7 @@ def test_snippet_wizard_reference_13():
 
 def test_snippet_wizard_reference_14():
     """Test code snippet from wizard-reference.md (line 365)."""
-    code = 'flow = WizardFlow()\nflow.state.current_step = WizardStep.SERVICES\n\nprev_step = flow.go_back()\n# Returns WizardStep.DETECTION'
+    code = "flow = WizardFlow()\nflow.state.current_step = WizardStep.SERVICES\n\nprev_step = flow.go_back()\n# Returns WizardStep.DETECTION"
 
     # Test 1: Syntax validation
     try:
@@ -8562,7 +8566,7 @@ def test_snippet_wizard_reference_14():
 
 def test_snippet_wizard_reference_15():
     """Test code snippet from wizard-reference.md (line 387)."""
-    code = 'flow = WizardFlow()\nflow.state.current_step = WizardStep.REVIEW\n\n# Jump back to edit services\nflow.jump_to(WizardStep.SERVICES)'
+    code = "flow = WizardFlow()\nflow.state.current_step = WizardStep.REVIEW\n\n# Jump back to edit services\nflow.jump_to(WizardStep.SERVICES)"
 
     # Test 1: Syntax validation
     try:
@@ -8613,7 +8617,7 @@ def test_snippet_wizard_reference_17():
 
 def test_snippet_wizard_reference_18():
     """Test code snippet from wizard-reference.md (line 433)."""
-    code = 'flow = WizardFlow()\nflow.mark_complete()\nassert flow.state.is_complete()'
+    code = "flow = WizardFlow()\nflow.mark_complete()\nassert flow.state.is_complete()"
 
     # Test 1: Syntax validation
     try:
@@ -8647,7 +8651,7 @@ def test_snippet_wizard_reference_19():
 
 def test_snippet_wizard_reference_20():
     """Test code snippet from wizard-reference.md (line 470)."""
-    code = 'state = WizardState()\nscreens = WizardScreens(state)'
+    code = "state = WizardState()\nscreens = WizardScreens(state)"
 
     # Test 1: Syntax validation
     try:
@@ -8834,7 +8838,7 @@ def test_snippet_wizard_reference_30():
 
 def test_snippet_wizard_reference_31():
     """Test code snippet from wizard-reference.md (line 720)."""
-    code = 'state = WizardState()\nvalidator = WizardValidator(state)'
+    code = "state = WizardState()\nvalidator = WizardValidator(state)"
 
     # Test 1: Syntax validation
     try:
@@ -8987,7 +8991,7 @@ def test_snippet_wizard_reference_39():
 
 def test_snippet_wizard_reference_40():
     """Test code snippet from wizard-reference.md (line 896)."""
-    code = 'validator = WizardValidator(state)\nvalidator.validate_state()\nerrors = validator.get_errors()'
+    code = "validator = WizardValidator(state)\nvalidator.validate_state()\nerrors = validator.get_errors()"
 
     # Test 1: Syntax validation
     try:
@@ -9004,7 +9008,7 @@ def test_snippet_wizard_reference_40():
 
 def test_snippet_wizard_reference_41():
     """Test code snippet from wizard-reference.md (line 910)."""
-    code = 'validator = WizardValidator(state)\nvalidator.validate_state()\nfor msg in validator.get_error_messages():\n    print(msg)'
+    code = "validator = WizardValidator(state)\nvalidator.validate_state()\nfor msg in validator.get_error_messages():\n    print(msg)"
 
     # Test 1: Syntax validation
     try:
@@ -9089,7 +9093,7 @@ def test_snippet_wizard_reference_45():
 
 def test_snippet_wizard_reference_46():
     """Test code snippet from wizard-reference.md (line 999)."""
-    code = 'persistence = WizardStatePersistence()\nstate = WizardState()\npersistence.save(state)'
+    code = "persistence = WizardStatePersistence()\nstate = WizardState()\npersistence.save(state)"
 
     # Test 1: Syntax validation
     try:
@@ -9123,7 +9127,7 @@ def test_snippet_wizard_reference_47():
 
 def test_snippet_wizard_reference_48():
     """Test code snippet from wizard-reference.md (line 1033)."""
-    code = 'persistence = WizardStatePersistence()\npersistence.clear()'
+    code = "persistence = WizardStatePersistence()\npersistence.clear()"
 
     # Test 1: Syntax validation
     try:

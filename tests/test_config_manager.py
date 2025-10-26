@@ -119,9 +119,7 @@ class TestConfigManagerLoad:
         user_dir = tmp_path / "user"
         user_dir.mkdir()
         user_config = user_dir / "config.yaml"
-        user_config.write_text(
-            MyceliumConfig(project_name="user-global").to_yaml()
-        )
+        user_config.write_text(MyceliumConfig(project_name="user-global").to_yaml())
 
         # Create project-local config
         project_dir = tmp_path / "project"
@@ -284,9 +282,7 @@ class TestConfigManagerSave:
         saved_config = MyceliumConfig.from_yaml(config_path.read_text())
         assert saved_config.project_name == "updated"
 
-    def test_save_atomic_write_on_failure_no_corruption(
-        self, tmp_path: Path
-    ) -> None:
+    def test_save_atomic_write_on_failure_no_corruption(self, tmp_path: Path) -> None:
         """Test that failed save doesn't corrupt existing file."""
         config_path = tmp_path / "config.yaml"
 
@@ -297,10 +293,13 @@ class TestConfigManagerSave:
         # Try to save with write failure
         manager = ConfigManager(config_path=config_path)
 
-        with patch(
-            "mycelium_onboarding.config.manager.yaml.dump",
-            side_effect=Exception("Serialization failed"),
-        ), pytest.raises(ConfigSaveError):
+        with (
+            patch(
+                "mycelium_onboarding.config.manager.yaml.dump",
+                side_effect=Exception("Serialization failed"),
+            ),
+            pytest.raises(ConfigSaveError),
+        ):
             manager.save(MyceliumConfig(project_name="new"))
 
         # Original file should still exist and be unchanged
@@ -326,9 +325,7 @@ class TestConfigManagerSave:
         # File should not be created
         assert not config_path.exists()
 
-    def test_save_determines_user_global_path_by_default(
-        self, tmp_path: Path
-    ) -> None:
+    def test_save_determines_user_global_path_by_default(self, tmp_path: Path) -> None:
         """Test save uses user-global path when no config exists."""
         with (
             patch.dict(os.environ, {}, clear=True),
@@ -458,7 +455,7 @@ class TestConfigManagerValidate:
                 "redis": {
                     "port": 99999  # Invalid port
                 }
-            }
+            },
         }
 
         # This should raise during from_dict
@@ -555,13 +552,15 @@ class TestConfigManagerMerge:
         # First need to create a proper ValidationError by trying to
         # validate invalid data
         try:
-            MyceliumConfig.model_validate({
-                "services": {
-                    "redis": {"enabled": False},
-                    "postgres": {"enabled": False},
-                    "temporal": {"enabled": False}
+            MyceliumConfig.model_validate(
+                {
+                    "services": {
+                        "redis": {"enabled": False},
+                        "postgres": {"enabled": False},
+                        "temporal": {"enabled": False},
+                    }
                 }
-            })
+            )
         except ValidationError as validation_error:
             # Now use this error in the mock
             with patch.object(

@@ -17,16 +17,19 @@ from asyncpg import Pool
 
 class StateManagerError(Exception):
     """Base exception for state manager errors."""
+
     pass
 
 
 class StateNotFoundError(StateManagerError):
     """Raised when workflow state is not found."""
+
     pass
 
 
 class WorkflowStatus(str, Enum):
     """Workflow execution status."""
+
     PENDING = "pending"
     RUNNING = "running"
     PAUSED = "paused"
@@ -37,6 +40,7 @@ class WorkflowStatus(str, Enum):
 
 class TaskStatus(str, Enum):
     """Individual task execution status."""
+
     PENDING = "pending"
     READY = "ready"
     RUNNING = "running"
@@ -49,6 +53,7 @@ class TaskStatus(str, Enum):
 @dataclass
 class TaskState:
     """State of an individual task in the workflow."""
+
     task_id: str
     agent_id: str
     agent_type: str
@@ -78,6 +83,7 @@ class TaskState:
 @dataclass
 class WorkflowState:
     """Complete workflow execution state."""
+
     workflow_id: str
     status: WorkflowStatus
     tasks: dict[str, TaskState]
@@ -133,7 +139,9 @@ class StateManager:
             self._pool = pool
             self._owns_pool = False
         else:
-            self._connection_string = connection_string or "postgresql://localhost:5432/mycelium_registry"
+            self._connection_string = (
+                connection_string or "postgresql://localhost:5432/mycelium_registry"
+            )
             self._pool: Pool | None = None
             self._owns_pool = True
 
@@ -287,13 +295,19 @@ class StateManager:
                     agent_id=row["agent_id"],
                     agent_type=row["agent_type"],
                     status=TaskStatus(row["status"]),
-                    started_at=row["started_at"].isoformat() + "Z" if row["started_at"] else None,
-                    completed_at=row["completed_at"].isoformat() + "Z" if row["completed_at"] else None,
+                    started_at=row["started_at"].isoformat() + "Z"
+                    if row["started_at"]
+                    else None,
+                    completed_at=row["completed_at"].isoformat() + "Z"
+                    if row["completed_at"]
+                    else None,
                     execution_time=row["execution_time"],
                     result=row["result"],
                     error=row["error"],
                     retry_count=row["retry_count"],
-                    dependencies=list(row["dependencies"]) if row["dependencies"] else [],
+                    dependencies=list(row["dependencies"])
+                    if row["dependencies"]
+                    else [],
                 )
                 tasks[task.task_id] = task
 
@@ -303,8 +317,12 @@ class StateManager:
                 tasks=tasks,
                 created_at=workflow_row["created_at"].isoformat() + "Z",
                 updated_at=workflow_row["updated_at"].isoformat() + "Z",
-                started_at=workflow_row["started_at"].isoformat() + "Z" if workflow_row["started_at"] else None,
-                completed_at=workflow_row["completed_at"].isoformat() + "Z" if workflow_row["completed_at"] else None,
+                started_at=workflow_row["started_at"].isoformat() + "Z"
+                if workflow_row["started_at"]
+                else None,
+                completed_at=workflow_row["completed_at"].isoformat() + "Z"
+                if workflow_row["completed_at"]
+                else None,
                 variables=workflow_row["variables"] or {},
                 metadata=workflow_row["metadata"] or {},
                 error=workflow_row["error"],
@@ -361,7 +379,9 @@ class StateManager:
         state = await self.get_workflow(workflow_id)
 
         if task_id not in state.tasks:
-            raise StateNotFoundError(f"Task {task_id} not found in workflow {workflow_id}")
+            raise StateNotFoundError(
+                f"Task {task_id} not found in workflow {workflow_id}"
+            )
 
         task = state.tasks[task_id]
         now = datetime.utcnow().isoformat() + "Z"
@@ -370,7 +390,11 @@ class StateManager:
             task.status = status
             if status == TaskStatus.RUNNING and not task.started_at:
                 task.started_at = now
-            elif status in (TaskStatus.COMPLETED, TaskStatus.FAILED, TaskStatus.SKIPPED):
+            elif status in (
+                TaskStatus.COMPLETED,
+                TaskStatus.FAILED,
+                TaskStatus.SKIPPED,
+            ):
                 task.completed_at = now
 
         if result is not None:
@@ -503,8 +527,12 @@ class StateManager:
                     state.status.value,
                     datetime.fromisoformat(state.created_at.rstrip("Z")),
                     datetime.fromisoformat(state.updated_at.rstrip("Z")),
-                    datetime.fromisoformat(state.started_at.rstrip("Z")) if state.started_at else None,
-                    datetime.fromisoformat(state.completed_at.rstrip("Z")) if state.completed_at else None,
+                    datetime.fromisoformat(state.started_at.rstrip("Z"))
+                    if state.started_at
+                    else None,
+                    datetime.fromisoformat(state.completed_at.rstrip("Z"))
+                    if state.completed_at
+                    else None,
                     json.dumps(state.variables),
                     json.dumps(state.metadata),
                     state.error,
@@ -532,8 +560,12 @@ class StateManager:
                         task.agent_id,
                         task.agent_type,
                         task.status.value,
-                        datetime.fromisoformat(task.started_at.rstrip("Z")) if task.started_at else None,
-                        datetime.fromisoformat(task.completed_at.rstrip("Z")) if task.completed_at else None,
+                        datetime.fromisoformat(task.started_at.rstrip("Z"))
+                        if task.started_at
+                        else None,
+                        datetime.fromisoformat(task.completed_at.rstrip("Z"))
+                        if task.completed_at
+                        else None,
                         task.execution_time,
                         json.dumps(task.result) if task.result else None,
                         json.dumps(task.error) if task.error else None,

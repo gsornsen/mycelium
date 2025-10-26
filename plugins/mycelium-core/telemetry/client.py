@@ -55,9 +55,7 @@ class TelemetryClient:
     def _start_worker(self) -> None:
         """Start background worker thread for processing events."""
         self._worker_thread = threading.Thread(
-            target=self._worker_loop,
-            name="telemetry-worker",
-            daemon=True
+            target=self._worker_loop, name="telemetry-worker", daemon=True
         )
         self._worker_thread.start()
         logger.debug("Telemetry worker thread started")
@@ -77,8 +75,8 @@ class TelemetryClient:
 
                 # Send batch if full or timeout reached
                 should_send = (
-                    len(batch) >= self.config.batch_size or
-                    time.time() - last_send >= batch_timeout
+                    len(batch) >= self.config.batch_size
+                    or time.time() - last_send >= batch_timeout
                 )
 
                 if should_send and batch:
@@ -129,7 +127,7 @@ class TelemetryClient:
                         "Content-Type": "application/json",
                         "User-Agent": "Mycelium-Telemetry/1.0",
                     },
-                    method="POST"
+                    method="POST",
                 )
 
                 with urlopen(request, timeout=self.config.timeout) as response:
@@ -183,10 +181,7 @@ class TelemetryClient:
             logger.debug("Telemetry queue full - dropping event")
 
     def track_agent_usage(
-        self,
-        agent_id: str,
-        operation: str,
-        metadata: dict[str, Any] | None = None
+        self, agent_id: str, operation: str, metadata: dict[str, Any] | None = None
     ) -> None:
         """Track agent usage event.
 
@@ -198,9 +193,7 @@ class TelemetryClient:
         if not self._enabled:
             return
 
-        event = self.anonymizer.anonymize_agent_usage(
-            agent_id, operation, metadata
-        )
+        event = self.anonymizer.anonymize_agent_usage(agent_id, operation, metadata)
         event["event_type"] = "agent_usage"
         self._enqueue_event(event)
 
@@ -209,7 +202,7 @@ class TelemetryClient:
         metric_name: str,
         value: float,
         unit: str = "ms",
-        tags: dict[str, str] | None = None
+        tags: dict[str, str] | None = None,
     ) -> None:
         """Track performance metric.
 
@@ -233,7 +226,7 @@ class TelemetryClient:
         error_type: str,
         error_message: str,
         stack_trace: str | None = None,
-        context: dict[str, Any] | None = None
+        context: dict[str, Any] | None = None,
     ) -> None:
         """Track error event.
 
@@ -246,9 +239,7 @@ class TelemetryClient:
         if not self._enabled:
             return
 
-        event = self.anonymizer.anonymize_error(
-            error_type, error_message, stack_trace
-        )
+        event = self.anonymizer.anonymize_error(error_type, error_message, stack_trace)
         event["event_type"] = "error"
 
         if context:

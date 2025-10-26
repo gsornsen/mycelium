@@ -62,8 +62,7 @@ async def lifespan(app: FastAPI):
 
     # Startup: Initialize registry
     connection_string = os.getenv(
-        "DATABASE_URL",
-        "postgresql://localhost:5432/mycelium_registry"
+        "DATABASE_URL", "postgresql://localhost:5432/mycelium_registry"
     )
 
     _registry = AgentRegistry(connection_string=connection_string)
@@ -304,7 +303,7 @@ def create_app(
             ...,
             description="Agent ID (e.g., 'backend-developer' or '01-core-backend-developer')",
             examples=["backend-developer", "01-core-backend-developer"],
-        )
+        ),
     ):
         """Get detailed information about a specific agent.
 
@@ -484,10 +483,7 @@ def _get_match_reason(agent_data: dict, query: str) -> str:
     if query in agent_data["name"].lower():
         reasons.append(f"exact match on name: {agent_data['name']}")
 
-    matched_keywords = [
-        kw for kw in agent_data["keywords"]
-        if query in kw.lower()
-    ]
+    matched_keywords = [kw for kw in agent_data["keywords"] if query in kw.lower()]
     if matched_keywords:
         reasons.append(f"keyword match: {', '.join(matched_keywords[:3])}")
 

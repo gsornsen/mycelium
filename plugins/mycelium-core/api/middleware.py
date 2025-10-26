@@ -76,7 +76,8 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
             cutoff_time = current_time - 600
 
             old_ips = [
-                ip for ip, (_, last_update) in self._buckets.items()
+                ip
+                for ip, (_, last_update) in self._buckets.items()
                 if last_update < cutoff_time
             ]
 
@@ -101,10 +102,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 
         # Add tokens based on time passed
         time_passed = current_time - last_update
-        tokens = min(
-            self.burst_size,
-            tokens + (time_passed * self.rate_per_second)
-        )
+        tokens = min(self.burst_size, tokens + (time_passed * self.rate_per_second))
 
         # Check if we have tokens available
         if tokens >= 1.0:

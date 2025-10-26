@@ -611,16 +611,12 @@ def test_review_screen_displays_all_settings(
 # ==============================================================================
 
 
-def test_complete_screen(
-    mocker: MockerFixture, wizard_screens: WizardScreens
-) -> None:
+def test_complete_screen(mocker: MockerFixture, wizard_screens: WizardScreens) -> None:
     """Test complete screen displays success message."""
     config_path = "/path/to/config.yaml"
 
     # Mock console.print to capture output
-    console_mock = mocker.patch(
-        "mycelium_onboarding.wizard.screens.console.print"
-    )
+    console_mock = mocker.patch("mycelium_onboarding.wizard.screens.console.print")
 
     wizard_screens.show_complete(config_path)
 

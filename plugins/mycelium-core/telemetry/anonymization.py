@@ -25,10 +25,7 @@ class DataAnonymizer:
             salt: Salt for hashing identifiers
         """
         self.salt = salt
-        self._path_pattern = re.compile(
-            r'(?:File |at |in )"([^"]+)"',
-            re.IGNORECASE
-        )
+        self._path_pattern = re.compile(r'(?:File |at |in )"([^"]+)"', re.IGNORECASE)
 
     def hash_identifier(self, identifier: str) -> str:
         """Hash an identifier with salt.
@@ -61,19 +58,14 @@ class DataAnonymizer:
         original_path = path
 
         # Replace Unix home directories (/home/username or /Users/username)
-        path = re.sub(
-            r"/(?:home|Users)/([^/]+)/",
-            "<user>/",
-            path,
-            flags=re.IGNORECASE
-        )
+        path = re.sub(r"/(?:home|Users)/([^/]+)/", "<user>/", path, flags=re.IGNORECASE)
 
         # Replace Windows user directories (C:\Users\username or Users\username)
         path = re.sub(
             r"(?:[A-Z]:[/\\])?Users[/\\]([^/\\]+)[/\\]",
             "<user>/",
             path,
-            flags=re.IGNORECASE
+            flags=re.IGNORECASE,
         )
 
         # If path still starts with absolute indicators, remove them
@@ -114,6 +106,7 @@ class DataAnonymizer:
             >>> anonymizer.anonymize_stack_trace(trace)
             'File "<user>/project/file.py", line 42'
         """
+
         def replace_path(match: re.Match[str]) -> str:
             """Replace matched path with anonymized version."""
             path = match.group(1)
@@ -130,10 +123,7 @@ class DataAnonymizer:
         return trace
 
     def anonymize_error(
-        self,
-        error_type: str,
-        error_message: str,
-        stack_trace: str | None = None
+        self, error_type: str, error_message: str, stack_trace: str | None = None
     ) -> dict[str, Any]:
         """Anonymize error information.
 
@@ -170,10 +160,9 @@ class DataAnonymizer:
         # First handle quoted paths
         message = self._path_pattern.sub(
             lambda m: m.group(0).replace(
-                m.group(1),
-                self.anonymize_file_path(m.group(1))
+                m.group(1), self.anonymize_file_path(m.group(1))
             ),
-            message
+            message,
         )
 
         # Then handle unquoted Unix paths
@@ -181,37 +170,28 @@ class DataAnonymizer:
             r"(/(?:home|Users)/[^\s]+)",
             lambda m: self.anonymize_file_path(m.group(1)),
             message,
-            flags=re.IGNORECASE
+            flags=re.IGNORECASE,
         )
 
         # Handle unquoted Windows paths
         message = re.sub(
             r"([A-Z]:[/\\][^\s]+)",
             lambda m: self.anonymize_file_path(m.group(1)),
-            message
+            message,
         )
 
         # Remove passwords and credentials from connection strings
-        message = re.sub(
-            r'://[^:]+:([^@]+)@',
-            '://<user>:<password>@',
-            message
-        )
+        message = re.sub(r"://[^:]+:([^@]+)@", "://<user>:<password>@", message)
 
         # Remove any potential email addresses
         message = re.sub(
-            r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b',
-            '<email>',
-            message
+            r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b", "<email>", message
         )
 
         return message
 
     def anonymize_agent_usage(
-        self,
-        agent_id: str,
-        operation: str,
-        metadata: dict[str, Any] | None = None
+        self, agent_id: str, operation: str, metadata: dict[str, Any] | None = None
     ) -> dict[str, Any]:
         """Anonymize agent usage data.
 
@@ -236,10 +216,7 @@ class DataAnonymizer:
 
         return anonymized
 
-    def _filter_safe_metadata(
-        self,
-        metadata: dict[str, Any]
-    ) -> dict[str, Any]:
+    def _filter_safe_metadata(self, metadata: dict[str, Any]) -> dict[str, Any]:
         """Filter metadata to keep only safe, non-sensitive fields.
 
         Args:
@@ -259,7 +236,8 @@ class DataAnonymizer:
         }
 
         return {
-            k: v for k, v in metadata.items()
+            k: v
+            for k, v in metadata.items()
             if k in safe_keys and not isinstance(v, (dict, list))
         }
 
@@ -268,7 +246,7 @@ class DataAnonymizer:
         metric_name: str,
         value: float,
         unit: str,
-        tags: dict[str, str] | None = None
+        tags: dict[str, str] | None = None,
     ) -> dict[str, Any]:
         """Anonymize performance metric data.
 

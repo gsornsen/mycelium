@@ -21,17 +21,20 @@ with open(SCHEMA_PATH) as f:
 
 class HandoffProtocolError(Exception):
     """Base exception for handoff protocol errors."""
+
     pass
 
 
 class HandoffValidationError(HandoffProtocolError):
     """Raised when handoff message validation fails."""
+
     pass
 
 
 @dataclass
 class AgentInfo:
     """Agent information for handoff."""
+
     agent_id: str
     agent_type: str
     execution_time: float | None = None
@@ -45,6 +48,7 @@ class AgentInfo:
 @dataclass
 class HandoffContext:
     """Context information for handoff."""
+
     task_description: str | None = None
     previous_results: list[dict[str, Any]] = field(default_factory=list)
     conversation_history: list[dict[str, Any]] = field(default_factory=list)
@@ -70,6 +74,7 @@ class HandoffContext:
 @dataclass
 class WorkflowProgress:
     """Workflow progress tracking."""
+
     completed_steps: list[str] = field(default_factory=list)
     pending_steps: list[str] = field(default_factory=list)
     percentage: float = 0.0
@@ -82,6 +87,7 @@ class WorkflowProgress:
 @dataclass
 class HandoffState:
     """Workflow execution state."""
+
     variables: dict[str, Any] = field(default_factory=dict)
     progress: WorkflowProgress | None = None
     errors: list[dict[str, Any]] = field(default_factory=list)
@@ -101,6 +107,7 @@ class HandoffState:
 @dataclass
 class HandoffMetadata:
     """Handoff metadata for tracking and debugging."""
+
     priority: str = "normal"
     timeout: int | None = None
     retry_count: int = 0
@@ -115,6 +122,7 @@ class HandoffMetadata:
 @dataclass
 class HandoffMessage:
     """Complete handoff message structure."""
+
     source: AgentInfo
     target: AgentInfo
     context: HandoffContext
@@ -237,7 +245,9 @@ class HandoffProtocol:
             message_dict = message.to_dict()
             jsonschema.validate(instance=message_dict, schema=HANDOFF_SCHEMA)
         except jsonschema.ValidationError as e:
-            raise HandoffValidationError(f"Handoff validation failed: {e.message}") from e
+            raise HandoffValidationError(
+                f"Handoff validation failed: {e.message}"
+            ) from e
         except Exception as e:
             raise HandoffValidationError(f"Handoff validation error: {str(e)}") from e
 

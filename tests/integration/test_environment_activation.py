@@ -102,7 +102,9 @@ class TestManualActivation:
                 env_vars[key] = value
 
         # Verify environment variables
-        assert env_vars.get("MYCELIUM_ENV_ACTIVE") == "1", "Environment not marked as active"
+        assert env_vars.get("MYCELIUM_ENV_ACTIVE") == "1", (
+            "Environment not marked as active"
+        )
         assert env_vars.get("MYCELIUM_ROOT") == str(project_root)
         assert temp_home.name in env_vars.get("MYCELIUM_CONFIG_DIR", "")
         assert "mycelium" in env_vars.get("MYCELIUM_CONFIG_DIR", "")
@@ -186,7 +188,9 @@ class TestManualActivation:
         # Verify PATH was restored
         # The script itself checks if PATH equals ORIGINAL_PATH and reports the result
         # This is more reliable than comparing paths here due to environment differences
-        assert env_vars.get("PATH_RESTORED") == "yes", f"PATH was not restored. Script output: {result.stdout}"
+        assert env_vars.get("PATH_RESTORED") == "yes", (
+            f"PATH was not restored. Script output: {result.stdout}"
+        )
 
     def test_nested_activation_prevention(
         self, project_root: Path, temp_home: Path
@@ -543,9 +547,7 @@ class TestConfigHierarchy:
 class TestCrossPlatform:
     """Test cross-platform path handling."""
 
-    def test_cross_platform_paths(
-        self, project_root: Path, temp_home: Path
-    ) -> None:
+    def test_cross_platform_paths(self, project_root: Path, temp_home: Path) -> None:
         """Test path handling works correctly on current platform.
 
         Verifies:
@@ -633,9 +635,7 @@ class TestCrossPlatform:
 class TestMissingDependencies:
     """Test graceful handling of missing dependencies."""
 
-    def test_missing_venv_shows_warning(
-        self, tmp_path: Path, temp_home: Path
-    ) -> None:
+    def test_missing_venv_shows_warning(self, tmp_path: Path, temp_home: Path) -> None:
         """Test activation warns about missing virtual environment.
 
         Verifies:

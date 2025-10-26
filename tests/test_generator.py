@@ -38,9 +38,7 @@ class TestDeploymentGeneratorInitialization:
         assert "deployments" in str(gen.output_dir)
         assert gen.renderer is not None
 
-    def test_generator_initialization_custom_output_dir(
-        self, tmp_path: Path
-    ) -> None:
+    def test_generator_initialization_custom_output_dir(self, tmp_path: Path) -> None:
         """Test DeploymentGenerator initialization with custom output dir."""
         config = MyceliumConfig(project_name="test")
         output_dir = tmp_path / "custom"
@@ -393,6 +391,7 @@ class TestSystemdGeneration:
 
         # Check that file is executable
         import stat
+
         mode = install_script.stat().st_mode
         assert mode & stat.S_IXUSR
 

@@ -18,8 +18,7 @@ from registry import AgentRegistry
 def test_database_url():
     """Get test database URL from environment or use default."""
     return os.getenv(
-        "TEST_DATABASE_URL",
-        "postgresql://localhost:5432/mycelium_registry_test"
+        "TEST_DATABASE_URL", "postgresql://localhost:5432/mycelium_registry_test"
     )
 
 
@@ -52,7 +51,11 @@ async def registry(test_database_url) -> AsyncGenerator[AgentRegistry, None]:
             "category": "Security",
             "description": "Security analysis and vulnerability assessment specialist",
             "file_path": "/test/security-expert.md",
-            "capabilities": ["Security audit", "Vulnerability scanning", "Penetration testing"],
+            "capabilities": [
+                "Security audit",
+                "Vulnerability scanning",
+                "Penetration testing",
+            ],
             "tools": ["security-scanner", "audit-tool"],
             "keywords": ["security", "audit", "vulnerability", "penetration"],
             "estimated_tokens": 2000,
@@ -179,8 +182,7 @@ class TestDiscoverEndpoint:
         }
 
         high_response = client.post(
-            "/api/v1/agents/discover",
-            json=high_threshold_request
+            "/api/v1/agents/discover", json=high_threshold_request
         )
         high_data = high_response.json()
 
@@ -192,8 +194,7 @@ class TestDiscoverEndpoint:
         }
 
         low_response = client.post(
-            "/api/v1/agents/discover",
-            json=low_threshold_request
+            "/api/v1/agents/discover", json=low_threshold_request
         )
         low_data = low_response.json()
 
@@ -422,9 +423,7 @@ class TestSearchEndpoint:
 
     def test_search_with_category_and_query(self, client):
         """Test search with both category and query filters."""
-        response = client.get(
-            "/api/v1/agents/search?q=python&category=Development"
-        )
+        response = client.get("/api/v1/agents/search?q=python&category=Development")
 
         assert response.status_code == 200
         data = response.json()

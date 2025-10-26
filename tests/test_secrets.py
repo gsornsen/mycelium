@@ -348,7 +348,9 @@ class TestDeploymentSecrets:
     def test_to_env_vars(self) -> None:
         """Test converting secrets to environment variables."""
         secrets = DeploymentSecrets(
-            project_name="test", postgres_password="secret123", redis_password="secret456"
+            project_name="test",
+            postgres_password="secret123",
+            redis_password="secret456",
         )
 
         env_vars = secrets.to_env_vars()
@@ -413,7 +415,9 @@ class TestEnvFileGeneration:
 
     def test_generate_env_file_header(self, tmp_path: Path) -> None:
         """Test .env file has security warning header."""
-        secrets = DeploymentSecrets(project_name="test-project", postgres_password="secret")
+        secrets = DeploymentSecrets(
+            project_name="test-project", postgres_password="secret"
+        )
 
         env_file = tmp_path / ".env"
         generate_env_file(secrets, env_file)
@@ -552,9 +556,7 @@ class TestEdgeCases:
     def test_json_serialization_roundtrip(self, tmp_path: Path) -> None:
         """Test that secrets survive JSON serialization."""
         manager = SecretsManager("test", secrets_dir=tmp_path)
-        original = manager.generate_secrets(
-            postgres=True, redis=True, temporal=True
-        )
+        original = manager.generate_secrets(postgres=True, redis=True, temporal=True)
 
         manager.save_secrets(original)
         loaded = manager.load_secrets()

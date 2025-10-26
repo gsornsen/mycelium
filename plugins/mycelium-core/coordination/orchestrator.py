@@ -24,22 +24,26 @@ from .state_manager import (
 
 class OrchestrationError(Exception):
     """Base exception for orchestration errors."""
+
     pass
 
 
 class DependencyError(OrchestrationError):
     """Raised when dependency resolution fails."""
+
     pass
 
 
 class ExecutionError(OrchestrationError):
     """Raised when task execution fails."""
+
     pass
 
 
 @dataclass
 class RetryPolicy:
     """Retry policy configuration for task execution."""
+
     max_attempts: int = 3
     initial_delay: float = 1.0  # seconds
     max_delay: float = 60.0  # seconds
@@ -47,13 +51,14 @@ class RetryPolicy:
 
     def get_delay(self, attempt: int) -> float:
         """Calculate delay for given retry attempt."""
-        delay = self.initial_delay * (self.exponential_base ** attempt)
+        delay = self.initial_delay * (self.exponential_base**attempt)
         return min(delay, self.max_delay)
 
 
 @dataclass
 class TaskDefinition:
     """Definition of a task in the workflow."""
+
     task_id: str
     agent_id: str
     agent_type: str
@@ -67,6 +72,7 @@ class TaskDefinition:
 @dataclass
 class TaskExecutionContext:
     """Context for task execution."""
+
     task_def: TaskDefinition
     workflow_id: str
     workflow_context: HandoffContext
@@ -239,8 +245,10 @@ class WorkflowOrchestrator:
                 # Check if any failed tasks don't allow failure
                 tasks_by_id = {t.task_id: t for t in tasks}
                 critical_failures = [
-                    t for t in state.tasks.values()
-                    if t.status == TaskStatus.FAILED and not tasks_by_id[t.task_id].allow_failure
+                    t
+                    for t in state.tasks.values()
+                    if t.status == TaskStatus.FAILED
+                    and not tasks_by_id[t.task_id].allow_failure
                 ]
                 if critical_failures:
                     state.status = WorkflowStatus.FAILED
@@ -414,7 +422,9 @@ class WorkflowOrchestrator:
                             # Check if failure is allowed
                             if not tasks_by_id[task_id].allow_failure:
                                 raise
-                            completed.add(task_id)  # Mark as completed even though it failed
+                            completed.add(
+                                task_id
+                            )  # Mark as completed even though it failed
             elif running:
                 # Wait for running tasks if no ready tasks
                 await asyncio.sleep(0.1)
@@ -477,11 +487,13 @@ class WorkflowOrchestrator:
                 for dep_id in task_def.dependencies:
                     dep_task = state.tasks.get(dep_id)
                     if dep_task and dep_task.result:
-                        previous_results.append({
-                            "task_id": dep_id,
-                            "agent_id": dep_task.agent_id,
-                            "result": dep_task.result,
-                        })
+                        previous_results.append(
+                            {
+                                "task_id": dep_id,
+                                "agent_id": dep_task.agent_id,
+                                "result": dep_task.result,
+                            }
+                        )
 
                 exec_context = TaskExecutionContext(
                     task_def=task_def,
@@ -539,9 +551,7 @@ class WorkflowOrchestrator:
                     await asyncio.sleep(task_def.retry_policy.get_delay(attempt))
 
         # All retries exhausted
-        raise ExecutionError(
-            f"Task {task_def.task_id} failed after {attempt} attempts"
-        )
+        raise ExecutionError(f"Task {task_def.task_id} failed after {attempt} attempts")
 
     async def _handle_task_failure(
         self,
@@ -636,9 +646,7 @@ class WorkflowOrchestrator:
             await self.execute_workflow(workflow_id, background=True)
         return state
 
-    async def rollback_workflow(
-        self, workflow_id: str, version: int
-    ) -> WorkflowState:
+    async def rollback_workflow(self, workflow_id: str, version: int) -> WorkflowState:
         """Rollback workflow to previous version.
 
         Args:

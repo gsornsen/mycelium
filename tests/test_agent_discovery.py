@@ -32,6 +32,7 @@ from scripts.agent_discovery import (
 # Fixtures
 # ============================================================================
 
+
 @pytest.fixture
 def tmp_dir():
     """Create temporary directory for test files."""
@@ -57,7 +58,7 @@ def mock_index(tmp_dir):
                 "description": "API design specialist for REST and GraphQL",
                 "keywords": ["api", "rest", "graphql"],
                 "tools": ["Read", "Write"],
-                "expertise": ["API design", "REST"]
+                "expertise": ["API design", "REST"],
             },
             {
                 "id": "test-agent-2",
@@ -67,7 +68,7 @@ def mock_index(tmp_dir):
                 "description": "DevOps expert specializing in Kubernetes",
                 "keywords": ["devops", "kubernetes", "docker"],
                 "tools": ["Bash"],
-                "expertise": ["DevOps", "Kubernetes"]
+                "expertise": ["DevOps", "Kubernetes"],
             },
             {
                 "id": "test-agent-3",
@@ -77,7 +78,7 @@ def mock_index(tmp_dir):
                 "description": "Python development specialist",
                 "keywords": ["python", "testing", "asyncio"],
                 "tools": ["Read", "Write", "Bash"],
-                "expertise": ["Python", "Testing"]
+                "expertise": ["Python", "Testing"],
             },
             {
                 "id": "test-agent-4",
@@ -87,18 +88,18 @@ def mock_index(tmp_dir):
                 "description": "Machine learning engineer for model training",
                 "keywords": ["ml", "pytorch", "training"],
                 "tools": ["Read", "Write"],
-                "expertise": ["ML", "PyTorch"]
-            }
+                "expertise": ["ML", "PyTorch"],
+            },
         ],
         "metadata": {
             "version": "1.0.0",
             "generated": "2025-10-17T00:00:00Z",
-            "total_agents": 4
-        }
+            "total_agents": 4,
+        },
     }
 
     index_path = tmp_dir / "index.json"
-    with open(index_path, 'w') as f:
+    with open(index_path, "w") as f:
         json.dump(index_data, f, indent=2)
 
     # Create agent markdown files
@@ -122,6 +123,7 @@ def mock_index(tmp_dir):
 # AgentCache Tests
 # ============================================================================
 
+
 class TestAgentCache:
     """Test AgentCache LRU implementation."""
 
@@ -130,10 +132,10 @@ class TestAgentCache:
         cache = AgentCache(max_size=10)
         stats = cache.get_stats()
 
-        assert stats['hits'] == 0
-        assert stats['misses'] == 0
-        assert stats['evictions'] == 0
-        assert stats['size'] == 0
+        assert stats["hits"] == 0
+        assert stats["misses"] == 0
+        assert stats["evictions"] == 0
+        assert stats["size"] == 0
 
     def test_cache_put_and_get(self):
         """Test basic put and get operations."""
@@ -144,7 +146,7 @@ class TestAgentCache:
         result = cache.get("test-1")
 
         assert result == agent
-        assert cache.get_stats()['hits'] == 1
+        assert cache.get_stats()["hits"] == 1
 
     def test_cache_miss(self):
         """Test cache miss increments miss counter."""
@@ -152,7 +154,7 @@ class TestAgentCache:
         result = cache.get("nonexistent")
 
         assert result is None
-        assert cache.get_stats()['misses'] == 1
+        assert cache.get_stats()["misses"] == 1
 
     def test_cache_lru_eviction(self):
         """Test LRU eviction when cache is full."""
@@ -163,13 +165,13 @@ class TestAgentCache:
         cache.put("agent-2", {"id": "2"})
         cache.put("agent-3", {"id": "3"})
 
-        assert cache.get_stats()['size'] == 3
+        assert cache.get_stats()["size"] == 3
 
         # Add 4th agent, should evict agent-1 (least recent)
         cache.put("agent-4", {"id": "4"})
 
-        assert cache.get_stats()['size'] == 3
-        assert cache.get_stats()['evictions'] == 1
+        assert cache.get_stats()["size"] == 3
+        assert cache.get_stats()["evictions"] == 1
         assert cache.get("agent-1") is None  # Evicted
         assert cache.get("agent-4") is not None  # Present
 
@@ -198,7 +200,7 @@ class TestAgentCache:
         cache.put("agent-2", {"id": "2"})
         cache.clear()
 
-        assert cache.get_stats()['size'] == 0
+        assert cache.get_stats()["size"] == 0
         assert cache.get("agent-1") is None
         assert cache.get("agent-2") is None
 
@@ -207,13 +209,14 @@ class TestAgentCache:
 # AgentDiscovery Tests
 # ============================================================================
 
+
 class TestAgentDiscovery:
     """Test AgentDiscovery core functionality."""
 
     def test_load_index(self, mock_index):
         """Test index loads successfully."""
         discovery = AgentDiscovery(mock_index)
-        assert len(discovery.index['agents']) == 4
+        assert len(discovery.index["agents"]) == 4
 
     def test_index_not_found(self, tmp_dir):
         """Test error when index file doesn't exist."""
@@ -250,8 +253,8 @@ class TestAgentDiscovery:
         agents = discovery.list_agents()
 
         assert len(agents) == 4
-        assert all('id' in agent for agent in agents)
-        assert all('content' not in agent for agent in agents)
+        assert all("id" in agent for agent in agents)
+        assert all("content" not in agent for agent in agents)
 
     def test_list_agents_by_category(self, mock_index):
         """Test filtering agents by category."""
@@ -259,7 +262,7 @@ class TestAgentDiscovery:
         agents = discovery.list_agents(category="core-development")
 
         assert len(agents) == 2
-        assert all(a['category'] == "core-development" for a in agents)
+        assert all(a["category"] == "core-development" for a in agents)
 
     def test_list_agents_by_keywords(self, mock_index):
         """Test filtering agents by keywords."""
@@ -267,7 +270,7 @@ class TestAgentDiscovery:
         agents = discovery.list_agents(keywords=["kubernetes"])
 
         assert len(agents) == 1
-        assert agents[0]['id'] == 'test-agent-2'
+        assert agents[0]["id"] == "test-agent-2"
 
     def test_list_agents_by_multiple_keywords(self, mock_index):
         """Test filtering by multiple keywords (OR logic)."""
@@ -281,39 +284,39 @@ class TestAgentDiscovery:
         discovery = AgentDiscovery(mock_index)
 
         # First call should load from file
-        agent = discovery.get_agent('test-agent-1')
+        agent = discovery.get_agent("test-agent-1")
 
         assert agent is not None
-        assert 'content' in agent
-        assert '# Test Agent 1' in agent['content']
-        assert 'API design specialist' in agent['content']
+        assert "content" in agent
+        assert "# Test Agent 1" in agent["content"]
+        assert "API design specialist" in agent["content"]
 
         stats = discovery.get_stats()
-        assert stats['file_reads'] == 1
-        assert stats['total_lookups'] == 1
+        assert stats["file_reads"] == 1
+        assert stats["total_lookups"] == 1
 
     def test_get_agent_cached(self, mock_index):
         """Test caching behavior on repeated access."""
         discovery = AgentDiscovery(mock_index)
 
         # First call
-        agent1 = discovery.get_agent('test-agent-1')
+        agent1 = discovery.get_agent("test-agent-1")
 
         # Second call (should be cached)
-        agent2 = discovery.get_agent('test-agent-1')
+        agent2 = discovery.get_agent("test-agent-1")
 
         assert agent1 == agent2
 
         stats = discovery.get_stats()
-        assert stats['file_reads'] == 1  # Only one file read
-        assert stats['total_lookups'] == 2  # Two lookups
-        assert stats['cache']['hits'] == 1  # One cache hit
-        assert stats['cache_hit_rate'] == 50.0  # 1/2 = 50%
+        assert stats["file_reads"] == 1  # Only one file read
+        assert stats["total_lookups"] == 2  # Two lookups
+        assert stats["cache"]["hits"] == 1  # One cache hit
+        assert stats["cache_hit_rate"] == 50.0  # 1/2 = 50%
 
     def test_get_agent_not_found(self, mock_index):
         """Test getting nonexistent agent returns None."""
         discovery = AgentDiscovery(mock_index)
-        agent = discovery.get_agent('nonexistent')
+        agent = discovery.get_agent("nonexistent")
 
         assert agent is None
 
@@ -324,7 +327,7 @@ class TestAgentDiscovery:
         # Delete agent file
         (tmp_dir / "agent1.md").unlink()
 
-        agent = discovery.get_agent('test-agent-1')
+        agent = discovery.get_agent("test-agent-1")
         assert agent is None
 
     def test_search_by_description(self, mock_index):
@@ -333,7 +336,7 @@ class TestAgentDiscovery:
         results = discovery.search("api")
 
         assert len(results) >= 1
-        assert any(r['id'] == 'test-agent-1' for r in results)
+        assert any(r["id"] == "test-agent-1" for r in results)
 
     def test_search_by_keyword(self, mock_index):
         """Test search in agent keywords."""
@@ -341,7 +344,7 @@ class TestAgentDiscovery:
         results = discovery.search("kubernetes")
 
         assert len(results) == 1
-        assert results[0]['id'] == 'test-agent-2'
+        assert results[0]["id"] == "test-agent-2"
 
     def test_search_by_name(self, mock_index):
         """Test search in agent names."""
@@ -349,7 +352,7 @@ class TestAgentDiscovery:
         results = discovery.search("Test Agent 3")
 
         assert len(results) >= 1
-        assert any(r['id'] == 'test-agent-3' for r in results)
+        assert any(r["id"] == "test-agent-3" for r in results)
 
     def test_search_case_insensitive(self, mock_index):
         """Test search is case-insensitive."""
@@ -386,33 +389,34 @@ class TestAgentDiscovery:
         discovery = AgentDiscovery(mock_index)
 
         # Load some agents
-        discovery.get_agent('test-agent-1')
-        discovery.get_agent('test-agent-2')
+        discovery.get_agent("test-agent-1")
+        discovery.get_agent("test-agent-2")
 
-        assert discovery.get_stats()['cache']['size'] == 2
+        assert discovery.get_stats()["cache"]["size"] == 2
 
         # Clear cache
         discovery.clear_cache()
 
-        assert discovery.get_stats()['cache']['size'] == 0
+        assert discovery.get_stats()["cache"]["size"] == 0
 
     def test_cache_size_limit(self, mock_index):
         """Test cache respects size limit."""
         discovery = AgentDiscovery(mock_index, cache_size=2)
 
         # Load 3 agents (cache size is 2)
-        discovery.get_agent('test-agent-1')
-        discovery.get_agent('test-agent-2')
-        discovery.get_agent('test-agent-3')  # Should evict agent-1
+        discovery.get_agent("test-agent-1")
+        discovery.get_agent("test-agent-2")
+        discovery.get_agent("test-agent-3")  # Should evict agent-1
 
         stats = discovery.get_stats()
-        assert stats['cache']['size'] == 2
-        assert stats['cache']['evictions'] == 1
+        assert stats["cache"]["size"] == 2
+        assert stats["cache"]["evictions"] == 1
 
 
 # ============================================================================
 # Performance Tests
 # ============================================================================
+
 
 class TestPerformance:
     """Test performance benchmarks meet targets."""
@@ -442,10 +446,12 @@ class TestPerformance:
 
         # Benchmark first load
         start = time.perf_counter()
-        discovery.get_agent('test-agent-1')
+        discovery.get_agent("test-agent-1")
         elapsed_ms = (time.perf_counter() - start) * 1000
 
-        assert elapsed_ms < 5.0, f"get_agent (first) took {elapsed_ms:.2f}ms, target: <5ms"
+        assert elapsed_ms < 5.0, (
+            f"get_agent (first) took {elapsed_ms:.2f}ms, target: <5ms"
+        )
 
     def test_get_agent_cached_performance(self, mock_index):
         """Test get_agent cached access meets <1ms target."""
@@ -454,15 +460,17 @@ class TestPerformance:
         discovery = AgentDiscovery(mock_index)
 
         # Load agent once
-        discovery.get_agent('test-agent-1')
+        discovery.get_agent("test-agent-1")
 
         # Benchmark cached access
         start = time.perf_counter()
         for _ in range(100):
-            discovery.get_agent('test-agent-1')
+            discovery.get_agent("test-agent-1")
         elapsed_ms = (time.perf_counter() - start) * 1000 / 100
 
-        assert elapsed_ms < 1.0, f"get_agent (cached) took {elapsed_ms:.2f}ms, target: <1ms"
+        assert elapsed_ms < 1.0, (
+            f"get_agent (cached) took {elapsed_ms:.2f}ms, target: <1ms"
+        )
 
     def test_search_performance(self, mock_index):
         """Test search meets <10ms target."""
@@ -483,23 +491,24 @@ class TestPerformance:
         results = benchmark_discovery(mock_index)
 
         # Verify all expected metrics present
-        assert 'list_all_agents_ms' in results
-        assert 'get_agent_first_ms' in results
-        assert 'get_agent_cached_ms' in results
-        assert 'search_ms' in results
-        assert 'filter_category_ms' in results
+        assert "list_all_agents_ms" in results
+        assert "get_agent_first_ms" in results
+        assert "get_agent_cached_ms" in results
+        assert "search_ms" in results
+        assert "filter_category_ms" in results
 
         # Verify targets
-        assert results['list_all_agents_ms'] < 20
-        assert results['get_agent_first_ms'] < 5
-        assert results['get_agent_cached_ms'] < 1
-        assert results['search_ms'] < 10
-        assert results['filter_category_ms'] < 5
+        assert results["list_all_agents_ms"] < 20
+        assert results["get_agent_first_ms"] < 5
+        assert results["get_agent_cached_ms"] < 1
+        assert results["search_ms"] < 10
+        assert results["filter_category_ms"] < 5
 
 
 # ============================================================================
 # Integration Tests
 # ============================================================================
+
 
 class TestIntegration:
     """Integration tests with realistic scenarios."""
@@ -513,9 +522,9 @@ class TestIntegration:
         assert len(agents) == 2
 
         # Get full content for first agent
-        agent = discovery.get_agent(agents[0]['id'])
+        agent = discovery.get_agent(agents[0]["id"])
         assert agent is not None
-        assert 'content' in agent
+        assert "content" in agent
 
     def test_workflow_search_then_get(self, mock_index):
         """Test typical workflow: search then get."""
@@ -526,16 +535,16 @@ class TestIntegration:
         assert len(results) > 0
 
         # Get full content for first result
-        agent = discovery.get_agent(results[0]['id'])
+        agent = discovery.get_agent(results[0]["id"])
         assert agent is not None
-        assert 'content' in agent
+        assert "content" in agent
 
     def test_concurrent_access_simulation(self, mock_index):
         """Simulate concurrent access to different agents."""
         discovery = AgentDiscovery(mock_index)
 
         # Simulate multiple requests
-        agent_ids = ['test-agent-1', 'test-agent-2', 'test-agent-3', 'test-agent-4']
+        agent_ids = ["test-agent-1", "test-agent-2", "test-agent-3", "test-agent-4"]
 
         for _ in range(3):  # 3 rounds
             for agent_id in agent_ids:
@@ -543,28 +552,28 @@ class TestIntegration:
                 assert agent is not None
 
         stats = discovery.get_stats()
-        assert stats['total_lookups'] == 12  # 3 rounds * 4 agents
-        assert stats['file_reads'] == 4  # Only first access reads file
+        assert stats["total_lookups"] == 12  # 3 rounds * 4 agents
+        assert stats["file_reads"] == 4  # Only first access reads file
 
     def test_cache_effectiveness(self, mock_index):
         """Test cache improves performance on repeated access."""
         discovery = AgentDiscovery(mock_index)
 
         # Access pattern: agent-1 multiple times, others once
-        discovery.get_agent('test-agent-1')
-        discovery.get_agent('test-agent-2')
-        discovery.get_agent('test-agent-1')  # Cached
-        discovery.get_agent('test-agent-3')
-        discovery.get_agent('test-agent-1')  # Cached
-        discovery.get_agent('test-agent-4')
+        discovery.get_agent("test-agent-1")
+        discovery.get_agent("test-agent-2")
+        discovery.get_agent("test-agent-1")  # Cached
+        discovery.get_agent("test-agent-3")
+        discovery.get_agent("test-agent-1")  # Cached
+        discovery.get_agent("test-agent-4")
 
         stats = discovery.get_stats()
-        assert stats['cache_hit_rate'] > 30.0  # 2/6 = 33% cache hits
+        assert stats["cache_hit_rate"] > 30.0  # 2/6 = 33% cache hits
 
 
 # ============================================================================
 # Run Tests
 # ============================================================================
 
-if __name__ == '__main__':
-    pytest.main([__file__, '-v', '--tb=short'])
+if __name__ == "__main__":
+    pytest.main([__file__, "-v", "--tb=short"])

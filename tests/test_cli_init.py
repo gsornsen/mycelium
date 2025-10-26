@@ -25,10 +25,13 @@ class TestInitCommand:
     def runner(self) -> CliRunner:
         """Provide Click test runner with clean environment."""
         # Create runner with isolated environment (no MYCELIUM_* vars)
-        return CliRunner(env={
-            k: v for k, v in __import__('os').environ.items()
-            if not k.startswith('MYCELIUM_')
-        })
+        return CliRunner(
+            env={
+                k: v
+                for k, v in __import__("os").environ.items()
+                if not k.startswith("MYCELIUM_")
+            }
+        )
 
     @pytest.fixture
     def mock_state(self) -> WizardState:
@@ -56,7 +59,9 @@ class TestInitCommand:
             mock_persistence_class.return_value = mock_persistence
 
             # Setup mock screens to exit quickly
-            with patch("mycelium_onboarding.wizard.screens.WizardScreens") as mock_screens:
+            with patch(
+                "mycelium_onboarding.wizard.screens.WizardScreens"
+            ) as mock_screens:
                 mock_screens.return_value.show_welcome.side_effect = SystemExit(0)
 
                 # Run command
@@ -65,7 +70,9 @@ class TestInitCommand:
                 # Verify persistence was checked
                 mock_persistence.exists.assert_called()
 
-    def test_init_with_resume_flag(self, runner: CliRunner, mock_state: WizardState) -> None:
+    def test_init_with_resume_flag(
+        self, runner: CliRunner, mock_state: WizardState
+    ) -> None:
         """Test init command with --resume flag when state exists."""
         with patch(
             "mycelium_onboarding.wizard.persistence.WizardStatePersistence"
@@ -77,7 +84,9 @@ class TestInitCommand:
             mock_persistence_class.return_value = mock_persistence
 
             # Setup mock screens to exit quickly
-            with patch("mycelium_onboarding.wizard.screens.WizardScreens") as mock_screens:
+            with patch(
+                "mycelium_onboarding.wizard.screens.WizardScreens"
+            ) as mock_screens:
                 mock_screens.return_value.show_welcome.side_effect = SystemExit(0)
 
                 # Run command
@@ -97,7 +106,9 @@ class TestInitCommand:
             mock_persistence_class.return_value = mock_persistence
 
             # Setup mock screens to exit quickly
-            with patch("mycelium_onboarding.wizard.screens.WizardScreens") as mock_screens:
+            with patch(
+                "mycelium_onboarding.wizard.screens.WizardScreens"
+            ) as mock_screens:
                 mock_screens.return_value.show_welcome.side_effect = SystemExit(0)
 
                 # Run command
@@ -120,7 +131,9 @@ class TestInitCommand:
             mock_persistence_class.return_value = mock_persistence
 
             # Setup mock screens to exit quickly
-            with patch("mycelium_onboarding.wizard.screens.WizardScreens") as mock_screens:
+            with patch(
+                "mycelium_onboarding.wizard.screens.WizardScreens"
+            ) as mock_screens:
                 mock_screens.return_value.show_welcome.side_effect = SystemExit(0)
 
                 # Run command with "yes" input
@@ -140,7 +153,9 @@ class TestInitCommand:
             mock_persistence_class.return_value = mock_persistence
 
             # Setup mock screens to exit quickly
-            with patch("mycelium_onboarding.wizard.screens.WizardScreens") as mock_screens:
+            with patch(
+                "mycelium_onboarding.wizard.screens.WizardScreens"
+            ) as mock_screens:
                 mock_screens.return_value.show_welcome.side_effect = SystemExit(0)
 
                 # Run command with "no" input
@@ -160,7 +175,9 @@ class TestInitCommand:
             mock_persistence_class.return_value = mock_persistence
 
             # Setup mock screens to raise KeyboardInterrupt
-            with patch("mycelium_onboarding.wizard.screens.WizardScreens") as mock_screens:
+            with patch(
+                "mycelium_onboarding.wizard.screens.WizardScreens"
+            ) as mock_screens:
                 mock_screens.return_value.show_welcome.side_effect = KeyboardInterrupt()
 
                 # Run command
@@ -183,7 +200,9 @@ class TestInitCommand:
             mock_persistence_class.return_value = mock_persistence
 
             # Setup mock screens
-            with patch("mycelium_onboarding.wizard.screens.WizardScreens") as mock_screens:
+            with patch(
+                "mycelium_onboarding.wizard.screens.WizardScreens"
+            ) as mock_screens:
                 screens = mock_screens.return_value
                 screens.show_welcome.return_value = "quick"
                 screens.show_detection.return_value = mock_detection_summary
@@ -196,14 +215,20 @@ class TestInitCommand:
                 screens.show_review.return_value = "confirm"
 
                 # Setup mock validator
-                with patch("mycelium_onboarding.wizard.validation.WizardValidator") as mock_validator:
+                with patch(
+                    "mycelium_onboarding.wizard.validation.WizardValidator"
+                ) as mock_validator:
                     validator = mock_validator.return_value
                     validator.validate_state.return_value = True
 
                     # Setup mock config manager
-                    with patch("mycelium_onboarding.config.manager.ConfigManager") as mock_manager:
+                    with patch(
+                        "mycelium_onboarding.config.manager.ConfigManager"
+                    ) as mock_manager:
                         manager = mock_manager.return_value
-                        manager._determine_save_path.return_value = Path("/tmp/config.yaml")
+                        manager._determine_save_path.return_value = Path(
+                            "/tmp/config.yaml"
+                        )
 
                         # Run command with required inputs
                         result = runner.invoke(
@@ -226,7 +251,9 @@ class TestInitCommand:
             mock_persistence_class.return_value = mock_persistence
 
             # Setup mock screens
-            with patch("mycelium_onboarding.wizard.screens.WizardScreens") as mock_screens:
+            with patch(
+                "mycelium_onboarding.wizard.screens.WizardScreens"
+            ) as mock_screens:
                 screens = mock_screens.return_value
                 screens.show_welcome.return_value = "quick"
                 screens.show_detection.return_value = Mock(spec=DetectionSummary)
@@ -241,7 +268,9 @@ class TestInitCommand:
                 screens.show_review.side_effect = ["confirm", SystemExit(0)]
 
                 # Setup mock validator with errors
-                with patch("mycelium_onboarding.wizard.validation.WizardValidator") as mock_validator:
+                with patch(
+                    "mycelium_onboarding.wizard.validation.WizardValidator"
+                ) as mock_validator:
                     validator = mock_validator.return_value
                     validator.validate_state.return_value = False
                     validator.get_error_messages.return_value = [
@@ -267,7 +296,9 @@ class TestInitCommand:
             mock_persistence_class.return_value = mock_persistence
 
             # Setup mock screens
-            with patch("mycelium_onboarding.wizard.screens.WizardScreens") as mock_screens:
+            with patch(
+                "mycelium_onboarding.wizard.screens.WizardScreens"
+            ) as mock_screens:
                 screens = mock_screens.return_value
                 screens.show_welcome.return_value = "quick"  # Quick mode
                 screens.show_detection.return_value = mock_detection_summary
@@ -280,14 +311,20 @@ class TestInitCommand:
                 screens.show_review.return_value = "confirm"
 
                 # Setup mock validator
-                with patch("mycelium_onboarding.wizard.validation.WizardValidator") as mock_validator:
+                with patch(
+                    "mycelium_onboarding.wizard.validation.WizardValidator"
+                ) as mock_validator:
                     validator = mock_validator.return_value
                     validator.validate_state.return_value = True
 
                     # Setup mock config manager
-                    with patch("mycelium_onboarding.config.manager.ConfigManager") as mock_manager:
+                    with patch(
+                        "mycelium_onboarding.config.manager.ConfigManager"
+                    ) as mock_manager:
                         manager = mock_manager.return_value
-                        manager._determine_save_path.return_value = Path("/tmp/config.yaml")
+                        manager._determine_save_path.return_value = Path(
+                            "/tmp/config.yaml"
+                        )
 
                         # Run command
                         result = runner.invoke(
@@ -310,7 +347,9 @@ class TestInitCommand:
             mock_persistence_class.return_value = mock_persistence
 
             # Setup mock screens
-            with patch("mycelium_onboarding.wizard.screens.WizardScreens") as mock_screens:
+            with patch(
+                "mycelium_onboarding.wizard.screens.WizardScreens"
+            ) as mock_screens:
                 screens = mock_screens.return_value
                 screens.show_welcome.return_value = "custom"  # Custom mode
                 screens.show_detection.return_value = mock_detection_summary
@@ -324,14 +363,20 @@ class TestInitCommand:
                 screens.show_review.return_value = "confirm"
 
                 # Setup mock validator
-                with patch("mycelium_onboarding.wizard.validation.WizardValidator") as mock_validator:
+                with patch(
+                    "mycelium_onboarding.wizard.validation.WizardValidator"
+                ) as mock_validator:
                     validator = mock_validator.return_value
                     validator.validate_state.return_value = True
 
                     # Setup mock config manager
-                    with patch("mycelium_onboarding.config.manager.ConfigManager") as mock_manager:
+                    with patch(
+                        "mycelium_onboarding.config.manager.ConfigManager"
+                    ) as mock_manager:
                         manager = mock_manager.return_value
-                        manager._determine_save_path.return_value = Path("/tmp/config.yaml")
+                        manager._determine_save_path.return_value = Path(
+                            "/tmp/config.yaml"
+                        )
 
                         # Run command
                         result = runner.invoke(
@@ -354,7 +399,9 @@ class TestInitCommand:
             mock_persistence_class.return_value = mock_persistence
 
             # Setup mock screens
-            with patch("mycelium_onboarding.wizard.screens.WizardScreens") as mock_screens:
+            with patch(
+                "mycelium_onboarding.wizard.screens.WizardScreens"
+            ) as mock_screens:
                 screens = mock_screens.return_value
                 screens.show_welcome.return_value = "quick"
                 screens.show_detection.return_value = mock_detection_summary
@@ -367,14 +414,20 @@ class TestInitCommand:
                 screens.show_review.return_value = "confirm"
 
                 # Setup mock validator
-                with patch("mycelium_onboarding.wizard.validation.WizardValidator") as mock_validator:
+                with patch(
+                    "mycelium_onboarding.wizard.validation.WizardValidator"
+                ) as mock_validator:
                     validator = mock_validator.return_value
                     validator.validate_state.return_value = True
 
                     # Setup mock config manager
-                    with patch("mycelium_onboarding.config.manager.ConfigManager") as mock_manager:
+                    with patch(
+                        "mycelium_onboarding.config.manager.ConfigManager"
+                    ) as mock_manager:
                         manager = mock_manager.return_value
-                        manager._determine_save_path.return_value = Path("/tmp/config.yaml")
+                        manager._determine_save_path.return_value = Path(
+                            "/tmp/config.yaml"
+                        )
 
                         # Run command
                         result = runner.invoke(
@@ -397,7 +450,9 @@ class TestInitCommand:
             mock_persistence_class.return_value = mock_persistence
 
             # Setup mock screens
-            with patch("mycelium_onboarding.wizard.screens.WizardScreens") as mock_screens:
+            with patch(
+                "mycelium_onboarding.wizard.screens.WizardScreens"
+            ) as mock_screens:
                 screens = mock_screens.return_value
                 screens.show_welcome.return_value = "quick"
                 screens.show_detection.return_value = mock_detection_summary
@@ -410,14 +465,20 @@ class TestInitCommand:
                 screens.show_review.return_value = "confirm"
 
                 # Setup mock validator
-                with patch("mycelium_onboarding.wizard.validation.WizardValidator") as mock_validator:
+                with patch(
+                    "mycelium_onboarding.wizard.validation.WizardValidator"
+                ) as mock_validator:
                     validator = mock_validator.return_value
                     validator.validate_state.return_value = True
 
                     # Setup mock config manager
-                    with patch("mycelium_onboarding.config.manager.ConfigManager") as mock_manager:
+                    with patch(
+                        "mycelium_onboarding.config.manager.ConfigManager"
+                    ) as mock_manager:
                         manager = mock_manager.return_value
-                        manager._determine_save_path.return_value = Path("/tmp/config.yaml")
+                        manager._determine_save_path.return_value = Path(
+                            "/tmp/config.yaml"
+                        )
 
                         # Run command
                         result = runner.invoke(
@@ -439,7 +500,9 @@ class TestInitCommand:
             mock_persistence_class.return_value = mock_persistence
 
             # Setup mock screens to exit quickly
-            with patch("mycelium_onboarding.wizard.screens.WizardScreens") as mock_screens:
+            with patch(
+                "mycelium_onboarding.wizard.screens.WizardScreens"
+            ) as mock_screens:
                 mock_screens.return_value.show_welcome.side_effect = SystemExit(0)
 
                 # Run command with resume
@@ -459,7 +522,9 @@ class TestInitCommand:
             mock_persistence_class.return_value = mock_persistence
 
             # Setup mock screens to raise exception
-            with patch("mycelium_onboarding.wizard.screens.WizardScreens") as mock_screens:
+            with patch(
+                "mycelium_onboarding.wizard.screens.WizardScreens"
+            ) as mock_screens:
                 mock_screens.return_value.show_welcome.side_effect = RuntimeError(
                     "Test error"
                 )
@@ -479,10 +544,13 @@ class TestInitCommandSimple:
     def runner(self) -> CliRunner:
         """Provide Click test runner with clean environment."""
         # Create runner with isolated environment (no MYCELIUM_* vars)
-        return CliRunner(env={
-            k: v for k, v in __import__('os').environ.items()
-            if not k.startswith('MYCELIUM_')
-        })
+        return CliRunner(
+            env={
+                k: v
+                for k, v in __import__("os").environ.items()
+                if not k.startswith("MYCELIUM_")
+            }
+        )
 
     def test_init_command_exists(self, runner: CliRunner) -> None:
         """Test that init command is registered."""

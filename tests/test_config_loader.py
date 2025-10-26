@@ -515,9 +515,7 @@ class TestEdgeCases:
         assert result.exists()
         assert result.read_text() == "real: config"
 
-    def test_empty_config_file(
-        self, mock_home: Path, user_config_dir: Path
-    ) -> None:
+    def test_empty_config_file(self, mock_home: Path, user_config_dir: Path) -> None:
         """Should handle empty configuration files."""
         # Create empty file
         config_file = user_config_dir / "config.yaml"
@@ -530,9 +528,7 @@ class TestEdgeCases:
         assert result.exists()
         assert result.stat().st_size == 0
 
-    def test_very_long_filename(
-        self, mock_home: Path, user_config_dir: Path
-    ) -> None:
+    def test_very_long_filename(self, mock_home: Path, user_config_dir: Path) -> None:
         """Should handle very long filenames."""
         # Create file with long name (but not too long for filesystem)
         long_name = "config_" + ("x" * 200) + ".yaml"

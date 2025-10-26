@@ -49,9 +49,9 @@ class TestEventStorageBasics:
     def test_append_event(self, storage):
         """Test appending single event to JSONL file."""
         event = {
-            'timestamp': datetime.now(timezone.utc).isoformat(),
-            'event_type': 'test_event',
-            'duration_ms': 42.0,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "event_type": "test_event",
+            "duration_ms": 42.0,
         }
 
         storage.append_event(event)
@@ -69,9 +69,18 @@ class TestEventStorageBasics:
     def test_append_multiple_events(self, storage):
         """Test appending multiple events."""
         events = [
-            {'timestamp': datetime.now(timezone.utc).isoformat(), 'event_type': 'event1'},
-            {'timestamp': datetime.now(timezone.utc).isoformat(), 'event_type': 'event2'},
-            {'timestamp': datetime.now(timezone.utc).isoformat(), 'event_type': 'event3'},
+            {
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "event_type": "event1",
+            },
+            {
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "event_type": "event2",
+            },
+            {
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "event_type": "event3",
+            },
         ]
 
         for event in events:
@@ -86,7 +95,10 @@ class TestEventStorageBasics:
     def test_read_events(self, storage):
         """Test reading events from storage."""
         events = [
-            {'timestamp': datetime.now(timezone.utc).isoformat(), 'event_type': f'event{i}'}
+            {
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "event_type": f"event{i}",
+            }
             for i in range(5)
         ]
 
@@ -96,15 +108,19 @@ class TestEventStorageBasics:
         # Read all events
         read_events = storage.read_events()
         assert len(read_events) == 5
-        assert all(e['event_type'] in [f'event{i}' for i in range(5)] for e in read_events)
+        assert all(
+            e["event_type"] in [f"event{i}" for i in range(5)] for e in read_events
+        )
 
     def test_read_events_with_limit(self, storage):
         """Test reading events with limit."""
         for i in range(10):
-            storage.append_event({
-                'timestamp': datetime.now(timezone.utc).isoformat(),
-                'event_type': f'event{i}',
-            })
+            storage.append_event(
+                {
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "event_type": f"event{i}",
+                }
+            )
 
         # Read with limit
         read_events = storage.read_events(limit=5)
@@ -117,16 +133,20 @@ class TestEventStorageBasics:
         recent_time = now - timedelta(hours=1)
 
         # Add old event
-        storage.append_event({
-            'timestamp': old_time.isoformat(),
-            'event_type': 'old_event',
-        })
+        storage.append_event(
+            {
+                "timestamp": old_time.isoformat(),
+                "event_type": "old_event",
+            }
+        )
 
         # Add recent event
-        storage.append_event({
-            'timestamp': recent_time.isoformat(),
-            'event_type': 'recent_event',
-        })
+        storage.append_event(
+            {
+                "timestamp": recent_time.isoformat(),
+                "event_type": "recent_event",
+            }
+        )
 
         # Filter by start_date (1 day ago)
         start_date = now - timedelta(days=1)
@@ -134,7 +154,7 @@ class TestEventStorageBasics:
 
         # Should only get recent event
         assert len(read_events) == 1
-        assert read_events[0]['event_type'] == 'recent_event'
+        assert read_events[0]["event_type"] == "recent_event"
 
     def test_read_empty_storage(self, storage):
         """Test reading from empty storage."""
@@ -155,9 +175,9 @@ class TestFileRotation:
 
         # Write events until rotation
         large_event = {
-            'timestamp': datetime.now(timezone.utc).isoformat(),
-            'event_type': 'large_event',
-            'data': 'x' * 500,  # 500 chars
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "event_type": "large_event",
+            "data": "x" * 500,  # 500 chars
         }
 
         # Write 3 events (~1.5KB) to trigger rotation
@@ -176,7 +196,10 @@ class TestFileRotation:
         )
 
         # Trigger rotation
-        large_event = {'timestamp': datetime.now(timezone.utc).isoformat(), 'data': 'x' * 200}
+        large_event = {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "data": "x" * 200,
+        }
         for _ in range(5):
             storage.append_event(large_event)
 
@@ -198,11 +221,13 @@ class TestFileRotation:
 
         # Write events that will cause rotation
         for i in range(10):
-            storage.append_event({
-                'timestamp': datetime.now(timezone.utc).isoformat(),
-                'event_type': f'event{i}',
-                'data': 'x' * 100,
-            })
+            storage.append_event(
+                {
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "event_type": f"event{i}",
+                    "data": "x" * 100,
+                }
+            )
 
         # Read all events (should read from multiple files)
         read_events = storage.read_events()
@@ -219,11 +244,13 @@ class TestThreadSafety:
 
         def append_events(thread_id):
             for i in range(events_per_thread):
-                storage.append_event({
-                    'timestamp': datetime.now(timezone.utc).isoformat(),
-                    'thread_id': thread_id,
-                    'event_num': i,
-                })
+                storage.append_event(
+                    {
+                        "timestamp": datetime.now(timezone.utc).isoformat(),
+                        "thread_id": thread_id,
+                        "event_num": i,
+                    }
+                )
 
         # Spawn threads
         threads = [
@@ -253,11 +280,13 @@ class TestThreadSafety:
 
         def append_large_events(thread_id):
             for i in range(events_per_thread):
-                storage.append_event({
-                    'timestamp': datetime.now(timezone.utc).isoformat(),
-                    'thread_id': thread_id,
-                    'data': 'x' * 150,  # Large event
-                })
+                storage.append_event(
+                    {
+                        "timestamp": datetime.now(timezone.utc).isoformat(),
+                        "thread_id": thread_id,
+                        "data": "x" * 150,  # Large event
+                    }
+                )
 
         threads = [
             threading.Thread(target=append_large_events, args=(tid,))
@@ -282,34 +311,38 @@ class TestStorageStats:
         """Test getting storage statistics."""
         # Add some events
         for i in range(5):
-            storage.append_event({
-                'timestamp': datetime.now(timezone.utc).isoformat(),
-                'event_type': f'event{i}',
-            })
+            storage.append_event(
+                {
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "event_type": f"event{i}",
+                }
+            )
 
         stats = storage.get_storage_stats()
 
         # Check new field names
-        assert 'file_count' in stats
-        assert 'total_events' in stats
-        assert 'total_size_bytes' in stats
-        assert 'latest_event_time' in stats
-        assert 'storage_dir' in stats
+        assert "file_count" in stats
+        assert "total_events" in stats
+        assert "total_size_bytes" in stats
+        assert "latest_event_time" in stats
+        assert "storage_dir" in stats
 
         # Validate values
-        assert stats['file_count'] >= 1
-        assert stats['total_events'] == 5
-        assert stats['total_size_bytes'] > 0
-        assert stats['latest_event_time'] is not None
+        assert stats["file_count"] >= 1
+        assert stats["total_events"] == 5
+        assert stats["total_size_bytes"] > 0
+        assert stats["latest_event_time"] is not None
 
     def test_clear_all_events(self, storage):
         """Test clearing all events."""
         # Add events
         for i in range(5):
-            storage.append_event({
-                'timestamp': datetime.now(timezone.utc).isoformat(),
-                'event_type': f'event{i}',
-            })
+            storage.append_event(
+                {
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "event_type": f"event{i}",
+                }
+            )
 
         # Clear
         deleted = storage.clear_all_events()
@@ -327,8 +360,8 @@ class TestErrorHandling:
         """Test handling of non-JSON-serializable events."""
         # Event with non-serializable object
         event = {
-            'timestamp': datetime.now(timezone.utc).isoformat(),
-            'bad_data': lambda x: x,  # Not JSON serializable
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "bad_data": lambda x: x,  # Not JSON serializable
         }
 
         with pytest.raises(TypeError):
@@ -337,34 +370,38 @@ class TestErrorHandling:
     def test_read_events_with_malformed_lines(self, storage):
         """Test reading with malformed JSON lines."""
         # Write valid event
-        storage.append_event({
-            'timestamp': datetime.now(timezone.utc).isoformat(),
-            'event_type': 'valid',
-        })
+        storage.append_event(
+            {
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "event_type": "valid",
+            }
+        )
 
         # Manually write malformed line
-        with open(storage.storage_dir / "events.jsonl", 'a') as f:
+        with open(storage.storage_dir / "events.jsonl", "a") as f:
             f.write("not valid json\n")
 
         # Write another valid event
-        storage.append_event({
-            'timestamp': datetime.now(timezone.utc).isoformat(),
-            'event_type': 'valid2',
-        })
+        storage.append_event(
+            {
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "event_type": "valid2",
+            }
+        )
 
         # Should skip malformed line and return valid events
         read_events = storage.read_events()
         assert len(read_events) == 2
-        assert all(e['event_type'].startswith('valid') for e in read_events)
+        assert all(e["event_type"].startswith("valid") for e in read_events)
 
     def test_read_events_empty_lines(self, storage):
         """Test reading with empty lines (should be skipped)."""
         # Write events with empty lines
-        with open(storage.storage_dir / "events.jsonl", 'a') as f:
+        with open(storage.storage_dir / "events.jsonl", "a") as f:
             f.write('{"event_type": "event1"}\n')
-            f.write('\n')
+            f.write("\n")
             f.write('{"event_type": "event2"}\n')
-            f.write('   \n')
+            f.write("   \n")
             f.write('{"event_type": "event3"}\n')
 
         read_events = storage.read_events()

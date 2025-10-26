@@ -562,6 +562,7 @@ async def test_memory_overhead(orchestrator):
 
     # Measure memory before
     import gc
+
     gc.collect()
 
     workflow_id = await orchestrator.create_workflow(tasks)
@@ -581,11 +582,13 @@ async def test_context_preservation(orchestrator):
     context_checks = []
 
     async def context_aware_task(ctx: TaskExecutionContext) -> dict[str, Any]:
-        context_checks.append({
-            "task_id": ctx.task_def.task_id,
-            "has_description": ctx.workflow_context.task_description is not None,
-            "prev_results_count": len(ctx.previous_results),
-        })
+        context_checks.append(
+            {
+                "task_id": ctx.task_def.task_id,
+                "has_description": ctx.workflow_context.task_description is not None,
+                "prev_results_count": len(ctx.previous_results),
+            }
+        )
         return {"output": f"Processed by {ctx.task_def.task_id}"}
 
     orchestrator.register_executor("test_agent", context_aware_task)

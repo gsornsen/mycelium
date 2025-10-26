@@ -57,9 +57,7 @@ def mock_all_services_available():
         patch(
             "mycelium_onboarding.detection.orchestrator.detect_temporal"
         ) as mock_temporal,
-        patch(
-            "mycelium_onboarding.detection.orchestrator.detect_gpus"
-        ) as mock_gpu,
+        patch("mycelium_onboarding.detection.orchestrator.detect_gpus") as mock_gpu,
     ):
         # Mock Docker
         mock_docker.return_value = DockerDetectionResult(
@@ -145,9 +143,7 @@ def mock_no_services_available():
         patch(
             "mycelium_onboarding.detection.orchestrator.detect_temporal"
         ) as mock_temporal,
-        patch(
-            "mycelium_onboarding.detection.orchestrator.detect_gpus"
-        ) as mock_gpu,
+        patch("mycelium_onboarding.detection.orchestrator.detect_gpus") as mock_gpu,
     ):
         # Mock Docker unavailable
         mock_docker.return_value = DockerDetectionResult(
@@ -208,7 +204,10 @@ def test_full_detection_pipeline(mock_all_services_available):
     result = runner.invoke(cli, ["detect", "services"])
 
     assert result.exit_code == 0
-    assert "Service Detection Report" in result.output or "Detecting services" in result.output
+    assert (
+        "Service Detection Report" in result.output
+        or "Detecting services" in result.output
+    )
     assert "Docker" in result.output
     assert "Redis" in result.output
     assert "PostgreSQL" in result.output
@@ -564,9 +563,15 @@ def test_multiple_redis_instances():
         ]
 
         with patch("mycelium_onboarding.detection.orchestrator.detect_docker"):
-            with patch("mycelium_onboarding.detection.orchestrator.scan_common_postgres_ports"):
-                with patch("mycelium_onboarding.detection.orchestrator.detect_temporal"):
-                    with patch("mycelium_onboarding.detection.orchestrator.detect_gpus"):
+            with patch(
+                "mycelium_onboarding.detection.orchestrator.scan_common_postgres_ports"
+            ):
+                with patch(
+                    "mycelium_onboarding.detection.orchestrator.detect_temporal"
+                ):
+                    with patch(
+                        "mycelium_onboarding.detection.orchestrator.detect_gpus"
+                    ):
                         summary = detect_all()
 
                         assert summary.has_redis is True
@@ -601,9 +606,15 @@ def test_multiple_postgres_instances():
         ]
 
         with patch("mycelium_onboarding.detection.orchestrator.detect_docker"):
-            with patch("mycelium_onboarding.detection.orchestrator.scan_common_redis_ports"):
-                with patch("mycelium_onboarding.detection.orchestrator.detect_temporal"):
-                    with patch("mycelium_onboarding.detection.orchestrator.detect_gpus"):
+            with patch(
+                "mycelium_onboarding.detection.orchestrator.scan_common_redis_ports"
+            ):
+                with patch(
+                    "mycelium_onboarding.detection.orchestrator.detect_temporal"
+                ):
+                    with patch(
+                        "mycelium_onboarding.detection.orchestrator.detect_gpus"
+                    ):
                         summary = detect_all()
 
                         assert summary.has_postgres is True
@@ -619,9 +630,7 @@ def test_multiple_postgres_instances():
 
 def test_gpu_multi_vendor_scenarios():
     """Test GPU detection with multiple vendors."""
-    with patch(
-        "mycelium_onboarding.detection.orchestrator.detect_gpus"
-    ) as mock_gpu:
+    with patch("mycelium_onboarding.detection.orchestrator.detect_gpus") as mock_gpu:
         mock_gpu.return_value = GPUDetectionResult(
             available=True,
             gpus=[
@@ -649,9 +658,15 @@ def test_gpu_multi_vendor_scenarios():
         )
 
         with patch("mycelium_onboarding.detection.orchestrator.detect_docker"):
-            with patch("mycelium_onboarding.detection.orchestrator.scan_common_redis_ports"):
-                with patch("mycelium_onboarding.detection.orchestrator.scan_common_postgres_ports"):
-                    with patch("mycelium_onboarding.detection.orchestrator.detect_temporal"):
+            with patch(
+                "mycelium_onboarding.detection.orchestrator.scan_common_redis_ports"
+            ):
+                with patch(
+                    "mycelium_onboarding.detection.orchestrator.scan_common_postgres_ports"
+                ):
+                    with patch(
+                        "mycelium_onboarding.detection.orchestrator.detect_temporal"
+                    ):
                         summary = detect_all()
 
                         assert summary.has_gpu is True

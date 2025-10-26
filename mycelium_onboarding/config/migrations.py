@@ -305,9 +305,7 @@ class MigrationRegistry:
             all_migrations.extend(migrations)
         return all_migrations
 
-    def get_migration_path(
-        self, from_version: str, to_version: str
-    ) -> list[Migration]:
+    def get_migration_path(self, from_version: str, to_version: str) -> list[Migration]:
         """Get ordered list of migrations to apply.
 
         Uses breadth-first search to find the shortest migration path
@@ -523,9 +521,7 @@ class MigrationRegistry:
 
         return working_config
 
-    def needs_migration(
-        self, config_dict: dict[str, Any], target_version: str
-    ) -> bool:
+    def needs_migration(self, config_dict: dict[str, Any], target_version: str) -> bool:
         """Check if configuration needs migration to target version.
 
         Args:

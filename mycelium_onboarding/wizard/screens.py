@@ -150,9 +150,7 @@ class WizardScreens:
 
         # Redis
         if summary.has_redis:
-            redis_ports = ", ".join(
-                str(r.port) for r in summary.redis if r.available
-            )
+            redis_ports = ", ".join(str(r.port) for r in summary.redis if r.available)
             table.add_row(
                 "Redis",
                 "[green]✓ Found[/green]",
@@ -169,9 +167,7 @@ class WizardScreens:
                 f"{len(summary.postgres)} instance(s)",
             )
         else:
-            table.add_row(
-                "PostgreSQL", "[yellow]✗ Not Found[/yellow]", "Not running"
-            )
+            table.add_row("PostgreSQL", "[yellow]✗ Not Found[/yellow]", "Not running")
 
         # Temporal
         if summary.has_temporal:
@@ -247,8 +243,7 @@ class WizardScreens:
         # Multi-select with checkboxes
         services = inquirer.checkbox(  # type: ignore[attr-defined]
             message=(
-                "Select services to enable "
-                "(use space to select, enter to confirm):"
+                "Select services to enable (use space to select, enter to confirm):"
             ),
             choices=[
                 Choice(value="redis", name="Redis - Message broker and caching"),
@@ -336,9 +331,7 @@ class WizardScreens:
                 "Some deployment options may be limited.[/yellow]\n"
             )
 
-        choices.append(
-            Choice(value="systemd", name="systemd - Native Linux services")
-        )
+        choices.append(Choice(value="systemd", name="systemd - Native Linux services"))
 
         deployment_method = inquirer.select(  # type: ignore[attr-defined]
             message="Select deployment method:",
@@ -407,9 +400,7 @@ class WizardScreens:
         table.add_column("Setting", style="cyan")
         table.add_column("Value")
 
-        table.add_row(
-            "Project Name", self.state.project_name or "[dim]Not set[/dim]"
-        )
+        table.add_row("Project Name", self.state.project_name or "[dim]Not set[/dim]")
         table.add_row("Deployment Method", self.state.deployment_method)
         table.add_row("Auto-start", "Yes" if self.state.auto_start else "No")
 

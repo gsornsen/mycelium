@@ -109,7 +109,8 @@ def validate_environment(require_project_dir: bool = False) -> None:
 
     # Check for missing or empty environment variables
     missing_vars = [
-        var for var in required_vars
+        var
+        for var in required_vars
         if var not in os.environ or not os.environ[var].strip()
     ]
 

@@ -77,9 +77,7 @@ class TestActivationScript:
         assert "/.local/share/mycelium" in env_vars.get("MYCELIUM_DATA_DIR", "")
         assert "/.cache/mycelium" in env_vars.get("MYCELIUM_CACHE_DIR", "")
         assert "/.local/state/mycelium" in env_vars.get("MYCELIUM_STATE_DIR", "")
-        assert env_vars.get("MYCELIUM_PROJECT_DIR") == str(
-            project_root / ".mycelium"
-        )
+        assert env_vars.get("MYCELIUM_PROJECT_DIR") == str(project_root / ".mycelium")
 
     def test_activation_creates_xdg_directories(
         self, project_root: Path, clean_environment, tmp_path: Path
@@ -203,9 +201,7 @@ class TestActivationScript:
         # Should fail with error about missing pyproject.toml
         assert "pyproject.toml" in result.stdout.lower()
 
-    def test_deactivate_function_defined(
-        self, project_root: Path, clean_environment
-    ):
+    def test_deactivate_function_defined(self, project_root: Path, clean_environment):
         """Test that deactivate function is defined after activation."""
         script = f"""
         cd {project_root}
@@ -268,9 +264,7 @@ class TestDeactivation:
 
         assert "PROMPT_RESTORED=1" in result.stdout
 
-    def test_deactivate_unsets_variables(
-        self, project_root: Path, clean_environment
-    ):
+    def test_deactivate_unsets_variables(self, project_root: Path, clean_environment):
         """Test that deactivate unsets all MYCELIUM_* variables."""
         script = f"""
         cd {project_root}
@@ -481,10 +475,7 @@ class TestShellCompatibility:
         assert "BASH_WORKS=1" in result.stdout
 
     @pytest.mark.skipif(
-        not subprocess.run(
-            ["which", "zsh"], capture_output=True
-        ).returncode
-        == 0,
+        not subprocess.run(["which", "zsh"], capture_output=True).returncode == 0,
         reason="zsh not installed",
     )
     def test_zsh_compatibility(self, project_root: Path, clean_environment):

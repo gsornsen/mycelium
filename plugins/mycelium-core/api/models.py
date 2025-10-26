@@ -122,9 +122,7 @@ class DiscoverResponse(BaseModel):
         description="List of matching agents with confidence scores"
     )
     total_count: int = Field(description="Total number of matches found")
-    processing_time_ms: float = Field(
-        description="Processing time in milliseconds"
-    )
+    processing_time_ms: float = Field(description="Processing time in milliseconds")
 
     class Config:
         """Pydantic configuration."""
@@ -204,9 +202,7 @@ class AgentSearchResponse(BaseModel):
     query: str = Field(description="Search query")
     agents: list[AgentMetadata] = Field(description="List of matching agents")
     total_count: int = Field(description="Total number of results")
-    processing_time_ms: float = Field(
-        description="Processing time in milliseconds"
-    )
+    processing_time_ms: float = Field(description="Processing time in milliseconds")
 
     class Config:
         """Pydantic configuration."""

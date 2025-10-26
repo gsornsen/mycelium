@@ -44,7 +44,9 @@ class TestDetectDocker:
         assert result.socket_path is not None
         assert result.error_message is None
 
-    def test_detect_docker_not_installed(self, mocker: pytest_mock.MockerFixture) -> None:
+    def test_detect_docker_not_installed(
+        self, mocker: pytest_mock.MockerFixture
+    ) -> None:
         """Test Docker not installed scenario."""
         mock_run = mocker.patch(
             "subprocess.run", side_effect=FileNotFoundError("docker not found")
@@ -58,7 +60,9 @@ class TestDetectDocker:
         assert "Docker CLI not found" in result.error_message
         assert "https://docs.docker.com/get-docker/" in result.error_message
 
-    def test_detect_docker_daemon_not_running(self, mocker: pytest_mock.MockerFixture) -> None:
+    def test_detect_docker_daemon_not_running(
+        self, mocker: pytest_mock.MockerFixture
+    ) -> None:
         """Test Docker installed but daemon not running."""
         # Mock docker --version success
         version_result = Mock()
@@ -82,7 +86,9 @@ class TestDetectDocker:
         assert result.error_message is not None
         assert "daemon is not running" in result.error_message
 
-    def test_detect_docker_permission_denied(self, mocker: pytest_mock.MockerFixture) -> None:
+    def test_detect_docker_permission_denied(
+        self, mocker: pytest_mock.MockerFixture
+    ) -> None:
         """Test Docker daemon running but no permissions."""
         # Mock docker --version success
         version_result = Mock()
@@ -107,7 +113,9 @@ class TestDetectDocker:
         assert "don't have permissions" in result.error_message
         assert "usermod -aG docker" in result.error_message
 
-    def test_detect_docker_version_timeout(self, mocker: pytest_mock.MockerFixture) -> None:
+    def test_detect_docker_version_timeout(
+        self, mocker: pytest_mock.MockerFixture
+    ) -> None:
         """Test Docker version command timeout."""
         mock_run = mocker.patch(
             "subprocess.run", side_effect=subprocess.TimeoutExpired("docker", 2.0)
@@ -119,7 +127,9 @@ class TestDetectDocker:
         assert result.error_message is not None
         assert "timed out" in result.error_message
 
-    def test_detect_docker_info_timeout(self, mocker: pytest_mock.MockerFixture) -> None:
+    def test_detect_docker_info_timeout(
+        self, mocker: pytest_mock.MockerFixture
+    ) -> None:
         """Test Docker info command timeout."""
         # Mock docker --version success
         version_result = Mock()
@@ -155,7 +165,9 @@ class TestDetectDocker:
         assert result.error_message is not None
         assert "Docker CLI not found" in result.error_message
 
-    def test_detect_docker_version_parsing(self, mocker: pytest_mock.MockerFixture) -> None:
+    def test_detect_docker_version_parsing(
+        self, mocker: pytest_mock.MockerFixture
+    ) -> None:
         """Test various Docker version string formats."""
         test_cases = [
             ("Docker version 24.0.7, build afdd53b", "24.0.7"),
@@ -183,7 +195,9 @@ class TestDetectDocker:
             assert result.available is True
             assert result.version == expected_version
 
-    def test_detect_docker_socket_detection_linux(self, mocker: pytest_mock.MockerFixture) -> None:
+    def test_detect_docker_socket_detection_linux(
+        self, mocker: pytest_mock.MockerFixture
+    ) -> None:
         """Test Docker socket detection on Linux."""
         # Mock docker commands
         version_result = Mock()
@@ -239,7 +253,9 @@ class TestDetectDocker:
 class TestVerifyDockerPermissions:
     """Tests for verify_docker_permissions function."""
 
-    def test_verify_permissions_success(self, mocker: pytest_mock.MockerFixture) -> None:
+    def test_verify_permissions_success(
+        self, mocker: pytest_mock.MockerFixture
+    ) -> None:
         """Test successful permission verification."""
         result = Mock()
         result.returncode = 0
@@ -286,7 +302,9 @@ class TestVerifyDockerPermissions:
         assert error is not None
         assert "Cannot connect" in error
 
-    def test_verify_permissions_cli_not_found(self, mocker: pytest_mock.MockerFixture) -> None:
+    def test_verify_permissions_cli_not_found(
+        self, mocker: pytest_mock.MockerFixture
+    ) -> None:
         """Test Docker CLI not found."""
         mock_run = mocker.patch(
             "subprocess.run", side_effect=FileNotFoundError("docker not found")
@@ -298,7 +316,9 @@ class TestVerifyDockerPermissions:
         assert error is not None
         assert "Docker CLI not found" in error
 
-    def test_verify_permissions_timeout(self, mocker: pytest_mock.MockerFixture) -> None:
+    def test_verify_permissions_timeout(
+        self, mocker: pytest_mock.MockerFixture
+    ) -> None:
         """Test permission verification timeout."""
         mock_run = mocker.patch(
             "subprocess.run", side_effect=subprocess.TimeoutExpired("docker", 2.0)
@@ -310,7 +330,9 @@ class TestVerifyDockerPermissions:
         assert error is not None
         assert "timed out" in error
 
-    def test_verify_permissions_unexpected_error(self, mocker: pytest_mock.MockerFixture) -> None:
+    def test_verify_permissions_unexpected_error(
+        self, mocker: pytest_mock.MockerFixture
+    ) -> None:
         """Test unexpected error during verification."""
         mock_run = mocker.patch(
             "subprocess.run", side_effect=Exception("Unexpected error")

@@ -159,7 +159,9 @@ class TestConfigDir:
             # Cleanup: restore permissions
             config_dir.chmod(0o755)
 
-    def test_mkdir_oserror(self, mock_home: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    def test_mkdir_oserror(
+        self, mock_home: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
         """Should raise XDGDirectoryError when mkdir fails."""
         get_config_dir.cache_clear()
 
@@ -170,7 +172,9 @@ class TestConfigDir:
             raise OSError("Mock error")
 
         with patch.object(Path, "mkdir", mock_mkdir):
-            with pytest.raises(XDGDirectoryError, match="Failed to create config directory"):
+            with pytest.raises(
+                XDGDirectoryError, match="Failed to create config directory"
+            ):
                 get_config_dir()
 
         # Restore original
@@ -234,7 +238,9 @@ class TestDataDir:
 
         # Mock to raise OSError
         with patch.object(Path, "mkdir", side_effect=OSError("Mock error")):
-            with pytest.raises(XDGDirectoryError, match="Failed to create data directory"):
+            with pytest.raises(
+                XDGDirectoryError, match="Failed to create data directory"
+            ):
                 get_data_dir()
 
 
@@ -295,7 +301,9 @@ class TestCacheDir:
 
         # Mock to raise OSError
         with patch.object(Path, "mkdir", side_effect=OSError("Mock error")):
-            with pytest.raises(XDGDirectoryError, match="Failed to create cache directory"):
+            with pytest.raises(
+                XDGDirectoryError, match="Failed to create cache directory"
+            ):
                 get_cache_dir()
 
 
@@ -356,7 +364,9 @@ class TestStateDir:
 
         # Mock to raise OSError
         with patch.object(Path, "mkdir", side_effect=OSError("Mock error")):
-            with pytest.raises(XDGDirectoryError, match="Failed to create state directory"):
+            with pytest.raises(
+                XDGDirectoryError, match="Failed to create state directory"
+            ):
                 get_state_dir()
 
 
@@ -407,7 +417,9 @@ class TestClearCache:
 
         # Mock unlink to raise OSError
         with patch.object(Path, "unlink", side_effect=OSError("Mock error")):
-            with pytest.raises(XDGDirectoryError, match="Failed to clear cache directory"):
+            with pytest.raises(
+                XDGDirectoryError, match="Failed to clear cache directory"
+            ):
                 clear_cache()
 
     def test_clears_files_and_directories(self, mock_home: Path) -> None:

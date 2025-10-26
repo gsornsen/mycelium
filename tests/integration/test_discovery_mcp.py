@@ -161,6 +161,7 @@ class TestCheckDiscoveryHealth:
 
 # Simplified fixtures using pytest-asyncio
 
+
 @pytest.fixture(autouse=True)
 async def cleanup_client():
     """Cleanup HTTP client after each test."""
@@ -171,6 +172,7 @@ async def cleanup_client():
 @pytest.fixture
 def mock_discovery_response(monkeypatch):
     """Mock successful discovery API response."""
+
     async def mock_post(self, url, **kwargs):
         return Mock(
             status_code=200,
@@ -206,6 +208,7 @@ def mock_discovery_response(monkeypatch):
 @pytest.fixture
 def mock_agent_details(monkeypatch):
     """Mock successful agent details response."""
+
     async def mock_get(self, url, **kwargs):
         return Mock(
             status_code=200,
@@ -234,6 +237,7 @@ def mock_agent_details(monkeypatch):
 @pytest.fixture
 def mock_no_results(monkeypatch):
     """Mock API with no results."""
+
     async def mock_post(self, url, **kwargs):
         return Mock(
             status_code=200,
@@ -251,6 +255,7 @@ def mock_no_results(monkeypatch):
 @pytest.fixture
 def mock_api_500(monkeypatch):
     """Mock API 500 error."""
+
     async def mock_post(self, url, **kwargs):
         return Mock(
             status_code=500,
@@ -263,6 +268,7 @@ def mock_api_500(monkeypatch):
 @pytest.fixture
 def mock_404(monkeypatch):
     """Mock API 404 error."""
+
     async def mock_get(self, url, **kwargs):
         return Mock(
             status_code=404,
@@ -275,6 +281,7 @@ def mock_404(monkeypatch):
 @pytest.fixture
 def mock_timeout(monkeypatch):
     """Mock API timeout."""
+
     async def mock_request(self, *args, **kwargs):
         raise httpx.TimeoutException("Request timed out")
 
@@ -308,6 +315,7 @@ def mock_retry_then_success(monkeypatch):
 @pytest.fixture
 def mock_health_ok(monkeypatch):
     """Mock healthy API response."""
+
     async def mock_get(self, url, **kwargs):
         return Mock(
             status_code=200,
@@ -326,6 +334,7 @@ def mock_health_ok(monkeypatch):
 @pytest.fixture
 def mock_health_error(monkeypatch):
     """Mock unhealthy API response."""
+
     async def mock_get(self, url, **kwargs):
         return Mock(status_code=503)
 

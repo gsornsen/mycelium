@@ -410,9 +410,8 @@ def _detect_intel_gpus_linux() -> list[GPUInfo]:
         for line in result.stdout.split("\n"):
             line_lower = line.lower()
             has_intel = (
-                ("vga" in line_lower or "3d" in line_lower or
-                 "display" in line_lower) and "intel" in line_lower
-            )
+                "vga" in line_lower or "3d" in line_lower or "display" in line_lower
+            ) and "intel" in line_lower
             if has_intel:
                 # Extract model name
                 # Format: 00:02.0 VGA compatible controller: Intel...
@@ -489,8 +488,7 @@ def _detect_intel_gpus_macos() -> list[GPUInfo]:
                     vram_value = int(vram_match.group(1))
                     vram_unit = vram_match.group(2).upper()
                     current_vram = (
-                        vram_value * 1024 if vram_unit == "GB"
-                        else vram_value
+                        vram_value * 1024 if vram_unit == "GB" else vram_value
                     )
 
         # Handle last GPU

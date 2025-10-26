@@ -57,8 +57,7 @@ class AgentRegistry:
             self._owns_pool = False
         else:
             self._connection_string = connection_string or os.getenv(
-                "DATABASE_URL",
-                "postgresql://localhost:5432/mycelium_registry"
+                "DATABASE_URL", "postgresql://localhost:5432/mycelium_registry"
             )
             self._pool: Pool | None = None
             self._owns_pool = True
@@ -82,7 +81,9 @@ class AgentRegistry:
     async def _get_connection(self) -> Connection:
         """Get a database connection from the pool."""
         if self._pool is None:
-            raise AgentRegistryError("Registry not initialized. Call initialize() first.")
+            raise AgentRegistryError(
+                "Registry not initialized. Call initialize() first."
+            )
         return await self._pool.acquire()
 
     async def _release_connection(self, conn: Connection) -> None:
@@ -227,7 +228,9 @@ class AgentRegistry:
 
             row = await conn.fetchrow(query, agent_type)
             if row is None:
-                raise AgentNotFoundError(f"Agent with agent_type '{agent_type}' not found")
+                raise AgentNotFoundError(
+                    f"Agent with agent_type '{agent_type}' not found"
+                )
 
             return dict(row)
 
@@ -301,7 +304,7 @@ class AgentRegistry:
             values.append(agent_id)
             query = f"""
                 UPDATE agents
-                SET {', '.join(set_clauses)}
+                SET {", ".join(set_clauses)}
                 WHERE agent_id = ${param_idx}
                 RETURNING id
             """
@@ -464,8 +467,8 @@ class AgentRegistry:
 
             results = []
             for row in rows:
-                similarity = row['similarity']
-                agent_data = {k: v for k, v in dict(row).items() if k != 'similarity'}
+                similarity = row["similarity"]
+                agent_data = {k: v for k, v in dict(row).items() if k != "similarity"}
                 results.append((agent_data, float(similarity)))
 
             return results
@@ -503,7 +506,7 @@ class AgentRegistry:
         try:
             query = "SELECT DISTINCT category FROM agents ORDER BY category"
             rows = await conn.fetch(query)
-            return [row['category'] for row in rows]
+            return [row["category"] for row in rows]
 
         finally:
             await self._release_connection(conn)
@@ -529,7 +532,7 @@ class AgentRegistry:
 
         try:
             for i in range(0, len(agents), batch_size):
-                batch = agents[i:i + batch_size]
+                batch = agents[i : i + batch_size]
 
                 async with conn.transaction():
                     for agent in batch:
@@ -616,26 +619,26 @@ async def load_agents_from_index(
     if not index_path.exists():
         raise FileNotFoundError(f"Index file not found: {index_path}")
 
-    with open(index_path, encoding='utf-8') as f:
+    with open(index_path, encoding="utf-8") as f:
         data = json.load(f)
 
     agents_data = []
-    for agent in data.get('agents', []):
+    for agent in data.get("agents", []):
         agent_data = {
-            'agent_id': agent['id'],
-            'agent_type': agent['name'],
-            'name': agent['name'],
-            'display_name': agent.get('display_name', agent['name']),
-            'category': agent.get('category', 'Uncategorized'),
-            'description': agent.get('description', ''),
-            'file_path': agent.get('file_path', ''),
-            'capabilities': agent.get('capabilities', []),
-            'tools': agent.get('tools', []),
-            'keywords': agent.get('keywords', []),
-            'estimated_tokens': agent.get('estimated_tokens'),
-            'metadata': {
-                'version': data.get('version'),
-                'generated': data.get('generated'),
+            "agent_id": agent["id"],
+            "agent_type": agent["name"],
+            "name": agent["name"],
+            "display_name": agent.get("display_name", agent["name"]),
+            "category": agent.get("category", "Uncategorized"),
+            "description": agent.get("description", ""),
+            "file_path": agent.get("file_path", ""),
+            "capabilities": agent.get("capabilities", []),
+            "tools": agent.get("tools", []),
+            "keywords": agent.get("keywords", []),
+            "estimated_tokens": agent.get("estimated_tokens"),
+            "metadata": {
+                "version": data.get("version"),
+                "generated": data.get("generated"),
             },
         }
         agents_data.append(agent_data)

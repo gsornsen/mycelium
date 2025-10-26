@@ -45,7 +45,14 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Commands that don't require environment validation
-SKIP_VALIDATION_COMMANDS = {"help", "setup-direnv", "config", "detect", "init", "deploy"}
+SKIP_VALIDATION_COMMANDS = {
+    "help",
+    "setup-direnv",
+    "config",
+    "detect",
+    "init",
+    "deploy",
+}
 
 # Rich console for pretty output
 console = Console()
@@ -1252,11 +1259,15 @@ def generate(method: str | None, output: str | None, generate_secrets: bool) -> 
 
     # Determine deployment method
     deploy_method = (
-        DeploymentMethod(method) if method else DeploymentMethod(config.deployment.method)
+        DeploymentMethod(method)
+        if method
+        else DeploymentMethod(config.deployment.method)
     )
 
     # Display generation info
-    console.print(f"\n[bold cyan]Generating {deploy_method.value} deployment...[/bold cyan]")
+    console.print(
+        f"\n[bold cyan]Generating {deploy_method.value} deployment...[/bold cyan]"
+    )
     console.print(f"Project: [yellow]{config.project_name}[/yellow]")
 
     # Get enabled services
@@ -1292,7 +1303,9 @@ def generate(method: str | None, output: str | None, generate_secrets: bool) -> 
 
     # Display results
     if result.success:
-        console.print("\n[bold green]✓ Deployment generated successfully![/bold green]\n")
+        console.print(
+            "\n[bold green]✓ Deployment generated successfully![/bold green]\n"
+        )
         console.print(f"Output directory: [cyan]{result.output_dir}[/cyan]")
         console.print("\nGenerated files:")
         for file in result.files_generated:
@@ -1307,7 +1320,9 @@ def generate(method: str | None, output: str | None, generate_secrets: bool) -> 
         # Show next steps
         console.print("\n[bold]Next Steps:[/bold]")
         if deploy_method == DeploymentMethod.DOCKER_COMPOSE:
-            console.print(f"  1. Review and update {result.output_dir}/.env with your credentials")
+            console.print(
+                f"  1. Review and update {result.output_dir}/.env with your credentials"
+            )
             console.print(f"  2. cd {result.output_dir}")
             console.print("  3. docker-compose up -d")
         elif deploy_method == DeploymentMethod.KUBERNETES:
@@ -1348,10 +1363,14 @@ def start(method: str | None) -> None:
     config = manager.load()
 
     deploy_method = (
-        DeploymentMethod(method) if method else DeploymentMethod(config.deployment.method)
+        DeploymentMethod(method)
+        if method
+        else DeploymentMethod(config.deployment.method)
     )
 
-    console.print(f"[bold cyan]Starting {deploy_method.value} deployment...[/bold cyan]\n")
+    console.print(
+        f"[bold cyan]Starting {deploy_method.value} deployment...[/bold cyan]\n"
+    )
 
     # Execute start command based on method
     try:
@@ -1423,10 +1442,14 @@ def stop(method: str | None) -> None:
     config = manager.load()
 
     deploy_method = (
-        DeploymentMethod(method) if method else DeploymentMethod(config.deployment.method)
+        DeploymentMethod(method)
+        if method
+        else DeploymentMethod(config.deployment.method)
     )
 
-    console.print(f"[bold cyan]Stopping {deploy_method.value} deployment...[/bold cyan]\n")
+    console.print(
+        f"[bold cyan]Stopping {deploy_method.value} deployment...[/bold cyan]\n"
+    )
 
     # Execute stop command based on method
     try:
@@ -1498,7 +1521,9 @@ def status(method: str | None, watch: bool) -> None:
     config = manager.load()
 
     deploy_method = (
-        DeploymentMethod(method) if method else DeploymentMethod(config.deployment.method)
+        DeploymentMethod(method)
+        if method
+        else DeploymentMethod(config.deployment.method)
     )
 
     # Create status table
@@ -1587,7 +1612,9 @@ def status(method: str | None, watch: bool) -> None:
                 ready = f"{ready_count}/{total_count}"
                 table.add_row(name, status_str, f"Ready: {ready}")
         except subprocess.CalledProcessError:
-            console.print(f"[yellow]No pods found in namespace {config.project_name}[/yellow]")
+            console.print(
+                f"[yellow]No pods found in namespace {config.project_name}[/yellow]"
+            )
             return
         except FileNotFoundError:
             console.print("[red]kubectl command not found[/red]")
@@ -1647,7 +1674,9 @@ def secrets(secret_type: str | None, rotate: bool) -> None:
     # Rotate secret if requested
     if rotate:
         if not secret_type:
-            console.print("[red]Error: Specify secret type to rotate (postgres, redis, temporal)[/red]")
+            console.print(
+                "[red]Error: Specify secret type to rotate (postgres, redis, temporal)[/red]"
+            )
             raise SystemExit(1)
 
         try:
@@ -1682,9 +1711,7 @@ def secrets(secret_type: str | None, rotate: bool) -> None:
         table.add_row("Temporal", "[green]✓ Set[/green]")
 
     console.print(table)
-    console.print(
-        f"\n[dim]Secrets stored at: {secrets_mgr.secrets_file}[/dim]"
-    )
+    console.print(f"\n[dim]Secrets stored at: {secrets_mgr.secrets_file}[/dim]")
 
 
 # ============================================================================

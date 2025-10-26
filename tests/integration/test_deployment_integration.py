@@ -85,7 +85,9 @@ class TestDeploymentE2EDockerCompose:
         )
 
         # Generate secrets
-        secrets_mgr = SecretsManager(config.project_name, secrets_dir=tmp_path / "secrets")
+        secrets_mgr = SecretsManager(
+            config.project_name, secrets_dir=tmp_path / "secrets"
+        )
         secrets_obj = secrets_mgr.generate_secrets(postgres=True, redis=True)
         secrets_mgr.save_secrets(secrets_obj)
 
@@ -519,9 +521,7 @@ class TestCLIIntegration:
         config_path.write_text(config.to_yaml())
 
         # Mock ConfigManager to use our test config
-        mocker.patch(
-            "mycelium_onboarding.cli.ConfigManager.load", return_value=config
-        )
+        mocker.patch("mycelium_onboarding.cli.ConfigManager.load", return_value=config)
 
         runner = CliRunner()
         result = runner.invoke(
@@ -539,9 +539,7 @@ class TestCLIIntegration:
             deployment={"method": "docker-compose"},
         )
 
-        mocker.patch(
-            "mycelium_onboarding.cli.ConfigManager.load", return_value=config
-        )
+        mocker.patch("mycelium_onboarding.cli.ConfigManager.load", return_value=config)
 
         runner = CliRunner()
         result = runner.invoke(
@@ -580,9 +578,7 @@ class TestCLIIntegration:
         )
 
         # Mock ConfigManager
-        mocker.patch(
-            "mycelium_onboarding.cli.ConfigManager.load", return_value=config
-        )
+        mocker.patch("mycelium_onboarding.cli.ConfigManager.load", return_value=config)
 
         runner = CliRunner()
         result = runner.invoke(cli, ["deploy", "secrets"])
@@ -599,9 +595,7 @@ class TestCLIIntegration:
             services={"redis": {"enabled": True}},
         )
 
-        mocker.patch(
-            "mycelium_onboarding.cli.ConfigManager.load", return_value=config
-        )
+        mocker.patch("mycelium_onboarding.cli.ConfigManager.load", return_value=config)
 
         runner = CliRunner()
         result = runner.invoke(

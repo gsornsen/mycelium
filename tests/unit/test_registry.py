@@ -23,7 +23,7 @@ from registry import (
 # Test Configuration
 TEST_DB_URL = os.getenv(
     "TEST_DATABASE_URL",
-    "postgresql://mycelium:mycelium_dev_password@localhost:5432/mycelium_registry"
+    "postgresql://mycelium:mycelium_dev_password@localhost:5432/mycelium_registry",
 )
 
 # Sample test data
@@ -50,9 +50,7 @@ async def db_pool():
     """Create a database pool for testing."""
     # Create the test database if it doesn't exist
     try:
-        conn = await asyncpg.connect(
-            "postgresql://localhost:5432/postgres"
-        )
+        conn = await asyncpg.connect("postgresql://localhost:5432/postgres")
         try:
             await conn.execute("CREATE DATABASE mycelium_test")
         except asyncpg.DuplicateDatabaseError:
@@ -70,8 +68,10 @@ async def db_pool():
 @pytest.fixture(scope="session")
 async def schema_setup(db_pool):
     """Set up the database schema once for all tests."""
-    schema_path = Path(__file__).parent.parent.parent / \
-                  "plugins/mycelium-core/registry/schema.sql"
+    schema_path = (
+        Path(__file__).parent.parent.parent
+        / "plugins/mycelium-core/registry/schema.sql"
+    )
 
     if not schema_path.exists():
         pytest.skip(f"Schema file not found: {schema_path}")
@@ -196,8 +196,7 @@ class TestAgentCRUD:
 
         new_description = "Updated description"
         await registry.update_agent(
-            SAMPLE_AGENT["agent_id"],
-            description=new_description
+            SAMPLE_AGENT["agent_id"], description=new_description
         )
 
         agent = await registry.get_agent_by_id(SAMPLE_AGENT["agent_id"])
@@ -208,10 +207,7 @@ class TestAgentCRUD:
         await registry.create_agent(**SAMPLE_AGENT)
 
         new_metadata = {"version": "2.0", "updated": True}
-        await registry.update_agent(
-            SAMPLE_AGENT["agent_id"],
-            metadata=new_metadata
-        )
+        await registry.update_agent(SAMPLE_AGENT["agent_id"], metadata=new_metadata)
 
         agent = await registry.get_agent_by_id(SAMPLE_AGENT["agent_id"])
         assert json.loads(agent["metadata"]) == new_metadata
@@ -384,9 +380,7 @@ class TestVectorSearch:
         # Search with similar embedding
         query_embedding = [0.11] * 384
         results = await registry.similarity_search(
-            query_embedding,
-            limit=3,
-            threshold=0.5
+            query_embedding, limit=3, threshold=0.5
         )
 
         assert len(results) > 0
@@ -408,7 +402,7 @@ class TestVectorSearch:
         results = await registry.similarity_search(
             query_embedding,
             limit=10,
-            threshold=0.99  # Very high threshold
+            threshold=0.99,  # Very high threshold
         )
 
         # Should have few or no results due to high threshold
@@ -429,9 +423,7 @@ class TestVectorSearch:
         # Search with embedding close to middle one
         query_embedding = [0.5] * 384
         results = await registry.similarity_search(
-            query_embedding,
-            limit=3,
-            threshold=0.0
+            query_embedding, limit=3, threshold=0.0
         )
 
         # Results should be ordered by similarity (descending)
@@ -537,7 +529,7 @@ class TestLoadFromIndex:
         }
 
         index_path = tmp_path / "index.json"
-        with open(index_path, 'w') as f:
+        with open(index_path, "w") as f:
             json.dump(index_data, f)
 
         # Load agents from index

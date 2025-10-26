@@ -109,7 +109,11 @@ class TestSaveAndLoad:
         assert loaded is not None
         assert loaded.current_step == WizardStep.REVIEW
         assert loaded.project_name == "complete-project"
-        assert loaded.services_enabled == {"redis": True, "postgres": True, "temporal": True}
+        assert loaded.services_enabled == {
+            "redis": True,
+            "postgres": True,
+            "temporal": True,
+        }
         assert loaded.deployment_method == "kubernetes"
         assert loaded.redis_port == 6380
         assert loaded.postgres_port == 5433

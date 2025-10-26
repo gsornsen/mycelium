@@ -181,9 +181,7 @@ def get_all_config_paths(filename: str) -> list[Path]:
         raise ConfigLoaderError("Filename cannot be empty")
 
     if "/" in filename or "\\" in filename:
-        raise ConfigLoaderError(
-            f"Filename cannot contain path separators: {filename}"
-        )
+        raise ConfigLoaderError(f"Filename cannot contain path separators: {filename}")
 
     logger.debug("Getting all config paths for '%s'", filename)
 
