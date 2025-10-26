@@ -7,8 +7,9 @@ FastMCP for protocol handling, and focused business logic.
 
 import asyncio
 import os
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from typing import Any, AsyncIterator
+from typing import Any
 
 import httpx
 from fastmcp import FastMCP

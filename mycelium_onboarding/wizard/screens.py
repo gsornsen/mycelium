@@ -9,9 +9,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from InquirerPy import inquirer 
-from InquirerPy.base.control import Choice 
-from InquirerPy.validator import NumberValidator 
+from InquirerPy import inquirer
+from InquirerPy.base.control import Choice
+from InquirerPy.validator import NumberValidator
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
