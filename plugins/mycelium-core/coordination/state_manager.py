@@ -504,11 +504,10 @@ class StateManager:
         if self._pool is None:
             raise StateManagerError("State manager not initialized")
 
-        async with self._pool.acquire() as conn:
-            async with conn.transaction():
-                # Upsert workflow
-                await conn.execute(
-                    """
+        async with self._pool.acquire() as conn, conn.transaction():
+            # Upsert workflow
+            await conn.execute(
+                """
                     INSERT INTO workflow_states (
                         workflow_id, status, created_at, updated_at, started_at,
                         completed_at, variables, metadata, error, version
@@ -523,55 +522,55 @@ class StateManager:
                         error = EXCLUDED.error,
                         version = EXCLUDED.version
                     """,
-                    state.workflow_id,
-                    state.status.value,
-                    datetime.fromisoformat(state.created_at.rstrip("Z")),
-                    datetime.fromisoformat(state.updated_at.rstrip("Z")),
-                    datetime.fromisoformat(state.started_at.rstrip("Z"))
-                    if state.started_at
-                    else None,
-                    datetime.fromisoformat(state.completed_at.rstrip("Z"))
-                    if state.completed_at
-                    else None,
-                    json.dumps(state.variables),
-                    json.dumps(state.metadata),
-                    state.error,
-                    state.version,
-                )
+                state.workflow_id,
+                state.status.value,
+                datetime.fromisoformat(state.created_at.rstrip("Z")),
+                datetime.fromisoformat(state.updated_at.rstrip("Z")),
+                datetime.fromisoformat(state.started_at.rstrip("Z"))
+                if state.started_at
+                else None,
+                datetime.fromisoformat(state.completed_at.rstrip("Z"))
+                if state.completed_at
+                else None,
+                json.dumps(state.variables),
+                json.dumps(state.metadata),
+                state.error,
+                state.version,
+            )
 
-                # Delete existing tasks and re-insert (simpler than complex upsert logic)
+            # Delete existing tasks and re-insert (simpler than complex upsert logic)
+            await conn.execute(
+                "DELETE FROM task_states WHERE workflow_id = $1",
+                state.workflow_id,
+            )
+
+            # Insert tasks
+            for task in state.tasks.values():
                 await conn.execute(
-                    "DELETE FROM task_states WHERE workflow_id = $1",
-                    state.workflow_id,
-                )
-
-                # Insert tasks
-                for task in state.tasks.values():
-                    await conn.execute(
-                        """
+                    """
                         INSERT INTO task_states (
                             task_id, workflow_id, agent_id, agent_type, status,
                             started_at, completed_at, execution_time, result,
                             error, retry_count, dependencies
                         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
                         """,
-                        task.task_id,
-                        state.workflow_id,
-                        task.agent_id,
-                        task.agent_type,
-                        task.status.value,
-                        datetime.fromisoformat(task.started_at.rstrip("Z"))
-                        if task.started_at
-                        else None,
-                        datetime.fromisoformat(task.completed_at.rstrip("Z"))
-                        if task.completed_at
-                        else None,
-                        task.execution_time,
-                        json.dumps(task.result) if task.result else None,
-                        json.dumps(task.error) if task.error else None,
-                        task.retry_count,
-                        task.dependencies,
-                    )
+                    task.task_id,
+                    state.workflow_id,
+                    task.agent_id,
+                    task.agent_type,
+                    task.status.value,
+                    datetime.fromisoformat(task.started_at.rstrip("Z"))
+                    if task.started_at
+                    else None,
+                    datetime.fromisoformat(task.completed_at.rstrip("Z"))
+                    if task.completed_at
+                    else None,
+                    task.execution_time,
+                    json.dumps(task.result) if task.result else None,
+                    json.dumps(task.error) if task.error else None,
+                    task.retry_count,
+                    task.dependencies,
+                )
 
     async def _save_snapshot(self, state: WorkflowState) -> None:
         """Save state snapshot for rollback.

@@ -205,4 +205,5 @@ directory = "htmlcov"
 dev = [
     "pytest-asyncio>=1.2.0",
     "types-pyyaml>=6.0.12.20250915",
+    "types-jsonschema>=4.20.0",
 ]

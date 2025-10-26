@@ -10,7 +10,7 @@ from __future__ import annotations
 import json
 import logging
 import shutil
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
@@ -216,10 +216,10 @@ class WizardStatePersistence:
             services_enabled = cast(dict[str, bool], services_raw)
 
             # Build WizardState with type-safe conversions
-            state = WizardState(
+            return WizardState(
                 current_step=WizardStep(str(state_dict["current_step"])),
                 started_at=datetime.fromisoformat(
-                    str(state_dict.get("started_at", datetime.now(UTC).isoformat()))
+                    str(state_dict.get("started_at", datetime.now(timezone.utc).isoformat()))
                 ),
                 project_name=str(state_dict.get("project_name", "")),
                 services_enabled=services_enabled,
@@ -240,7 +240,6 @@ class WizardStatePersistence:
                 completed=bool(state_dict.get("completed", False)),
                 resumed=True,  # Mark as resumed
             )
-            return state
 
         except (ValueError, TypeError, KeyError) as e:
             raise ValueError(f"Invalid state data: {e}") from e
@@ -258,7 +257,7 @@ class WizardStatePersistence:
             return None
 
         try:
-            timestamp = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
+            timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
             backup_file = self.state_dir / f"wizard_state_backup_{timestamp}.json"
 
             # Copy current state to backup

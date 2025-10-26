@@ -144,7 +144,7 @@ class AgentRegistry:
                 RETURNING id
             """
 
-            result = await conn.fetchval(
+            return await conn.fetchval(
                 query,
                 agent_id,
                 agent_type,
@@ -160,7 +160,6 @@ class AgentRegistry:
                 estimated_tokens,
                 json.dumps(metadata or {}),
             )
-            return result
 
         except asyncpg.UniqueViolationError as e:
             raise AgentAlreadyExistsError(

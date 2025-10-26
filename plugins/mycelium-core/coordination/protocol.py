@@ -7,7 +7,7 @@ enabling seamless state transfer and context preservation across workflow transi
 import json
 import uuid
 from dataclasses import asdict, dataclass, field
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -131,7 +131,7 @@ class HandoffMessage:
     workflow_id: str | None = None
     state: HandoffState = field(default_factory=HandoffState)
     metadata: HandoffMetadata = field(default_factory=HandoffMetadata)
-    timestamp: str = field(default_factory=lambda: datetime.now(UTC).isoformat() + "Z")
+    timestamp: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat() + "Z")
 
     def to_dict(self) -> dict[str, Any]:
         """Convert handoff message to dictionary."""
@@ -218,7 +218,7 @@ class HandoffMessage:
             context=context,
             state=state,
             metadata=metadata,
-            timestamp=data.get("timestamp", datetime.now(UTC).isoformat() + "Z"),
+            timestamp=data.get("timestamp", datetime.now(timezone.utc).isoformat() + "Z"),
         )
 
     @classmethod
@@ -364,7 +364,7 @@ class HandoffProtocol:
         """
         result_entry = {
             "agent_id": agent_id,
-            "timestamp": datetime.now(UTC).isoformat() + "Z",
+            "timestamp": datetime.now(timezone.utc).isoformat() + "Z",
             "result": result,
         }
         message.context.previous_results.append(result_entry)
