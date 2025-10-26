@@ -57,7 +57,7 @@ class HandoffContext:
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary, excluding empty collections."""
-        result = {}
+        result: dict[str, Any] = {}
         if self.task_description:
             result["task_description"] = self.task_description
         if self.previous_results:
@@ -94,7 +94,7 @@ class HandoffState:
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
-        result = {}
+        result: dict[str, Any] = {}
         if self.variables:
             result["variables"] = self.variables
         if self.progress:

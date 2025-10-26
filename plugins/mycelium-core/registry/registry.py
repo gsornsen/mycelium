@@ -53,13 +53,13 @@ class AgentRegistry:
             pool: Existing connection pool. If provided, connection_string is ignored.
         """
         if pool is not None:
-            self._pool = pool
+            self._pool: Pool | None = pool
             self._owns_pool = False
         else:
             self._connection_string = connection_string or os.getenv(
                 "DATABASE_URL", "postgresql://localhost:5432/mycelium_registry"
             )
-            self._pool: Pool | None = None
+            self._pool = None
             self._owns_pool = True
 
     async def initialize(self) -> None:
@@ -144,7 +144,7 @@ class AgentRegistry:
                 RETURNING id
             """
 
-            return await conn.fetchval(
+            result: UUID = await conn.fetchval(
                 query,
                 agent_id,
                 agent_type,
@@ -160,6 +160,7 @@ class AgentRegistry:
                 estimated_tokens,
                 json.dumps(metadata or {}),
             )
+            return result
 
         except asyncpg.UniqueViolationError as e:
             raise AgentAlreadyExistsError(
@@ -489,9 +490,11 @@ class AgentRegistry:
         try:
             if category:
                 query = "SELECT COUNT(*) FROM agents WHERE category = $1"
-                return await conn.fetchval(query, category)
+                result: int = await conn.fetchval(query, category)
+                return result
             query = "SELECT COUNT(*) FROM agents"
-            return await conn.fetchval(query)
+            result = await conn.fetchval(query)
+            return result
 
         finally:
             await self._release_connection(conn)
@@ -596,7 +599,9 @@ class AgentRegistry:
         await self.initialize()
         return self
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:
+    async def __aexit__(
+        self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: Any
+    ) -> None:
         """Async context manager exit."""
         await self.close()
 

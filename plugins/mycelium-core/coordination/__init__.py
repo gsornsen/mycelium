@@ -9,9 +9,9 @@ This module provides workflow orchestration capabilities including:
 - Coordination event tracking
 """
 
-from .orchestrator import TaskStatus, WorkflowOrchestrator, WorkflowStatus
+from .orchestrator import WorkflowOrchestrator
 from .protocol import HandoffMessage, HandoffProtocol
-from .state_manager import StateManager, WorkflowState
+from .state_manager import StateManager, TaskStatus, WorkflowState, WorkflowStatus
 from .tracker import (
     AgentInfo,
     CoordinationEvent,

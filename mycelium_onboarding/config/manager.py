@@ -258,14 +258,15 @@ class ConfigManager:
                 )
                 return self.get_default_config()
 
-            config_file = self.config_path
+            config_file: Path = self.config_path
         else:
             # Find config file using hierarchical search
-            config_file = find_config_file(self.CONFIG_FILENAME)
+            found_file = find_config_file(self.CONFIG_FILENAME)
 
-            if config_file is None:
+            if found_file is None:
                 logger.info("No config file found, using defaults")
                 return self.get_default_config()
+            config_file = found_file
 
         logger.info("Found config file: %s", config_file)
 

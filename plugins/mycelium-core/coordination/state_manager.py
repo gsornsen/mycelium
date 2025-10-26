@@ -136,13 +136,13 @@ class StateManager:
             connection_string: Optional PostgreSQL connection string
         """
         if pool is not None:
-            self._pool = pool
+            self._pool: Pool | None = pool
             self._owns_pool = False
         else:
             self._connection_string = (
                 connection_string or "postgresql://localhost:5432/mycelium_registry"
             )
-            self._pool: Pool | None = None
+            self._pool = None
             self._owns_pool = True
 
     async def initialize(self) -> None:

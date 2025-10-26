@@ -8,7 +8,7 @@ FastMCP for protocol handling, and focused business logic.
 import asyncio
 import os
 from contextlib import asynccontextmanager
-from typing import Any
+from typing import Any, AsyncIterator
 
 import httpx
 from fastmcp import FastMCP
@@ -52,7 +52,7 @@ _http_client: httpx.AsyncClient | None = None
 
 
 @asynccontextmanager
-async def get_http_client():
+async def get_http_client() -> AsyncIterator[httpx.AsyncClient]:
     """Get or create the HTTP client with retry logic."""
     global _http_client
     if _http_client is None:
@@ -70,7 +70,7 @@ async def get_http_client():
         raise
 
 
-async def close_http_client():
+async def close_http_client() -> None:
     """Close the HTTP client."""
     global _http_client
     if _http_client is not None:
@@ -107,7 +107,7 @@ async def discover_agents(
     request = DiscoverAgentsRequest(query=query, limit=limit, threshold=threshold)
 
     # Execute with retry logic
-    last_error = None
+    last_error: DiscoveryTimeoutError | DiscoveryAPIError | None = None
     for attempt in range(MAX_RETRIES + 1):
         try:
             async with get_http_client() as client:
@@ -203,7 +203,7 @@ async def get_agent_details(agent_id: str) -> GetAgentDetailsResponse:
     request = GetAgentDetailsRequest(agent_id=agent_id)
 
     # Execute with retry logic
-    last_error = None
+    last_error: DiscoveryTimeoutError | DiscoveryAPIError | None = None
     for attempt in range(MAX_RETRIES + 1):
         try:
             async with get_http_client() as client:

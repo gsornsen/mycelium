@@ -14,7 +14,7 @@ from typing import Any
 from fastapi import FastAPI, HTTPException, Path, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from plugins.mycelium_core.registry import (
+from plugins.mycelium_core.registry import (  # type: ignore[import-untyped]
     AgentNotFoundError,
     AgentRegistry,
     AgentRegistryError,
@@ -85,7 +85,7 @@ async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
 def create_app(
     rate_limit: int = 100,
     enable_cors: bool = True,
-    cors_origins: list | None = None,
+    cors_origins: list[str] | None = None,
 ) -> FastAPI:
     """Create and configure FastAPI application.
 

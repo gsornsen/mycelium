@@ -9,9 +9,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from InquirerPy import inquirer  # type: ignore
-from InquirerPy.base.control import Choice  # type: ignore
-from InquirerPy.validator import NumberValidator  # type: ignore
+from InquirerPy import inquirer 
+from InquirerPy.base.control import Choice 
+from InquirerPy.validator import NumberValidator 
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
@@ -251,7 +251,7 @@ class WizardScreens:
                 Choice(value="temporal", name="Temporal - Workflow orchestration"),
             ],
             default=defaults,
-            validate=_validate_services_selection,  # type: ignore[arg-type]
+            validate=_validate_services_selection,
             invalid_message="Please select at least one service",
         ).execute()
 

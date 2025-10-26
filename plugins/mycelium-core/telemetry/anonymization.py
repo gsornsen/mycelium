@@ -196,7 +196,7 @@ class DataAnonymizer:
         Returns:
             Dictionary with anonymized agent usage data
         """
-        anonymized = {
+        anonymized: dict[str, Any] = {
             "agent_id_hash": self.hash_identifier(agent_id),
             "operation": operation,
         }

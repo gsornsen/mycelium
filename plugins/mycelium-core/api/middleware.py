@@ -169,7 +169,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
             )
 
         # Process request
-        response = await call_next(request)
+        response: Response = await call_next(request)
 
         # Add rate limit headers to response
         for key, value in headers.items():
@@ -211,7 +211,7 @@ class RequestValidationMiddleware(BaseHTTPMiddleware):
         request.state.request_id = f"{int(time.time() * 1000)}-{id(request)}"
 
         # Process request
-        response = await call_next(request)
+        response: Response = await call_next(request)
 
         # Add request ID to response
         response.headers["X-Request-ID"] = request.state.request_id
@@ -237,7 +237,7 @@ class PerformanceMonitoringMiddleware(BaseHTTPMiddleware):
         start_time = time.time()
 
         # Process request
-        response = await call_next(request)
+        response: Response = await call_next(request)
 
         # Calculate processing time
         processing_time = (time.time() - start_time) * 1000  # Convert to ms

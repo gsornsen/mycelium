@@ -5,6 +5,7 @@ Telemetry is DISABLED BY DEFAULT - explicit opt-in required.
 """
 
 import os
+from typing import Any
 
 from pydantic import BaseModel, Field, HttpUrl, field_validator
 
@@ -26,7 +27,7 @@ class TelemetryConfig(BaseModel):
         default=False, description="Enable telemetry collection (default: disabled)"
     )
     endpoint: HttpUrl = Field(
-        default="https://mycelium-telemetry.sornsen.io",
+        default=HttpUrl("https://mycelium-telemetry.sornsen.io"),
         description="Telemetry collection endpoint",
     )
     timeout: int = Field(
@@ -84,7 +85,7 @@ class TelemetryConfig(BaseModel):
             "on",
         )
 
-        config_data = {
+        config_data: dict[str, Any] = {
             "enabled": enabled,
         }
 

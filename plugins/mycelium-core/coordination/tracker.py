@@ -79,7 +79,7 @@ class AgentInfo:
     agent_id: str
     agent_type: str
 
-    def to_dict(self) -> dict[str, str]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {"agent_id": self.agent_id, "agent_type": self.agent_type}
 
@@ -95,7 +95,7 @@ class ErrorInfo:
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
-        result = {
+        result: dict[str, Any] = {
             "error_type": self.error_type,
             "message": self.message,
             "attempt": self.attempt,
@@ -113,7 +113,7 @@ class PerformanceMetrics:
     execution_time_ms: float | None = None
     total_time_ms: float | None = None
 
-    def to_dict(self) -> dict[str, float]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary, excluding None values."""
         return {k: v for k, v in asdict(self).items() if v is not None}
 
@@ -140,7 +140,7 @@ class CoordinationEvent:
 
     def to_dict(self) -> dict[str, Any]:
         """Convert event to dictionary for storage/validation."""
-        result = {
+        result: dict[str, Any] = {
             "event_id": self.event_id,
             "event_type": self.event_type.value,
             "workflow_id": self.workflow_id,
@@ -205,13 +205,13 @@ class CoordinationTracker:
             enable_validation: Whether to validate events against schema (default: True)
         """
         if pool is not None:
-            self._pool = pool
+            self._pool: Pool | None = pool
             self._owns_pool = False
         else:
             self._connection_string = (
                 connection_string or "postgresql://localhost:5432/mycelium_registry"
             )
-            self._pool: Pool | None = None
+            self._pool = None
             self._owns_pool = True
 
         self._enable_validation = enable_validation

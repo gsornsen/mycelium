@@ -113,7 +113,7 @@ class WorkflowOrchestrator:
         self.default_retry_policy = default_retry_policy or RetryPolicy()
         self.max_parallel_tasks = max_parallel_tasks
         self._task_executors: dict[str, TaskExecutor] = {}
-        self._active_workflows: dict[str, asyncio.Task] = {}
+        self._active_workflows: dict[str, asyncio.Task[Any]] = {}
 
     def register_executor(self, agent_type: str, executor: TaskExecutor) -> None:
         """Register task executor for agent type.
@@ -381,7 +381,7 @@ class WorkflowOrchestrator:
         """
         tasks_by_id = {t.task_id: t for t in tasks}
         completed = set()
-        running = set()
+        running: set[str] = set()
         pending = {t.task_id for t in tasks}
 
         while pending or running:
