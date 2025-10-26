@@ -7,7 +7,9 @@ and metadata retrieval.
 import json
 import os
 import time
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
+from typing import Any
 
 from fastapi import FastAPI, HTTPException, Path, Query
 from fastapi.middleware.cors import CORSMiddleware
@@ -53,7 +55,7 @@ def get_registry() -> AgentRegistry:
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     """Application lifespan manager.
 
     Handles startup and shutdown of database connections.
@@ -122,7 +124,9 @@ def create_app(
 
     # Exception handlers
     @app.exception_handler(AgentNotFoundError)
-    async def agent_not_found_handler(request, exc):
+    async def agent_not_found_handler(
+        request: Any, exc: AgentNotFoundError
+    ) -> JSONResponse:
         """Handle agent not found errors."""
         return JSONResponse(
             status_code=404,
@@ -134,7 +138,9 @@ def create_app(
         )
 
     @app.exception_handler(AgentRegistryError)
-    async def registry_error_handler(request, exc):
+    async def registry_error_handler(
+        request: Any, exc: AgentRegistryError
+    ) -> JSONResponse:
         """Handle registry errors."""
         return JSONResponse(
             status_code=500,
@@ -146,7 +152,7 @@ def create_app(
         )
 
     @app.exception_handler(ValueError)
-    async def value_error_handler(request, exc):
+    async def value_error_handler(request: Any, exc: ValueError) -> JSONResponse:
         """Handle validation errors."""
         return JSONResponse(
             status_code=400,
@@ -165,7 +171,7 @@ def create_app(
         summary="Health check",
         description="Check API and database health status",
     )
-    async def health_check():
+    async def health_check() -> HealthResponse:
         """Perform health check on the API and database."""
         registry = get_registry()
         health = await registry.health_check()
@@ -191,7 +197,7 @@ def create_app(
             500: {"model": ErrorResponse, "description": "Server error"},
         },
     )
-    async def discover_agents(request: DiscoverRequest):
+    async def discover_agents(request: DiscoverRequest) -> DiscoverResponse:
         """Discover agents based on natural language query.
 
         This endpoint performs full-text search on agent descriptions,
@@ -215,7 +221,7 @@ def create_app(
         # Convert to response format with confidence scores
         # For now, use simple text matching for confidence
         # This will be enhanced in Task 1.3 with NLP matching
-        matches = []
+        matches: list[AgentMatch] = []
         for agent_data in results:
             # Calculate simple confidence based on keyword matches
             query_lower = request.query.lower()
@@ -241,9 +247,9 @@ def create_app(
                 # Parse metadata from JSON string
                 metadata_str = agent_data.get("metadata", "{}")
                 if isinstance(metadata_str, str):
-                    metadata_dict = json.loads(metadata_str)
+                    json.loads(metadata_str)
                 else:
-                    metadata_dict = metadata_str
+                    pass
 
                 agent_meta = AgentMetadata(
                     id=agent_data["id"],
@@ -304,7 +310,7 @@ def create_app(
             description="Agent ID (e.g., 'backend-developer' or '01-core-backend-developer')",
             examples=["backend-developer", "01-core-backend-developer"],
         ),
-    ):
+    ) -> AgentDetailResponse:
         """Get detailed information about a specific agent.
 
         Args:
@@ -399,7 +405,7 @@ def create_app(
             ge=0,
             description="Offset for pagination",
         ),
-    ):
+    ) -> AgentSearchResponse:
         """Search agents with optional filters.
 
         Args:
@@ -429,7 +435,7 @@ def create_app(
             )
 
         # Convert to response format
-        agents = []
+        agents: list[AgentMetadata] = []
         for agent_data in results:
             agent_meta = AgentMetadata(
                 id=agent_data["id"],
@@ -465,7 +471,7 @@ def create_app(
     return app
 
 
-def _get_match_reason(agent_data: dict, query: str) -> str:
+def _get_match_reason(agent_data: dict[str, Any], query: str) -> str:
     """Generate match reason explanation.
 
     Args:

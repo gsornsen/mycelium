@@ -3,6 +3,7 @@
 import time
 from collections import defaultdict
 from collections.abc import Callable
+from typing import Any
 
 from fastapi import Request, Response
 from fastapi.responses import JSONResponse
@@ -17,7 +18,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 
     def __init__(
         self,
-        app,
+        app: Any,
         requests_per_minute: int = 100,
         burst_size: int = 10,
     ):
@@ -131,7 +132,9 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 
         return allowed, headers
 
-    async def dispatch(self, request: Request, call_next: Callable) -> Response:
+    async def dispatch(
+        self, request: Request, call_next: Callable[..., Any]
+    ) -> Response:
         """Process request with rate limiting.
 
         Args:
@@ -178,7 +181,9 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 class RequestValidationMiddleware(BaseHTTPMiddleware):
     """Middleware for additional request validation and security."""
 
-    async def dispatch(self, request: Request, call_next: Callable) -> Response:
+    async def dispatch(
+        self, request: Request, call_next: Callable[..., Any]
+    ) -> Response:
         """Process request with validation.
 
         Args:
@@ -217,7 +222,9 @@ class RequestValidationMiddleware(BaseHTTPMiddleware):
 class PerformanceMonitoringMiddleware(BaseHTTPMiddleware):
     """Middleware for monitoring request performance."""
 
-    async def dispatch(self, request: Request, call_next: Callable) -> Response:
+    async def dispatch(
+        self, request: Request, call_next: Callable[..., Any]
+    ) -> Response:
         """Process request with timing.
 
         Args:
