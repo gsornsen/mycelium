@@ -107,7 +107,10 @@ def detect_docker() -> DockerDetectionResult:
                 return DockerDetectionResult(
                     available=False,
                     version=version,
-                    error_message="Docker daemon is not running. Start Docker daemon: sudo systemctl start docker",
+                    error_message=(
+                        "Docker daemon is not running. "
+                        "Start Docker daemon: sudo systemctl start docker"
+                    ),
                 )
             return DockerDetectionResult(
                 available=False,

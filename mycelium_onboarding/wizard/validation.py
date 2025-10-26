@@ -287,7 +287,7 @@ class WizardValidator:
                 self.errors.append(
                     ValidationError(
                         field="postgres_port",
-                        message=f"Port {self.state.postgres_port} conflicts with {ports_used[self.state.postgres_port]} service",
+                        message=f"Port {self.state.postgres_port} conflicts with " f"{ports_used[self.state.postgres_port]} service",
                     )
                 )
                 return False
@@ -299,7 +299,7 @@ class WizardValidator:
                 self.errors.append(
                     ValidationError(
                         field="temporal_ui_port",
-                        message=f"Port {self.state.temporal_ui_port} conflicts with {ports_used[self.state.temporal_ui_port]} service",
+                        message=f"Port {self.state.temporal_ui_port} conflicts with " f"{ports_used[self.state.temporal_ui_port]} service",
                     )
                 )
                 return False
@@ -309,7 +309,7 @@ class WizardValidator:
                 self.errors.append(
                     ValidationError(
                         field="temporal_frontend_port",
-                        message=f"Port {self.state.temporal_frontend_port} conflicts with {ports_used[self.state.temporal_frontend_port]} service",
+                        message=f"Port {self.state.temporal_frontend_port} conflicts with " f"{ports_used[self.state.temporal_frontend_port]} service",
                     )
                 )
                 return False

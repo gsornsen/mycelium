@@ -341,10 +341,7 @@ def create_app(
 
         # Parse metadata
         metadata_str = agent_data.get("metadata", "{}")
-        if isinstance(metadata_str, str):
-            metadata_dict = json.loads(metadata_str)
-        else:
-            metadata_dict = metadata_str
+        metadata_dict = json.loads(metadata_str) if isinstance(metadata_str, str) else metadata_str
 
         agent_meta = AgentMetadata(
             id=agent_data["id"],

@@ -535,13 +535,7 @@ def config_init(output: Path | None, project_local: bool, force: bool) -> None:
         config init --output /path/to/config.yaml --force
     """
     try:
-        if output:
-            location = output
-        else:
-            location = get_config_path(
-                ConfigManager.CONFIG_FILENAME,
-                prefer_project=project_local,
-            )
+        location = output or get_config_path(ConfigManager.CONFIG_FILENAME, prefer_project=project_local)
 
         if location.exists() and not force:
             click.echo(
