@@ -728,7 +728,7 @@ class TestEdgeCases:
 
     def test_empty_project_name_handled_by_schema(self) -> None:
         """Test that empty project name is caught by schema validation."""
-        with pytest.raises(Exception):  # Pydantic ValidationError
+        with pytest.raises(ValidationError):
             MyceliumConfig(project_name="")
 
     def test_output_dir_already_exists(self, tmp_path: Path) -> None:

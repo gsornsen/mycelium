@@ -22,6 +22,7 @@ from mcp.tools.discovery_tools import (
     discover_agents,
     get_agent_details,
 )
+from pydantic import ValidationError
 
 
 class TestDiscoverAgents:
@@ -59,15 +60,15 @@ class TestDiscoverAgents:
     async def test_discover_agents_validation_errors(self):
         """Test Pydantic validation catches invalid inputs."""
         # Empty query
-        with pytest.raises(Exception):  # Pydantic ValidationError
+        with pytest.raises(ValidationError):
             await discover_agents(query="")
 
         # Invalid limit
-        with pytest.raises(Exception):
+        with pytest.raises(ValidationError):
             await discover_agents(query="test", limit=0)
 
         # Invalid threshold
-        with pytest.raises(Exception):
+        with pytest.raises(ValidationError):
             await discover_agents(query="test", threshold=1.5)
 
     @pytest.mark.asyncio
@@ -115,7 +116,7 @@ class TestGetAgentDetails:
     @pytest.mark.asyncio
     async def test_get_agent_details_validation(self):
         """Test Pydantic validation for agent_id."""
-        with pytest.raises(Exception):  # Pydantic ValidationError
+        with pytest.raises(ValidationError):
             await get_agent_details(agent_id="")
 
     @pytest.mark.asyncio

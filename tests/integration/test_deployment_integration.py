@@ -59,7 +59,7 @@ class TestDeploymentE2EDockerCompose:
         assert (tmp_path / "README.md").exists()
 
         # Validate docker-compose.yml is valid YAML
-        with open(tmp_path / "docker-compose.yml") as f:
+        with (tmp_path / "docker-compose.yml").open() as f:
             compose_config = yaml.safe_load(f)
 
         assert "services" in compose_config
@@ -121,7 +121,7 @@ class TestDeploymentE2EDockerCompose:
 
         assert result.success
 
-        with open(tmp_path / "docker-compose.yml") as f:
+        with (tmp_path / "docker-compose.yml").open() as f:
             compose_config = yaml.safe_load(f)
 
         assert "redis" in compose_config["services"]
@@ -144,7 +144,7 @@ class TestDeploymentE2EDockerCompose:
 
         assert result.success
 
-        with open(tmp_path / "docker-compose.yml") as f:
+        with (tmp_path / "docker-compose.yml").open() as f:
             compose_config = yaml.safe_load(f)
 
         assert "redis" in compose_config["services"]
@@ -166,7 +166,7 @@ class TestDeploymentE2EDockerCompose:
 
         assert result.success
 
-        with open(tmp_path / "docker-compose.yml") as f:
+        with (tmp_path / "docker-compose.yml").open() as f:
             compose_config = yaml.safe_load(f)
 
         # Verify custom ports
@@ -247,7 +247,7 @@ class TestDeploymentE2EKubernetes:
         assert result.success
 
         namespace_file = tmp_path / "kubernetes" / "00-namespace.yaml"
-        with open(namespace_file) as f:
+        with namespace_file.open() as f:
             namespace_manifest = yaml.safe_load(f)
 
         assert namespace_manifest["kind"] == "Namespace"
@@ -266,7 +266,7 @@ class TestDeploymentE2EKubernetes:
         assert result.success
 
         redis_file = tmp_path / "kubernetes" / "10-redis.yaml"
-        with open(redis_file) as f:
+        with redis_file.open() as f:
             # YAML file contains multiple documents
             docs = list(yaml.safe_load_all(f))
 
@@ -288,7 +288,7 @@ class TestDeploymentE2EKubernetes:
         assert result.success
 
         postgres_file = tmp_path / "kubernetes" / "20-postgres.yaml"
-        with open(postgres_file) as f:
+        with postgres_file.open() as f:
             docs = list(yaml.safe_load_all(f))
 
         kinds = [doc["kind"] for doc in docs if doc]
@@ -311,7 +311,7 @@ class TestDeploymentE2EKubernetes:
         assert result.success
 
         kustomize_file = tmp_path / "kubernetes" / "kustomization.yaml"
-        with open(kustomize_file) as f:
+        with kustomize_file.open() as f:
             kustomize_config = yaml.safe_load(f)
 
         assert kustomize_config["kind"] == "Kustomization"
@@ -712,7 +712,7 @@ class TestTemplateValidation:
         assert result.success
 
         # Parse YAML to ensure it's valid
-        with open(tmp_path / "docker-compose.yml") as f:
+        with (tmp_path / "docker-compose.yml").open() as f:
             compose_config = yaml.safe_load(f)
 
         assert compose_config is not None
@@ -738,7 +738,7 @@ class TestTemplateValidation:
 
         # Validate each YAML file
         for yaml_file in yaml_files:
-            with open(yaml_file) as f:
+            with yaml_file.open() as f:
                 # Handle multi-document YAML
                 docs = list(yaml.safe_load_all(f))
                 assert len(docs) > 0

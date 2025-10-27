@@ -143,11 +143,9 @@ class TestWizardE2EQuickMode:
                 with patch(
                     "mycelium_onboarding.wizard.screens.detect_all",
                     return_value=mock_detection_summary,
-                ):
-                    # Mock config manager
-                    with patch(
-                        "mycelium_onboarding.config.manager.ConfigManager"
-                    ) as mock_config_class:
+                ), patch(
+                    "mycelium_onboarding.config.manager.ConfigManager"
+                ) as mock_config_class:
                         mock_config = MagicMock()
                         mock_config._determine_save_path.return_value = (
                             tmp_path / "config.yaml"
@@ -664,8 +662,9 @@ class TestWizardEditFlow:
                 mock_inquirer.select.return_value = MagicMock(execute=lambda: "cancel")
 
                 # User confirms cancellation
-                with patch("click.confirm", return_value=True):
-                    with patch("mycelium_onboarding.wizard.screens.WizardScreens"):
+                with patch("click.confirm", return_value=True), patch(
+                    "mycelium_onboarding.wizard.screens.WizardScreens"
+                ):
                         # Verify cancel clears state
                         assert True  # Placeholder for cancel behavior validation
 

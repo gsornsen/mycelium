@@ -7,7 +7,7 @@ atomic writes and proper error handling.
 from __future__ import annotations
 
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 import pytest
@@ -311,7 +311,7 @@ class TestBackupAndRestore:
         assert backup_path is not None
 
         # Load from backup file
-        with open(backup_path) as f:
+        with Path(backup_path).open() as f:
             backup_data = json.load(f)
 
         assert backup_data["project_name"] == "backup-test"
@@ -393,7 +393,7 @@ class TestSerializationDeserialization:
 
         state_dict = {
             "current_step": "services",
-            "started_at": datetime.now(UTC).isoformat(),
+            "started_at": datetime.now(timezone.utc).isoformat(),
             "project_name": "test",
             "services_enabled": {"redis": True},
             "deployment_method": "docker-compose",

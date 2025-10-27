@@ -6,6 +6,7 @@ all endpoints, error handling, and integration with the agent registry.
 
 import os
 from collections.abc import AsyncGenerator
+from contextlib import suppress
 
 import pytest
 import pytest_asyncio
@@ -76,11 +77,8 @@ async def registry(test_database_url) -> AsyncGenerator[AgentRegistry, None]:
     ]
 
     for agent in test_agents:
-        try:
+        with suppress(Exception):
             await reg.create_agent(**agent)
-        except Exception:
-            # Skip if already exists
-            pass
 
     yield reg
 

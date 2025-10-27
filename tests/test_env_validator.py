@@ -517,7 +517,7 @@ class TestEdgeCases:
         """Should handle relative paths correctly."""
         # Change to tmp directory
 
-        original_cwd = os.getcwd()
+        original_cwd = Path.cwd()
         try:
             os.chdir(tmp_path)
 

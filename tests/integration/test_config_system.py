@@ -439,7 +439,7 @@ class TestErrorHandlingAndRecovery:
 
         # Write invalid YAML directly
         temp_config_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(temp_config_path, "w") as f:
+        with temp_config_path.open("w") as f:
             yaml.dump(invalid_data, f)
 
         # Should raise on load due to validation

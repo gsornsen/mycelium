@@ -77,7 +77,7 @@ class TestAgentIndexSchema:
         if not index_path.exists():
             pytest.skip("Index not generated yet")
 
-        with open(index_path) as f:
+        with Path(index_path).open() as f:
             index = json.load(f)
 
         # Check required top-level fields
@@ -99,7 +99,7 @@ class TestAgentIndexSchema:
         if not index_path.exists():
             pytest.skip("Index not generated yet")
 
-        with open(index_path) as f:
+        with Path(index_path).open() as f:
             index = json.load(f)
 
         required_fields = [
@@ -135,7 +135,7 @@ class TestAgentIndexSchema:
         if not index_path.exists():
             pytest.skip("Index not generated yet")
 
-        with open(index_path) as f:
+        with Path(index_path).open() as f:
             index = json.load(f)
 
         agent_ids = [agent["id"] for agent in index["agents"]]
@@ -150,7 +150,7 @@ class TestAgentIndexCompleteness:
         if not index_path.exists():
             pytest.skip("Index not generated yet")
 
-        with open(index_path) as f:
+        with Path(index_path).open() as f:
             index = json.load(f)
 
         # According to AGENT_STRUCTURE_CHANGE.md, there are 119 agents
@@ -167,7 +167,7 @@ class TestAgentIndexCompleteness:
         # Get all .md files (excluding index.json)
         agent_files = list(agents_dir.glob("*.md"))
 
-        with open(index_path) as f:
+        with Path(index_path).open() as f:
             index = json.load(f)
 
         assert len(index["agents"]) == len(agent_files), (
@@ -179,7 +179,7 @@ class TestAgentIndexCompleteness:
         if not index_path.exists():
             pytest.skip("Index not generated yet")
 
-        with open(index_path) as f:
+        with Path(index_path).open() as f:
             index = json.load(f)
 
         expected_categories = {
@@ -286,7 +286,7 @@ class TestGeneratorValidation:
 
         generator.scan_agents()
 
-        with open(index_path) as f:
+        with Path(index_path).open() as f:
             index = json.load(f)
 
         assert generator.validate_index(index), "Valid index should pass validation"

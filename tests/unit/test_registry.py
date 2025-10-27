@@ -77,7 +77,7 @@ async def schema_setup(db_pool):
         pytest.skip(f"Schema file not found: {schema_path}")
 
     async with db_pool.acquire() as conn:
-        with open(schema_path) as f:
+        with schema_path.open() as f:
             schema_sql = f.read()
         await conn.execute(schema_sql)
 
@@ -529,7 +529,7 @@ class TestLoadFromIndex:
         }
 
         index_path = tmp_path / "index.json"
-        with open(index_path, "w") as f:
+        with index_path.open("w") as f:
             json.dump(index_data, f)
 
         # Load agents from index

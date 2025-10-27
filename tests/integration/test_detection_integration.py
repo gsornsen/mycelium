@@ -407,8 +407,9 @@ def test_detection_with_partial_failures(mock_all_services_available):
         side_effect=Exception("Docker detection failed"),
     ):
         # Detection should handle the error gracefully
-        with pytest.raises(Exception):
+        with pytest.raises(Exception) as exc_info:
             detect_all()
+        assert exc_info.value  # Verify exception was raised
 
 
 def test_cli_error_handling_invalid_format():
@@ -798,12 +799,10 @@ def test_full_workflow_init_detect_save(mock_all_services_available, temp_config
     runner = CliRunner()
     config_path = temp_config_dir / "mycelium.yaml"
 
-    with runner.isolated_filesystem():
-        # Step 1: Initialize config
-        with patch(
-            "mycelium_onboarding.cli.get_config_path",
-            return_value=config_path,
-        ):
+    with runner.isolated_filesystem(), patch(
+        "mycelium_onboarding.cli.get_config_path",
+        return_value=config_path,
+    ):
             result = runner.invoke(cli, ["config", "init"])
             assert result.exit_code == 0
 

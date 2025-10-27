@@ -13,9 +13,9 @@ import pytest
 plugins_dir = Path(__file__).parent.parent.parent / "plugins" / "mycelium-core"
 sys.path.insert(0, str(plugins_dir))
 
-from telemetry.anonymization import DataAnonymizer
-from telemetry.client import TelemetryClient
-from telemetry.config import TelemetryConfig
+from telemetry.anonymization import DataAnonymizer  # noqa: E402
+from telemetry.client import TelemetryClient  # noqa: E402
+from telemetry.config import TelemetryConfig  # noqa: E402
 
 
 class TestTelemetryConfig:

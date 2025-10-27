@@ -606,7 +606,7 @@ class TestCrossPlatform:
         """
         # Only run if we're actually on WSL
         try:
-            with open("/proc/version") as f:
+            with Path("/proc/version").open() as f:
                 if "microsoft" not in f.read().lower():
                     pytest.skip("Not running on WSL")
         except Exception:

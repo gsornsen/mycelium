@@ -7,7 +7,7 @@ the interactive wizard flow and state persistence.
 from __future__ import annotations
 
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -290,7 +290,7 @@ class TestWizardState:
         data: dict[str, Any] = {
             "project_name": "test",
             "current_step": "services",
-            "started_at": datetime.now(UTC).isoformat(),
+            "started_at": datetime.now(timezone.utc).isoformat(),
             "deployment_method": "kubernetes",
             "services_enabled": {"redis": True, "postgres": False, "temporal": False},
             "detection_results": None,
@@ -448,7 +448,7 @@ class TestWizardFlow:
         assert save_path.exists()
 
         # Verify content
-        with open(save_path) as f:
+        with Path(save_path).open() as f:
             data = json.load(f)
 
         assert data["project_name"] == "test-save"
@@ -470,7 +470,7 @@ class TestWizardFlow:
         state_data = {
             "project_name": "test-load",
             "current_step": "deployment",
-            "started_at": datetime.now(UTC).isoformat(),
+            "started_at": datetime.now(timezone.utc).isoformat(),
             "deployment_method": "kubernetes",
             "services_enabled": {"redis": True, "postgres": True, "temporal": False},
             "detection_results": None,
@@ -488,7 +488,7 @@ class TestWizardFlow:
         }
 
         save_path = tmp_path / "wizard_state.json"
-        with open(save_path, "w") as f:
+        with Path(save_path, "w").open() as f:
             json.dump(state_data, f)
 
         # Load state
@@ -692,7 +692,7 @@ class TestEdgeCases:
     def test_malformed_saved_state(self, tmp_path: Path) -> None:
         """Test loading malformed saved state."""
         save_path = tmp_path / "malformed.json"
-        with open(save_path, "w") as f:
+        with Path(save_path, "w").open() as f:
             f.write("{invalid json}")
 
         with pytest.raises(json.JSONDecodeError):

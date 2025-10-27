@@ -61,7 +61,7 @@ class TestEventStorageBasics:
         assert jsonl_file.exists()
 
         # Verify content
-        with open(jsonl_file) as f:
+        with jsonl_file.open() as f:
             line = f.readline().strip()
             loaded = json.loads(line)
             assert loaded == event
@@ -88,7 +88,7 @@ class TestEventStorageBasics:
 
         # Verify all events were written
         jsonl_file = storage.storage_dir / "events.jsonl"
-        with open(jsonl_file) as f:
+        with jsonl_file.open() as f:
             lines = f.readlines()
             assert len(lines) == 3
 
@@ -378,7 +378,7 @@ class TestErrorHandling:
         )
 
         # Manually write malformed line
-        with open(storage.storage_dir / "events.jsonl", "a") as f:
+        with (storage.storage_dir / "events.jsonl").open("a") as f:
             f.write("not valid json\n")
 
         # Write another valid event
@@ -397,7 +397,7 @@ class TestErrorHandling:
     def test_read_events_empty_lines(self, storage):
         """Test reading with empty lines (should be skipped)."""
         # Write events with empty lines
-        with open(storage.storage_dir / "events.jsonl", "a") as f:
+        with (storage.storage_dir / "events.jsonl").open("a") as f:
             f.write('{"event_type": "event1"}\n')
             f.write("\n")
             f.write('{"event_type": "event2"}\n')
