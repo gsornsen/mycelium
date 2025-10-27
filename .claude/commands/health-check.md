@@ -7,21 +7,25 @@ Display real-time performance analytics for mycelium agent discovery, cache, and
 Read telemetry data from `~/.mycelium/analytics/events.jsonl` and display:
 
 1. **Agent Discovery Performance** (last 7 days)
+
    - Total operations
    - p95 latency for list_agents, get_agent, search
    - Performance vs targets
 
-2. **Cache Performance**
+1. **Cache Performance**
+
    - Cache hit rate
    - Hit vs miss latency comparison
    - Cache efficiency score
 
-3. **Token Savings** (Phase 1 impact)
+1. **Token Savings** (Phase 1 impact)
+
    - Total tokens loaded
    - Estimated savings vs baseline
    - Savings percentage
 
-4. **System Health**
+1. **System Health**
+
    - Storage usage
    - Event count
    - Latest event timestamp
@@ -93,6 +97,7 @@ Run `uv run python -m mycelium_analytics report` for detailed analysis.
 ## Technical Details
 
 The health check script:
+
 - Reads events from `~/.mycelium/analytics/events.jsonl`
 - Calculates percentiles (p50, p95, p99) for discovery operations
 - Analyzes cache hit rates and latency differences
@@ -101,13 +106,13 @@ The health check script:
 
 ## Performance Targets
 
-| Metric | Target | Status Indicator |
-|--------|--------|------------------|
+| Metric          | Target | Status Indicator                          |
+| --------------- | ------ | ----------------------------------------- |
 | list_agents p95 | < 20ms | ✅ Pass, ⚠️ Warn (>20ms), ❌ Fail (>30ms) |
-| get_agent p95 | < 5ms | ✅ Pass, ⚠️ Warn (>5ms), ❌ Fail (>7.5ms) |
-| search p95 | < 10ms | ✅ Pass, ⚠️ Warn (>10ms), ❌ Fail (>15ms) |
-| Cache hit rate | > 80% | ✅ Pass, ⚠️ Warn (<80%), ❌ Fail (<60%) |
-| Token savings | > 40% | ✅ Pass, ⚠️ Warn (<40%), ❌ Fail (<30%) |
+| get_agent p95   | < 5ms  | ✅ Pass, ⚠️ Warn (>5ms), ❌ Fail (>7.5ms) |
+| search p95      | < 10ms | ✅ Pass, ⚠️ Warn (>10ms), ❌ Fail (>15ms) |
+| Cache hit rate  | > 80%  | ✅ Pass, ⚠️ Warn (\<80%), ❌ Fail (\<60%) |
+| Token savings   | > 40%  | ✅ Pass, ⚠️ Warn (\<40%), ❌ Fail (\<30%) |
 
 ## Dependencies
 
