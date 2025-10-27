@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - main
-      - feat/*
-      - fix/*
   pull_request:
     branches:
       - main
@@ -136,38 +134,7 @@ jobs:
       - name: Install dependencies
         run: uv sync --frozen --all-extras --group dev
 
-      - name: Get changed files (on push to feature branches)
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/feat/')
-        id: changed-files
-        uses: tj-actions/changed-files@v45
-        with:
-          files: |
-            plugins/**/*.py
-            mycelium_onboarding/**/*.py
-            tests/**/*.py
-
-      - name: Run unit tests for changed files
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/feat/') && steps.changed-files.outputs.any_changed == 'true'
-        run: |
-          # Extract test files and source files
-          changed_test_files=$(echo "${{ steps.changed-files.outputs.all_changed_files }}" | tr ' ' '\n' | grep '^tests/' || true)
-          changed_source_files=$(echo "${{ steps.changed-files.outputs.all_changed_files }}" | tr ' ' '\n' | grep -E '^(plugins|mycelium_onboarding)/' || true)
-
-          # Run changed test files directly
-          if [ -n "$changed_test_files" ]; then
-            echo "Running changed test files: $changed_test_files"
-            uv run pytest $changed_test_files -v -m "not integration and not benchmark and not slow" --tb=short
-          fi
-
-          # For changed source files, run corresponding tests
-          if [ -n "$changed_source_files" ]; then
-            echo "Changed source files detected: $changed_source_files"
-            echo "Running unit tests..."
-            uv run pytest tests/unit/ -v -m "not integration and not benchmark and not slow" --tb=short
-          fi
-
       - name: Run full unit test suite
-        if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main' || steps.changed-files.outputs.any_changed != 'true'
         run: |
           uv run pytest tests/unit/ tests/test_*.py -v \
             -m "not integration and not benchmark and not slow" \
