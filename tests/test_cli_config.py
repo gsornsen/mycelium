@@ -538,7 +538,7 @@ def test_config_set_help(runner):
 
 def test_config_show_with_load_error(runner, tmp_path, monkeypatch):
     """Test 'config show' handles ConfigLoadError gracefully."""
-    config_path = tmp_path / "config.yaml"
+    tmp_path / "config.yaml"
 
     with patch("mycelium_onboarding.cli.ConfigManager") as mock_manager:
         mock_manager.return_value.load.side_effect = Exception("Load failed")

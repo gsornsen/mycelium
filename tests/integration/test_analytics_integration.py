@@ -50,7 +50,7 @@ def test_agent_discovery_telemetry_integration(tmp_path):
     assert agent is not None, "Should load agent successfully"
 
     # Search for agents
-    results = discovery.search("api")
+    discovery.search("api")
 
     # Verify events were recorded
     events = storage.read_events()
@@ -179,7 +179,7 @@ def test_storage_rotation(tmp_path):
     }
 
     # Write 1100 events (11MB worth)
-    for i in range(1100):
+    for _i in range(1100):
         storage.append_event(large_event)
 
     # Check that rotation occurred

@@ -60,7 +60,7 @@ def mock_detection_summary() -> DetectionSummary:
     gpu.available = True
     gpu.gpus = [MagicMock(model="RTX 3090")]
 
-    summary = DetectionSummary(
+    return DetectionSummary(
         docker=docker,
         redis=[redis_instance],
         postgres=[postgres_instance],
@@ -69,7 +69,6 @@ def mock_detection_summary() -> DetectionSummary:
         detection_time=2.5,
     )
 
-    return summary
 
 
 # ==============================================================================

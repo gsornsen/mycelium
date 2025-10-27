@@ -211,7 +211,7 @@ class TestKubernetesGeneration:
             services=ServicesConfig(redis=RedisConfig(enabled=True)),
         )
         gen = DeploymentGenerator(config, output_dir=tmp_path)
-        result = gen.generate(DeploymentMethod.KUBERNETES)
+        gen.generate(DeploymentMethod.KUBERNETES)
 
         k8s_dir = tmp_path / "kubernetes"
         namespace_file = k8s_dir / "00-namespace.yaml"
@@ -231,7 +231,7 @@ class TestKubernetesGeneration:
             ),
         )
         gen = DeploymentGenerator(config, output_dir=tmp_path)
-        result = gen.generate(DeploymentMethod.KUBERNETES)
+        gen.generate(DeploymentMethod.KUBERNETES)
 
         k8s_dir = tmp_path / "kubernetes"
         assert (k8s_dir / "10-redis.yaml").exists()
@@ -244,7 +244,7 @@ class TestKubernetesGeneration:
             services=ServicesConfig(redis=RedisConfig(enabled=True)),
         )
         gen = DeploymentGenerator(config, output_dir=tmp_path)
-        result = gen.generate(DeploymentMethod.KUBERNETES)
+        gen.generate(DeploymentMethod.KUBERNETES)
 
         k8s_dir = tmp_path / "kubernetes"
         kustomize_file = k8s_dir / "kustomization.yaml"
@@ -262,7 +262,7 @@ class TestKubernetesGeneration:
             services=ServicesConfig(redis=RedisConfig(enabled=True)),
         )
         gen = DeploymentGenerator(config, output_dir=tmp_path)
-        result = gen.generate(DeploymentMethod.KUBERNETES)
+        gen.generate(DeploymentMethod.KUBERNETES)
 
         k8s_dir = tmp_path / "kubernetes"
         readme_file = k8s_dir / "README.md"
@@ -283,7 +283,7 @@ class TestKubernetesGeneration:
             ),
         )
         gen = DeploymentGenerator(config, output_dir=tmp_path)
-        result = gen.generate(DeploymentMethod.KUBERNETES)
+        gen.generate(DeploymentMethod.KUBERNETES)
 
         k8s_dir = tmp_path / "kubernetes"
         assert (k8s_dir / "10-redis.yaml").exists()
@@ -301,7 +301,7 @@ class TestKubernetesGeneration:
             ),
         )
         gen = DeploymentGenerator(config, output_dir=tmp_path)
-        result = gen.generate(DeploymentMethod.KUBERNETES)
+        gen.generate(DeploymentMethod.KUBERNETES)
 
         k8s_dir = tmp_path / "kubernetes"
         manifests = sorted([f.name for f in k8s_dir.glob("*.yaml")])
@@ -349,7 +349,7 @@ class TestSystemdGeneration:
             ),
         )
         gen = DeploymentGenerator(config, output_dir=tmp_path)
-        result = gen.generate(DeploymentMethod.SYSTEMD)
+        gen.generate(DeploymentMethod.SYSTEMD)
 
         systemd_dir = tmp_path / "systemd"
         assert (systemd_dir / "myapp-redis.service").exists()
@@ -366,7 +366,7 @@ class TestSystemdGeneration:
             services=ServicesConfig(redis=RedisConfig(enabled=True)),
         )
         gen = DeploymentGenerator(config, output_dir=tmp_path)
-        result = gen.generate(DeploymentMethod.SYSTEMD)
+        gen.generate(DeploymentMethod.SYSTEMD)
 
         systemd_dir = tmp_path / "systemd"
         install_script = systemd_dir / "install.sh"
@@ -384,7 +384,7 @@ class TestSystemdGeneration:
             services=ServicesConfig(redis=RedisConfig(enabled=True)),
         )
         gen = DeploymentGenerator(config, output_dir=tmp_path)
-        result = gen.generate(DeploymentMethod.SYSTEMD)
+        gen.generate(DeploymentMethod.SYSTEMD)
 
         systemd_dir = tmp_path / "systemd"
         install_script = systemd_dir / "install.sh"
@@ -402,7 +402,7 @@ class TestSystemdGeneration:
             services=ServicesConfig(redis=RedisConfig(enabled=True)),
         )
         gen = DeploymentGenerator(config, output_dir=tmp_path)
-        result = gen.generate(DeploymentMethod.SYSTEMD)
+        gen.generate(DeploymentMethod.SYSTEMD)
 
         systemd_dir = tmp_path / "systemd"
         readme_file = systemd_dir / "README.md"
@@ -422,7 +422,7 @@ class TestSystemdGeneration:
             ),
         )
         gen = DeploymentGenerator(config, output_dir=tmp_path)
-        result = gen.generate(DeploymentMethod.SYSTEMD)
+        gen.generate(DeploymentMethod.SYSTEMD)
 
         systemd_dir = tmp_path / "systemd"
         assert (systemd_dir / "myapp-redis.service").exists()

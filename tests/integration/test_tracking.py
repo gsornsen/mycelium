@@ -136,7 +136,7 @@ class TestEventTracking:
             ),
         )
 
-        event_id = await tracker.track_event(error_event)
+        await tracker.track_event(error_event)
 
         # Retrieve and verify
         events = await tracker.get_workflow_events(workflow_id)
@@ -504,7 +504,7 @@ class TestConvenienceFunctions:
         workflow_id = "test-workflow-exec"
 
         # Track start
-        start_id = await track_task_execution(
+        await track_task_execution(
             tracker,
             workflow_id,
             "exec-task",
@@ -514,7 +514,7 @@ class TestConvenienceFunctions:
         )
 
         # Track end
-        end_id = await track_task_execution(
+        await track_task_execution(
             tracker,
             workflow_id,
             "exec-task",
@@ -533,7 +533,7 @@ class TestConvenienceFunctions:
         """Test track_failure convenience function."""
         workflow_id = "test-workflow-fail"
 
-        event_id = await track_failure(
+        await track_failure(
             tracker,
             workflow_id,
             "fail-task",

@@ -291,7 +291,7 @@ async def test_workflow_variables(state_manager):
         "mode": "production",
         "config": {"timeout": 30},
     }
-    updated = await state_manager.update_workflow(state)
+    await state_manager.update_workflow(state)
 
     # Verify persistence
     retrieved = await state_manager.get_workflow(state.workflow_id)

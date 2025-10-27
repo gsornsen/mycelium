@@ -796,7 +796,7 @@ class TestErrorScenarios:
             services={"redis": {"enabled": True}},
         )
 
-        generator = DeploymentGenerator(config, output_dir=tmp_path)
+        DeploymentGenerator(config, output_dir=tmp_path)
 
         # Try to generate with invalid method (cast from string)
         with pytest.raises(ValueError):

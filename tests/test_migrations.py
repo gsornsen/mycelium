@@ -675,7 +675,6 @@ class TestMigrationErrorHandling:
         registry.register(CircularMigration1())
         registry.register(CircularMigration2())
 
-        config = {"version": "1.0"}
 
         # Should still work (BFS doesn't loop infinitely)
         path = registry.get_migration_path("1.0", "1.1")

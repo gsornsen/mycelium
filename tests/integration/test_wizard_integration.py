@@ -534,16 +534,15 @@ class TestWizardResume:
             mock_persistence_class.return_value = mock_persistence
 
             # User declines to resume
-            with patch("click.confirm", return_value=False):
-                with patch(
-                    "mycelium_onboarding.wizard.screens.inquirer"
-                ) as mock_inquirer:
-                    mock_inquirer.select.side_effect = SystemExit(0)
+            with patch("click.confirm", return_value=False), patch(
+                "mycelium_onboarding.wizard.screens.inquirer"
+            ) as mock_inquirer:
+                mock_inquirer.select.side_effect = SystemExit(0)
 
-                    result = runner.invoke(cli, ["init"])
+                runner.invoke(cli, ["init"])
 
-                    # State should not be loaded if user declined
-                    assert mock_persistence.exists.called
+                # State should not be loaded if user declined
+                assert mock_persistence.exists.called
 
     def test_no_resume_flag_ignores_saved_state(
         self,
@@ -561,7 +560,7 @@ class TestWizardResume:
             with patch("mycelium_onboarding.wizard.screens.inquirer") as mock_inquirer:
                 mock_inquirer.select.side_effect = SystemExit(0)
 
-                result = runner.invoke(cli, ["init", "--no-resume"])
+                runner.invoke(cli, ["init", "--no-resume"])
 
                 # load should not be called with --no-resume
                 mock_persistence.load.assert_not_called()
@@ -623,8 +622,8 @@ class TestWizardEditFlow:
 
                     # Manually drive the wizard state
                     state = complete_wizard_state
-                    flow = WizardFlow(state)
-                    screens = WizardScreens(state)
+                    WizardFlow(state)
+                    WizardScreens(state)
 
                     # This test validates the edit flow works correctly
                     assert state.current_step == WizardStep.REVIEW
@@ -895,7 +894,7 @@ class TestWizardDetectionIntegration:
         state = WizardState()
         state.detection_results = mock_detection_summary  # type: ignore[assignment]
 
-        screens = WizardScreens(state)
+        WizardScreens(state)
 
         # Detection should influence default selections
         # This is tested via the screens implementation
@@ -947,7 +946,7 @@ class TestWizardErrorHandling:
             with patch("mycelium_onboarding.wizard.screens.inquirer") as mock_inquirer:
                 mock_inquirer.select.side_effect = SystemExit(0)
 
-                result = runner.invoke(cli, ["init", "--reset", "--no-resume"])
+                runner.invoke(cli, ["init", "--reset", "--no-resume"])
 
                 # Should clear before starting
                 mock_persistence.clear.assert_called_once()
@@ -979,17 +978,9 @@ class TestWizardFlowControl:
         state = WizardState()
         state.setup_mode = "quick"
 
-        flow = WizardFlow(state)
+        WizardFlow(state)
 
         # Expected order: WELCOME -> DETECTION -> SERVICES -> DEPLOYMENT -> REVIEW -> COMPLETE
-        expected_steps = [
-            WizardStep.WELCOME,
-            WizardStep.DETECTION,
-            WizardStep.SERVICES,
-            WizardStep.DEPLOYMENT,
-            WizardStep.REVIEW,  # Skip ADVANCED
-            WizardStep.COMPLETE,
-        ]
 
         current_steps = []
         while not state.is_complete():

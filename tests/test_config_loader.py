@@ -62,8 +62,7 @@ def mock_project_dir(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
 @pytest.fixture
 def user_config_dir(mock_home: Path) -> Path:
     """Get the user-global config directory."""
-    config_dir = get_config_dir()
-    return config_dir
+    return get_config_dir()
 
 
 class TestGetConfigPath:

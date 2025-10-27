@@ -627,7 +627,7 @@ class TestCrossPlatform:
 
         # Check if WSL was mentioned (either detected or warning shown)
         # This is informational, not a hard requirement
-        output = result.stdout.strip()
+        result.stdout.strip()
         # Test passes regardless, just checking detection works
         assert result.returncode in (0, 1)  # May exit 1 if warning not confirmed
 

@@ -475,7 +475,7 @@ class TestShellCompatibility:
         assert "BASH_WORKS=1" in result.stdout
 
     @pytest.mark.skipif(
-        not subprocess.run(["which", "zsh"], capture_output=True).returncode == 0,
+        subprocess.run(["which", "zsh"], capture_output=True).returncode != 0,
         reason="zsh not installed",
     )
     def test_zsh_compatibility(self, project_root: Path, clean_environment):

@@ -65,7 +65,7 @@ class TestInitCommand:
                 mock_screens.return_value.show_welcome.side_effect = SystemExit(0)
 
                 # Run command
-                result = runner.invoke(cli, ["init", "--no-resume"])
+                runner.invoke(cli, ["init", "--no-resume"])
 
                 # Verify persistence was checked
                 mock_persistence.exists.assert_called()
@@ -90,7 +90,7 @@ class TestInitCommand:
                 mock_screens.return_value.show_welcome.side_effect = SystemExit(0)
 
                 # Run command
-                result = runner.invoke(cli, ["init", "--resume"])
+                runner.invoke(cli, ["init", "--resume"])
 
                 # Verify state was loaded
                 mock_persistence.load.assert_called_once()
@@ -112,7 +112,7 @@ class TestInitCommand:
                 mock_screens.return_value.show_welcome.side_effect = SystemExit(0)
 
                 # Run command
-                result = runner.invoke(cli, ["init", "--reset", "--no-resume"])
+                runner.invoke(cli, ["init", "--reset", "--no-resume"])
 
                 # Verify state was cleared
                 mock_persistence.clear.assert_called()
@@ -137,7 +137,7 @@ class TestInitCommand:
                 mock_screens.return_value.show_welcome.side_effect = SystemExit(0)
 
                 # Run command with "yes" input
-                result = runner.invoke(cli, ["init"], input="y\n")
+                runner.invoke(cli, ["init"], input="y\n")
 
                 # Verify state was loaded
                 mock_persistence.load.assert_called()
@@ -159,7 +159,7 @@ class TestInitCommand:
                 mock_screens.return_value.show_welcome.side_effect = SystemExit(0)
 
                 # Run command with "no" input
-                result = runner.invoke(cli, ["init"], input="n\n")
+                runner.invoke(cli, ["init"], input="n\n")
 
                 # Verify load was not called
                 mock_persistence.load.assert_not_called()
@@ -231,7 +231,7 @@ class TestInitCommand:
                         )
 
                         # Run command with required inputs
-                        result = runner.invoke(
+                        runner.invoke(
                             cli, ["init", "--no-resume"], input="test-project\n"
                         )
 
@@ -278,7 +278,7 @@ class TestInitCommand:
                     ]
 
                     # Run command
-                    result = runner.invoke(cli, ["init"], input="\n")
+                    runner.invoke(cli, ["init"], input="\n")
 
                     # Verify validation was called
                     assert validator.validate_state.called
@@ -327,7 +327,7 @@ class TestInitCommand:
                         )
 
                         # Run command
-                        result = runner.invoke(
+                        runner.invoke(
                             cli, ["init", "--no-resume"], input="test-project\n"
                         )
 
@@ -379,7 +379,7 @@ class TestInitCommand:
                         )
 
                         # Run command
-                        result = runner.invoke(
+                        runner.invoke(
                             cli, ["init", "--no-resume"], input="test-project\n"
                         )
 
@@ -430,7 +430,7 @@ class TestInitCommand:
                         )
 
                         # Run command
-                        result = runner.invoke(
+                        runner.invoke(
                             cli, ["init", "--no-resume"], input="test-project\n"
                         )
 
@@ -506,7 +506,7 @@ class TestInitCommand:
                 mock_screens.return_value.show_welcome.side_effect = SystemExit(0)
 
                 # Run command with resume
-                result = runner.invoke(cli, ["init"], input="y\n")
+                runner.invoke(cli, ["init"], input="y\n")
 
                 # Verify load was attempted
                 assert mock_persistence.load.called

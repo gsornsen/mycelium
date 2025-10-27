@@ -593,7 +593,7 @@ class TestRendererMethods:
         result = renderer.render_for_method(test_config, DeploymentMethod.SYSTEMD)
 
         assert isinstance(result, dict)
-        assert any("redis.service" in key for key in result.keys())
+        assert any("redis.service" in key for key in result)
 
     def test_render_for_method_manual(self, test_config):
         """Test render_for_method with manual deployment."""

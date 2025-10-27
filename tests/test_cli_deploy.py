@@ -722,7 +722,7 @@ def test_deploy_secrets_rotate_no_type(runner, mock_config):
         patch("mycelium_onboarding.cli.ConfigManager") as mock_manager_cls,
         patch(
             "mycelium_onboarding.deployment.secrets.SecretsManager"
-        ) as mock_secrets_cls,
+        ),
     ):
         mock_manager = Mock()
         mock_manager.load.return_value = mock_config
@@ -937,7 +937,7 @@ def test_deploy_status_json_parse_error(runner, mock_config):
         # Invalid JSON
         mock_run.return_value = Mock(stdout="invalid json{]", stderr="")
 
-        result = runner.invoke(cli, ["deploy", "status"])
+        runner.invoke(cli, ["deploy", "status"])
 
         # Should handle gracefully - either show error or no containers
         # Should handle gracefully

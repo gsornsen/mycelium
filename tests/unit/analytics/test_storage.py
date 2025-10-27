@@ -204,7 +204,7 @@ class TestFileRotation:
             storage.append_event(large_event)
 
         # Check rotated files
-        rotated_files = [f for f in temp_storage_dir.glob("events_*.jsonl")]
+        rotated_files = list(temp_storage_dir.glob("events_*.jsonl"))
         assert len(rotated_files) > 0
 
         # Verify filename pattern (events_YYYYMMDD_HHMMSS.jsonl)
@@ -279,7 +279,7 @@ class TestThreadSafety:
         events_per_thread = 10
 
         def append_large_events(thread_id):
-            for i in range(events_per_thread):
+            for _i in range(events_per_thread):
                 storage.append_event(
                     {
                         "timestamp": datetime.now(timezone.utc).isoformat(),
