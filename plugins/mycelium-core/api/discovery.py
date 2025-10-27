@@ -14,7 +14,7 @@ from typing import Any
 from fastapi import FastAPI, HTTPException, Path, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from plugins.mycelium_core.registry import (  # type: ignore[import-untyped]
+from registry import (  # type: ignore[import-untyped]
     AgentNotFoundError,
     AgentRegistry,
     AgentRegistryError,

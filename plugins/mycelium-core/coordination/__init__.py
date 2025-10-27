@@ -10,7 +10,7 @@ This module provides workflow orchestration capabilities including:
 """
 
 from .orchestrator import WorkflowOrchestrator
-from .protocol import HandoffMessage, HandoffProtocol
+from .protocol import HandoffContext, HandoffMessage, HandoffProtocol
 from .state_manager import StateManager, TaskStatus, WorkflowState, WorkflowStatus
 from .tracker import (
     AgentInfo,
@@ -32,6 +32,7 @@ __all__ = [
     "WorkflowState",
     "HandoffProtocol",
     "HandoffMessage",
+    "HandoffContext",
     "CoordinationTracker",
     "CoordinationEvent",
     "EventType",

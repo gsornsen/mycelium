@@ -5,6 +5,7 @@ from __future__ import annotations
 import socket
 from unittest.mock import Mock
 
+import pytest
 import pytest_mock
 
 from mycelium_onboarding.detection.redis_detector import (
@@ -12,6 +13,8 @@ from mycelium_onboarding.detection.redis_detector import (
     detect_redis,
     scan_common_redis_ports,
 )
+
+pytestmark = pytest.mark.integration  # Mark entire file as integration
 
 
 class TestDetectRedis:

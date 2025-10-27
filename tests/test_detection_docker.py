@@ -5,6 +5,7 @@ from __future__ import annotations
 import subprocess
 from unittest.mock import Mock
 
+import pytest
 import pytest_mock
 
 from mycelium_onboarding.detection.docker_detector import (
@@ -12,6 +13,8 @@ from mycelium_onboarding.detection.docker_detector import (
     detect_docker,
     verify_docker_permissions,
 )
+
+pytestmark = pytest.mark.integration  # Mark entire file as integration
 
 
 class TestDetectDocker:

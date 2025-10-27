@@ -183,6 +183,11 @@ jobs:
           PGPASSWORD=mycelium_test psql -h localhost -U mycelium -d mycelium_test -c "CREATE EXTENSION IF NOT EXISTS vector;"
           PGPASSWORD=mycelium_test psql -h localhost -U mycelium -d mycelium_test -c "SELECT * FROM pg_extension WHERE extname='vector';" | grep vector
 
+      - name: Create test databases
+        run: |
+          PGPASSWORD=mycelium_test psql -h localhost -U mycelium -d mycelium_test -c "CREATE DATABASE mycelium_test;" 2>/dev/null || echo "Database mycelium_test already exists"
+          PGPASSWORD=mycelium_test psql -h localhost -U mycelium -d mycelium_test -c "CREATE DATABASE mycelium_registry;" 2>/dev/null || echo "Database mycelium_registry already exists"
+
       - name: Initialize database schema
         run: |
           PGPASSWORD=mycelium_test psql -h localhost -U mycelium -d mycelium_test -f plugins/mycelium-core/registry/schema.sql
