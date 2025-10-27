@@ -79,6 +79,10 @@ packages = ["mycelium_onboarding"]
 target-version = "py310"
 line-length = 120
 indent-width = 4
+extend-exclude = [
+    "tests/docs/test_generated_snippets.py",  # Auto-generated, skip linting
+    "tests/docs/snippets/",  # Extracted code snippets
+]
 
 [tool.ruff.lint]
 select = [
