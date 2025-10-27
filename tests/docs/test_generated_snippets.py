@@ -1252,9 +1252,7 @@ def test_snippet_deployment_reference_12():
 
 def test_snippet_deployment_reference_13():
     """Test code snippet from deployment-reference.md (line 211)."""
-    code = (
-        "def __init__(self, project_name: str, secrets_dir: Path | None = None) -> None"
-    )
+    code = "def __init__(self, project_name: str, secrets_dir: Path | None = None) -> None"
 
     # Test 1: Syntax validation
     try:
@@ -1509,9 +1507,7 @@ def test_snippet_deployment_reference_27():
 
 def test_snippet_deployment_reference_28():
     """Test code snippet from deployment-reference.md (line 430)."""
-    code = (
-        "def generate_env_file(secrets: DeploymentSecrets, output_path: Path) -> None"
-    )
+    code = "def generate_env_file(secrets: DeploymentSecrets, output_path: Path) -> None"
 
     # Test 1: Syntax validation
     try:
@@ -8872,7 +8868,9 @@ def test_snippet_wizard_reference_32():
 
 def test_snippet_wizard_reference_33():
     """Test code snippet from wizard-reference.md (line 755)."""
-    code = 'validator = WizardValidator(state)\nif not validator.validate_services():\n    print("No services enabled!")'
+    code = (
+        'validator = WizardValidator(state)\nif not validator.validate_services():\n    print("No services enabled!")'
+    )
 
     # Test 1: Syntax validation
     try:
@@ -8906,7 +8904,9 @@ def test_snippet_wizard_reference_34():
 
 def test_snippet_wizard_reference_35():
     """Test code snippet from wizard-reference.md (line 799)."""
-    code = 'validator = WizardValidator(state)\nif not validator.validate_port(6379, "redis"):\n    print("Invalid port")'
+    code = (
+        'validator = WizardValidator(state)\nif not validator.validate_port(6379, "redis"):\n    print("Invalid port")'
+    )
 
     # Test 1: Syntax validation
     try:
@@ -9310,6 +9310,5 @@ def test_snippet_coverage():
     if total_snippets > 0:
         valid_percentage = (valid_snippets / total_snippets) * 100
         assert valid_percentage >= 85, (
-            f"Only {valid_percentage:.1f}% of snippets have valid syntax. "
-            f"Expected at least 85%."
+            f"Only {valid_percentage:.1f}% of snippets have valid syntax. Expected at least 85%."
         )
