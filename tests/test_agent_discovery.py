@@ -99,7 +99,7 @@ def mock_index(tmp_dir):
     }
 
     index_path = tmp_dir / "index.json"
-    with Path(index_path, "w").open() as f:
+    with index_path.open("w") as f:
         json.dump(index_data, f, indent=2)
 
     # Create agent markdown files
