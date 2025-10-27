@@ -42,7 +42,9 @@
       "Bash(pytest:*)",
       "Bash(ruff check:*)",
       "Bash(ruff format:*)",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(gh run view:*)",
+      "Bash(gh run list:*)"
     ],
     "deny": [],
     "ask": []
