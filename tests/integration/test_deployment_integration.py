@@ -85,9 +85,7 @@ class TestDeploymentE2EDockerCompose:
         )
 
         # Generate secrets
-        secrets_mgr = SecretsManager(
-            config.project_name, secrets_dir=tmp_path / "secrets"
-        )
+        secrets_mgr = SecretsManager(config.project_name, secrets_dir=tmp_path / "secrets")
         secrets_obj = secrets_mgr.generate_secrets(postgres=True, redis=True)
         secrets_mgr.save_secrets(secrets_obj)
 
@@ -524,9 +522,7 @@ class TestCLIIntegration:
         mocker.patch("mycelium_onboarding.cli.ConfigManager.load", return_value=config)
 
         runner = CliRunner()
-        result = runner.invoke(
-            cli, ["deploy", "generate", "--output", str(tmp_path / "output")]
-        )
+        result = runner.invoke(cli, ["deploy", "generate", "--output", str(tmp_path / "output")])
 
         assert result.exit_code == 0
         assert "Deployment generated successfully" in result.output
@@ -633,9 +629,7 @@ class TestSecretsIntegration:
         )
 
         # Generate secrets
-        secrets_mgr = SecretsManager(
-            config.project_name, secrets_dir=tmp_path / "secrets"
-        )
+        secrets_mgr = SecretsManager(config.project_name, secrets_dir=tmp_path / "secrets")
         secrets_obj = secrets_mgr.generate_secrets(postgres=True, redis=True)
         secrets_mgr.save_secrets(secrets_obj)
 

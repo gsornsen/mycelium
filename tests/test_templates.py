@@ -572,9 +572,7 @@ class TestRendererMethods:
     def test_render_for_method_docker_compose(self, test_config):
         """Test render_for_method with Docker Compose."""
         renderer = TemplateRenderer()
-        result = renderer.render_for_method(
-            test_config, DeploymentMethod.DOCKER_COMPOSE
-        )
+        result = renderer.render_for_method(test_config, DeploymentMethod.DOCKER_COMPOSE)
 
         assert isinstance(result, str)
         assert "version:" in result

@@ -560,9 +560,7 @@ class TestMyceliumConfig:
         restored = MyceliumConfig.from_yaml(yaml_str)
 
         assert restored.project_name == original.project_name
-        assert (
-            restored.services.postgres.database == original.services.postgres.database
-        )
+        assert restored.services.postgres.database == original.services.postgres.database
         assert restored.deployment.auto_start == original.deployment.auto_start
 
     def test_nested_modification(self):

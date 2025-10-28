@@ -139,9 +139,7 @@ class StateManager:
             self._pool: Pool | None = pool
             self._owns_pool = False
         else:
-            self._connection_string = (
-                connection_string or "postgresql://localhost:5432/mycelium_registry"
-            )
+            self._connection_string = connection_string or "postgresql://localhost:5432/mycelium_registry"
             self._pool = None
             self._owns_pool = True
 
@@ -297,19 +295,13 @@ class StateManager:
                     agent_id=row["agent_id"],
                     agent_type=row["agent_type"],
                     status=TaskStatus(row["status"]),
-                    started_at=row["started_at"].isoformat() + "Z"
-                    if row["started_at"]
-                    else None,
-                    completed_at=row["completed_at"].isoformat() + "Z"
-                    if row["completed_at"]
-                    else None,
+                    started_at=row["started_at"].isoformat() + "Z" if row["started_at"] else None,
+                    completed_at=row["completed_at"].isoformat() + "Z" if row["completed_at"] else None,
                     execution_time=row["execution_time"],
                     result=row["result"],
                     error=row["error"],
                     retry_count=row["retry_count"],
-                    dependencies=list(row["dependencies"])
-                    if row["dependencies"]
-                    else [],
+                    dependencies=list(row["dependencies"]) if row["dependencies"] else [],
                 )
                 tasks[task.task_id] = task
 
@@ -319,12 +311,8 @@ class StateManager:
                 tasks=tasks,
                 created_at=workflow_row["created_at"].isoformat() + "Z",
                 updated_at=workflow_row["updated_at"].isoformat() + "Z",
-                started_at=workflow_row["started_at"].isoformat() + "Z"
-                if workflow_row["started_at"]
-                else None,
-                completed_at=workflow_row["completed_at"].isoformat() + "Z"
-                if workflow_row["completed_at"]
-                else None,
+                started_at=workflow_row["started_at"].isoformat() + "Z" if workflow_row["started_at"] else None,
+                completed_at=workflow_row["completed_at"].isoformat() + "Z" if workflow_row["completed_at"] else None,
                 variables=workflow_row["variables"] or {},
                 metadata=workflow_row["metadata"] or {},
                 error=workflow_row["error"],
@@ -381,9 +369,7 @@ class StateManager:
         state = await self.get_workflow(workflow_id)
 
         if task_id not in state.tasks:
-            raise StateNotFoundError(
-                f"Task {task_id} not found in workflow {workflow_id}"
-            )
+            raise StateNotFoundError(f"Task {task_id} not found in workflow {workflow_id}")
 
         task = state.tasks[task_id]
         now = datetime.utcnow().isoformat() + "Z"
@@ -426,16 +412,13 @@ class StateManager:
 
         async with self._pool.acquire() as conn:
             row = await conn.fetchrow(
-                "SELECT state_snapshot FROM workflow_state_history "
-                "WHERE workflow_id = $1 AND version = $2",
+                "SELECT state_snapshot FROM workflow_state_history WHERE workflow_id = $1 AND version = $2",
                 workflow_id,
                 version,
             )
 
             if not row:
-                raise StateNotFoundError(
-                    f"Version {version} not found for workflow {workflow_id}"
-                )
+                raise StateNotFoundError(f"Version {version} not found for workflow {workflow_id}")
 
             state = WorkflowState.from_dict(row["state_snapshot"])
             await self._persist_state(state)
@@ -476,15 +459,13 @@ class StateManager:
         async with self._pool.acquire() as conn:
             if status:
                 rows = await conn.fetch(
-                    "SELECT workflow_id FROM workflow_states WHERE status = $1 "
-                    "ORDER BY updated_at DESC LIMIT $2",
+                    "SELECT workflow_id FROM workflow_states WHERE status = $1 ORDER BY updated_at DESC LIMIT $2",
                     status.value,
                     limit,
                 )
             else:
                 rows = await conn.fetch(
-                    "SELECT workflow_id FROM workflow_states "
-                    "ORDER BY updated_at DESC LIMIT $1",
+                    "SELECT workflow_id FROM workflow_states ORDER BY updated_at DESC LIMIT $1",
                     limit,
                 )
 
@@ -528,12 +509,8 @@ class StateManager:
                 state.status.value,
                 datetime.fromisoformat(state.created_at.rstrip("Z")),
                 datetime.fromisoformat(state.updated_at.rstrip("Z")),
-                datetime.fromisoformat(state.started_at.rstrip("Z"))
-                if state.started_at
-                else None,
-                datetime.fromisoformat(state.completed_at.rstrip("Z"))
-                if state.completed_at
-                else None,
+                datetime.fromisoformat(state.started_at.rstrip("Z")) if state.started_at else None,
+                datetime.fromisoformat(state.completed_at.rstrip("Z")) if state.completed_at else None,
                 json.dumps(state.variables),
                 json.dumps(state.metadata),
                 state.error,
@@ -561,12 +538,8 @@ class StateManager:
                     task.agent_id,
                     task.agent_type,
                     task.status.value,
-                    datetime.fromisoformat(task.started_at.rstrip("Z"))
-                    if task.started_at
-                    else None,
-                    datetime.fromisoformat(task.completed_at.rstrip("Z"))
-                    if task.completed_at
-                    else None,
+                    datetime.fromisoformat(task.started_at.rstrip("Z")) if task.started_at else None,
+                    datetime.fromisoformat(task.completed_at.rstrip("Z")) if task.completed_at else None,
                     task.execution_time,
                     json.dumps(task.result) if task.result else None,
                     json.dumps(task.error) if task.error else None,

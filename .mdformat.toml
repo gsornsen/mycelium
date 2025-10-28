@@ -1,18 +1,3 @@
-# Markdown formatting configuration
-# See: https://mdformat.readthedocs.io/en/stable/users/configuration_file.html
-
-wrap = 120  # Line wrap at 120 characters
-number = false  # Keep original list numbering
-end_of_line = "lf"  # Unix line endings
-
-[plugin.gfm]
-# GitHub Flavored Markdown support
-enabled = true
-
-[plugin.tables]
-# Ensure consistent table formatting
-enabled = true
-
-[plugin.frontmatter]
-# Preserve YAML frontmatter
-enabled = true
+wrap = 120
+number = false
+end_of_line = "lf"

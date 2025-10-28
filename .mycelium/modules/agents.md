@@ -394,13 +394,13 @@ Coordinate with these agents:
 
 ## Examples
 
-### Example 1: [Use case]
+### Example 1: \[Use case\]
 
-[Detailed example of agent usage]
+\[Detailed example of agent usage\]
 
-### Example 2: [Use case]
+### Example 2: \[Use case\]
 
-[Another example]
+\[Another example\]
 
 ````
 

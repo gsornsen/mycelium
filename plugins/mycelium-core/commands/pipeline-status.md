@@ -13,11 +13,12 @@ Check the status of CI/CD pipelines for the current project.
 **Command arguments**: $ARGS
 
 **Supported Pipeline Systems** (auto-detect):
+
 1. GitHub Actions - `.github/workflows/`
-2. GitLab CI - `.gitlab-ci.yml`
-3. Jenkins - `Jenkinsfile`
-4. Custom - `.pipeline-status.sh`
-5. Temporal - Workflow executions
+1. GitLab CI - `.gitlab-ci.yml`
+1. Jenkins - `Jenkinsfile`
+1. Custom - `.pipeline-status.sh`
+1. Temporal - Workflow executions
 
 **Repository Info** - Detect git branch, commit, and remote URL to contextualize pipeline runs.
 
@@ -53,6 +54,7 @@ fi
 ```
 
 **Output format**:
+
 ```
 === CI/CD Pipeline Status ===
 System: GitHub Actions
@@ -98,6 +100,7 @@ fi
 ```
 
 **Output format**:
+
 ```
 === CI/CD Pipeline Status ===
 System: GitLab CI
@@ -137,6 +140,7 @@ fi
 ```
 
 **Output format**:
+
 ```
 === CI/CD Pipeline Status ===
 System: Jenkins
@@ -186,6 +190,7 @@ fi
 ```
 
 **Custom script format** (`.pipeline-status.sh`):
+
 ```bash
 #!/bin/bash
 
@@ -396,24 +401,28 @@ Create `.pipeline-status.json` for custom settings:
 ## Common Use Cases
 
 **Before pushing code**:
+
 ```bash
 /pipeline-status
 # Check current status before pushing changes
 ```
 
 **Monitoring long-running builds**:
+
 ```bash
 /pipeline-status --watch
 # Monitor build progress in real-time
 ```
 
 **Debugging failures**:
+
 ```bash
 /pipeline-status --detailed
 # Get full logs and error details
 ```
 
 **Integration with pre-push hook**:
+
 ```bash
 # .git/hooks/pre-push
 #!/bin/bash
@@ -430,9 +439,9 @@ fi
 ## Best Practices
 
 1. **Cache API responses** to avoid rate limits
-2. **Use CLI tools** (gh, glab) over direct API calls when available
-3. **Implement retries** for transient API failures
-4. **Store credentials securely** (use environment variables, not config files)
-5. **Filter noise** - focus on current branch and recent runs
-6. **Link to web UI** for detailed investigation
-7. **Integrate with notifications** for critical failures
+1. **Use CLI tools** (gh, glab) over direct API calls when available
+1. **Implement retries** for transient API failures
+1. **Store credentials securely** (use environment variables, not config files)
+1. **Filter noise** - focus on current branch and recent runs
+1. **Link to web UI** for detailed investigation
+1. **Integrate with notifications** for critical failures

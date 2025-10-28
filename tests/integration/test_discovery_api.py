@@ -18,9 +18,7 @@ from registry import AgentRegistry
 @pytest.fixture(scope="module")
 def test_database_url():
     """Get test database URL from environment or use default."""
-    return os.getenv(
-        "TEST_DATABASE_URL", "postgresql://localhost:5432/mycelium_registry_test"
-    )
+    return os.getenv("TEST_DATABASE_URL", "postgresql://localhost:5432/mycelium_registry_test")
 
 
 @pytest_asyncio.fixture(scope="module")
@@ -179,9 +177,7 @@ class TestDiscoverEndpoint:
             "threshold": 0.95,
         }
 
-        high_response = client.post(
-            "/api/v1/agents/discover", json=high_threshold_request
-        )
+        high_response = client.post("/api/v1/agents/discover", json=high_threshold_request)
         high_data = high_response.json()
 
         # Low threshold should return more results
@@ -191,9 +187,7 @@ class TestDiscoverEndpoint:
             "threshold": 0.5,
         }
 
-        low_response = client.post(
-            "/api/v1/agents/discover", json=low_threshold_request
-        )
+        low_response = client.post("/api/v1/agents/discover", json=low_threshold_request)
         low_data = low_response.json()
 
         assert high_data["total_count"] <= low_data["total_count"]
@@ -575,9 +569,7 @@ class TestEndToEndWorkflows:
     def test_search_filter_then_discover(self, client):
         """Test workflow: search with filters then discover specific capabilities."""
         # Step 1: Search by category
-        search_response = client.get(
-            "/api/v1/agents/search?category=Development&limit=5"
-        )
+        search_response = client.get("/api/v1/agents/search?category=Development&limit=5")
 
         assert search_response.status_code == 200
         search_data = search_response.json()

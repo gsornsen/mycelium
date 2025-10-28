@@ -208,9 +208,7 @@ class CoordinationTracker:
             self._pool: Pool | None = pool
             self._owns_pool = False
         else:
-            self._connection_string = (
-                connection_string or "postgresql://localhost:5432/mycelium_registry"
-            )
+            self._connection_string = connection_string or "postgresql://localhost:5432/mycelium_registry"
             self._pool = None
             self._owns_pool = True
 
@@ -343,26 +341,18 @@ class CoordinationTracker:
                     datetime.fromisoformat(event.timestamp.rstrip("Z")),
                     event.agent_id,
                     event.agent_type,
-                    json.dumps(event.source_agent.to_dict())
-                    if event.source_agent
-                    else None,
-                    json.dumps(event.target_agent.to_dict())
-                    if event.target_agent
-                    else None,
+                    json.dumps(event.source_agent.to_dict()) if event.source_agent else None,
+                    json.dumps(event.target_agent.to_dict()) if event.target_agent else None,
                     event.status,
                     event.duration_ms,
                     json.dumps(event.error.to_dict()) if event.error else None,
                     json.dumps(event.metadata) if event.metadata else None,
                     json.dumps(event.context) if event.context else None,
-                    json.dumps(event.performance.to_dict())
-                    if event.performance
-                    else None,
+                    json.dumps(event.performance.to_dict()) if event.performance else None,
                 )
 
             # Update event counts for monitoring
-            self._event_counts[event.event_type.value] = (
-                self._event_counts.get(event.event_type.value, 0) + 1
-            )
+            self._event_counts[event.event_type.value] = self._event_counts.get(event.event_type.value, 0) + 1
 
             # Structured logging
             logger.info(
@@ -534,32 +524,19 @@ class CoordinationTracker:
         events = await self.get_workflow_events(workflow_id)
 
         # Group events by phase
-        lifecycle_events = [
-            e for e in events if e.event_type.value.startswith("workflow_")
-        ]
+        lifecycle_events = [e for e in events if e.event_type.value.startswith("workflow_")]
         task_events = [e for e in events if e.event_type.value.startswith("task_")]
         handoff_events = [e for e in events if e.event_type == EventType.HANDOFF]
-        failure_events = [
-            e for e in events if e.event_type in (EventType.FAILURE, EventType.RETRY)
-        ]
+        failure_events = [e for e in events if e.event_type in (EventType.FAILURE, EventType.RETRY)]
 
         # Calculate workflow duration
         if events:
             start_event = next(
-                (
-                    e
-                    for e in reversed(events)
-                    if e.event_type == EventType.WORKFLOW_STARTED
-                ),
+                (e for e in reversed(events) if e.event_type == EventType.WORKFLOW_STARTED),
                 None,
             )
             end_event = next(
-                (
-                    e
-                    for e in events
-                    if e.event_type
-                    in (EventType.WORKFLOW_COMPLETED, EventType.WORKFLOW_FAILED)
-                ),
+                (e for e in events if e.event_type in (EventType.WORKFLOW_COMPLETED, EventType.WORKFLOW_FAILED)),
                 None,
             )
 
@@ -661,25 +638,13 @@ class CoordinationTracker:
 
             return {
                 "total_events": stats["total_events"],
-                "total_workflows": stats.get(
-                    "total_workflows", 1 if workflow_id else 0
-                ),
+                "total_workflows": stats.get("total_workflows", 1 if workflow_id else 0),
                 "event_types": stats["event_types"],
-                "avg_duration_ms": float(stats["avg_duration_ms"])
-                if stats["avg_duration_ms"]
-                else None,
-                "max_duration_ms": float(stats["max_duration_ms"])
-                if stats["max_duration_ms"]
-                else None,
-                "first_event": stats["first_event"].isoformat() + "Z"
-                if stats["first_event"]
-                else None,
-                "last_event": stats["last_event"].isoformat() + "Z"
-                if stats["last_event"]
-                else None,
-                "event_type_counts": {
-                    row["event_type"]: row["count"] for row in type_counts
-                },
+                "avg_duration_ms": float(stats["avg_duration_ms"]) if stats["avg_duration_ms"] else None,
+                "max_duration_ms": float(stats["max_duration_ms"]) if stats["max_duration_ms"] else None,
+                "first_event": stats["first_event"].isoformat() + "Z" if stats["first_event"] else None,
+                "last_event": stats["last_event"].isoformat() + "Z" if stats["last_event"] else None,
+                "event_type_counts": {row["event_type"]: row["count"] for row in type_counts},
             }
 
     async def delete_workflow_events(self, workflow_id: str) -> int:
@@ -716,40 +681,24 @@ class CoordinationTracker:
         # Parse source/target agents
         source_agent = None
         if row["source_agent"]:
-            data = (
-                row["source_agent"]
-                if isinstance(row["source_agent"], dict)
-                else json.loads(row["source_agent"])
-            )
+            data = row["source_agent"] if isinstance(row["source_agent"], dict) else json.loads(row["source_agent"])
             source_agent = AgentInfo(**data)
 
         target_agent = None
         if row["target_agent"]:
-            data = (
-                row["target_agent"]
-                if isinstance(row["target_agent"], dict)
-                else json.loads(row["target_agent"])
-            )
+            data = row["target_agent"] if isinstance(row["target_agent"], dict) else json.loads(row["target_agent"])
             target_agent = AgentInfo(**data)
 
         # Parse error
         error = None
         if row["error"]:
-            data = (
-                row["error"]
-                if isinstance(row["error"], dict)
-                else json.loads(row["error"])
-            )
+            data = row["error"] if isinstance(row["error"], dict) else json.loads(row["error"])
             error = ErrorInfo(**data)
 
         # Parse performance
         performance = None
         if row["performance"]:
-            data = (
-                row["performance"]
-                if isinstance(row["performance"], dict)
-                else json.loads(row["performance"])
-            )
+            data = row["performance"] if isinstance(row["performance"], dict) else json.loads(row["performance"])
             performance = PerformanceMetrics(**data)
 
         # Parse metadata and context
@@ -852,11 +801,7 @@ async def track_task_execution(
     Returns:
         Event ID
     """
-    event_type = (
-        EventType.EXECUTION_START
-        if status in ("running", "started")
-        else EventType.EXECUTION_END
-    )
+    event_type = EventType.EXECUTION_START if status in ("running", "started") else EventType.EXECUTION_END
 
     context = None
     if result_summary:

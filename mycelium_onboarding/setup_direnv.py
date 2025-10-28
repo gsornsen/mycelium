@@ -282,9 +282,7 @@ def copy_envrc_template(project_root: Path | None = None) -> tuple[bool, str]:
             template_path = package_templates
         else:
             error_msg = (
-                f"Template file not found. Checked:\n"
-                f"  - {project_root / ENVRC_TEMPLATE_NAME}\n"
-                f"  - {package_templates}"
+                f"Template file not found. Checked:\n  - {project_root / ENVRC_TEMPLATE_NAME}\n  - {package_templates}"
             )
             logger.error(error_msg)
             raise DirenvError(error_msg)
@@ -342,8 +340,7 @@ def setup_direnv(project_root: Path | None = None) -> tuple[bool, str]:
         instructions = get_hook_install_instructions()
         return (
             False,
-            f"direnv is installed but shell hook is not configured.\n\n"
-            f"{hook_message}\n\n{instructions}",
+            f"direnv is installed but shell hook is not configured.\n\n{hook_message}\n\n{instructions}",
         )
 
     logger.info("direnv hook is installed")

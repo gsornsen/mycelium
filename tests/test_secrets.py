@@ -415,9 +415,7 @@ class TestEnvFileGeneration:
 
     def test_generate_env_file_header(self, tmp_path: Path) -> None:
         """Test .env file has security warning header."""
-        secrets = DeploymentSecrets(
-            project_name="test-project", postgres_password="secret"
-        )
+        secrets = DeploymentSecrets(project_name="test-project", postgres_password="secret")
 
         env_file = tmp_path / ".env"
         generate_env_file(secrets, env_file)

@@ -70,15 +70,12 @@ def mock_detection_summary() -> DetectionSummary:
     )
 
 
-
 # ==============================================================================
 # Welcome Screen Tests
 # ==============================================================================
 
 
-def test_welcome_screen_quick_mode(
-    mocker: MockerFixture, wizard_screens: WizardScreens
-) -> None:
+def test_welcome_screen_quick_mode(mocker: MockerFixture, wizard_screens: WizardScreens) -> None:
     """Test welcome screen with quick setup selection."""
     mocker.patch(
         "InquirerPy.inquirer.select",
@@ -90,9 +87,7 @@ def test_welcome_screen_quick_mode(
     assert result == "quick"
 
 
-def test_welcome_screen_custom_mode(
-    mocker: MockerFixture, wizard_screens: WizardScreens
-) -> None:
+def test_welcome_screen_custom_mode(mocker: MockerFixture, wizard_screens: WizardScreens) -> None:
     """Test welcome screen with custom setup selection."""
     mocker.patch(
         "InquirerPy.inquirer.select",
@@ -104,9 +99,7 @@ def test_welcome_screen_custom_mode(
     assert result == "custom"
 
 
-def test_welcome_screen_exit_confirmed(
-    mocker: MockerFixture, wizard_screens: WizardScreens
-) -> None:
+def test_welcome_screen_exit_confirmed(mocker: MockerFixture, wizard_screens: WizardScreens) -> None:
     """Test exit confirmation on welcome screen."""
     mocker.patch(
         "InquirerPy.inquirer.select",
@@ -121,9 +114,7 @@ def test_welcome_screen_exit_confirmed(
         wizard_screens.show_welcome()
 
 
-def test_welcome_screen_exit_cancelled(
-    mocker: MockerFixture, wizard_screens: WizardScreens
-) -> None:
+def test_welcome_screen_exit_cancelled(mocker: MockerFixture, wizard_screens: WizardScreens) -> None:
     """Test cancelled exit returns to welcome screen."""
     # First call returns "exit", second call returns "quick"
     select_mock = mocker.patch("InquirerPy.inquirer.select")
@@ -193,9 +184,7 @@ def test_detection_screen_rerun(
     assert confirm_mock.call_count == 2
 
 
-def test_detection_screen_no_services(
-    mocker: MockerFixture, wizard_screens: WizardScreens
-) -> None:
+def test_detection_screen_no_services(mocker: MockerFixture, wizard_screens: WizardScreens) -> None:
     """Test detection screen when no services are found."""
     # Create summary with no services
     docker = MagicMock()
@@ -233,9 +222,7 @@ def test_detection_screen_no_services(
 # ==============================================================================
 
 
-def test_services_screen_all_selected(
-    mocker: MockerFixture, wizard_screens: WizardScreens
-) -> None:
+def test_services_screen_all_selected(mocker: MockerFixture, wizard_screens: WizardScreens) -> None:
     """Test services screen with all services selected."""
     mocker.patch(
         "InquirerPy.inquirer.checkbox",
@@ -258,9 +245,7 @@ def test_services_screen_all_selected(
     assert wizard_screens.state.temporal_namespace == "default"
 
 
-def test_services_screen_redis_only(
-    mocker: MockerFixture, wizard_screens: WizardScreens
-) -> None:
+def test_services_screen_redis_only(mocker: MockerFixture, wizard_screens: WizardScreens) -> None:
     """Test services screen with only Redis selected."""
     mocker.patch(
         "InquirerPy.inquirer.checkbox",
@@ -300,9 +285,7 @@ def test_services_screen_pre_fill_from_detection(
     assert "temporal" in call_args.kwargs["default"]
 
 
-def test_services_screen_postgres_db_name_sanitization(
-    mocker: MockerFixture, wizard_screens: WizardScreens
-) -> None:
+def test_services_screen_postgres_db_name_sanitization(mocker: MockerFixture, wizard_screens: WizardScreens) -> None:
     """Test PostgreSQL database name uses sanitized project name."""
     wizard_screens.state.project_name = "my-test-project"
 
@@ -352,9 +335,7 @@ def test_deployment_screen_docker_compose(
     assert wizard_screens.state.auto_start is True
 
 
-def test_deployment_screen_systemd(
-    mocker: MockerFixture, wizard_screens: WizardScreens
-) -> None:
+def test_deployment_screen_systemd(mocker: MockerFixture, wizard_screens: WizardScreens) -> None:
     """Test deployment screen with systemd selection."""
     mocker.patch(
         "InquirerPy.inquirer.select",
@@ -372,9 +353,7 @@ def test_deployment_screen_systemd(
     assert wizard_screens.state.auto_start is False
 
 
-def test_deployment_screen_no_docker(
-    mocker: MockerFixture, wizard_screens: WizardScreens
-) -> None:
+def test_deployment_screen_no_docker(mocker: MockerFixture, wizard_screens: WizardScreens) -> None:
     """Test deployment screen when Docker is not detected."""
     # Create summary without Docker
     docker = MagicMock()
@@ -411,9 +390,7 @@ def test_deployment_screen_no_docker(
 # ==============================================================================
 
 
-def test_advanced_screen_persistence_enabled(
-    mocker: MockerFixture, wizard_screens: WizardScreens
-) -> None:
+def test_advanced_screen_persistence_enabled(mocker: MockerFixture, wizard_screens: WizardScreens) -> None:
     """Test advanced screen with persistence enabled."""
     wizard_screens.state.services_enabled = {"redis": True, "postgres": True}
 
@@ -436,9 +413,7 @@ def test_advanced_screen_persistence_enabled(
     assert wizard_screens.state.postgres_port == 5433
 
 
-def test_advanced_screen_persistence_disabled(
-    mocker: MockerFixture, wizard_screens: WizardScreens
-) -> None:
+def test_advanced_screen_persistence_disabled(mocker: MockerFixture, wizard_screens: WizardScreens) -> None:
     """Test advanced screen with persistence disabled."""
     wizard_screens.state.services_enabled = {}
 
@@ -452,9 +427,7 @@ def test_advanced_screen_persistence_disabled(
     assert wizard_screens.state.enable_persistence is False
 
 
-def test_advanced_screen_only_redis_enabled(
-    mocker: MockerFixture, wizard_screens: WizardScreens
-) -> None:
+def test_advanced_screen_only_redis_enabled(mocker: MockerFixture, wizard_screens: WizardScreens) -> None:
     """Test advanced screen when only Redis is enabled."""
     wizard_screens.state.services_enabled = {"redis": True}
 
@@ -479,9 +452,7 @@ def test_advanced_screen_only_redis_enabled(
 # ==============================================================================
 
 
-def test_review_screen_confirm(
-    mocker: MockerFixture, wizard_screens: WizardScreens
-) -> None:
+def test_review_screen_confirm(mocker: MockerFixture, wizard_screens: WizardScreens) -> None:
     """Test review screen with confirmation."""
     wizard_screens.state.services_enabled = {
         "redis": True,
@@ -499,9 +470,7 @@ def test_review_screen_confirm(
     assert result == "confirm"
 
 
-def test_review_screen_cancel(
-    mocker: MockerFixture, wizard_screens: WizardScreens
-) -> None:
+def test_review_screen_cancel(mocker: MockerFixture, wizard_screens: WizardScreens) -> None:
     """Test review screen with cancellation."""
     mocker.patch(
         "InquirerPy.inquirer.select",
@@ -513,9 +482,7 @@ def test_review_screen_cancel(
     assert result == "cancel"
 
 
-def test_review_screen_edit_services(
-    mocker: MockerFixture, wizard_screens: WizardScreens
-) -> None:
+def test_review_screen_edit_services(mocker: MockerFixture, wizard_screens: WizardScreens) -> None:
     """Test review screen with edit services option."""
     select_mock = mocker.patch("InquirerPy.inquirer.select")
     select_mock.side_effect = [
@@ -528,9 +495,7 @@ def test_review_screen_edit_services(
     assert result == f"edit:{WizardStep.SERVICES.value}"
 
 
-def test_review_screen_edit_deployment(
-    mocker: MockerFixture, wizard_screens: WizardScreens
-) -> None:
+def test_review_screen_edit_deployment(mocker: MockerFixture, wizard_screens: WizardScreens) -> None:
     """Test review screen with edit deployment option."""
     select_mock = mocker.patch("InquirerPy.inquirer.select")
     select_mock.side_effect = [
@@ -543,9 +508,7 @@ def test_review_screen_edit_deployment(
     assert result == f"edit:{WizardStep.DEPLOYMENT.value}"
 
 
-def test_review_screen_edit_advanced_custom_mode(
-    mocker: MockerFixture, wizard_screens: WizardScreens
-) -> None:
+def test_review_screen_edit_advanced_custom_mode(mocker: MockerFixture, wizard_screens: WizardScreens) -> None:
     """Test review screen shows advanced option in custom mode."""
     wizard_screens.state.setup_mode = "custom"
 
@@ -560,9 +523,7 @@ def test_review_screen_edit_advanced_custom_mode(
     assert result == f"edit:{WizardStep.ADVANCED.value}"
 
 
-def test_review_screen_edit_advanced_resumed(
-    mocker: MockerFixture, wizard_screens: WizardScreens
-) -> None:
+def test_review_screen_edit_advanced_resumed(mocker: MockerFixture, wizard_screens: WizardScreens) -> None:
     """Test review screen shows advanced option when resumed."""
     wizard_screens.state.resumed = True
 
@@ -577,9 +538,7 @@ def test_review_screen_edit_advanced_resumed(
     assert result == f"edit:{WizardStep.ADVANCED.value}"
 
 
-def test_review_screen_displays_all_settings(
-    mocker: MockerFixture, wizard_screens: WizardScreens
-) -> None:
+def test_review_screen_displays_all_settings(mocker: MockerFixture, wizard_screens: WizardScreens) -> None:
     """Test review screen displays all configuration settings."""
     wizard_screens.state.project_name = "test-project"
     wizard_screens.state.deployment_method = "docker-compose"
@@ -726,9 +685,7 @@ def test_state_updates_through_screens(
     assert wizard_screens.state.deployment_method == "systemd"
 
 
-def test_error_handling_empty_services(
-    mocker: MockerFixture, wizard_screens: WizardScreens
-) -> None:
+def test_error_handling_empty_services(mocker: MockerFixture, wizard_screens: WizardScreens) -> None:
     """Test that selecting no services is prevented by validation."""
     # Mock checkbox to return empty list (should be caught by validator)
     checkbox_mock = mocker.patch("InquirerPy.inquirer.checkbox")

@@ -139,9 +139,7 @@ class TestConfigDir:
         # Should return same object (cached)
         assert dir1 is dir2
 
-    def test_not_writable_raises_error(
-        self, mock_home: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_not_writable_raises_error(self, mock_home: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         """Should raise error if directory is not writable."""
         config_dir = mock_home / ".config" / "mycelium"
         config_dir.mkdir(parents=True)
@@ -159,9 +157,7 @@ class TestConfigDir:
             # Cleanup: restore permissions
             config_dir.chmod(0o755)
 
-    def test_mkdir_oserror(
-        self, mock_home: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_mkdir_oserror(self, mock_home: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         """Should raise XDGDirectoryError when mkdir fails."""
         get_config_dir.cache_clear()
 
@@ -171,8 +167,9 @@ class TestConfigDir:
         def mock_mkdir(*args: Any, **kwargs: Any) -> None:
             raise OSError("Mock error")
 
-        with patch.object(Path, "mkdir", mock_mkdir), pytest.raises(
-            XDGDirectoryError, match="Failed to create config directory"
+        with (
+            patch.object(Path, "mkdir", mock_mkdir),
+            pytest.raises(XDGDirectoryError, match="Failed to create config directory"),
         ):
             get_config_dir()
 
@@ -215,9 +212,7 @@ class TestDataDir:
         # Should be rwxr-xr-x (0755)
         assert mode == 0o755
 
-    def test_not_writable_raises_error(
-        self, mock_home: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_not_writable_raises_error(self, mock_home: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         """Should raise error if directory is not writable."""
         data_dir = mock_home / ".local" / "share" / "mycelium"
         data_dir.mkdir(parents=True)
@@ -236,8 +231,9 @@ class TestDataDir:
         get_data_dir.cache_clear()
 
         # Mock to raise OSError
-        with patch.object(Path, "mkdir", side_effect=OSError("Mock error")), pytest.raises(
-            XDGDirectoryError, match="Failed to create data directory"
+        with (
+            patch.object(Path, "mkdir", side_effect=OSError("Mock error")),
+            pytest.raises(XDGDirectoryError, match="Failed to create data directory"),
         ):
             get_data_dir()
 
@@ -277,9 +273,7 @@ class TestCacheDir:
         # Should be rwxr-xr-x (0755)
         assert mode == 0o755
 
-    def test_not_writable_raises_error(
-        self, mock_home: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_not_writable_raises_error(self, mock_home: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         """Should raise error if directory is not writable."""
         cache_dir = mock_home / ".cache" / "mycelium"
         cache_dir.mkdir(parents=True)
@@ -298,8 +292,9 @@ class TestCacheDir:
         get_cache_dir.cache_clear()
 
         # Mock to raise OSError
-        with patch.object(Path, "mkdir", side_effect=OSError("Mock error")), pytest.raises(
-            XDGDirectoryError, match="Failed to create cache directory"
+        with (
+            patch.object(Path, "mkdir", side_effect=OSError("Mock error")),
+            pytest.raises(XDGDirectoryError, match="Failed to create cache directory"),
         ):
             get_cache_dir()
 
@@ -339,9 +334,7 @@ class TestStateDir:
         # Should be rwx------ (0700)
         assert mode == 0o700
 
-    def test_not_writable_raises_error(
-        self, mock_home: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_not_writable_raises_error(self, mock_home: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         """Should raise error if directory is not writable."""
         state_dir = mock_home / ".local" / "state" / "mycelium"
         state_dir.mkdir(parents=True)
@@ -360,8 +353,9 @@ class TestStateDir:
         get_state_dir.cache_clear()
 
         # Mock to raise OSError
-        with patch.object(Path, "mkdir", side_effect=OSError("Mock error")), pytest.raises(
-            XDGDirectoryError, match="Failed to create state directory"
+        with (
+            patch.object(Path, "mkdir", side_effect=OSError("Mock error")),
+            pytest.raises(XDGDirectoryError, match="Failed to create state directory"),
         ):
             get_state_dir()
 
@@ -412,8 +406,9 @@ class TestClearCache:
         (cache_dir / "file.txt").write_text("data")
 
         # Mock unlink to raise OSError
-        with patch.object(Path, "unlink", side_effect=OSError("Mock error")), pytest.raises(
-            XDGDirectoryError, match="Failed to clear cache directory"
+        with (
+            patch.object(Path, "unlink", side_effect=OSError("Mock error")),
+            pytest.raises(XDGDirectoryError, match="Failed to clear cache directory"),
         ):
             clear_cache()
 
@@ -467,9 +462,7 @@ class TestGetAllDirs:
 class TestErrorHandling:
     """Tests for error handling."""
 
-    def test_raises_on_permission_denied(
-        self, mock_home: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_raises_on_permission_denied(self, mock_home: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         """Should raise XDGDirectoryError on permission issues."""
         # Create a read-only parent directory
         readonly_dir = mock_home / "readonly"

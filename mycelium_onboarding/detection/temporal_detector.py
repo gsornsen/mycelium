@@ -31,9 +31,7 @@ class TemporalDetectionResult:
     error_message: str | None = None
 
 
-def detect_temporal(
-    frontend_port: int = 7233, ui_port: int = 8080, timeout: float = 2.0
-) -> TemporalDetectionResult:
+def detect_temporal(frontend_port: int = 7233, ui_port: int = 8080, timeout: float = 2.0) -> TemporalDetectionResult:
     """Detect Temporal server availability.
 
     Args:
@@ -59,9 +57,8 @@ def detect_temporal(
             frontend_port=frontend_port,
             ui_port=ui_port,
             error_message=(
-            f"Temporal frontend not responding on port {frontend_port}. "
-            "Start Temporal: temporal server start-dev"
-        ),
+                f"Temporal frontend not responding on port {frontend_port}. Start Temporal: temporal server start-dev"
+            ),
         )
 
     # If frontend is available, consider Temporal as available

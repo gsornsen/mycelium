@@ -223,9 +223,7 @@ class TestEnvrcTemplate:
         assert success is False
         assert "already exists" in message.lower()
 
-    def test_copy_envrc_template_not_found_no_fallback(
-        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_copy_envrc_template_not_found_no_fallback(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         """Test template copying when template doesn't exist and no fallback."""
         # Mock __file__ attribute on the module itself
         fake_module_path = tmp_path / "fake_module" / "setup_direnv.py"
@@ -239,9 +237,7 @@ class TestEnvrcTemplate:
 
         assert "not found" in str(exc_info.value).lower()
 
-    def test_copy_envrc_template_uses_mycelium_root(
-        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_copy_envrc_template_uses_mycelium_root(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         """Test that copy uses MYCELIUM_ROOT environment variable."""
         template = tmp_path / ".envrc.template"
         template.write_text("# Template\n")

@@ -44,7 +44,8 @@
       "Bash(ruff format:*)",
       "Bash(python:*)",
       "Bash(gh run view:*)",
-      "Bash(gh run list:*)"
+      "Bash(gh run list:*)",
+      "Read(//tmp/**)"
     ],
     "deny": [],
     "ask": []

@@ -101,20 +101,12 @@ class SnippetExtractor:
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
         # Create __init__.py
-        (self.output_dir / "__init__.py").write_text(
-            '"""Auto-generated snippets from documentation."""\n'
-        )
+        (self.output_dir / "__init__.py").write_text('"""Auto-generated snippets from documentation."""\n')
 
         for snippet in self.snippets:
             # Create a safe filename
-            safe_filename = (
-                snippet.source_file.replace("/", "_")
-                .replace(".md", "")
-                .replace(" ", "_")
-            )
-            snippet_file = (
-                self.output_dir / f"{safe_filename}_snippet_{snippet.snippet_index}.py"
-            )
+            safe_filename = snippet.source_file.replace("/", "_").replace(".md", "").replace(" ", "_")
+            snippet_file = self.output_dir / f"{safe_filename}_snippet_{snippet.snippet_index}.py"
 
             # Add metadata as comments
             header = f"""# Source: {snippet.source_file}
@@ -159,12 +151,7 @@ import pytest
 
         # Generate test functions
         for source_file, snippets in sorted(snippets_by_file.items()):
-            safe_name = (
-                source_file.replace("/", "_")
-                .replace(".md", "")
-                .replace(" ", "_")
-                .replace("-", "_")
-            )
+            safe_name = source_file.replace("/", "_").replace(".md", "").replace(" ", "_").replace("-", "_")
 
             for snippet in snippets:
                 test_name = f"test_snippet_{safe_name}_{snippet.snippet_index}"
@@ -233,7 +220,7 @@ Documentation Snippet Extraction Report
 ========================================
 
 Total snippets extracted: {total}
-Valid Python syntax: {valid} ({valid/total*100:.1f}%)
+Valid Python syntax: {valid} ({valid / total * 100:.1f}%)
 Snippets with imports: {with_imports}
 Snippets with assignments: {with_assignments}
 
@@ -313,9 +300,7 @@ def main() -> None:
     """Main entry point for snippet extraction."""
     import argparse
 
-    parser = argparse.ArgumentParser(
-        description="Extract Python code snippets from markdown documentation"
-    )
+    parser = argparse.ArgumentParser(description="Extract Python code snippets from markdown documentation")
     parser.add_argument(
         "--docs-dir",
         type=Path,

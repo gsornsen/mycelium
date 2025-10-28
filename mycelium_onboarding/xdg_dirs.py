@@ -85,17 +85,12 @@ def get_config_dir(project_name: str = DEFAULT_PROJECT_NAME) -> Path:
         logger.debug("Config directory ensured: %s", config_dir)
     except OSError as e:
         logger.error("Failed to create config directory: %s", config_dir, exc_info=True)
-        raise XDGDirectoryError(
-            f"Failed to create config directory: {config_dir}\nError: {e}"
-        ) from e
+        raise XDGDirectoryError(f"Failed to create config directory: {config_dir}\nError: {e}") from e
 
     # Verify directory is writable
     if not os.access(config_dir, os.W_OK):
         logger.error("Config directory not writable: %s", config_dir)
-        raise XDGDirectoryError(
-            f"Config directory is not writable: {config_dir}\n"
-            "Check permissions and try again"
-        )
+        raise XDGDirectoryError(f"Config directory is not writable: {config_dir}\nCheck permissions and try again")
 
     return config_dir
 
@@ -133,9 +128,7 @@ def get_data_dir(project_name: str = DEFAULT_PROJECT_NAME) -> Path:
         logger.debug("Data directory ensured: %s", data_dir)
     except OSError as e:
         logger.error("Failed to create data directory: %s", data_dir, exc_info=True)
-        raise XDGDirectoryError(
-            f"Failed to create data directory: {data_dir}\nError: {e}"
-        ) from e
+        raise XDGDirectoryError(f"Failed to create data directory: {data_dir}\nError: {e}") from e
 
     if not os.access(data_dir, os.W_OK):
         logger.error("Data directory not writable: %s", data_dir)
@@ -177,9 +170,7 @@ def get_cache_dir(project_name: str = DEFAULT_PROJECT_NAME) -> Path:
         logger.debug("Cache directory ensured: %s", cache_dir)
     except OSError as e:
         logger.error("Failed to create cache directory: %s", cache_dir, exc_info=True)
-        raise XDGDirectoryError(
-            f"Failed to create cache directory: {cache_dir}\nError: {e}"
-        ) from e
+        raise XDGDirectoryError(f"Failed to create cache directory: {cache_dir}\nError: {e}") from e
 
     if not os.access(cache_dir, os.W_OK):
         logger.error("Cache directory not writable: %s", cache_dir)
@@ -221,9 +212,7 @@ def get_state_dir(project_name: str = DEFAULT_PROJECT_NAME) -> Path:
         logger.debug("State directory ensured: %s", state_dir)
     except OSError as e:
         logger.error("Failed to create state directory: %s", state_dir, exc_info=True)
-        raise XDGDirectoryError(
-            f"Failed to create state directory: {state_dir}\nError: {e}"
-        ) from e
+        raise XDGDirectoryError(f"Failed to create state directory: {state_dir}\nError: {e}") from e
 
     if not os.access(state_dir, os.W_OK):
         logger.error("State directory not writable: %s", state_dir)
@@ -262,9 +251,7 @@ def clear_cache(project_name: str = DEFAULT_PROJECT_NAME) -> None:
         logger.info("Cache cleared: %s", cache_dir)
     except OSError as e:
         logger.error("Failed to clear cache directory: %s", cache_dir, exc_info=True)
-        raise XDGDirectoryError(
-            f"Failed to clear cache directory: {cache_dir}\nError: {e}"
-        ) from e
+        raise XDGDirectoryError(f"Failed to clear cache directory: {cache_dir}\nError: {e}") from e
 
 
 def get_all_dirs(project_name: str = DEFAULT_PROJECT_NAME) -> dict[str, Path]:

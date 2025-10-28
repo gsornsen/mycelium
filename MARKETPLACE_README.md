@@ -1,10 +1,12 @@
 # Mycelium Plugin Marketplace
 
-Welcome to the Mycelium Plugin Marketplace - community-driven plugins that extend Claude Code with distributed intelligence.
+Welcome to the Mycelium Plugin Marketplace - community-driven plugins that extend Claude Code with distributed
+intelligence.
 
 ## Overview
 
-Mycelium is both a **plugin marketplace** and a **core coordination plugin**. This marketplace enables the community to discover, share, and contribute plugins that leverage Mycelium's coordination substrate.
+Mycelium is both a **plugin marketplace** and a **core coordination plugin**. This marketplace enables the community to
+discover, share, and contribute plugins that leverage Mycelium's coordination substrate.
 
 ## Available Plugins
 
@@ -12,9 +14,11 @@ Mycelium is both a **plugin marketplace** and a **core coordination plugin**. Th
 
 **The foundation of the Mycelial network**
 
-130+ expert agents across 11 domains, dual-mode coordination (Redis/TaskQueue/Markdown), real-time pub/sub messaging, and durable Temporal workflows.
+130+ expert agents across 11 domains, dual-mode coordination (Redis/TaskQueue/Markdown), real-time pub/sub messaging,
+and durable Temporal workflows.
 
 **Features**:
+
 - Meta-orchestration agents for multi-agent coordination
 - Specialized domain experts (AI/ML, DevOps, Security, Data, etc.)
 - Infrastructure health monitoring (`/infra-check`)
@@ -24,13 +28,15 @@ Mycelium is both a **plugin marketplace** and a **core coordination plugin**. Th
 - Dual-mode coordination library (JavaScript)
 
 **Install**:
+
 ```bash
 /plugin install mycelium-core@mycelium
 ```
 
-**Documentation**: See [README.md](README.md) for overview and [.mycelium/modules/onboarding.md](.mycelium/modules/onboarding.md) for detailed setup.
+**Documentation**: See [README.md](README.md) for overview and
+[.mycelium/modules/onboarding.md](.mycelium/modules/onboarding.md) for detailed setup.
 
----
+______________________________________________________________________
 
 ## Submit Your Plugin
 
@@ -39,19 +45,22 @@ Want to contribute a plugin to the Mycelium ecosystem? We welcome submissions!
 ### Quick Start
 
 1. **Fork this repository**
+
    ```bash
    git clone https://github.com/gsornsen/mycelium.git
    cd mycelium
    git checkout -b plugin/your-plugin-name
    ```
 
-2. **Create your plugin**
+1. **Create your plugin**
+
    ```bash
    mkdir -p plugins/mycelium-your-plugin
    cd plugins/mycelium-your-plugin
    ```
 
-3. **Add plugin metadata**
+1. **Add plugin metadata**
+
    ```bash
    mkdir .claude-plugin
    cat > .claude-plugin/plugin.json << 'EOF'
@@ -72,9 +81,10 @@ Want to contribute a plugin to the Mycelium ecosystem? We welcome submissions!
    EOF
    ```
 
-4. **Add your plugin to marketplace**
+1. **Add your plugin to marketplace**
 
    Edit `.claude-plugin/marketplace.json` and add your plugin entry:
+
    ```json
    {
      "name": "mycelium-your-plugin",
@@ -93,7 +103,8 @@ Want to contribute a plugin to the Mycelium ecosystem? We welcome submissions!
    }
    ```
 
-5. **Create comprehensive documentation**
+1. **Create comprehensive documentation**
+
    ```bash
    cat > README.md << 'EOF'
    # Your Plugin Name
@@ -108,7 +119,8 @@ Want to contribute a plugin to the Mycelium ecosystem? We welcome submissions!
    EOF
    ```
 
-6. **Submit pull request**
+1. **Submit pull request**
+
    ```bash
    git add .
    git commit -m "feat: add mycelium-your-plugin"
@@ -140,7 +152,8 @@ Choose the appropriate category for your plugin:
 
 ### Integration with Mycelium Core
 
-Your plugin can leverage Mycelium's coordination substrate. See [.mycelium/modules/coordination.md](.mycelium/modules/coordination.md) for detailed API documentation.
+Your plugin can leverage Mycelium's coordination substrate. See
+[.mycelium/modules/coordination.md](.mycelium/modules/coordination.md) for detailed API documentation.
 
 ```javascript
 import { CoordinationClient } from 'mycelium-core/lib/coordination.js';
@@ -169,22 +182,23 @@ await client.subscribeEvents('mycelium:coordination', (event) => {
 ### Review Process
 
 1. **Automated Checks** - CI runs validation on your PR
-2. **Code Review** - Maintainer reviews plugin code and docs
-3. **Testing** - Plugin functionality is tested
-4. **Feedback** - Any required changes communicated
-5. **Approval** - Once approved, plugin is merged and published
+1. **Code Review** - Maintainer reviews plugin code and docs
+1. **Testing** - Plugin functionality is tested
+1. **Feedback** - Any required changes communicated
+1. **Approval** - Once approved, plugin is merged and published
 
 ### Best Practices
 
 1. **Clear Purpose** - Plugin should have focused, well-defined functionality
-2. **Documentation** - Comprehensive docs with examples
-3. **Error Handling** - Graceful error handling with helpful messages
-4. **Coordination-Aware** - Leverage dual-mode coordination patterns (see [.mycelium/modules/coordination.md](.mycelium/modules/coordination.md))
-5. **Performance** - Efficient resource usage
-6. **Security** - Validate inputs, handle credentials securely
-7. **Testing** - Include tests or testing documentation
+1. **Documentation** - Comprehensive docs with examples
+1. **Error Handling** - Graceful error handling with helpful messages
+1. **Coordination-Aware** - Leverage dual-mode coordination patterns (see
+   [.mycelium/modules/coordination.md](.mycelium/modules/coordination.md))
+1. **Performance** - Efficient resource usage
+1. **Security** - Validate inputs, handle credentials securely
+1. **Testing** - Include tests or testing documentation
 
----
+______________________________________________________________________
 
 ## Plugin Development Guide
 
@@ -212,6 +226,7 @@ plugins/mycelium-your-plugin/
 ### Minimal Plugin Example
 
 **plugin.json**:
+
 ```json
 {
   "name": "mycelium-hello",
@@ -226,6 +241,7 @@ plugins/mycelium-your-plugin/
 ```
 
 **commands/hello.md**:
+
 ```markdown
 ---
 description: Say hello with Mycelium coordination
@@ -243,13 +259,14 @@ Use the coordination library to store a greeting and publish an event.
 ### Advanced Plugin Example
 
 See `plugins/mycelium-core/` for a complete example of:
+
 - Multiple agent categories (see [.mycelium/modules/agents.md](.mycelium/modules/agents.md))
 - Slash commands with arguments
 - Event hooks with validation
 - JavaScript coordination library
 - Comprehensive documentation
 
----
+______________________________________________________________________
 
 ## Community Guidelines
 
@@ -269,6 +286,6 @@ See `plugins/mycelium-core/` for a complete example of:
 
 All plugins submitted to this marketplace must use MIT or a compatible open-source license.
 
----
+______________________________________________________________________
 
 **Grow the mycelial network** - one plugin at a time! 🍄

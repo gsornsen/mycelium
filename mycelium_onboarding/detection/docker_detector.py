@@ -99,21 +99,15 @@ def detect_docker() -> DockerDetectionResult:
                     available=False,
                     version=version,
                     error_message=(
-                    "Docker daemon is running but you don't have permissions. "
-                    "Add your user to the 'docker' group: sudo usermod -aG docker $USER"
-                ),
+                        "Docker daemon is running but you don't have permissions. "
+                        "Add your user to the 'docker' group: sudo usermod -aG docker $USER"
+                    ),
                 )
-            if (
-                "cannot connect" in error_msg.lower()
-                or "connection refused" in error_msg.lower()
-            ):
+            if "cannot connect" in error_msg.lower() or "connection refused" in error_msg.lower():
                 return DockerDetectionResult(
                     available=False,
                     version=version,
-                    error_message=(
-                        "Docker daemon is not running. "
-                        "Start Docker daemon: sudo systemctl start docker"
-                    ),
+                    error_message=("Docker daemon is not running. Start Docker daemon: sudo systemctl start docker"),
                 )
             return DockerDetectionResult(
                 available=False,
@@ -171,10 +165,7 @@ def verify_docker_permissions() -> tuple[bool, str | None]:
                 "Permission denied. Add your user to the 'docker' group: sudo usermod -aG docker $USER\n"
                 "Then log out and back in, or run: newgrp docker",
             )
-        if (
-            "cannot connect" in error_msg.lower()
-            or "connection refused" in error_msg.lower()
-        ):
+        if "cannot connect" in error_msg.lower() or "connection refused" in error_msg.lower():
             return (
                 False,
                 "Cannot connect to Docker daemon. Ensure Docker is running: sudo systemctl start docker",

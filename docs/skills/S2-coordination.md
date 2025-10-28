@@ -2,36 +2,41 @@
 
 ## Overview
 
-The Coordination Skill enables Claude Code to orchestrate complex multi-agent workflows with seamless state management, dependency resolution, and failure recovery. This skill transforms Claude from executing single-agent tasks into conducting sophisticated multi-agent collaborations where context and results flow naturally between specialists.
+The Coordination Skill enables Claude Code to orchestrate complex multi-agent workflows with seamless state management,
+dependency resolution, and failure recovery. This skill transforms Claude from executing single-agent tasks into
+conducting sophisticated multi-agent collaborations where context and results flow naturally between specialists.
 
-**Status:** Planned (M01 - Week 4-5)
-**Version:** 1.0.0 (Target)
-**Dependencies:** Task 1.5 (Handoff Protocol), Task 1.6 (Orchestration Engine), Task 1.7 (Tracking)
-**Complements:** S1 (Agent Discovery) - Use S1 to find agents, S2 to coordinate them
+**Status:** Planned (M01 - Week 4-5) **Version:** 1.0.0 (Target) **Dependencies:** Task 1.5 (Handoff Protocol), Task 1.6
+(Orchestration Engine), Task 1.7 (Tracking) **Complements:** S1 (Agent Discovery) - Use S1 to find agents, S2 to
+coordinate them
 
 ## Capabilities
 
 ### Core Functions
 
 1. **Workflow Orchestration**
+
    - Create and execute multi-agent workflows with dependency management
    - Support sequential, parallel, and conditional execution patterns
    - Maintain workflow state with checkpoint and rollback capabilities
    - Monitor real-time progress across all agents
 
-2. **Agent Handoffs**
+1. **Agent Handoffs**
+
    - Transfer execution context between agents seamlessly
    - Preserve conversation history and intermediate results
    - Handle nested handoffs for complex delegation patterns
    - Validate handoff completeness before proceeding
 
-3. **State Management**
+1. **State Management**
+
    - Persist workflow state across agent transitions
    - Support rollback to previous states on failure
    - Enable workflow pause and resume
    - Manage concurrent workflow executions
 
-4. **Coordination Tracking**
+1. **Coordination Tracking**
+
    - Log all inter-agent communications with timestamps
    - Track handoff events, state transitions, and outcomes
    - Provide queryable history for debugging and optimization
@@ -44,6 +49,7 @@ The Coordination Skill enables Claude Code to orchestrate complex multi-agent wo
 Execute a multi-agent workflow with dependency management and state tracking.
 
 **Signature:**
+
 ```python
 async def coordinate_workflow(
     steps: List[Dict],
@@ -53,12 +59,14 @@ async def coordinate_workflow(
 ```
 
 **Parameters:**
+
 - `steps` (array, required): Workflow steps to execute
   - Each step: `{"agent": str, "task": str, "depends_on": List[str], "params": Dict}`
 - `execution_mode` (string, optional): "sequential", "parallel", or "conditional" (default: "sequential")
 - `failure_strategy` (string, optional): "retry", "fallback", "abort", or "continue" (default: "retry")
 
 **Returns:**
+
 ```json
 {
   "success": true,
@@ -86,6 +94,7 @@ async def coordinate_workflow(
 ```
 
 **Error Handling:**
+
 - `ValueError`: Invalid workflow structure (empty steps, circular dependencies)
 - `WorkflowExecutionError`: Step execution failure
 - `WorkflowTimeoutError`: Workflow exceeded maximum duration
@@ -148,6 +157,7 @@ workflow = await coordinate_workflow(
 Explicitly handoff execution to another agent with full context preservation.
 
 **Signature:**
+
 ```python
 async def handoff_to_agent(
     target_agent: str,
@@ -158,12 +168,14 @@ async def handoff_to_agent(
 ```
 
 **Parameters:**
+
 - `target_agent` (string, required): Agent ID to hand off to
 - `task` (string, required): Task description for target agent
 - `context` (object, optional): Contextual data to pass (conversation history, files, etc.)
 - `wait_for_completion` (boolean, optional): Wait for agent to complete (default: true)
 
 **Returns:**
+
 ```json
 {
   "success": true,
@@ -186,6 +198,7 @@ async def handoff_to_agent(
 ```
 
 **Error Handling:**
+
 - `ValueError`: Invalid agent ID or empty task
 - `HandoffError`: Handoff failed or context serialization error
 - `AgentUnavailableError`: Target agent not available
@@ -218,6 +231,7 @@ result = await handoff_to_agent(
 Query the status of a running or completed workflow.
 
 **Signature:**
+
 ```python
 async def get_workflow_status(
     workflow_id: str,
@@ -226,10 +240,12 @@ async def get_workflow_status(
 ```
 
 **Parameters:**
+
 - `workflow_id` (string, required): Workflow identifier
 - `include_steps` (boolean, optional): Include detailed step information (default: true)
 
 **Returns:**
+
 ```json
 {
   "success": true,
@@ -272,6 +288,7 @@ async def get_workflow_status(
 ```
 
 **Error Handling:**
+
 - `ValueError`: Invalid workflow_id
 - `WorkflowNotFoundError`: Workflow doesn't exist
 - `CoordinationAPIError`: API error retrieving status
@@ -295,6 +312,7 @@ status = await get_workflow_status("wf-abc-123", include_steps=False)
 Retrieve coordination events for debugging and analysis.
 
 **Signature:**
+
 ```python
 async def get_coordination_events(
     workflow_id: str = None,
@@ -305,12 +323,14 @@ async def get_coordination_events(
 ```
 
 **Parameters:**
+
 - `workflow_id` (string, optional): Filter by workflow
 - `agent_id` (string, optional): Filter by agent
 - `event_type` (string, optional): Filter by event type ("handoff", "execution", "completion", "failure")
 - `limit` (integer, optional): Maximum events to return (default: 100)
 
 **Returns:**
+
 ```json
 {
   "success": true,
@@ -544,24 +564,28 @@ workflow = await coordinate_workflow(
 
 ### Latency Targets
 
-- **coordinate_workflow**: <500ms overhead per workflow (P95)
-  - Orchestration setup: <100ms
-  - State management: <50ms per transition
-  - Dependency resolution: <50ms
+- **coordinate_workflow**: \<500ms overhead per workflow (P95)
 
-- **handoff_to_agent**: <500ms total handoff time (P95)
-  - Context serialization: <100ms
-  - State transfer: <200ms
-  - Agent initialization: <200ms
+  - Orchestration setup: \<100ms
+  - State management: \<50ms per transition
+  - Dependency resolution: \<50ms
 
-- **get_workflow_status**: <200ms end-to-end (P95)
-  - State query: <50ms
-  - Step aggregation: <100ms
-  - Response formatting: <50ms
+- **handoff_to_agent**: \<500ms total handoff time (P95)
+
+  - Context serialization: \<100ms
+  - State transfer: \<200ms
+  - Agent initialization: \<200ms
+
+- **get_workflow_status**: \<200ms end-to-end (P95)
+
+  - State query: \<50ms
+  - Step aggregation: \<100ms
+  - Response formatting: \<50ms
 
 ### Retry Behavior
 
 All coordination tools implement automatic retry:
+
 - **Max retries**: 3 attempts per step (configurable)
 - **Backoff strategy**: Exponential (1s, 2s, 4s)
 - **Retry conditions**: Timeout, transient errors, agent unavailable
@@ -569,7 +593,7 @@ All coordination tools implement automatic retry:
 
 ### Resource Usage
 
-- **Memory**: <50MB per active workflow
+- **Memory**: \<50MB per active workflow
 - **Network**: ~10KB per handoff message
 - **Storage**: ~1KB per coordination event
 
@@ -578,7 +602,7 @@ All coordination tools implement automatic retry:
 - **Concurrent workflows**: Up to 50 simultaneous workflows
 - **Workflow size**: Up to 20 steps per workflow
 - **Event retention**: 30 days (configurable)
-- **Query performance**: <100ms for 1M+ events
+- **Query performance**: \<100ms for 1M+ events
 
 ## Integration with Other Skills
 
@@ -640,12 +664,14 @@ workflow = await coordinate_workflow(
 ### Workflow Design
 
 **Good workflow structure:**
+
 - Clear dependencies between steps
 - Meaningful task descriptions
 - Appropriate failure strategies
 - Reasonable timeout values
 
 **Example:**
+
 ```python
 # ✅ Good: Clear dependencies and descriptions
 workflow = await coordinate_workflow(
@@ -683,6 +709,7 @@ Choose failure strategy based on use case:
 - **continue**: Non-critical step, workflow can proceed
 
 **Example:**
+
 ```python
 # Critical deployment: abort on failure
 workflow = await coordinate_workflow(
@@ -700,12 +727,14 @@ workflow = await coordinate_workflow(
 ### Context Management
 
 **Efficient context passing:**
+
 - Include only necessary data
 - Use file paths instead of embedding large content
 - Compress repetitive information
 - Version context schema
 
 **Example:**
+
 ```python
 # ✅ Good: Minimal, structured context
 context = {
@@ -724,6 +753,7 @@ context = {
 ### Monitoring and Debugging
 
 **Track workflow execution:**
+
 ```python
 # Start workflow
 workflow = await coordinate_workflow(steps=[...])
@@ -759,32 +789,39 @@ await monitor_workflow(workflow_id)
 ### Current Implementation (v1.0.0 Target)
 
 1. **Sequential Execution Primary**: Parallel execution is basic
+
    - **Mitigation**: Start with sequential, add parallelism in M02
    - **Impact**: Some workflows slower than optimal
 
-2. **Synchronous Handoffs**: Handoffs block until complete
+1. **Synchronous Handoffs**: Handoffs block until complete
+
    - **Mitigation**: Use `wait_for_completion=False` for async
    - **Future**: Full async orchestration in M03
 
-3. **Limited Rollback**: Only supports checkpoint-based rollback
+1. **Limited Rollback**: Only supports checkpoint-based rollback
+
    - **Mitigation**: Design workflows with recovery steps
    - **Future**: Full state machine with arbitrary rollback in M04
 
-4. **No Cross-Workflow Dependencies**: Workflows are isolated
+1. **No Cross-Workflow Dependencies**: Workflows are isolated
+
    - **Mitigation**: Chain workflows explicitly
    - **Future**: Workflow composition in M04
 
 ### Known Edge Cases
 
 1. **Circular Dependencies**: Will be detected and rejected
+
    - Example: Step A depends on B, B depends on A
    - Solution: Validation prevents workflow creation
 
-2. **Long-Running Workflows**: May timeout
+1. **Long-Running Workflows**: May timeout
+
    - Example: Workflow with 50+ steps
    - Solution: Break into smaller workflows or increase timeout
 
-3. **Context Size Limits**: Large contexts may fail serialization
+1. **Context Size Limits**: Large contexts may fail serialization
+
    - Example: Passing 100MB of data
    - Solution: Use file references instead of embedding
 
@@ -793,6 +830,7 @@ await monitor_workflow(workflow_id)
 ### Common Issues
 
 **Issue**: Workflow stuck in "in_progress" status
+
 ```
 Symptom: get_workflow_status shows no progress
 Diagnosis: Agent failed without reporting error, or network issue
@@ -800,6 +838,7 @@ Solution: Check coordination events, manually abort workflow, retry
 ```
 
 **Issue**: Handoff context not preserved
+
 ```
 Symptom: Target agent doesn't have expected information
 Diagnosis: Context serialization failed or schema mismatch
@@ -807,6 +846,7 @@ Solution: Validate context structure, check event logs
 ```
 
 **Issue**: Workflow fails with DependencyError
+
 ```
 Symptom: "Unresolved dependencies" error
 Diagnosis: Invalid step references or circular dependencies
@@ -814,6 +854,7 @@ Solution: Review depends_on fields, ensure valid step indices
 ```
 
 **Issue**: Performance degradation with many workflows
+
 ```
 Symptom: Coordination becomes slow with 20+ concurrent workflows
 Diagnosis: Resource contention or state management overhead
@@ -887,6 +928,7 @@ Configuration is stored in `plugins/mycelium-core/mcp/config/coordination.json`:
 ### Usage Metrics
 
 Track these metrics for optimization:
+
 - Workflow completion rate
 - Average workflow duration
 - Most common workflow patterns
@@ -896,6 +938,7 @@ Track these metrics for optimization:
 ### Performance Metrics
 
 Monitor for SLA compliance:
+
 - Workflow latency (P50, P95, P99)
 - Handoff overhead
 - State persistence time
@@ -905,6 +948,7 @@ Monitor for SLA compliance:
 ### Quality Metrics
 
 Measure effectiveness:
+
 - Workflow success rate
 - Failure recovery rate
 - Context preservation accuracy
@@ -916,6 +960,7 @@ Measure effectiveness:
 ### v1.0.0 (Target: 2025-10-21)
 
 **Planned Features:**
+
 - MCP tools: `coordinate_workflow`, `handoff_to_agent`, `get_workflow_status`, `get_coordination_events`
 - Sequential workflow execution
 - Basic parallel execution
@@ -927,18 +972,21 @@ Measure effectiveness:
 ### Planned Enhancements
 
 **v1.1.0 (M02)**
+
 - Advanced parallel execution patterns
 - Conditional workflow branching
 - Dynamic workflow modification
 - Enhanced failure recovery
 
 **v2.0.0 (M03)**
+
 - Token-aware coordination
 - Async workflow execution
 - Cross-workflow dependencies
 - Advanced state machine
 
 **v3.0.0 (M04)**
+
 - Workflow composition meta-skills
 - AI-powered optimization
 - Self-healing workflows
@@ -956,16 +1004,14 @@ Measure effectiveness:
 ## Support
 
 For issues or questions:
+
 1. Check troubleshooting section above
-2. Review coordination events for debugging
-3. Check orchestration engine health status
-4. Consult technical documentation
-5. Report issues with workflow reproduction steps
+1. Review coordination events for debugging
+1. Check orchestration engine health status
+1. Consult technical documentation
+1. Report issues with workflow reproduction steps
 
----
+______________________________________________________________________
 
-**Skill ID**: S2
-**Category**: Coordination
-**Maturity**: Planned
-**Target Test Coverage**: 90%
-**Last Updated**: 2025-10-21
+**Skill ID**: S2 **Category**: Coordination **Maturity**: Planned **Target Test Coverage**: 90% **Last Updated**:
+2025-10-21

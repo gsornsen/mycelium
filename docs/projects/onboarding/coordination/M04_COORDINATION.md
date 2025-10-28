@@ -1,24 +1,28 @@
 # M04 Interactive Onboarding - Coordination Plan
 
-**Coordinator**: multi-agent-coordinator
-**Start Date**: 2025-10-14
-**Target Completion**: 3 days (28-32 hours)
+**Coordinator**: multi-agent-coordinator **Start Date**: 2025-10-14 **Target Completion**: 3 days (28-32 hours)
 **Status**: INITIATED
 
 ## Executive Summary
 
-M04 Interactive Onboarding implements the user-facing wizard that transforms Mycelium from a technical framework into an accessible, guided setup experience. This milestone bridges technical detection (M03) with automated deployment (M05), providing an intuitive CLI wizard that guides users through service selection, deployment method choice, and configuration generation.
+M04 Interactive Onboarding implements the user-facing wizard that transforms Mycelium from a technical framework into an
+accessible, guided setup experience. This milestone bridges technical detection (M03) with automated deployment (M05),
+providing an intuitive CLI wizard that guides users through service selection, deployment method choice, and
+configuration generation.
 
-The wizard reduces cognitive load through progressive disclosure, validates inputs before proceeding, and generates type-safe configuration ready for deployment generation.
+The wizard reduces cognitive load through progressive disclosure, validates inputs before proceeding, and generates
+type-safe configuration ready for deployment generation.
 
 ## Coordination Strategy
 
 ### Dependencies Validated
+
 - **M01 Environment Isolation**: ✓ Complete (xdg_dirs, env_validator, config_loader)
 - **M02 Configuration System**: ✓ Complete (schema, manager, migrations)
 - **M03 Service Detection**: ✓ Complete (orchestrator, detectors, caching)
 
 ### Integration Points
+
 - Uses M03 `detect_all_services()` to pre-fill wizard defaults
 - Uses M02 `ConfigManager` to save/load configuration
 - Uses M02 `MyceliumConfig` schema for validation
@@ -30,6 +34,7 @@ The wizard reduces cognitive load through progressive disclosure, validates inpu
 ### Phase 1: Design & Foundation (8 hours)
 
 #### Task 4.1: Design Wizard Flow and UX
+
 - **Agent**: frontend-developer (lead), python-pro (review)
 - **Duration**: 4 hours
 - **Status**: READY
@@ -47,6 +52,7 @@ The wizard reduces cognitive load through progressive disclosure, validates inpu
   - State transitions validated
 
 #### Task 4.2A: Design InquirerPy Screen Specifications
+
 - **Agent**: frontend-developer
 - **Duration**: 4 hours
 - **Status**: READY
@@ -66,6 +72,7 @@ The wizard reduces cognitive load through progressive disclosure, validates inpu
 ### Phase 2: Core Implementation (12 hours)
 
 #### Task 4.2B: Implement InquirerPy Wizard Screens
+
 - **Agent**: python-pro
 - **Duration**: 8 hours
 - **Status**: BLOCKED (awaits Task 4.2A)
@@ -83,6 +90,7 @@ The wizard reduces cognitive load through progressive disclosure, validates inpu
   - Test coverage ≥85%
 
 #### Task 4.3: Integrate Detection Results
+
 - **Agent**: backend-developer
 - **Duration**: 3 hours
 - **Status**: READY (can start after 4.1)
@@ -99,6 +107,7 @@ The wizard reduces cognitive load through progressive disclosure, validates inpu
   - Test coverage ≥85%
 
 #### Task 4.4: Implement Configuration Persistence
+
 - **Agent**: python-pro
 - **Duration**: 2 hours
 - **Status**: READY (can run parallel)
@@ -117,6 +126,7 @@ The wizard reduces cognitive load through progressive disclosure, validates inpu
 ### Phase 3: CLI Integration & Polish (8 hours)
 
 #### Task 4.5: Create /mycelium-onboarding Command
+
 - **Agent**: backend-developer (lead), python-pro (support)
 - **Duration**: 4 hours
 - **Status**: BLOCKED (awaits Phase 2)
@@ -134,6 +144,7 @@ The wizard reduces cognitive load through progressive disclosure, validates inpu
   - Test coverage ≥85%
 
 #### Task 4.6: Testing and Documentation
+
 - **Agent**: platform-engineer (lead), python-pro (support)
 - **Duration**: 4 hours
 - **Status**: BLOCKED (awaits Phase 3)
@@ -156,18 +167,21 @@ The wizard reduces cognitive load through progressive disclosure, validates inpu
 ### Parallel Execution Strategy
 
 **Phase 1: Design & Foundation (Tasks 4.1, 4.2A)**
+
 - Both tasks can execute in parallel
 - frontend-developer handles UX design
 - python-pro reviews flow design
 - Expected completion: 4 hours
 
 **Phase 2: Core Implementation (Tasks 4.2B, 4.3, 4.4)**
+
 - Task 4.2B depends on 4.2A completion
 - Tasks 4.3 and 4.4 can start immediately after Phase 1
 - All three can run in parallel once dependencies met
 - Expected completion: 8 hours after dependencies met
 
 **Phase 3: CLI Integration & Polish (Tasks 4.5, 4.6)**
+
 - Task 4.5 depends on Phase 2 completion
 - Task 4.6 can overlap with 4.5 (documentation starts early)
 - Expected completion: 4 hours after Phase 2
@@ -175,6 +189,7 @@ The wizard reduces cognitive load through progressive disclosure, validates inpu
 ### Inter-Agent Communication
 
 **Message Protocol**:
+
 ```json
 {
   "type": "task_status",
@@ -193,15 +208,17 @@ The wizard reduces cognitive load through progressive disclosure, validates inpu
 ```
 
 **Synchronization Points**:
+
 1. **Phase 1 Completion Gate**: Flow and screen specs complete before implementation
-2. **Phase 2 Completion Gate**: All core implementation complete before CLI integration
-3. **Test Coverage Gate**: Each module achieves ≥85% coverage before proceeding
-4. **Quality Gate**: Zero linting issues, 100% type safety
-5. **Integration Gate**: End-to-end wizard flow validated
+1. **Phase 2 Completion Gate**: All core implementation complete before CLI integration
+1. **Test Coverage Gate**: Each module achieves ≥85% coverage before proceeding
+1. **Quality Gate**: Zero linting issues, 100% type safety
+1. **Integration Gate**: End-to-end wizard flow validated
 
 ### Progress Tracking
 
 **Metrics Collection**:
+
 - Task completion percentage per phase
 - Test coverage per module
 - Code quality metrics (mypy, ruff)
@@ -209,6 +226,7 @@ The wizard reduces cognitive load through progressive disclosure, validates inpu
 - Integration test success rate
 
 **Status Updates**:
+
 - Agents report status every 2 hours
 - Coordinator checks progress every hour
 - Blockers escalated immediately
@@ -217,12 +235,14 @@ The wizard reduces cognitive load through progressive disclosure, validates inpu
 ## Quality Standards
 
 ### Code Quality
+
 - **Test Coverage**: ≥85% per module, ≥85% overall
 - **Type Safety**: 100% (mypy --strict)
 - **Linting**: 0 issues (ruff check)
 - **UX Quality**: Clear prompts, helpful errors, consistent formatting
 
 ### Testing Requirements
+
 - **Unit Tests**: Each wizard screen and module
 - **Integration Tests**: Complete wizard flows
 - **Mock Tests**: Simulate various detection scenarios
@@ -230,6 +250,7 @@ The wizard reduces cognitive load through progressive disclosure, validates inpu
 - **Accessibility Tests**: Keyboard navigation, screen reader friendly
 
 ### Documentation Requirements
+
 - **User Documentation**: Step-by-step wizard guide with screenshots
 - **API Documentation**: All public functions documented
 - **Integration Examples**: How to use wizard programmatically
@@ -238,24 +259,28 @@ The wizard reduces cognitive load through progressive disclosure, validates inpu
 ## Risk Management
 
 ### High Risk: UX Confusion with Complex Flows
+
 - **Impact**: Users may get lost or make incorrect choices
 - **Detection**: User testing, feedback from early adopters
 - **Mitigation**: Progressive disclosure, clear help text, review/confirm step
 - **Contingency**: Add more intermediate confirmation steps
 
 ### Medium Risk: InquirerPy Compatibility Issues
+
 - **Impact**: Terminal rendering issues on different platforms
 - **Detection**: Cross-platform testing
 - **Mitigation**: Pin InquirerPy version, test on multiple terminals
 - **Contingency**: Fallback to simple input() prompts
 
 ### Medium Risk: Resume State Corruption
+
 - **Impact**: Interrupted sessions can't resume
 - **Detection**: Integration tests with simulated interruptions
 - **Mitigation**: Atomic writes, validation before save, backup previous config
 - **Contingency**: Force fresh start flag (--force)
 
 ### Low Risk: Terminal Rendering Issues
+
 - **Impact**: Colors/Unicode not displaying correctly
 - **Detection**: Platform compatibility testing
 - **Mitigation**: Detect terminal capabilities, fallback to plain text
@@ -264,6 +289,7 @@ The wizard reduces cognitive load through progressive disclosure, validates inpu
 ## Acceptance Criteria (Exit Gate)
 
 ### Wizard Implementation
+
 - [ ] InquirerPy wizard implemented with 7 screens
 - [ ] Service detection integration working
 - [ ] Configuration saved using M02 ConfigManager
@@ -271,24 +297,28 @@ The wizard reduces cognitive load through progressive disclosure, validates inpu
 - [ ] Non-interactive mode supported
 
 ### CLI Integration
+
 - [ ] `/mycelium-onboarding` command functional
 - [ ] All flags working (--project-local, --force, --no-cache, --non-interactive)
 - [ ] Command discoverable via help
 - [ ] Error handling comprehensive
 
 ### Testing
+
 - [ ] Unit tests for all wizard screens (≥85% coverage)
 - [ ] Integration tests for complete flows
 - [ ] E2E tests for CLI command
 - [ ] Mock tests for various detection scenarios
 
 ### Documentation
+
 - [ ] User guide complete with screenshots
 - [ ] API reference documented
 - [ ] Troubleshooting guide comprehensive
 - [ ] Integration examples provided
 
 ### Quality Gates
+
 - [ ] All tests passing: `uv run pytest tests/ --cov=mycelium_onboarding`
 - [ ] Type checking passing: `uv run mypy mycelium_onboarding --strict`
 - [ ] Linting passing: `uv run ruff check mycelium_onboarding`
@@ -567,7 +597,7 @@ Run tests with: uv run pytest tests/ -v --cov=mycelium_onboarding.wizard
 
 ### For platform-engineer (Task 4.6)
 
-```
+````
 You are creating comprehensive documentation and integration tests for Mycelium onboarding (M04).
 
 CONTEXT:
@@ -687,10 +717,11 @@ async def test_complete_wizard_flow():
 
     assert config.services.redis.enabled is True
     assert config.deployment.method == "docker-compose"
-```
+````
 
 Run tests with: uv run pytest tests/integration/test_wizard_flow.py -v --cov
-```
+
+````
 
 ## Execution Timeline
 
@@ -840,9 +871,10 @@ Run tests with: uv run pytest tests/integration/test_wizard_flow.py -v --cov
 
 # 3. Start services
 just up
-```
+````
 
 **Configuration Structure for M05**:
+
 ```python
 # M05 will load this
 config = ConfigManager.load()
@@ -858,6 +890,7 @@ config.services.postgres.port  # 5432
 ## Monitoring & Status
 
 ### Real-Time Coordination Tracking
+
 Stored in: `~/.local/state/mycelium/coordination/M04_status.json`
 
 ```json
@@ -899,6 +932,7 @@ Stored in: `~/.local/state/mycelium/coordination/M04_status.json`
 ```
 
 ### Escalation Criteria
+
 - Any task blocked for >2 hours
 - Test coverage falls below 85%
 - Type safety issues detected
@@ -909,6 +943,7 @@ Stored in: `~/.local/state/mycelium/coordination/M04_status.json`
 ## Final Deliverables Checklist
 
 ### Code Modules
+
 - [ ] mycelium_onboarding/wizard/__init__.py
 - [ ] mycelium_onboarding/wizard/flow.py
 - [ ] mycelium_onboarding/wizard/screens.py
@@ -917,9 +952,11 @@ Stored in: `~/.local/state/mycelium/coordination/M04_status.json`
 - [ ] mycelium_onboarding/cli.py
 
 ### Command Integration
+
 - [ ] ~/.claude/plugins/mycelium-core/commands/mycelium-onboarding.md
 
 ### Tests
+
 - [ ] tests/unit/test_wizard_flow.py
 - [ ] tests/unit/test_wizard_screens.py
 - [ ] tests/unit/test_wizard_integration.py
@@ -928,6 +965,7 @@ Stored in: `~/.local/state/mycelium/coordination/M04_status.json`
 - [ ] tests/e2e/test_onboarding_command.py
 
 ### Documentation
+
 - [ ] docs/guides/interactive-onboarding.md
 - [ ] docs/api/wizard-api.md
 - [ ] docs/screenshots/ (wizard screens)
@@ -935,6 +973,7 @@ Stored in: `~/.local/state/mycelium/coordination/M04_status.json`
 - [ ] Screen specifications document
 
 ### Validation
+
 - [ ] All tests passing
 - [ ] Coverage ≥85%
 - [ ] Type checking passing
@@ -944,10 +983,8 @@ Stored in: `~/.local/state/mycelium/coordination/M04_status.json`
 - [ ] Screenshots captured
 - [ ] E2E wizard flow validated
 
----
+______________________________________________________________________
 
-**Coordination Status**: ACTIVE
-**Next Review**: 2 hours from start
-**Escalation Contact**: multi-agent-coordinator
+**Coordination Status**: ACTIVE **Next Review**: 2 hours from start **Escalation Contact**: multi-agent-coordinator
 
 This coordination plan will be updated in real-time as tasks progress.

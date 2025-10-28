@@ -126,9 +126,7 @@ class EventStorage:
 
             # Write event as single-line JSON
             try:
-                json_line = json.dumps(
-                    event, ensure_ascii=False, separators=(",", ":")
-                )
+                json_line = json.dumps(event, ensure_ascii=False, separators=(",", ":"))
                 with self._current_file.open("a", encoding="utf-8") as f:
                     f.write(json_line + "\n")
             except (OSError, TypeError):
@@ -185,9 +183,7 @@ class EventStorage:
 
                             # Filter by start_date if provided
                             if start_date is not None:
-                                event_time = datetime.fromisoformat(
-                                    event.get("timestamp", "")
-                                )
+                                event_time = datetime.fromisoformat(event.get("timestamp", ""))
                                 if event_time < start_date:
                                     continue
 
@@ -225,9 +221,7 @@ class EventStorage:
         # Rotate: rename current file with timestamp
         # Add microseconds to avoid collisions in high-frequency rotation
         timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S_%f")
-        rotated_name = self.ROTATED_FILENAME_PATTERN.format(
-            timestamp=timestamp
-        )
+        rotated_name = self.ROTATED_FILENAME_PATTERN.format(timestamp=timestamp)
         rotated_path = self.storage_dir / rotated_name
 
         # Perform rotation - if this fails, continue anyway
@@ -276,10 +270,7 @@ class EventStorage:
                         try:
                             event = json.loads(line)
                             timestamp = event.get("timestamp")
-                            if timestamp and (
-                                latest_event_time is None
-                                or timestamp > latest_event_time
-                            ):
+                            if timestamp and (latest_event_time is None or timestamp > latest_event_time):
                                 latest_event_time = timestamp
                         except json.JSONDecodeError:
                             continue

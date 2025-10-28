@@ -1,9 +1,11 @@
 # Deployment Screen Specification
 
 ## Purpose
+
 Select deployment method and configure basic deployment settings.
 
 ## Layout
+
 ```
 ╔══════════════════════════════════════════════════════════════╗
 ║                  Deployment Configuration                    ║
@@ -34,6 +36,7 @@ Select deployment method and configure basic deployment settings.
 ## User Inputs
 
 ### Deployment Method Selection
+
 - **Field**: `deployment_method`
 - **Type**: Single selection (radio)
 - **Options**:
@@ -45,18 +48,21 @@ Select deployment method and configure basic deployment settings.
 - **Required**: Yes
 
 ### Auto-start Services
+
 - **Field**: `auto_start`
 - **Type**: Boolean (yes/no)
 - **Default**: `true`
 - **Description**: Automatically start services after deployment
-- **Only shown if**: deployment_method in ['docker-compose', 'systemd']
+- **Only shown if**: deployment_method in \['docker-compose', 'systemd'\]
 
 ## Validation
 
 ### Deployment Method
+
 No validation required (selection-based).
 
 ### Docker Compose Prerequisites
+
 ```python
 if deployment_method == "docker-compose":
     if not detection_results.get("docker", {}).get("available"):
@@ -66,6 +72,7 @@ if deployment_method == "docker-compose":
 ```
 
 ### Kubernetes Prerequisites
+
 ```python
 if deployment_method == "kubernetes":
     # Check if kubectl is available
@@ -83,6 +90,7 @@ if deployment_method == "kubernetes":
 ## Help Text
 
 ### Docker Compose
+
 ```
 Docker Compose (Recommended)
 ═══════════════════════════════════════════════════════════
@@ -109,6 +117,7 @@ Commands:
 ```
 
 ### Kubernetes
+
 ```
 Kubernetes
 ═══════════════════════════════════════════════════════════
@@ -138,6 +147,7 @@ Commands:
 ```
 
 ### systemd
+
 ```
 systemd
 ═══════════════════════════════════════════════════════════
@@ -165,6 +175,7 @@ Commands:
 ```
 
 ### Manual
+
 ```
 Manual Deployment
 ═══════════════════════════════════════════════════════════
@@ -194,6 +205,7 @@ You will need to:
 ## Error Messages
 
 ### Docker Not Available
+
 ```
 ⚠️  Docker not detected
 
@@ -210,6 +222,7 @@ fail until Docker is installed.
 ```
 
 ### Kubectl Not Found
+
 ```
 ⚠️  kubectl not found
 
@@ -226,6 +239,7 @@ to install kubectl before deploying.
 ```
 
 ### systemd Not Available
+
 ```
 ⚠️  systemd not detected
 
@@ -241,6 +255,7 @@ systemd deployment will not work on this system.
 ## State Updates
 
 On completion of this screen, update `WizardState`:
+
 - `deployment_method`: Selected deployment method
 - `auto_start`: Auto-start preference (if applicable)
 
@@ -444,8 +459,8 @@ def deployment_screen(state: WizardState) -> str:
 This screen guides deployment decisions:
 
 1. **Context-Aware**: Shows status of available tools
-2. **Recommended Choice**: Highlights Docker Compose as default
-3. **Informed Decisions**: Comprehensive help for each method
-4. **Graceful Degradation**: Allows continuing even with warnings
-5. **Flexibility**: Supports multiple deployment paradigms
-6. **Educational**: Explains requirements and tradeoffs
+1. **Recommended Choice**: Highlights Docker Compose as default
+1. **Informed Decisions**: Comprehensive help for each method
+1. **Graceful Degradation**: Allows continuing even with warnings
+1. **Flexibility**: Supports multiple deployment paradigms
+1. **Educational**: Explains requirements and tradeoffs

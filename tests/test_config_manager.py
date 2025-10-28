@@ -125,9 +125,7 @@ class TestConfigManagerLoad:
         project_dir = tmp_path / "project"
         project_dir.mkdir()
         project_config = project_dir / "config.yaml"
-        project_config.write_text(
-            MyceliumConfig(project_name="project-local").to_yaml()
-        )
+        project_config.write_text(MyceliumConfig(project_name="project-local").to_yaml())
 
         with (
             patch.dict(
@@ -157,9 +155,7 @@ class TestConfigManagerLoad:
 
         assert config.project_name == "explicit-path"
 
-    def test_load_explicit_path_not_exists_returns_defaults(
-        self, tmp_path: Path
-    ) -> None:
+    def test_load_explicit_path_not_exists_returns_defaults(self, tmp_path: Path) -> None:
         """Test loading from non-existent explicit path returns defaults."""
         config_path = tmp_path / "nonexistent.yaml"
 
@@ -345,9 +341,7 @@ class TestConfigManagerSave:
             expected_path = tmp_path / "config.yaml"
             assert expected_path.exists()
 
-    def test_save_determines_project_local_path_in_project(
-        self, tmp_path: Path
-    ) -> None:
+    def test_save_determines_project_local_path_in_project(self, tmp_path: Path) -> None:
         """Test save uses project-local path when in project context."""
         project_dir = tmp_path / "project"
         project_dir.mkdir()
@@ -661,9 +655,7 @@ class TestConfigManagerIntegration:
         # Should not be flow style (all on one line)
         assert yaml_content.count("\n") > 5
 
-    def test_handles_permission_error_on_directory_creation(
-        self, tmp_path: Path
-    ) -> None:
+    def test_handles_permission_error_on_directory_creation(self, tmp_path: Path) -> None:
         """Test graceful handling of permission errors during directory creation."""
         config_dir = tmp_path / "readonly"
         config_dir.mkdir()

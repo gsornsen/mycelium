@@ -614,12 +614,8 @@ class TestWizardFlow:
         assert loaded_flow.state.project_name == original_flow.state.project_name
         assert loaded_flow.state.current_step == original_flow.state.current_step
         assert loaded_flow.state.setup_mode == original_flow.state.setup_mode
-        assert (
-            loaded_flow.state.deployment_method == original_flow.state.deployment_method
-        )
-        assert (
-            loaded_flow.state.services_enabled == original_flow.state.services_enabled
-        )
+        assert loaded_flow.state.deployment_method == original_flow.state.deployment_method
+        assert loaded_flow.state.services_enabled == original_flow.state.services_enabled
         assert loaded_flow.state.resumed is True
 
 

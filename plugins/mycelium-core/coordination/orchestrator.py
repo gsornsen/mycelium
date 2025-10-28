@@ -247,8 +247,7 @@ class WorkflowOrchestrator:
                 critical_failures = [
                     t
                     for t in state.tasks.values()
-                    if t.status == TaskStatus.FAILED
-                    and not tasks_by_id[t.task_id].allow_failure
+                    if t.status == TaskStatus.FAILED and not tasks_by_id[t.task_id].allow_failure
                 ]
                 if critical_failures:
                     state.status = WorkflowStatus.FAILED
@@ -318,9 +317,7 @@ class WorkflowOrchestrator:
         for task in tasks:
             for dep in task.dependencies:
                 if dep not in task_ids:
-                    raise DependencyError(
-                        f"Task {task.task_id} depends on non-existent task {dep}"
-                    )
+                    raise DependencyError(f"Task {task.task_id} depends on non-existent task {dep}")
 
         # Check for cycles using DFS
         visited = set()
@@ -347,9 +344,7 @@ class WorkflowOrchestrator:
             if task.task_id not in visited and has_cycle(task.task_id, adj_list):
                 raise DependencyError("Task dependencies contain a cycle")
 
-    def _build_dependency_graph(
-        self, tasks: list[TaskDefinition]
-    ) -> dict[str, list[str]]:
+    def _build_dependency_graph(self, tasks: list[TaskDefinition]) -> dict[str, list[str]]:
         """Build dependency graph (task -> dependent tasks).
 
         Args:
@@ -399,9 +394,7 @@ class WorkflowOrchestrator:
                 task_futures = []
                 for task_id in tasks_to_start:
                     running.add(task_id)
-                    future = asyncio.create_task(
-                        self._execute_task(workflow_id, tasks_by_id[task_id], state)
-                    )
+                    future = asyncio.create_task(self._execute_task(workflow_id, tasks_by_id[task_id], state))
                     task_futures.append((task_id, future))
 
                 # Wait for at least one task to complete
@@ -421,18 +414,14 @@ class WorkflowOrchestrator:
                             # Check if failure is allowed
                             if not tasks_by_id[task_id].allow_failure:
                                 raise
-                            completed.add(
-                                task_id
-                            )  # Mark as completed even though it failed
+                            completed.add(task_id)  # Mark as completed even though it failed
             elif running:
                 # Wait for running tasks if no ready tasks
                 await asyncio.sleep(0.1)
             else:
                 # No ready tasks and nothing running - check for deadlock
                 if pending:
-                    raise OrchestrationError(
-                        f"Workflow deadlock detected. Pending tasks: {pending}"
-                    )
+                    raise OrchestrationError(f"Workflow deadlock detected. Pending tasks: {pending}")
 
     async def _execute_task(
         self,
@@ -466,9 +455,7 @@ class WorkflowOrchestrator:
                 # Get executor
                 executor = self._task_executors.get(task_def.agent_type)
                 if not executor:
-                    raise ExecutionError(
-                        f"No executor registered for agent type {task_def.agent_type}"
-                    )
+                    raise ExecutionError(f"No executor registered for agent type {task_def.agent_type}")
 
                 # Build execution context
                 state = await self.state_manager.get_workflow(workflow_id)
@@ -529,9 +516,7 @@ class WorkflowOrchestrator:
                     "message": f"Task exceeded timeout of {task_def.timeout}s",
                     "attempt": attempt + 1,
                 }
-                await self._handle_task_failure(
-                    workflow_id, task_def, attempt, error_info
-                )
+                await self._handle_task_failure(workflow_id, task_def, attempt, error_info)
                 attempt += 1
                 if attempt < task_def.retry_policy.max_attempts:
                     await asyncio.sleep(task_def.retry_policy.get_delay(attempt))
@@ -542,9 +527,7 @@ class WorkflowOrchestrator:
                     "message": str(e),
                     "attempt": attempt + 1,
                 }
-                await self._handle_task_failure(
-                    workflow_id, task_def, attempt, error_info
-                )
+                await self._handle_task_failure(workflow_id, task_def, attempt, error_info)
                 attempt += 1
                 if attempt < task_def.retry_policy.max_attempts:
                     await asyncio.sleep(task_def.retry_policy.get_delay(attempt))

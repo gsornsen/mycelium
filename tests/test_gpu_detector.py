@@ -49,10 +49,7 @@ class TestNvidiaGPUDetection:
 
     def test_detect_nvidia_gpus_multiple_gpus(self) -> None:
         """Test detection of multiple NVIDIA GPUs."""
-        mock_output = (
-            "0, NVIDIA GeForce RTX 3080, 10240, 470.57.02\n"
-            "1, NVIDIA GeForce RTX 3090, 24576, 470.57.02\n"
-        )
+        mock_output = "0, NVIDIA GeForce RTX 3080, 10240, 470.57.02\n1, NVIDIA GeForce RTX 3090, 24576, 470.57.02\n"
         with patch("subprocess.run") as mock_run:
             mock_run.return_value = MagicMock(
                 returncode=0,
@@ -118,9 +115,7 @@ class TestNvidiaGPUDetection:
 
     def test_detect_nvidia_gpus_timeout(self) -> None:
         """Test NVIDIA detection when command times out."""
-        with patch(
-            "subprocess.run", side_effect=subprocess.TimeoutExpired("nvidia-smi", 5)
-        ):
+        with patch("subprocess.run", side_effect=subprocess.TimeoutExpired("nvidia-smi", 5)):
             gpus = detect_nvidia_gpus()
             assert len(gpus) == 0
 
@@ -239,9 +234,7 @@ class TestAMDGPUDetection:
 
     def test_detect_amd_gpus_timeout(self) -> None:
         """Test AMD detection when command times out."""
-        with patch(
-            "subprocess.run", side_effect=subprocess.TimeoutExpired("rocm-smi", 5)
-        ):
+        with patch("subprocess.run", side_effect=subprocess.TimeoutExpired("rocm-smi", 5)):
             gpus = detect_amd_gpus()
             assert len(gpus) == 0
 
@@ -251,10 +244,7 @@ class TestIntelGPUDetection:
 
     def test_detect_intel_gpus_linux(self) -> None:
         """Test Intel GPU detection on Linux."""
-        mock_output = (
-            "00:02.0 VGA compatible controller: Intel Corporation "
-            "UHD Graphics 630 (rev 04)\n"
-        )
+        mock_output = "00:02.0 VGA compatible controller: Intel Corporation UHD Graphics 630 (rev 04)\n"
         with (
             patch("platform.system", return_value="Linux"),
             patch("subprocess.run") as mock_run,
@@ -297,10 +287,7 @@ class TestIntelGPUDetection:
 
     def test_detect_intel_gpus_linux_no_intel(self) -> None:
         """Test Intel GPU detection on Linux with no Intel GPUs."""
-        mock_output = (
-            "01:00.0 VGA compatible controller: NVIDIA Corporation "
-            "GA102 [GeForce RTX 3080]\n"
-        )
+        mock_output = "01:00.0 VGA compatible controller: NVIDIA Corporation GA102 [GeForce RTX 3080]\n"
         with (
             patch("platform.system", return_value="Linux"),
             patch("subprocess.run") as mock_run,
@@ -645,10 +632,7 @@ class TestGPUDetectionIntegration:
 
     def test_detect_gpus_total_memory_calculation(self) -> None:
         """Test total memory calculation across multiple GPUs."""
-        mock_output = (
-            "0, NVIDIA GeForce RTX 3080, 10240, 470.57.02\n"
-            "1, NVIDIA GeForce RTX 3090, 24576, 470.57.02\n"
-        )
+        mock_output = "0, NVIDIA GeForce RTX 3080, 10240, 470.57.02\n1, NVIDIA GeForce RTX 3090, 24576, 470.57.02\n"
         with patch("subprocess.run") as mock_run:
             mock_run.return_value = MagicMock(
                 returncode=0,

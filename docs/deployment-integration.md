@@ -4,7 +4,8 @@ Guide for integrating Mycelium deployment generation into your applications and 
 
 ## Overview
 
-The Mycelium deployment system can be integrated into your applications, CI/CD pipelines, and automation workflows. This guide covers:
+The Mycelium deployment system can be integrated into your applications, CI/CD pipelines, and automation workflows. This
+guide covers:
 
 - Programmatic usage patterns
 - Custom template development
@@ -905,6 +906,6 @@ def generate_with_monitoring(config: MyceliumConfig):
 - [API Reference](deployment-reference.md) - Complete API documentation
 - [Configuration Schema](../mycelium_onboarding/config/schema.py) - Config structure
 
----
+______________________________________________________________________
 
 *Integration Guide for Mycelium Deployment System*

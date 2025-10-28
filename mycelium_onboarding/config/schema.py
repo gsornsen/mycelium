@@ -105,8 +105,7 @@ class ServiceConfig(BaseModel):
         # Allow alphanumeric, dots, hyphens (e.g., "7.0", "15", "latest", "7.0-alpine")
         if not re.match(r"^[a-zA-Z0-9._-]+$", v):
             raise ValueError(
-                f"Version must contain only alphanumeric characters, dots, "
-                f"hyphens, and underscores. Got: {v}"
+                f"Version must contain only alphanumeric characters, dots, hyphens, and underscores. Got: {v}"
             )
         return v
 
@@ -253,10 +252,7 @@ class TemporalConfig(ServiceConfig):
         """
         # Namespace: alphanumeric, hyphens, underscores
         if not re.match(r"^[a-zA-Z0-9_-]+$", v):
-            raise ValueError(
-                f"Namespace must contain only alphanumeric characters, "
-                f"hyphens, and underscores. Got: {v}"
-            )
+            raise ValueError(f"Namespace must contain only alphanumeric characters, hyphens, and underscores. Got: {v}")
         return v
 
 
@@ -383,8 +379,7 @@ class MyceliumConfig(BaseModel):
         """
         if not re.match(r"^[a-zA-Z0-9_-]+$", v):
             raise ValueError(
-                f"Project name must contain only alphanumeric characters, "
-                f"hyphens, and underscores. Got: {v}"
+                f"Project name must contain only alphanumeric characters, hyphens, and underscores. Got: {v}"
             )
         return v
 
@@ -403,10 +398,7 @@ class MyceliumConfig(BaseModel):
                 self.services.temporal.enabled,
             ]
         ):
-            raise ValueError(
-                "At least one service must be enabled. "
-                "Enable redis, postgres, or temporal."
-            )
+            raise ValueError("At least one service must be enabled. Enable redis, postgres, or temporal.")
 
     def to_dict(self, *, exclude_none: bool = False) -> dict[str, Any]:
         """Serialize configuration to dictionary.

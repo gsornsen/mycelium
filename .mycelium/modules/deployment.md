@@ -1,29 +1,32 @@
 # Mycelium Deployment Guide
 
-Production deployment, infrastructure monitoring, Docker/Kubernetes templates, and scalability guidelines for the Mycelial network.
+Production deployment, infrastructure monitoring, Docker/Kubernetes templates, and scalability guidelines for the
+Mycelial network.
 
 ## Table of Contents
 
 1. [Infrastructure Requirements](#infrastructure-requirements)
-2. [Docker Deployment](#docker-deployment)
-3. [Kubernetes Deployment](#kubernetes-deployment)
-4. [Service Discovery](#service-discovery)
-5. [Health Monitoring](#health-monitoring)
-6. [Scalability Guidelines](#scalability-guidelines)
-7. [Production Best Practices](#production-best-practices)
-8. [Troubleshooting](#troubleshooting)
+1. [Docker Deployment](#docker-deployment)
+1. [Kubernetes Deployment](#kubernetes-deployment)
+1. [Service Discovery](#service-discovery)
+1. [Health Monitoring](#health-monitoring)
+1. [Scalability Guidelines](#scalability-guidelines)
+1. [Production Best Practices](#production-best-practices)
+1. [Troubleshooting](#troubleshooting)
 
 ## Infrastructure Requirements
 
 ### Minimal (Markdown Mode)
 
 **Resources**:
+
 - RAM: 100MB
 - CPU: 1 core
 - Disk: 10MB
 - Network: None required
 
 **Use Cases**:
+
 - Single-user development
 - Offline workflows
 - Git-tracked coordination
@@ -31,12 +34,14 @@ Production deployment, infrastructure monitoring, Docker/Kubernetes templates, a
 ### Recommended (Redis Mode)
 
 **Resources**:
+
 - RAM: 500MB (Redis: 256MB, Agents: 256MB)
 - CPU: 2 cores
 - Disk: 50MB
 - Network: Local or LAN
 
 **Use Cases**:
+
 - Multi-agent collaboration
 - Real-time workflows
 - Production deployments
@@ -44,12 +49,14 @@ Production deployment, infrastructure monitoring, Docker/Kubernetes templates, a
 ### Production (Redis + Temporal)
 
 **Resources**:
+
 - RAM: 2GB (Redis: 512MB, Temporal: 1GB, Agents: 512MB)
 - CPU: 4 cores
 - Disk: 500MB (Temporal persistence)
 - Network: Low-latency LAN or data center
 
 **Use Cases**:
+
 - Durable workflows
 - Multi-machine coordination
 - Enterprise deployments
@@ -116,6 +123,7 @@ volumes:
 ```
 
 **Start services**:
+
 ```bash
 docker-compose up -d
 
@@ -133,6 +141,7 @@ docker-compose down
 ### Individual Containers
 
 **Redis only**:
+
 ```bash
 docker run -d \
   --name mycelium-redis \
@@ -146,6 +155,7 @@ docker exec mycelium-redis redis-cli ping
 ```
 
 **Valkey (Redis fork)**:
+
 ```bash
 docker run -d \
   --name mycelium-valkey \
@@ -234,6 +244,7 @@ spec:
 ```
 
 **Deploy**:
+
 ```bash
 kubectl create namespace mycelium
 kubectl apply -f k8s/redis-deployment.yaml
@@ -437,6 +448,7 @@ Use the built-in `/infra-check` command:
 ### Configuration
 
 **`.infra-check.json`**:
+
 ```json
 {
   "checks": {
@@ -482,6 +494,7 @@ Use the built-in `/infra-check` command:
 ### Monitoring Endpoints
 
 **Redis metrics**:
+
 ```bash
 # Memory usage
 redis-cli info memory
@@ -497,6 +510,7 @@ redis-cli dbsize
 ```
 
 **Temporal metrics**:
+
 ```bash
 # Cluster health
 tctl cluster health
@@ -528,18 +542,21 @@ scrape_configs:
 ### Performance Benchmarks
 
 **Redis Mode**:
+
 - **Agents**: Scales to 100+ concurrent agents
 - **Throughput**: 234K messages/min
 - **Latency**: 0.8ms avg
-- **Overhead**: <5%
+- **Overhead**: \<5%
 
 **TaskQueue Mode**:
+
 - **Agents**: Scales to 50+ concurrent agents
 - **Throughput**: 3K tasks/min
 - **Latency**: 100ms avg
 - **Overhead**: ~10%
 
 **Markdown Mode**:
+
 - **Agents**: Scales to 20 concurrent agents
 - **Throughput**: 6K operations/min
 - **Latency**: 500ms avg
@@ -548,6 +565,7 @@ scrape_configs:
 ### Horizontal Scaling
 
 **Redis Cluster** (for >100 agents):
+
 ```bash
 # Create Redis cluster with 3 masters + 3 replicas
 docker-compose -f docker-compose-cluster.yml up -d
@@ -557,6 +575,7 @@ kubectl apply -f k8s/redis-cluster.yaml
 ```
 
 **Multi-Region Deployment**:
+
 ```
 Region 1 (us-east)              Region 2 (eu-west)
 ┌─────────────────┐             ┌─────────────────┐
@@ -569,6 +588,7 @@ Region 1 (us-east)              Region 2 (eu-west)
 ### Vertical Scaling
 
 **Resource allocation**:
+
 ```yaml
 # k8s/redis-deployment.yaml (scaled up)
 resources:
@@ -583,6 +603,7 @@ resources:
 ### Load Balancing
 
 **Agent distribution**:
+
 ```javascript
 // Distribute agents across Redis shards
 const agents = ['ai-engineer', 'data-engineer', ...];
@@ -601,6 +622,7 @@ for (const agent of agents) {
 ### High Availability
 
 **Redis Sentinel** (automatic failover):
+
 ```bash
 docker run -d \
   --name redis-sentinel \
@@ -610,6 +632,7 @@ docker run -d \
 ```
 
 **Configuration**:
+
 ```conf
 # sentinel.conf
 sentinel monitor mycelium-redis redis-master 6379 2
@@ -620,6 +643,7 @@ sentinel failover-timeout mycelium-redis 10000
 ### Data Persistence
 
 **Redis AOF** (append-only file):
+
 ```bash
 # Enable in redis.conf or command-line
 redis-server --appendonly yes --appendfsync everysec
@@ -629,6 +653,7 @@ cp /data/appendonly.aof /backup/appendonly-$(date +%Y%m%d).aof
 ```
 
 **Temporal persistence**:
+
 ```yaml
 # Use PostgreSQL for durable workflow state
 environment:
@@ -639,6 +664,7 @@ environment:
 ### Security
 
 **Redis authentication**:
+
 ```bash
 # Set password
 redis-cli CONFIG SET requirepass "your-strong-password"
@@ -651,6 +677,7 @@ export REDIS_URL="redis://:your-strong-password@localhost:6379"
 ```
 
 **TLS encryption**:
+
 ```bash
 # Generate certificates
 openssl req -x509 -newkey rsa:4096 \
@@ -668,6 +695,7 @@ export REDIS_URL="rediss://localhost:6380"
 ```
 
 **Network policies** (Kubernetes):
+
 ```yaml
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -693,6 +721,7 @@ spec:
 ### Backup & Recovery
 
 **Automated backups**:
+
 ```bash
 #!/bin/bash
 # backup-mycelium.sh
@@ -709,6 +738,7 @@ find /backup -name "*.sql" -mtime +7 -delete
 ```
 
 **Automated with cron**:
+
 ```cron
 # Run daily at 2 AM
 0 2 * * * /usr/local/bin/backup-mycelium.sh
@@ -757,6 +787,7 @@ kubectl run -it --rm tctl-debug \
 ### Performance Issues
 
 **Redis slow queries**:
+
 ```bash
 # Enable slow log
 redis-cli CONFIG SET slowlog-log-slower-than 10000  # 10ms
@@ -766,6 +797,7 @@ redis-cli SLOWLOG GET 10
 ```
 
 **Memory issues**:
+
 ```bash
 # Check memory usage
 redis-cli INFO memory
@@ -778,6 +810,7 @@ redis-cli CONFIG SET maxmemory-policy allkeys-lru
 ```
 
 **Network latency**:
+
 ```bash
 # Measure Redis latency
 redis-cli --latency
@@ -789,6 +822,7 @@ redis-cli --latency -h mycelium-redis.mycelium.svc.cluster.local
 ### Scaling Issues
 
 **Too many connections**:
+
 ```bash
 # Check current connections
 redis-cli INFO clients
@@ -800,6 +834,7 @@ redis-cli CONFIG SET maxclients 10000
 ```
 
 **High CPU usage**:
+
 ```bash
 # Check CPU usage
 top -p $(pgrep redis-server)

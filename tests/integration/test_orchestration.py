@@ -404,9 +404,7 @@ async def test_state_rollback(orchestrator, state_manager):
     assert final_version > initial_version
 
     # Rollback to initial version
-    rolled_back_state = await orchestrator.rollback_workflow(
-        workflow_id, initial_version
-    )
+    rolled_back_state = await orchestrator.rollback_workflow(workflow_id, initial_version)
     assert rolled_back_state.version == initial_version
     assert rolled_back_state.status == WorkflowStatus.PENDING
 
@@ -524,9 +522,7 @@ async def test_workflow_cancellation(orchestrator):
 
     orchestrator.register_executor("long_agent", long_task)
 
-    tasks = [
-        TaskDefinition(task_id="task_1", agent_id="agent_1", agent_type="long_agent")
-    ]
+    tasks = [TaskDefinition(task_id="task_1", agent_id="agent_1", agent_type="long_agent")]
 
     workflow_id = await orchestrator.create_workflow(tasks)
 

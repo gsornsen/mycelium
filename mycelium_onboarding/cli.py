@@ -262,9 +262,7 @@ def cli() -> None:
 
 
 @cli.command()
-@click.option(
-    "--resume/--no-resume", default=None, help="Resume previous wizard session"
-)
+@click.option("--resume/--no-resume", default=None, help="Resume previous wizard session")
 @click.option("--reset", is_flag=True, help="Clear any saved state and start fresh")
 def init(resume: bool | None, reset: bool) -> None:
     """Interactive onboarding wizard to set up Mycelium.
@@ -300,9 +298,7 @@ def init(resume: bool | None, reset: bool) -> None:
     if persistence.exists():
         if resume is None:
             # Auto-detect: ask user
-            should_resume = click.confirm(
-                "Found existing wizard session. Would you like to resume?", default=True
-            )
+            should_resume = click.confirm("Found existing wizard session. Would you like to resume?", default=True)
         else:
             should_resume = resume
 
@@ -311,9 +307,7 @@ def init(resume: bool | None, reset: bool) -> None:
         console.print("[cyan]Resuming wizard from previous session...[/cyan]\n")
         state = persistence.load()
         if state is None:
-            console.print(
-                "[yellow]⚠ Could not load saved state. Starting fresh.[/yellow]\n"
-            )
+            console.print("[yellow]⚠ Could not load saved state. Starting fresh.[/yellow]\n")
             state = WizardState()
     else:
         state = WizardState()
@@ -344,9 +338,7 @@ def init(resume: bool | None, reset: bool) -> None:
             elif current_step == WizardStep.SERVICES:
                 # Get project name first
                 if not state.project_name:
-                    project_name = click.prompt(
-                        "Project name", default="mycelium-project", type=str
-                    )
+                    project_name = click.prompt("Project name", default="mycelium-project", type=str)
                     state.project_name = project_name
 
                 services = screens.show_services()
@@ -416,10 +408,7 @@ def init(resume: bool | None, reset: bool) -> None:
         persistence.clear()
 
     except KeyboardInterrupt:
-        console.print(
-            "\n[yellow]Wizard interrupted. "
-            "Run 'mycelium init --resume' to continue.[/yellow]"
-        )
+        console.print("\n[yellow]Wizard interrupted. Run 'mycelium init --resume' to continue.[/yellow]")
         persistence.save(state)
         raise SystemExit(1) from None
     except Exception as e:
@@ -750,8 +739,7 @@ def validate(path: Path | None) -> None:
             enabled_services.append(f"postgres (port {cfg.services.postgres.port})")
         if cfg.services.temporal.enabled:
             enabled_services.append(
-                f"temporal (UI: {cfg.services.temporal.ui_port}, "
-                f"gRPC: {cfg.services.temporal.frontend_port})"
+                f"temporal (UI: {cfg.services.temporal.ui_port}, gRPC: {cfg.services.temporal.frontend_port})"
             )
 
         click.echo(f"  Enabled Services: {', '.join(enabled_services)}")
@@ -856,10 +844,7 @@ def migrate(target: str | None, dry_run: bool, path: Path | None) -> None:
         try:
             migrations = registry.get_migration_path(current_version, target)
             click.echo(click.style("Migration Path:", bold=True))
-            click.echo(
-                "  "
-                + " -> ".join([current_version] + [m.to_version for m in migrations])
-            )
+            click.echo("  " + " -> ".join([current_version] + [m.to_version for m in migrations]))
             click.echo()
 
             # Show migration details
@@ -882,19 +867,11 @@ def migrate(target: str | None, dry_run: bool, path: Path | None) -> None:
             preview = registry.preview_migration(config_dict, target)
             click.echo(preview)
             click.echo()
-            click.echo(
-                click.style(
-                    "No changes applied. Run without --dry-run to apply.", fg="yellow"
-                )
-            )
+            click.echo(click.style("No changes applied. Run without --dry-run to apply.", fg="yellow"))
             sys.exit(0)
 
         # Confirm migration
-        if not click.confirm(
-            click.style(
-                f"Apply migration from {current_version} to {target}?", fg="yellow"
-            )
-        ):
+        if not click.confirm(click.style(f"Apply migration from {current_version} to {target}?", fg="yellow")):
             click.echo("Migration cancelled")
             sys.exit(0)
 
@@ -906,9 +883,7 @@ def migrate(target: str | None, dry_run: bool, path: Path | None) -> None:
             manager.load_and_migrate(target_version=target)
 
             click.echo()
-            click.echo(
-                click.style(f"✓ Successfully migrated to version {target}", fg="green")
-            )
+            click.echo(click.style(f"✓ Successfully migrated to version {target}", fg="green"))
             click.echo(f"  Backup created: {location}.backup")
             click.echo(f"  Configuration updated: {location}")
 
@@ -918,14 +893,8 @@ def migrate(target: str | None, dry_run: bool, path: Path | None) -> None:
                 click.echo()
                 click.echo(click.style("Migration History:", bold=True))
                 for record in history:
-                    status = (
-                        click.style("✓", fg="green")
-                        if record.success
-                        else click.style("✗", fg="red")
-                    )
-                    click.echo(
-                        f"  {status} {record.from_version} -> {record.to_version}"
-                    )
+                    status = click.style("✓", fg="green") if record.success else click.style("✗", fg="red")
+                    click.echo(f"  {status} {record.from_version} -> {record.to_version}")
                     if record.error:
                         click.echo(f"      Error: {record.error}")
 
@@ -1022,11 +991,7 @@ def services(format: str, save_config: bool) -> None:
                 save_manager.save(config)
 
                 click.echo()
-                click.echo(
-                    click.style(
-                        "✓ Configuration updated with detected settings", fg="green"
-                    )
-                )
+                click.echo(click.style("✓ Configuration updated with detected settings", fg="green"))
                 click.echo(f"  Saved to: {location}")
 
             except Exception as e:
@@ -1079,11 +1044,7 @@ def redis() -> None:
 
         click.echo()
         if results:
-            click.echo(
-                click.style(
-                    f"✓ Found {len(results)} Redis instance(s)", fg="green", bold=True
-                )
-            )
+            click.echo(click.style(f"✓ Found {len(results)} Redis instance(s)", fg="green", bold=True))
             for i, redis in enumerate(results, 1):
                 click.echo(f"\n  Instance {i}:")
                 click.echo(f"    Host: {redis.host}")
@@ -1109,9 +1070,7 @@ def postgres() -> None:
     )
 
     try:
-        click.echo(
-            click.style("Detecting PostgreSQL instances...", fg="blue", bold=True)
-        )
+        click.echo(click.style("Detecting PostgreSQL instances...", fg="blue", bold=True))
         results = scan_common_postgres_ports()
 
         click.echo()
@@ -1177,9 +1136,7 @@ def gpu() -> None:
 
         click.echo()
         if result.available:
-            click.echo(
-                click.style(f"✓ Found {len(result.gpus)} GPU(s)", fg="green", bold=True)
-            )
+            click.echo(click.style(f"✓ Found {len(result.gpus)} GPU(s)", fg="green", bold=True))
             click.echo(f"  Total Memory: {result.total_memory_mb} MB")
 
             for i, gpu in enumerate(result.gpus, 1):
@@ -1254,16 +1211,10 @@ def generate(method: str | None, output: str | None, generate_secrets: bool) -> 
         raise SystemExit(1) from e
 
     # Determine deployment method
-    deploy_method = (
-        DeploymentMethod(method)
-        if method
-        else DeploymentMethod(config.deployment.method)
-    )
+    deploy_method = DeploymentMethod(method) if method else DeploymentMethod(config.deployment.method)
 
     # Display generation info
-    console.print(
-        f"\n[bold cyan]Generating {deploy_method.value} deployment...[/bold cyan]"
-    )
+    console.print(f"\n[bold cyan]Generating {deploy_method.value} deployment...[/bold cyan]")
     console.print(f"Project: [yellow]{config.project_name}[/yellow]")
 
     # Get enabled services
@@ -1292,16 +1243,12 @@ def generate(method: str | None, output: str | None, generate_secrets: bool) -> 
 
     # Generate deployment files
     with console.status(f"[bold green]Generating {deploy_method.value} files..."):
-        generator = DeploymentGenerator(
-            config, output_dir=Path(output) if output else None
-        )
+        generator = DeploymentGenerator(config, output_dir=Path(output) if output else None)
         result = generator.generate(deploy_method)
 
     # Display results
     if result.success:
-        console.print(
-            "\n[bold green]✓ Deployment generated successfully![/bold green]\n"
-        )
+        console.print("\n[bold green]✓ Deployment generated successfully![/bold green]\n")
         console.print(f"Output directory: [cyan]{result.output_dir}[/cyan]")
         console.print("\nGenerated files:")
         for file in result.files_generated:
@@ -1316,9 +1263,7 @@ def generate(method: str | None, output: str | None, generate_secrets: bool) -> 
         # Show next steps
         console.print("\n[bold]Next Steps:[/bold]")
         if deploy_method == DeploymentMethod.DOCKER_COMPOSE:
-            console.print(
-                f"  1. Review and update {result.output_dir}/.env with your credentials"
-            )
+            console.print(f"  1. Review and update {result.output_dir}/.env with your credentials")
             console.print(f"  2. cd {result.output_dir}")
             console.print("  3. docker-compose up -d")
         elif deploy_method == DeploymentMethod.KUBERNETES:
@@ -1358,15 +1303,9 @@ def start(method: str | None) -> None:
     manager = ConfigManager()
     config = manager.load()
 
-    deploy_method = (
-        DeploymentMethod(method)
-        if method
-        else DeploymentMethod(config.deployment.method)
-    )
+    deploy_method = DeploymentMethod(method) if method else DeploymentMethod(config.deployment.method)
 
-    console.print(
-        f"[bold cyan]Starting {deploy_method.value} deployment...[/bold cyan]\n"
-    )
+    console.print(f"[bold cyan]Starting {deploy_method.value} deployment...[/bold cyan]\n")
 
     # Execute start command based on method
     try:
@@ -1410,9 +1349,7 @@ def start(method: str | None) -> None:
         raise SystemExit(1) from e
     except FileNotFoundError as e:
         console.print(f"[red]Command not found: {e}[/red]")
-        console.print(
-            f"[yellow]Ensure {deploy_method.value} tools are installed[/yellow]"
-        )
+        console.print(f"[yellow]Ensure {deploy_method.value} tools are installed[/yellow]")
         raise SystemExit(1) from e
 
 
@@ -1437,15 +1374,9 @@ def stop(method: str | None) -> None:
     manager = ConfigManager()
     config = manager.load()
 
-    deploy_method = (
-        DeploymentMethod(method)
-        if method
-        else DeploymentMethod(config.deployment.method)
-    )
+    deploy_method = DeploymentMethod(method) if method else DeploymentMethod(config.deployment.method)
 
-    console.print(
-        f"[bold cyan]Stopping {deploy_method.value} deployment...[/bold cyan]\n"
-    )
+    console.print(f"[bold cyan]Stopping {deploy_method.value} deployment...[/bold cyan]\n")
 
     # Execute stop command based on method
     try:
@@ -1491,9 +1422,7 @@ def stop(method: str | None) -> None:
         raise SystemExit(1) from e
     except FileNotFoundError as e:
         console.print(f"[red]Command not found: {e}[/red]")
-        console.print(
-            f"[yellow]Ensure {deploy_method.value} tools are installed[/yellow]"
-        )
+        console.print(f"[yellow]Ensure {deploy_method.value} tools are installed[/yellow]")
         raise SystemExit(1) from e
 
 
@@ -1516,11 +1445,7 @@ def status(method: str | None, watch: bool) -> None:
     manager = ConfigManager()
     config = manager.load()
 
-    deploy_method = (
-        DeploymentMethod(method)
-        if method
-        else DeploymentMethod(config.deployment.method)
-    )
+    deploy_method = DeploymentMethod(method) if method else DeploymentMethod(config.deployment.method)
 
     # Create status table
     table = Table(title=f"{config.project_name} - Service Status", show_header=True)
@@ -1554,9 +1479,7 @@ def status(method: str | None, watch: bool) -> None:
 
                 for container in containers:
                     status_str = (
-                        "[green]Running[/green]"
-                        if container.get("State") == "running"
-                        else "[red]Stopped[/red]"
+                        "[green]Running[/green]" if container.get("State") == "running" else "[red]Stopped[/red]"
                     )
                     table.add_row(
                         container.get("Service", container.get("Name", "unknown")),
@@ -1608,9 +1531,7 @@ def status(method: str | None, watch: bool) -> None:
                 ready = f"{ready_count}/{total_count}"
                 table.add_row(name, status_str, f"Ready: {ready}")
         except subprocess.CalledProcessError:
-            console.print(
-                f"[yellow]No pods found in namespace {config.project_name}[/yellow]"
-            )
+            console.print(f"[yellow]No pods found in namespace {config.project_name}[/yellow]")
             return
         except FileNotFoundError:
             console.print("[red]kubectl command not found[/red]")
@@ -1670,20 +1591,14 @@ def secrets(secret_type: str | None, rotate: bool) -> None:
     # Rotate secret if requested
     if rotate:
         if not secret_type:
-            console.print(
-                "[red]Error: Specify secret type to rotate "
-                "(postgres, redis, temporal)[/red]"
-            )
+            console.print("[red]Error: Specify secret type to rotate (postgres, redis, temporal)[/red]")
             raise SystemExit(1)
 
         try:
             with console.status(f"[bold green]Rotating {secret_type} secret..."):
                 secrets_mgr.rotate_secret(secret_type)
             console.print(f"[green]✓[/green] Successfully rotated {secret_type} secret")
-            console.print(
-                "[yellow]Note: Update deployment with new secret "
-                "to apply changes[/yellow]"
-            )
+            console.print("[yellow]Note: Update deployment with new secret to apply changes[/yellow]")
             return
         except ValueError as e:
             console.print(f"[red]Error: {e}[/red]")
@@ -1739,11 +1654,7 @@ def _display_config_table(cfg: MyceliumConfig) -> None:
     click.echo(click.style("Services:", bold=True))
 
     # Redis
-    status = (
-        click.style("ENABLED", fg="green")
-        if cfg.services.redis.enabled
-        else click.style("DISABLED", fg="red")
-    )
+    status = click.style("ENABLED", fg="green") if cfg.services.redis.enabled else click.style("DISABLED", fg="red")
     click.echo(f"  Redis:             {status}")
     if cfg.services.redis.enabled:
         click.echo(f"    Port:            {cfg.services.redis.port}")
@@ -1751,11 +1662,7 @@ def _display_config_table(cfg: MyceliumConfig) -> None:
         click.echo(f"    Max Memory:      {cfg.services.redis.max_memory}")
 
     # PostgreSQL
-    status = (
-        click.style("ENABLED", fg="green")
-        if cfg.services.postgres.enabled
-        else click.style("DISABLED", fg="red")
-    )
+    status = click.style("ENABLED", fg="green") if cfg.services.postgres.enabled else click.style("DISABLED", fg="red")
     click.echo(f"  PostgreSQL:        {status}")
     if cfg.services.postgres.enabled:
         click.echo(f"    Port:            {cfg.services.postgres.port}")
@@ -1763,11 +1670,7 @@ def _display_config_table(cfg: MyceliumConfig) -> None:
         click.echo(f"    Max Connections: {cfg.services.postgres.max_connections}")
 
     # Temporal
-    status = (
-        click.style("ENABLED", fg="green")
-        if cfg.services.temporal.enabled
-        else click.style("DISABLED", fg="red")
-    )
+    status = click.style("ENABLED", fg="green") if cfg.services.temporal.enabled else click.style("DISABLED", fg="red")
     click.echo(f"  Temporal:          {status}")
     if cfg.services.temporal.enabled:
         click.echo(f"    UI Port:         {cfg.services.temporal.ui_port}")
@@ -1900,8 +1803,7 @@ def main(argv: list[str] | None = None) -> int:
         except EnvironmentValidationError as e:
             print(f"Environment Validation Error:\n{e}", file=sys.stderr)
             print(
-                "\nRun 'python -m mycelium_onboarding status' "
-                "for detailed diagnostics.",
+                "\nRun 'python -m mycelium_onboarding status' for detailed diagnostics.",
                 file=sys.stderr,
             )
             return 1

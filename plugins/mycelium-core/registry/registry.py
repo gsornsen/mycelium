@@ -81,9 +81,7 @@ class AgentRegistry:
     async def _get_connection(self) -> Connection:
         """Get a database connection from the pool."""
         if self._pool is None:
-            raise AgentRegistryError(
-                "Registry not initialized. Call initialize() first."
-            )
+            raise AgentRegistryError("Registry not initialized. Call initialize() first.")
         return await self._pool.acquire()
 
     async def _release_connection(self, conn: Connection) -> None:
@@ -164,8 +162,7 @@ class AgentRegistry:
 
         except asyncpg.UniqueViolationError as e:
             raise AgentAlreadyExistsError(
-                f"Agent with agent_id '{agent_id}' or "
-                f"agent_type '{agent_type}' already exists"
+                f"Agent with agent_id '{agent_id}' or agent_type '{agent_type}' already exists"
             ) from e
         finally:
             await self._release_connection(conn)
@@ -229,9 +226,7 @@ class AgentRegistry:
 
             row = await conn.fetchrow(query, agent_type)
             if row is None:
-                raise AgentNotFoundError(
-                    f"Agent with agent_type '{agent_type}' not found"
-                )
+                raise AgentNotFoundError(f"Agent with agent_type '{agent_type}' not found")
 
             return dict(row)
 
@@ -573,9 +568,7 @@ class AgentRegistry:
             agent_count = await self.get_agent_count()
 
             # Get database size
-            db_size = await conn.fetchval(
-                "SELECT pg_size_pretty(pg_database_size(current_database()))"
-            )
+            db_size = await conn.fetchval("SELECT pg_size_pretty(pg_database_size(current_database()))")
 
             return {
                 "status": "healthy",
@@ -599,9 +592,7 @@ class AgentRegistry:
         await self.initialize()
         return self
 
-    async def __aexit__(
-        self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: Any
-    ) -> None:
+    async def __aexit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: Any) -> None:
         """Async context manager exit."""
         await self.close()
 

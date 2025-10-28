@@ -68,9 +68,7 @@ def user_config_dir(mock_home: Path) -> Path:
 class TestGetConfigPath:
     """Tests for get_config_path()."""
 
-    def test_returns_user_global_when_no_project_dir(
-        self, mock_home: Path, user_config_dir: Path
-    ) -> None:
+    def test_returns_user_global_when_no_project_dir(self, mock_home: Path, user_config_dir: Path) -> None:
         """Should return user-global path when MYCELIUM_PROJECT_DIR not set."""
         path = get_config_path("config.yaml")
 
@@ -146,9 +144,7 @@ class TestGetConfigPath:
         assert path == expected
         assert not path.exists()  # Should not create the file
 
-    def test_works_with_different_filenames(
-        self, mock_home: Path, user_config_dir: Path
-    ) -> None:
+    def test_works_with_different_filenames(self, mock_home: Path, user_config_dir: Path) -> None:
         """Should work with any filename."""
         filenames = ["config.yaml", "preferences.yaml", "settings.json", "api_keys.txt"]
 
@@ -185,9 +181,7 @@ class TestGetConfigPath:
         assert path == nonexistent / "config.yaml"
         assert not nonexistent.exists()
 
-    def test_does_not_create_files(
-        self, mock_home: Path, user_config_dir: Path
-    ) -> None:
+    def test_does_not_create_files(self, mock_home: Path, user_config_dir: Path) -> None:
         """Should not create any files."""
         path = get_config_path("config.yaml")
 
@@ -197,9 +191,7 @@ class TestGetConfigPath:
 class TestGetAllConfigPaths:
     """Tests for get_all_config_paths()."""
 
-    def test_returns_only_user_global_when_no_project_dir(
-        self, mock_home: Path, user_config_dir: Path
-    ) -> None:
+    def test_returns_only_user_global_when_no_project_dir(self, mock_home: Path, user_config_dir: Path) -> None:
         """Should return only user-global path when MYCELIUM_PROJECT_DIR not set."""
         paths = get_all_config_paths("config.yaml")
 
@@ -216,9 +208,7 @@ class TestGetAllConfigPaths:
         assert paths[0] == mock_project_dir / "config.yaml"  # Project-local first
         assert paths[1] == user_config_dir / "config.yaml"  # User-global second
 
-    def test_precedence_order(
-        self, mock_home: Path, mock_project_dir: Path, user_config_dir: Path
-    ) -> None:
+    def test_precedence_order(self, mock_home: Path, mock_project_dir: Path, user_config_dir: Path) -> None:
         """Should return paths in correct precedence order."""
         paths = get_all_config_paths("config.yaml")
 
@@ -226,18 +216,14 @@ class TestGetAllConfigPaths:
         assert paths[0] == mock_project_dir / "config.yaml"
         assert paths[1] == user_config_dir / "config.yaml"
 
-    def test_returns_list_of_paths(
-        self, mock_home: Path, user_config_dir: Path
-    ) -> None:
+    def test_returns_list_of_paths(self, mock_home: Path, user_config_dir: Path) -> None:
         """Should return a list of Path objects."""
         paths = get_all_config_paths("config.yaml")
 
         assert isinstance(paths, list)
         assert all(isinstance(p, Path) for p in paths)
 
-    def test_paths_may_not_exist(
-        self, mock_home: Path, mock_project_dir: Path, user_config_dir: Path
-    ) -> None:
+    def test_paths_may_not_exist(self, mock_home: Path, mock_project_dir: Path, user_config_dir: Path) -> None:
         """Should return paths even if they don't exist."""
         paths = get_all_config_paths("config.yaml")
 
@@ -247,9 +233,7 @@ class TestGetAllConfigPaths:
         # But they should still be returned
         assert len(paths) == 2
 
-    def test_works_with_different_filenames(
-        self, mock_home: Path, user_config_dir: Path
-    ) -> None:
+    def test_works_with_different_filenames(self, mock_home: Path, user_config_dir: Path) -> None:
         """Should work with any filename."""
         filenames = ["config.yaml", "preferences.yaml", "settings.json"]
 
@@ -276,17 +260,13 @@ class TestGetAllConfigPaths:
 class TestFindConfigFile:
     """Tests for find_config_file()."""
 
-    def test_returns_none_when_no_files_exist(
-        self, mock_home: Path, user_config_dir: Path
-    ) -> None:
+    def test_returns_none_when_no_files_exist(self, mock_home: Path, user_config_dir: Path) -> None:
         """Should return None when no config files exist."""
         result = find_config_file("config.yaml")
 
         assert result is None
 
-    def test_returns_user_global_when_only_it_exists(
-        self, mock_home: Path, user_config_dir: Path
-    ) -> None:
+    def test_returns_user_global_when_only_it_exists(self, mock_home: Path, user_config_dir: Path) -> None:
         """Should return user-global path when only it exists."""
         # Create only user-global config
         user_config = user_config_dir / "config.yaml"
@@ -324,17 +304,13 @@ class TestFindConfigFile:
         # Should return project-local (higher precedence)
         assert result == project_config
 
-    def test_returns_none_when_no_project_dir_and_no_files(
-        self, mock_home: Path, user_config_dir: Path
-    ) -> None:
+    def test_returns_none_when_no_project_dir_and_no_files(self, mock_home: Path, user_config_dir: Path) -> None:
         """Should return None when MYCELIUM_PROJECT_DIR not set and no files exist."""
         result = find_config_file("config.yaml")
 
         assert result is None
 
-    def test_works_with_different_filenames(
-        self, mock_home: Path, user_config_dir: Path
-    ) -> None:
+    def test_works_with_different_filenames(self, mock_home: Path, user_config_dir: Path) -> None:
         """Should work with any filename."""
         # Create different config files
         (user_config_dir / "config.yaml").write_text("config")
@@ -348,9 +324,7 @@ class TestFindConfigFile:
         assert result2 == user_config_dir / "preferences.yaml"
         assert result3 is None
 
-    def test_returns_path_object_or_none(
-        self, mock_home: Path, user_config_dir: Path
-    ) -> None:
+    def test_returns_path_object_or_none(self, mock_home: Path, user_config_dir: Path) -> None:
         """Should return Path object or None."""
         # No file exists
         result1 = find_config_file("config.yaml")
@@ -391,9 +365,7 @@ class TestPrecedenceScenarios:
         assert result == project_config
         assert result.read_text() == "project: override"
 
-    def test_user_global_fallback(
-        self, mock_home: Path, mock_project_dir: Path, user_config_dir: Path
-    ) -> None:
+    def test_user_global_fallback(self, mock_home: Path, mock_project_dir: Path, user_config_dir: Path) -> None:
         """Should fall back to user-global when project-local missing."""
         # Create only user-global
         user_config = user_config_dir / "config.yaml"
@@ -402,9 +374,7 @@ class TestPrecedenceScenarios:
         result = find_config_file("config.yaml")
         assert result == user_config
 
-    def test_no_project_dir_uses_user_global(
-        self, mock_home: Path, user_config_dir: Path
-    ) -> None:
+    def test_no_project_dir_uses_user_global(self, mock_home: Path, user_config_dir: Path) -> None:
         """Should use user-global when MYCELIUM_PROJECT_DIR not set."""
         # Create user-global config
         user_config = user_config_dir / "config.yaml"
@@ -450,9 +420,7 @@ class TestEnvironmentVariableHandling:
 
         assert paths[0] == project_dir / "config.yaml"
 
-    def test_handles_missing_mycelium_project_dir(
-        self, mock_home: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_handles_missing_mycelium_project_dir(self, mock_home: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         """Should handle MYCELIUM_PROJECT_DIR not being set."""
         monkeypatch.delenv("MYCELIUM_PROJECT_DIR", raising=False)
 
@@ -478,9 +446,7 @@ class TestEnvironmentVariableHandling:
 class TestEdgeCases:
     """Tests for edge cases and error handling."""
 
-    def test_nonexistent_project_directory(
-        self, mock_home: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_nonexistent_project_directory(self, mock_home: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         """Should handle MYCELIUM_PROJECT_DIR pointing to nonexistent directory."""
         nonexistent = mock_home / "nonexistent" / ".mycelium"
         monkeypatch.setenv("MYCELIUM_PROJECT_DIR", str(nonexistent))
@@ -495,9 +461,7 @@ class TestEdgeCases:
         result = find_config_file("config.yaml")
         assert result is None
 
-    def test_symlink_handling(
-        self, mock_home: Path, mock_project_dir: Path, user_config_dir: Path
-    ) -> None:
+    def test_symlink_handling(self, mock_home: Path, mock_project_dir: Path, user_config_dir: Path) -> None:
         """Should handle symlinked configuration files."""
         # Create real file
         real_file = user_config_dir / "real_config.yaml"
@@ -587,9 +551,7 @@ class TestIntegration:
         first_existing = existing[0]
         assert first_existing == mock_project_dir / "config.yaml"
 
-    def test_config_migration_scenario(
-        self, mock_home: Path, mock_project_dir: Path, user_config_dir: Path
-    ) -> None:
+    def test_config_migration_scenario(self, mock_home: Path, mock_project_dir: Path, user_config_dir: Path) -> None:
         """Should support config migration from user-global to project-local."""
         # Start with user-global config
         user_config = user_config_dir / "config.yaml"
@@ -618,9 +580,7 @@ class TestIntegration:
 class TestLogging:
     """Tests for logging behavior."""
 
-    def test_logs_debug_info(
-        self, mock_home: Path, user_config_dir: Path, caplog: pytest.LogCaptureFixture
-    ) -> None:
+    def test_logs_debug_info(self, mock_home: Path, user_config_dir: Path, caplog: pytest.LogCaptureFixture) -> None:
         """Should log debug information when finding configs."""
         import logging
 
@@ -631,9 +591,7 @@ class TestLogging:
         # Should have debug logs
         assert any("Getting config path" in record.message for record in caplog.records)
 
-    def test_logs_config_found(
-        self, mock_home: Path, user_config_dir: Path, caplog: pytest.LogCaptureFixture
-    ) -> None:
+    def test_logs_config_found(self, mock_home: Path, user_config_dir: Path, caplog: pytest.LogCaptureFixture) -> None:
         """Should log when config file is found."""
         import logging
 

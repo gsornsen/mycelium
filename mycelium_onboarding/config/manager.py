@@ -209,9 +209,7 @@ class ConfigManager:
             logger.error("%s\n%s", msg, e)
             raise ConfigValidationError(f"{msg}\n{e}") from e
 
-    def load_and_migrate(
-        self, target_version: str | None = None, *, dry_run: bool = False
-    ) -> MyceliumConfig:
+    def load_and_migrate(self, target_version: str | None = None, *, dry_run: bool = False) -> MyceliumConfig:
         """Load configuration and migrate to target version if needed.
 
         This method loads the configuration and automatically migrates it
@@ -305,9 +303,7 @@ class ConfigManager:
 
             try:
                 # Perform migration
-                migrated_dict = registry.migrate(
-                    config_dict, target_version, dry_run=dry_run
-                )
+                migrated_dict = registry.migrate(config_dict, target_version, dry_run=dry_run)
 
                 # Save migrated config if not dry run
                 if not dry_run:
@@ -443,9 +439,7 @@ class ConfigManager:
         # Fallback to user-global config directory
         # Check if we're in a project context
         if "MYCELIUM_PROJECT_DIR" in os.environ:
-            project_path = (
-                Path(os.environ["MYCELIUM_PROJECT_DIR"]) / self.CONFIG_FILENAME
-            )
+            project_path = Path(os.environ["MYCELIUM_PROJECT_DIR"]) / self.CONFIG_FILENAME
             logger.debug("Using project-local path: %s", project_path)
             return project_path
 
@@ -640,9 +634,7 @@ class ConfigManager:
             logger.error("%s: %s", msg, e)
             raise ConfigValidationError(f"{msg}\n{e}") from e
 
-    def _deep_merge(
-        self, base: dict[str, Any], overlay: dict[str, Any]
-    ) -> dict[str, Any]:
+    def _deep_merge(self, base: dict[str, Any], overlay: dict[str, Any]) -> dict[str, Any]:
         """Deep merge two dictionaries.
 
         Args:
@@ -655,11 +647,7 @@ class ConfigManager:
         result = base.copy()
 
         for key, value in overlay.items():
-            if (
-                key in result
-                and isinstance(result[key], dict)
-                and isinstance(value, dict)
-            ):
+            if key in result and isinstance(result[key], dict) and isinstance(value, dict):
                 # Recursively merge nested dicts
                 result[key] = self._deep_merge(result[key], value)
             else:

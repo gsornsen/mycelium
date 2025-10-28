@@ -1,21 +1,22 @@
 # M03 Service Detection - Coordination Plan
 
-**Coordinator**: multi-agent-coordinator
-**Start Date**: 2025-10-13
-**Target Completion**: 3 days
-**Status**: INITIATED
+**Coordinator**: multi-agent-coordinator **Start Date**: 2025-10-13 **Target Completion**: 3 days **Status**: INITIATED
 
 ## Executive Summary
 
-M03 Service Detection implements intelligent infrastructure detection to enable adaptive onboarding. This milestone detects Docker, Redis, PostgreSQL, Temporal, and GPU availability, enabling the system to recommend optimal deployment strategies and avoid duplicate service deployments.
+M03 Service Detection implements intelligent infrastructure detection to enable adaptive onboarding. This milestone
+detects Docker, Redis, PostgreSQL, Temporal, and GPU availability, enabling the system to recommend optimal deployment
+strategies and avoid duplicate service deployments.
 
 ## Coordination Strategy
 
 ### Dependencies Validated
+
 - **M01 Environment Isolation**: ✓ Complete (xdg_dirs, env_validator, config_loader)
 - **M02 Configuration System**: ✓ Complete (schema, manager, migrations)
 
 ### Integration Points
+
 - Uses M01 `get_cache_dir()` for caching detection results
 - Uses M01 `validate_environment()` for runtime safety
 - Will provide detection results to M04 (Interactive Onboarding)
@@ -26,6 +27,7 @@ M03 Service Detection implements intelligent infrastructure detection to enable 
 ### Phase 1: Service Detection (Parallel Execution)
 
 #### Task 3.1: Docker Detection
+
 - **Agent**: devops-engineer
 - **Duration**: 6 hours
 - **Status**: READY
@@ -39,11 +41,12 @@ M03 Service Detection implements intelligent infrastructure detection to enable 
   - Gets Docker version correctly
   - Checks if Docker daemon is running
   - Detects Docker Compose (v1 and v2)
-  - Handles timeouts gracefully (<2s)
+  - Handles timeouts gracefully (\<2s)
   - Returns clear error messages
   - Works on Linux, macOS, Windows (WSL2)
 
 #### Task 3.2: Redis Detection
+
 - **Agent**: devops-engineer
 - **Duration**: 4 hours
 - **Status**: READY
@@ -56,12 +59,13 @@ M03 Service Detection implements intelligent infrastructure detection to enable 
   - Detects Redis on standard port (6379)
   - Supports custom host and port
   - Gets Redis version via INFO command
-  - Handles connection timeouts (<2s)
+  - Handles connection timeouts (\<2s)
   - Handles connection refused gracefully
   - Can scan multiple ports
   - No dependency on redis-py library
 
 #### Task 3.3: PostgreSQL & Temporal Detection
+
 - **Agent**: devops-engineer
 - **Duration**: 6 hours
 - **Status**: READY
@@ -76,10 +80,11 @@ M03 Service Detection implements intelligent infrastructure detection to enable 
   - PostgreSQL detection via socket connection
   - Temporal frontend (gRPC) and UI (HTTP) detection
   - Version detection where possible
-  - Timeout handling (<2s per service)
+  - Timeout handling (\<2s per service)
   - Clear error messages
 
 #### Task 3.4: GPU Detection
+
 - **Agent**: platform-engineer
 - **Duration**: 6 hours
 - **Status**: READY
@@ -94,11 +99,12 @@ M03 Service Detection implements intelligent infrastructure detection to enable 
   - Counts multiple GPUs
   - Gets driver and CUDA/ROCm versions
   - Handles missing drivers gracefully
-  - Fast detection (<2s)
+  - Fast detection (\<2s)
 
 ### Phase 2: Orchestration & Integration
 
 #### Task 3.5: Detection Orchestrator & Caching
+
 - **Agent**: python-pro
 - **Duration**: 6 hours
 - **Status**: BLOCKED (awaiting Phase 1)
@@ -109,7 +115,7 @@ M03 Service Detection implements intelligent infrastructure detection to enable 
   - `mycelium_onboarding/cli/detect_commands.py`
   - `tests/test_detection_orchestrator.py`
 - **Acceptance Criteria**:
-  - Runs all detections in parallel (<5s total)
+  - Runs all detections in parallel (\<5s total)
   - Caches results to avoid repeated detection
   - Respects cache TTL (default 5 minutes)
   - CLI command outputs text and JSON formats
@@ -121,18 +127,21 @@ M03 Service Detection implements intelligent infrastructure detection to enable 
 ### Parallel Execution Strategy
 
 **Group A: Service Detection (Tasks 3.1, 3.2, 3.3)**
+
 - All tasks can execute in parallel
 - Independent implementations following established patterns
 - Agent: devops-engineer handles all three
 - Expected completion: 6 hours (longest task is 3.3)
 
 **Group B: GPU Detection (Task 3.4)**
+
 - Independent from Group A
 - Can execute in parallel
 - Agent: platform-engineer
 - Expected completion: 6 hours
 
 **Sequential: Orchestration (Task 3.5)**
+
 - Depends on completion of all Phase 1 tasks
 - Agent: python-pro
 - Expected completion: 6 hours after Phase 1
@@ -140,6 +149,7 @@ M03 Service Detection implements intelligent infrastructure detection to enable 
 ### Inter-Agent Communication
 
 **Message Protocol**:
+
 ```json
 {
   "type": "task_status",
@@ -153,19 +163,22 @@ M03 Service Detection implements intelligent infrastructure detection to enable 
 ```
 
 **Synchronization Points**:
+
 1. **Phase 1 Completion Gate**: All Phase 1 tasks must complete before Phase 2
-2. **Test Coverage Gate**: Each task must achieve ≥85% coverage before completion
-3. **Quality Gate**: Zero linting issues, 100% type safety
+1. **Test Coverage Gate**: Each task must achieve ≥85% coverage before completion
+1. **Quality Gate**: Zero linting issues, 100% type safety
 
 ### Progress Tracking
 
 **Metrics Collection**:
+
 - Task completion percentage
 - Test coverage per module
 - Code quality metrics (mypy, ruff)
 - Performance benchmarks (detection speed)
 
 **Status Updates**:
+
 - Agents report status every 2 hours
 - Coordinator checks progress every hour
 - Blockers escalated immediately
@@ -173,18 +186,21 @@ M03 Service Detection implements intelligent infrastructure detection to enable 
 ## Quality Standards
 
 ### Code Quality
+
 - **Test Coverage**: ≥85% per module
 - **Type Safety**: 100% (mypy --strict)
 - **Linting**: 0 issues (ruff check)
-- **Performance**: <5s total detection time
+- **Performance**: \<5s total detection time
 
 ### Testing Requirements
+
 - **Unit Tests**: Each detector module
 - **Integration Tests**: Orchestrator with all detectors
 - **Mock Tests**: Simulate service availability/unavailability
 - **Platform Tests**: Linux primary, macOS/WSL2 compatibility
 
 ### Documentation Requirements
+
 - **API Documentation**: All public functions documented
 - **Usage Examples**: CLI commands with examples
 - **Troubleshooting Guide**: Common detection failures
@@ -193,24 +209,28 @@ M03 Service Detection implements intelligent infrastructure detection to enable 
 ## Risk Management
 
 ### High Risk: Docker Daemon Not Running
+
 - **Impact**: Most common failure case, blocks containerized deployment
 - **Detection**: Task 3.1 must clearly identify running vs installed
 - **Mitigation**: Clear error message with instructions to start Docker
 - **Contingency**: Offer Justfile deployment as fallback
 
 ### Medium Risk: Firewall Blocking Service Connections
+
 - **Impact**: Services may appear unavailable when just firewalled
 - **Detection**: Socket connection failures
 - **Mitigation**: Document common firewall issues
 - **Contingency**: Allow manual override in wizard (M04)
 
 ### Medium Risk: GPU Detection Inconsistency
+
 - **Impact**: GPU present but drivers not installed
 - **Detection**: nvidia-smi/rocm-smi not found
 - **Mitigation**: Document GPU detection requirements
 - **Contingency**: GPU is optional, gracefully handle absence
 
 ### Low Risk: Cache Corruption
+
 - **Impact**: Cached JSON becomes corrupted
 - **Detection**: JSON parse errors in orchestrator
 - **Mitigation**: Validate cache on load, discard if invalid
@@ -219,6 +239,7 @@ M03 Service Detection implements intelligent infrastructure detection to enable 
 ## Acceptance Criteria (Exit Gate)
 
 ### Service Detection
+
 - [ ] Docker detection working (CLI, version, Compose)
 - [ ] Redis detection working (socket connection, version)
 - [ ] PostgreSQL detection working
@@ -226,26 +247,31 @@ M03 Service Detection implements intelligent infrastructure detection to enable 
 - [ ] GPU detection working (NVIDIA + AMD)
 
 ### Detection Orchestrator
-- [ ] Parallel execution (<5s total)
+
+- [ ] Parallel execution (\<5s total)
 - [ ] Caching implemented with configurable TTL
 - [ ] Cache invalidation working
 
 ### CLI Integration
+
 - [ ] `mycelium detect` command working
 - [ ] Text and JSON output formats
 - [ ] --no-cache flag working
 
 ### Testing
+
 - [ ] Unit tests for each detector (≥85% coverage)
 - [ ] Integration tests with mock services
 - [ ] Platform compatibility tests (Linux primarily)
 
 ### Documentation
+
 - [ ] Detection logic documented
 - [ ] Cache behavior explained
 - [ ] Troubleshooting guide for detection failures
 
 ### Quality Gates
+
 - [ ] All tests passing: `uv run pytest tests/ --cov=mycelium_onboarding`
 - [ ] Type checking passing: `uv run mypy mycelium_onboarding --strict`
 - [ ] Linting passing: `uv run ruff check mycelium_onboarding`
@@ -418,6 +444,7 @@ Run tests with: uv run pytest tests/test_detection_orchestrator.py -v --cov
 ## Execution Timeline
 
 ### Day 1: Phase 1 Parallel Execution (6 hours)
+
 - **Hour 0-6**: Launch all Phase 1 agents in parallel
   - devops-engineer: Tasks 3.1, 3.2, 3.3
   - platform-engineer: Task 3.4
@@ -427,6 +454,7 @@ Run tests with: uv run pytest tests/test_detection_orchestrator.py -v --cov
   - Check quality gates
 
 ### Day 2: Phase 2 Orchestration (6 hours)
+
 - **Hour 0-6**: python-pro implements orchestrator (Task 3.5)
   - Parallel execution framework
   - Caching mechanism
@@ -437,6 +465,7 @@ Run tests with: uv run pytest tests/test_detection_orchestrator.py -v --cov
   - Performance benchmarks
 
 ### Day 3: Integration & Documentation (6 hours)
+
 - **Hour 0-3**: Integration testing
   - Cross-platform validation
   - Performance optimization
@@ -450,18 +479,21 @@ Run tests with: uv run pytest tests/test_detection_orchestrator.py -v --cov
 ## Success Metrics
 
 ### Performance Metrics
-- Total detection time: <5s
-- Individual detector timeout: <2s
+
+- Total detection time: \<5s
+- Individual detector timeout: \<2s
 - Cache hit rate: >80% in typical usage
-- Memory usage: <50MB during detection
+- Memory usage: \<50MB during detection
 
 ### Quality Metrics
+
 - Test coverage: ≥85% per module
 - Type safety: 100% (mypy --strict)
 - Linting: 0 issues (ruff)
-- Code complexity: <10 per function
+- Code complexity: \<10 per function
 
 ### Functional Metrics
+
 - Docker detection accuracy: 100%
 - Service reachability detection: 100%
 - GPU detection accuracy: 100% (when present)
@@ -470,13 +502,16 @@ Run tests with: uv run pytest tests/test_detection_orchestrator.py -v --cov
 ## Handoff to Next Milestones
 
 ### M04: Interactive Onboarding
+
 **Integration Points**:
+
 - Import: `from mycelium_onboarding.detection.orchestrator import detect_all_services`
 - Usage: Pre-fill wizard defaults with detected services
 - Logic: Enable/disable service options based on detection
 - Error handling: Show detection errors, allow manual override
 
 **Example Integration**:
+
 ```python
 # In M04 wizard
 results = asyncio.run(detect_all_services())
@@ -487,13 +522,16 @@ else:
 ```
 
 ### M05: Deployment Generation
+
 **Integration Points**:
+
 - Import: `from mycelium_onboarding.detection.orchestrator import detect_all_services`
 - Usage: Decide what services to deploy based on detection
 - Logic: Skip deploying already-running services
 - Port selection: Use detected ports to avoid conflicts
 
 **Example Integration**:
+
 ```python
 # In M05 deployment generator
 results = asyncio.run(detect_all_services())
@@ -507,6 +545,7 @@ if results.redis.available and results.redis.reachable:
 ## Monitoring & Status
 
 ### Real-Time Coordination Tracking
+
 Stored in: `~/.local/state/mycelium/coordination/M03_status.json`
 
 ```json
@@ -540,6 +579,7 @@ Stored in: `~/.local/state/mycelium/coordination/M03_status.json`
 ```
 
 ### Escalation Criteria
+
 - Any task blocked for >2 hours
 - Test coverage falls below 85%
 - Type safety issues detected
@@ -549,6 +589,7 @@ Stored in: `~/.local/state/mycelium/coordination/M03_status.json`
 ## Final Deliverables Checklist
 
 ### Code Modules
+
 - [ ] mycelium_onboarding/detection/__init__.py
 - [ ] mycelium_onboarding/detection/docker.py
 - [ ] mycelium_onboarding/detection/redis.py
@@ -559,6 +600,7 @@ Stored in: `~/.local/state/mycelium/coordination/M03_status.json`
 - [ ] mycelium_onboarding/cli/detect_commands.py
 
 ### Tests
+
 - [ ] tests/test_docker_detection.py
 - [ ] tests/test_redis_detection.py
 - [ ] tests/test_postgres_detection.py
@@ -568,12 +610,14 @@ Stored in: `~/.local/state/mycelium/coordination/M03_status.json`
 - [ ] tests/integration/test_detection_flow.py
 
 ### Documentation
+
 - [ ] docs/service-detection.md
 - [ ] docs/troubleshooting-detection.md
 - [ ] API documentation in docstrings
 - [ ] CLI help text
 
 ### Validation
+
 - [ ] All tests passing
 - [ ] Coverage ≥85%
 - [ ] Type checking passing
@@ -581,10 +625,8 @@ Stored in: `~/.local/state/mycelium/coordination/M03_status.json`
 - [ ] Cross-platform tested
 - [ ] Performance benchmarks met
 
----
+______________________________________________________________________
 
-**Coordination Status**: ACTIVE
-**Next Review**: 2 hours from start
-**Escalation Contact**: multi-agent-coordinator
+**Coordination Status**: ACTIVE **Next Review**: 2 hours from start **Escalation Contact**: multi-agent-coordinator
 
 This coordination plan will be updated in real-time as tasks progress.

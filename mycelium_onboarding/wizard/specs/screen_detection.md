@@ -1,11 +1,13 @@
 # Detection Screen Specification
 
 ## Purpose
+
 Run service detection, display results, and allow user to re-run detection if needed.
 
 ## Layout
 
 ### During Detection
+
 ```
 ╔══════════════════════════════════════════════════════════════╗
 ║                  Detecting Services...                       ║
@@ -23,6 +25,7 @@ Run service detection, display results, and allow user to re-run detection if ne
 ```
 
 ### After Detection
+
 ```
 ╔══════════════════════════════════════════════════════════════╗
 ║                  Detection Complete                          ║
@@ -47,6 +50,7 @@ Run service detection, display results, and allow user to re-run detection if ne
 ## User Inputs
 
 ### Action Selection
+
 - **Field**: `action`
 - **Type**: Single selection (radio)
 - **Options**:
@@ -61,14 +65,15 @@ Run service detection, display results, and allow user to re-run detection if ne
 The detection screen performs the following steps:
 
 1. **Initialize**: Display "Detecting Services..." header
-2. **Run Detection**: Call `detect_all()` from M03 orchestrator
-3. **Show Progress**: Display live progress as services are detected
-4. **Display Results**: Show formatted results with icons
-5. **Offer Actions**: Allow continue, re-run, or go back
+1. **Run Detection**: Call `detect_all()` from M03 orchestrator
+1. **Show Progress**: Display live progress as services are detected
+1. **Display Results**: Show formatted results with icons
+1. **Offer Actions**: Allow continue, re-run, or go back
 
 ## State Updates
 
 On completion of this screen, update `WizardState`:
+
 - `detection_results`: Store full DetectionSummary as dict
 - `services_enabled`: Pre-populate based on detection:
   - `redis`: True if detected, False otherwise
@@ -86,6 +91,7 @@ No user input validation required (selection-based interface).
 ## Help Text
 
 ### Detection Help
+
 ```
 Service detection scans your system for:
 • Docker daemon and version
@@ -100,6 +106,7 @@ Detection is non-invasive and takes 2-5 seconds.
 ## Error Messages
 
 ### Detection Failed
+
 ```
 ⚠️  Detection encountered errors:
 
@@ -116,20 +123,24 @@ You can:
 ## Display Formatting
 
 ### Service Status Icons
+
 - `✓`: Service detected and available
 - `✗`: Service not detected
 - `⚠️`: Service detected but has issues
 - `⏳`: Detection in progress
 
 ### Version Display
+
 - Show version if detected: `(v7.2)`
 - Show "unknown" if available but version not detected: `(version unknown)`
 
 ### Port Display
+
 - Show port if detected: `(port 6379)`
 - Show multiple ports if multiple instances: `(ports 6379, 6380)`
 
 ### GPU Display
+
 - Show vendor and model: `(NVIDIA RTX 3090)`
 - Show memory if detected: `(NVIDIA RTX 3090, 24GB)`
 - Show count if multiple: `(2x NVIDIA RTX 3090, 24GB each)`
@@ -314,7 +325,7 @@ def detection_screen(state: WizardState) -> str:
 
 ## Performance Considerations
 
-- Detection must complete in < 5 seconds
+- Detection must complete in \< 5 seconds
 - Individual detector timeouts prevent hanging
 - Parallel detection for speed
 - Graceful handling of network timeouts
@@ -324,7 +335,7 @@ def detection_screen(state: WizardState) -> str:
 This screen provides visibility into the detection process:
 
 1. **Transparency**: Shows what's being detected in real-time
-2. **Confidence**: Clear results build trust in the system
-3. **Flexibility**: Allows re-running if issues occur
-4. **Smart Defaults**: Pre-populates settings from detection
-5. **Recovery**: Offers path back if user wants to change mode
+1. **Confidence**: Clear results build trust in the system
+1. **Flexibility**: Allows re-running if issues occur
+1. **Smart Defaults**: Pre-populates settings from detection
+1. **Recovery**: Offers path back if user wants to change mode

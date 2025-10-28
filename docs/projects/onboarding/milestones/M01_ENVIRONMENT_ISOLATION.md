@@ -2,37 +2,39 @@
 
 ## Overview
 
-**Duration**: 3 days
-**Dependencies**: None (project start)
-**Blocks**: M02, M03, M04
-**Lead Agent**: platform-engineer
+**Duration**: 3 days **Dependencies**: None (project start) **Blocks**: M02, M03, M04 **Lead Agent**: platform-engineer
 **Support Agents**: devops-engineer, python-pro
 
 ## Why This Milestone
 
 Environment isolation is the foundation of the entire onboarding system. Without proper isolation:
+
 - User system environment contamination
 - Conflicts with existing Python installations
 - Unreproducible bugs across different machines
 - Difficulty tracking configuration state
 
-This milestone establishes XDG-compliant directory structure, automated environment activation, and runtime validation that ensures the Mycelium system operates in a clean, predictable environment.
+This milestone establishes XDG-compliant directory structure, automated environment activation, and runtime validation
+that ensures the Mycelium system operates in a clean, predictable environment.
 
 ## Requirements
 
 ### Functional Requirements (FR)
 
 **FR-1**: Isolate Mycelium project from system Python environment
+
 - Must use project-specific virtual environment
 - Must not pollute user's PATH or environment variables
 - Must support concurrent projects without conflicts
 
 **FR-2**: Support project-local and user-global configuration
+
 - Project-local: `.mycelium/` directory in project root
 - User-global: XDG directories (~/.config, ~/.local/share, etc.)
 - Precedence: project-local → user-global → defaults
 
 **FR-3**: Provide automatic environment activation
+
 - direnv integration for automatic activation on directory enter
 - Manual activation scripts for users without direnv
 - Clear indication when environment is active (shell prompt)
@@ -40,6 +42,7 @@ This milestone establishes XDG-compliant directory structure, automated environm
 ### Technical Requirements (TR)
 
 **TR-1**: Follow XDG Base Directory Specification
+
 - Config: `~/.config/mycelium/`
 - Data: `~/.local/share/mycelium/`
 - Cache: `~/.cache/mycelium/`
@@ -47,11 +50,13 @@ This milestone establishes XDG-compliant directory structure, automated environm
 - Project: `.mycelium/` in project root
 
 **TR-2**: Support Linux, macOS, Windows (WSL2)
+
 - Use pathlib for cross-platform path handling
 - Respect platform-specific defaults
 - Test on all three platforms
 
 **TR-3**: Multi-layer environment validation
+
 - Layer 1: Shell activation (sets environment variables)
 - Layer 2: Runtime validation (Python checks at import)
 - Layer 3: Wrapper scripts (fail fast if not activated)
@@ -59,33 +64,33 @@ This milestone establishes XDG-compliant directory structure, automated environm
 ### Integration Requirements (IR)
 
 **IR-1**: Integration with uv package manager
+
 - Virtual environment managed by uv
 - Dependencies isolated per project
 - Consistent package versions
 
 **IR-2**: Integration with future slash commands
+
 - Environment active indicator in command output
 - Configuration path resolution
 - Proper error messages if run outside environment
 
 ### Constraints (CR)
 
-**CR-1**: No modifications to user's global Python installation
-**CR-2**: No modifications to user's shell rc files without permission
-**CR-3**: Must work without sudo/admin privileges
-**CR-4**: Minimal external dependencies (direnv optional)
+**CR-1**: No modifications to user's global Python installation **CR-2**: No modifications to user's shell rc files
+without permission **CR-3**: Must work without sudo/admin privileges **CR-4**: Minimal external dependencies (direnv
+optional)
 
 ## Tasks
 
 ### Task 1.1: Design Environment Isolation Strategy
 
-**Agent**: platform-engineer
-**Effort**: 4 hours
-**Dependencies**: None
+**Agent**: platform-engineer **Effort**: 4 hours **Dependencies**: None
 
 **Description**: Design comprehensive isolation strategy covering all layers (shell, runtime, wrapper scripts).
 
 **Acceptance Criteria**:
+
 - [ ] Document defines all environment variables to be set
 - [ ] Document specifies XDG directory usage
 - [ ] Document outlines activation/deactivation flow
@@ -93,17 +98,16 @@ This milestone establishes XDG-compliant directory structure, automated environm
 - [ ] Reviewed by devops-engineer and python-pro
 
 **Deliverables**:
+
 - Design document: `docs/design/environment-isolation-strategy.md`
 - Environment variable specification
 - Activation flow diagram
 
----
+______________________________________________________________________
 
 ### Task 1.2: Implement XDG Directory Structure
 
-**Agent**: python-pro
-**Effort**: 6 hours
-**Dependencies**: Task 1.1
+**Agent**: python-pro **Effort**: 6 hours **Dependencies**: Task 1.1
 
 **Description**: Create Python module for XDG-compliant directory management.
 
@@ -261,6 +265,7 @@ def test_ensure_all_dirs(tmp_path, monkeypatch):
 ```
 
 **Acceptance Criteria**:
+
 - [ ] All XDG functions implemented with type hints
 - [ ] Creates directories if they don't exist
 - [ ] Respects XDG environment variables
@@ -269,16 +274,15 @@ def test_ensure_all_dirs(tmp_path, monkeypatch):
 - [ ] Works on Linux, macOS, Windows (WSL2)
 
 **Deliverables**:
+
 - `mycelium_onboarding/xdg_dirs.py`
 - `tests/test_xdg_dirs.py`
 
----
+______________________________________________________________________
 
 ### Task 1.3: Create direnv Integration
 
-**Agent**: platform-engineer
-**Effort**: 8 hours
-**Dependencies**: Task 1.2
+**Agent**: platform-engineer **Effort**: 8 hours **Dependencies**: Task 1.2
 
 **Description**: Create .envrc template and setup script for automatic environment activation.
 
@@ -377,6 +381,7 @@ def get_shell_hook_instructions() -> str:
 ```
 
 **Acceptance Criteria**:
+
 - [ ] .envrc.template covers all environment variables
 - [ ] Activates uv virtual environment if present
 - [ ] Adds project bin/ to PATH
@@ -386,17 +391,16 @@ def get_shell_hook_instructions() -> str:
 - [ ] Works with bash, zsh, fish shells
 
 **Deliverables**:
+
 - `.envrc.template`
 - `mycelium_onboarding/setup_direnv.py`
 - `mycelium_onboarding/templates/.envrc.template`
 
----
+______________________________________________________________________
 
 ### Task 1.4: Shell Activation Scripts
 
-**Agent**: devops-engineer
-**Effort**: 6 hours
-**Dependencies**: Task 1.2
+**Agent**: devops-engineer **Effort**: 6 hours **Dependencies**: Task 1.2
 
 **Description**: Create manual activation/deactivation scripts for users without direnv.
 
@@ -489,6 +493,7 @@ exec python -m mycelium_onboarding "$@"
 ```
 
 **Acceptance Criteria**:
+
 - [ ] activate.sh sets all required environment variables
 - [ ] Modifies shell prompt to indicate activation
 - [ ] Provides deactivate function
@@ -497,17 +502,16 @@ exec python -m mycelium_onboarding "$@"
 - [ ] Works in bash, zsh, fish
 
 **Deliverables**:
+
 - `bin/activate.sh`
 - `bin/mycelium` (wrapper script)
 - `docs/manual-activation.md` (usage guide)
 
----
+______________________________________________________________________
 
 ### Task 1.5: Runtime Environment Validation
 
-**Agent**: python-pro
-**Effort**: 6 hours
-**Dependencies**: Task 1.2, Task 1.4
+**Agent**: python-pro **Effort**: 6 hours **Dependencies**: Task 1.2, Task 1.4
 
 **Description**: Implement Python module that validates environment at runtime.
 
@@ -645,6 +649,7 @@ def status():
 ```
 
 **Acceptance Criteria**:
+
 - [ ] validate_environment() raises clear errors
 - [ ] Distinguishes between missing vars and missing dirs
 - [ ] Provides actionable fix instructions
@@ -653,16 +658,15 @@ def status():
 - [ ] Integrated into CLI entry point
 
 **Deliverables**:
+
 - `mycelium_onboarding/env_validator.py`
 - `tests/test_env_validator.py`
 
----
+______________________________________________________________________
 
 ### Task 1.6: Project-Local Config Support
 
-**Agent**: platform-engineer
-**Effort**: 4 hours
-**Dependencies**: Task 1.2
+**Agent**: platform-engineer **Effort**: 4 hours **Dependencies**: Task 1.2
 
 **Description**: Implement hierarchical configuration loading (project-local → user-global → defaults).
 
@@ -772,6 +776,7 @@ def load_config():
 ```
 
 **Acceptance Criteria**:
+
 - [ ] get_config_path() follows precedence order
 - [ ] Respects MYCELIUM_PROJECT_DIR if set
 - [ ] Falls back to user-global XDG config
@@ -780,17 +785,16 @@ def load_config():
 - [ ] Well-documented with examples
 
 **Deliverables**:
+
 - `mycelium_onboarding/config_loader.py`
 - `tests/test_config_loader.py`
 - Usage examples in docstrings
 
----
+______________________________________________________________________
 
 ### Task 1.7: Integration Testing & Documentation
 
-**Agent**: platform-engineer (lead), test-automator (support)
-**Effort**: 6 hours
-**Dependencies**: Tasks 1.1-1.6
+**Agent**: platform-engineer (lead), test-automator (support) **Effort**: 6 hours **Dependencies**: Tasks 1.1-1.6
 
 **Description**: Create integration tests validating entire activation flow and write user documentation.
 
@@ -948,6 +952,7 @@ source bin/activate.sh
 ````
 
 **Acceptance Criteria**:
+
 - [ ] Integration tests cover full activation flow
 - [ ] Tests verify environment variables set correctly
 - [ ] Tests verify runtime validation works
@@ -955,41 +960,48 @@ source bin/activate.sh
 - [ ] Troubleshooting guide addresses common issues
 
 **Deliverables**:
+
 - `tests/integration/test_environment_activation.py`
 - `docs/environment-activation.md`
 - `docs/troubleshooting-environment.md`
 
----
+______________________________________________________________________
 
 ## Exit Criteria
 
 - [ ] **Environment Isolation**
+
   - [ ] XDG directory structure implemented and tested
   - [ ] All XDG functions respect environment variables
   - [ ] Project-local .mycelium/ directory supported
 
 - [ ] **Activation Methods**
+
   - [ ] direnv integration working (.envrc.template)
   - [ ] Manual activation script working (bin/activate.sh)
   - [ ] Deactivation restores original environment
   - [ ] Shell prompt modified to show active state
 
 - [ ] **Runtime Validation**
+
   - [ ] validate_environment() prevents running without activation
   - [ ] Clear error messages with fix instructions
   - [ ] is_environment_active() quick check implemented
 
 - [ ] **Configuration Hierarchy**
+
   - [ ] Project-local → user-global → defaults precedence
   - [ ] get_config_path() follows correct order
   - [ ] find_config_file() returns first existing file
 
 - [ ] **Testing**
+
   - [ ] All unit tests passing (≥80% coverage)
   - [ ] Integration tests validate full activation flow
   - [ ] Tested on Linux, macOS, Windows (WSL2)
 
 - [ ] **Documentation**
+
   - [ ] Environment activation guide complete
   - [ ] Troubleshooting guide addresses common issues
   - [ ] Code well-commented with examples
@@ -1042,6 +1054,7 @@ uv run pytest tests/integration/ -v
 ### Platform Testing
 
 Test matrix:
+
 - Ubuntu 22.04 (Linux)
 - macOS 13+ (Darwin)
 - Windows 11 WSL2 (Linux kernel)
@@ -1062,26 +1075,31 @@ Test matrix:
 ### High Risk
 
 **Platform-specific path issues**: Windows path handling different from Unix
+
 - **Mitigation**: Use pathlib exclusively, extensive WSL2 testing
 - **Contingency**: Platform-specific implementations if needed
 
 **direnv not installed**: Users may not have direnv
+
 - **Mitigation**: Manual activation as fully-supported alternative
 - **Contingency**: None needed (manual activation is primary fallback)
 
 ### Medium Risk
 
 **Shell compatibility**: Different shells (bash, zsh, fish) handle scripts differently
+
 - **Mitigation**: Test on all three shells
 - **Contingency**: Shell-specific activation scripts if needed
 
 **Nested activation**: User activates multiple environments
+
 - **Mitigation**: Check for existing activation, warn user
 - **Contingency**: Support nested activation with counter
 
 ### Low Risk
 
-**XDG env vars not set**: Most users don't set XDG_* variables
+**XDG env vars not set**: Most users don't set XDG\_\* variables
+
 - **Mitigation**: Sensible defaults (~/.config, ~/.local/share)
 - **Contingency**: None needed (defaults are primary behavior)
 
@@ -1090,11 +1108,13 @@ Test matrix:
 ### M02: Configuration System
 
 **Depends on**:
+
 - XDG directory functions (`xdg_dirs.py`)
 - Config path resolution (`config_loader.py`)
 - Environment validation
 
 **Will use**:
+
 - `get_config_dir()` for storing config.yaml
 - `get_config_path()` for loading configuration
 - `validate_environment()` before any config operations
@@ -1102,24 +1122,26 @@ Test matrix:
 ### M03: Service Detection
 
 **Depends on**:
+
 - Environment validation to ensure clean execution context
 - XDG cache directory for caching detection results
 
 **Will use**:
+
 - `get_cache_dir()` for storing detection cache
 - `validate_environment()` before running detection
 
 ### M04: Interactive Onboarding
 
 **Depends on**:
+
 - All environment isolation features to ensure wizard runs in correct context
 
 **Will use**:
+
 - Environment validation before wizard starts
 - Config path resolution for saving user selections
 
----
+______________________________________________________________________
 
-**Milestone Version**: 1.0
-**Last Updated**: 2025-10-13
-**Status**: Ready for Implementation
+**Milestone Version**: 1.0 **Last Updated**: 2025-10-13 **Status**: Ready for Implementation

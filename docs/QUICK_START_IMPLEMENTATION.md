@@ -5,14 +5,15 @@
 Transform Mycelium into a dual-purpose repository (plugin + marketplace) in ~30 minutes of focused work.
 
 **What you'll do:**
+
 1. Create marketplace metadata (5 min)
-2. Restructure as plugin (10 min)
-3. Update README (10 min)
-4. Test (5 min)
+1. Restructure as plugin (10 min)
+1. Update README (10 min)
+1. Test (5 min)
 
 **Result:** Mycelium works as both a marketplace and a plugin.
 
----
+______________________________________________________________________
 
 ## Prerequisites
 
@@ -21,7 +22,7 @@ cd /home/gerald/git/mycelium
 git checkout -b feature/dual-purpose-structure
 ```
 
----
+______________________________________________________________________
 
 ## Step 1: Create Marketplace Structure (5 minutes)
 
@@ -88,7 +89,7 @@ EOF
 sed -i 's/your-email@example.com/your.actual@email.com/g' .claude-plugin/marketplace.json
 ```
 
----
+______________________________________________________________________
 
 ## Step 2: Restructure as Plugin (10 minutes)
 
@@ -153,7 +154,7 @@ jq empty .claude-plugin/marketplace.json && echo "✅ marketplace.json valid"
 jq empty plugins/mycelium-core/.claude-plugin/plugin.json && echo "✅ plugin.json valid"
 ```
 
----
+______________________________________________________________________
 
 ## Step 3: Update Documentation (10 minutes)
 
@@ -161,7 +162,7 @@ jq empty plugins/mycelium-core/.claude-plugin/plugin.json && echo "✅ plugin.js
 
 Add this after line 7 (after the badges):
 
-```markdown
+````markdown
 ## Dual-Purpose Repository
 
 This repository serves two purposes:
@@ -178,7 +179,7 @@ This repository serves two purposes:
 # Browse and install
 /plugin
 /plugin install mycelium-core@mycelium
-```
+````
 
 ### Installation: Core Plugin Only
 
@@ -190,7 +191,8 @@ claude plugin install git+https://github.com/gsornsen/mycelium.git#plugins/mycel
 git clone https://github.com/gsornsen/mycelium.git
 ln -s /path/to/mycelium/plugins/mycelium-core ~/.claude/plugins/mycelium-core
 ```
-```
+
+````
 
 ### 3.2 Update Installation section (around line 323)
 
@@ -210,7 +212,7 @@ Replace the current "Installation" section with:
 
 # Verify
 /infra-check
-```
+````
 
 ### Option 2: Direct Git Install
 
@@ -233,7 +235,8 @@ ln -s $(pwd)/plugins/mycelium-core ~/.claude/plugins/mycelium-core
 # Test
 /infra-check
 ```
-```
+
+````
 
 ---
 
@@ -253,7 +256,7 @@ test -d plugins/mycelium-core/agents && echo "✅ Agents moved"
 test -d plugins/mycelium-core/commands && echo "✅ Commands moved"
 test -d plugins/mycelium-core/hooks && echo "✅ Hooks moved"
 test -d plugins/mycelium-core/lib && echo "✅ Lib moved"
-```
+````
 
 ### 4.2 Test installation
 
@@ -268,7 +271,7 @@ ls -la ~/.claude/plugins/mycelium-core-test
 rm ~/.claude/plugins/mycelium-core-test
 ```
 
----
+______________________________________________________________________
 
 ## Step 5: Commit (5 minutes)
 
@@ -296,23 +299,21 @@ This enables:
 git push -u origin feature/dual-purpose-structure
 ```
 
----
+______________________________________________________________________
 
 ## Done! What You've Accomplished
 
-✅ Created marketplace structure
-✅ Moved core into plugin format
-✅ Updated documentation
-✅ Validated structure
-✅ Committed changes
+✅ Created marketplace structure ✅ Moved core into plugin format ✅ Updated documentation ✅ Validated structure ✅
+Committed changes
 
 **Your repository now:**
+
 - Works as a plugin marketplace
 - Contains the core plugin
 - Supports multiple installation methods
 - Ready for community contributions
 
----
+______________________________________________________________________
 
 ## Next Steps (Optional)
 
@@ -334,7 +335,7 @@ git commit -m "Add compatibility symlinks for transition period"
 
 ### Create MARKETPLACE_README.md:
 
-```bash
+````bash
 cat > MARKETPLACE_README.md << 'EOF'
 # Mycelium Plugin Marketplace
 
@@ -366,21 +367,20 @@ import { CoordinationClient } from 'mycelium-core/lib/coordination.js';
 const client = new CoordinationClient();
 await client.initialize();
 await client.publishEvent('my-plugin:events', { event: 'completed' });
-```
+````
 
 ## Questions?
 
 - Issues: https://github.com/gsornsen/mycelium/issues
 - Discussions: https://github.com/gsornsen/mycelium/discussions
 
----
+______________________________________________________________________
 
-**Grow the mycelial network** 🍄
-EOF
+**Grow the mycelial network** 🍄 EOF
 
-git add MARKETPLACE_README.md
-git commit -m "docs: add marketplace-specific README"
-```
+git add MARKETPLACE_README.md git commit -m "docs: add marketplace-specific README"
+
+````
 
 ### Create marketplace documentation:
 
@@ -409,14 +409,11 @@ cat > docs/marketplace/SUBMISSION_GUIDE.md << 'EOF'
 
 ## Plugin Structure
 
-```
-plugins/your-plugin-name/
-├── .claude-plugin/
-│   └── plugin.json
-├── agents/ (optional)
-├── commands/ (optional)
-├── hooks/ (optional)
-└── README.md (required)
+````
+
+plugins/your-plugin-name/ ├── .claude-plugin/ │ └── plugin.json ├── agents/ (optional) ├── commands/ (optional) ├──
+hooks/ (optional) └── README.md (required)
+
 ```
 
 ## Review Process
@@ -435,7 +432,7 @@ git add docs/marketplace/
 git commit -m "docs: add plugin submission guide"
 ```
 
----
+______________________________________________________________________
 
 ## Testing Your Changes
 
@@ -466,7 +463,7 @@ ln -s /home/gerald/git/mycelium/plugins/mycelium-core ~/.claude/plugins/mycelium
 /team-status
 ```
 
----
+______________________________________________________________________
 
 ## Rollback (if needed)
 
@@ -485,7 +482,7 @@ mv plugins/mycelium-core/lib/ lib/
 rm -rf .claude-plugin plugins/
 ```
 
----
+______________________________________________________________________
 
 ## Troubleshooting
 
@@ -522,11 +519,12 @@ rm ~/.claude/plugins/mycelium-core
 ln -s /home/gerald/git/mycelium/plugins/mycelium-core ~/.claude/plugins/mycelium-core
 ```
 
----
+______________________________________________________________________
 
 ## What's Different?
 
 ### Before (Single-Purpose)
+
 ```
 mycelium/
 ├── agents/
@@ -538,6 +536,7 @@ mycelium/
 One installation method: Clone or symlink to `~/.claude/plugins/mycelium`
 
 ### After (Dual-Purpose)
+
 ```
 mycelium/
 ├── .claude-plugin/marketplace.json
@@ -550,27 +549,26 @@ mycelium/
 ```
 
 Three installation methods:
+
 1. Via marketplace
-2. Direct git install
-3. Development symlink
+1. Direct git install
+1. Development symlink
 
 Same functionality, more flexibility!
 
----
+______________________________________________________________________
 
 ## Summary
 
 You've successfully transformed Mycelium into a dual-purpose repository in ~30 minutes:
 
-✅ **Marketplace functionality** - Can be added as a Claude Code marketplace
-✅ **Plugin structure** - Core functionality packaged as a plugin
-✅ **Multiple installation methods** - Users choose what fits their needs
-✅ **Community ready** - Infrastructure for plugin submissions
-✅ **Backwards compatible** - Existing functionality unchanged
+✅ **Marketplace functionality** - Can be added as a Claude Code marketplace ✅ **Plugin structure** - Core functionality
+packaged as a plugin ✅ **Multiple installation methods** - Users choose what fits their needs ✅ **Community ready** -
+Infrastructure for plugin submissions ✅ **Backwards compatible** - Existing functionality unchanged
 
 **Next:** Merge to main, tag v1.1.0, announce to community!
 
----
+______________________________________________________________________
 
 ## Quick Reference Commands
 
@@ -590,11 +588,9 @@ git commit -m "feat: dual-purpose marketplace + plugin structure"
 git push
 ```
 
----
+______________________________________________________________________
 
-**Time to complete:** ~30 minutes
-**Difficulty:** Easy
-**Risk:** Low (fully reversible)
-**Impact:** High (enables ecosystem growth)
+**Time to complete:** ~30 minutes **Difficulty:** Easy **Risk:** Low (fully reversible) **Impact:** High (enables
+ecosystem growth)
 
 **Ready? Let's go!** 🍄

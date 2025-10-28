@@ -5,11 +5,11 @@ Complete installation, setup, and first-time user guide for the Mycelium distrib
 ## Table of Contents
 
 1. [Installation](#installation)
-2. [Infrastructure Setup](#infrastructure-setup)
-3. [Configuration](#configuration)
-4. [Verification](#verification)
-5. [First Steps](#first-steps)
-6. [Troubleshooting](#troubleshooting)
+1. [Infrastructure Setup](#infrastructure-setup)
+1. [Configuration](#configuration)
+1. [Verification](#verification)
+1. [First Steps](#first-steps)
+1. [Troubleshooting](#troubleshooting)
 
 ## Installation
 
@@ -65,6 +65,7 @@ Mycelium supports three coordination modes that auto-detect based on available i
 **Best for**: Real-time collaboration, high message throughput, production deployments
 
 **Performance**:
+
 - Message throughput: 234K messages/min
 - Latency: 0.8ms avg
 - Scales to 100+ agents
@@ -120,6 +121,7 @@ export REDIS_DB="0"
 **Best for**: Task-oriented workflows, MCP ecosystem integration, structured coordination
 
 **Performance**:
+
 - Task creation: 50/sec
 - Task polling: 1Hz default
 - Scales to 50+ agents
@@ -161,6 +163,7 @@ export TASKQUEUE_POLL_INTERVAL="1000"  # 1 second
 **Best for**: Offline work, minimal dependencies, git-tracked state
 
 **Performance**:
+
 - File writes: 100/sec
 - File reads: 500/sec
 - Scales to 20 agents
@@ -273,6 +276,7 @@ project_pre_test_checks() {
 ```
 
 This script is automatically triggered before:
+
 - `uv run pytest`
 - `pytest`
 - `python -m pytest`
@@ -390,6 +394,7 @@ cat ~/.claude/plugins/mycelium/agents/01-core-development/python-pro.md
 ```
 
 Agent categories:
+
 - `01-core-development` - Python, JavaScript, TypeScript, Rust specialists
 - `02-language-specialists` - Go, Java, C++, Kotlin, Swift experts
 - `03-infrastructure` - DevOps, Kubernetes, Security, Cloud
@@ -480,6 +485,7 @@ claude plugin install git+https://github.com/gsornsen/mycelium.git
 **Symptom**: `/agents` shows fewer than 119 mycelium agents
 
 **Solution**:
+
 ```bash
 # Mycelium agents require complete restart
 # 1. Exit Claude Code completely (not just close window)
@@ -532,6 +538,7 @@ rm -f .claude/coordination/agent-*.md
 **Symptom**: Slow agent coordination, high latency
 
 **Diagnosis**:
+
 ```bash
 # Check coordination mode
 /team-status
@@ -550,6 +557,7 @@ time ls .claude/coordination/
 ```
 
 **Solutions**:
+
 - Redis: Use local Redis instance, not remote
 - TaskQueue: Increase poll interval for less overhead
 - Markdown: Use SSD for coordination directory
@@ -581,10 +589,10 @@ nano ~/.infra-check.json
 Once installation and verification are complete:
 
 1. **Read [coordination.md](./coordination.md)** - Learn about dual-mode coordination patterns
-2. **Read [agents.md](./agents.md)** - Understand agent categories and development
-3. **Read [deployment.md](./deployment.md)** - Deploy to production environments
-4. **Try example workflows** - See [docs/examples/](../../docs/examples/)
-5. **Create custom agents** - See [CONTRIBUTING.md](../../CONTRIBUTING.md)
+1. **Read [agents.md](./agents.md)** - Understand agent categories and development
+1. **Read [deployment.md](./deployment.md)** - Deploy to production environments
+1. **Try example workflows** - See [docs/examples/](../../docs/examples/)
+1. **Create custom agents** - See [CONTRIBUTING.md](../../CONTRIBUTING.md)
 
 ## Support
 

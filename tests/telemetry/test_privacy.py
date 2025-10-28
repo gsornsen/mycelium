@@ -167,8 +167,7 @@ FileNotFoundError: No such file: /home/alice/Documents/secret.txt"""
     def test_error_messages_sanitized(self, client: TelemetryClient) -> None:
         """Verify error messages are sanitized."""
         sensitive_error_msg = (
-            "Failed to connect to database at postgresql://user:password@host/db "
-            "for user john@example.com"
+            "Failed to connect to database at postgresql://user:password@host/db for user john@example.com"
         )
 
         client.track_error(

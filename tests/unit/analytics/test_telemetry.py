@@ -261,9 +261,7 @@ class TestTimestamps:
         assert isinstance(parsed, datetime)
 
         # Should be UTC (ends with +00:00 or Z)
-        assert (
-            timestamp.endswith("+00:00") or timestamp.endswith("Z") or "+" in timestamp
-        )
+        assert timestamp.endswith("+00:00") or timestamp.endswith("Z") or "+" in timestamp
 
     def test_timestamps_are_ordered(self, collector, storage):
         """Test that timestamps are in chronological order."""
@@ -317,13 +315,9 @@ class TestIntegrationScenarios:
 
         # Agent discovery operations
         collector.record_agent_discovery("list_agents", 18.0, agent_count=42)
-        collector.record_agent_discovery(
-            "get_agent", 3.0, cache_hit=False, agent_count=1
-        )
+        collector.record_agent_discovery("get_agent", 3.0, cache_hit=False, agent_count=1)
         collector.record_agent_load("agent-1", 3.0, 5000, 1250)
-        collector.record_agent_discovery(
-            "get_agent", 0.5, cache_hit=True, agent_count=1
-        )
+        collector.record_agent_discovery("get_agent", 0.5, cache_hit=True, agent_count=1)
         collector.record_agent_discovery("search", 7.0, agent_count=5)
 
         # Session end
@@ -344,9 +338,7 @@ class TestIntegrationScenarios:
         num_events = 100
 
         for i in range(num_events):
-            collector.record_agent_discovery(
-                f"operation{i % 3}", i * 0.1, agent_count=i
-            )
+            collector.record_agent_discovery(f"operation{i % 3}", i * 0.1, agent_count=i)
 
         # Verify all events were recorded
         events = storage.read_events(limit=num_events)

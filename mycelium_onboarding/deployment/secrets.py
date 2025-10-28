@@ -154,8 +154,7 @@ class SecretsManager:
         existing = None if overwrite else self.load_secrets()
 
         logger.info(
-            "Generating secrets for project: %s "
-            "(postgres=%s, redis=%s, temporal=%s, overwrite=%s)",
+            "Generating secrets for project: %s (postgres=%s, redis=%s, temporal=%s, overwrite=%s)",
             self.project_name,
             postgres,
             redis,
@@ -221,9 +220,7 @@ class SecretsManager:
             )
         except OSError as e:
             logger.error("Failed to save secrets: %s", e, exc_info=True)
-            raise SecretsError(
-                f"Failed to save secrets to {self.secrets_file}: {e}"
-            ) from e
+            raise SecretsError(f"Failed to save secrets to {self.secrets_file}: {e}") from e
 
     def load_secrets(self) -> DeploymentSecrets | None:
         """Load secrets from storage.

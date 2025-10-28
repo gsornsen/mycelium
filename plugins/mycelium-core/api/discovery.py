@@ -14,7 +14,7 @@ from typing import Any
 from fastapi import FastAPI, HTTPException, Path, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from registry import (  # type: ignore[import-untyped]
+from registry import (
     AgentNotFoundError,
     AgentRegistry,
     AgentRegistryError,
@@ -63,9 +63,7 @@ async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
     global _registry
 
     # Startup: Initialize registry
-    connection_string = os.getenv(
-        "DATABASE_URL", "postgresql://localhost:5432/mycelium_registry"
-    )
+    connection_string = os.getenv("DATABASE_URL", "postgresql://localhost:5432/mycelium_registry")
 
     _registry = AgentRegistry(connection_string=connection_string)
     await _registry.initialize()
@@ -124,9 +122,7 @@ def create_app(
 
     # Exception handlers
     @app.exception_handler(AgentNotFoundError)
-    async def agent_not_found_handler(
-        _request: Any, exc: AgentNotFoundError
-    ) -> JSONResponse:
+    async def agent_not_found_handler(_request: Any, exc: AgentNotFoundError) -> JSONResponse:
         """Handle agent not found errors."""
         return JSONResponse(
             status_code=404,
@@ -138,9 +134,7 @@ def create_app(
         )
 
     @app.exception_handler(AgentRegistryError)
-    async def registry_error_handler(
-        _request: Any, exc: AgentRegistryError
-    ) -> JSONResponse:
+    async def registry_error_handler(_request: Any, exc: AgentRegistryError) -> JSONResponse:
         """Handle registry errors."""
         return JSONResponse(
             status_code=500,
@@ -307,9 +301,7 @@ def create_app(
     async def get_agent_details(
         agent_id: str = Path(
             ...,
-            description=(
-                "Agent ID (e.g., 'backend-developer' or '01-core-backend-developer')"
-            ),
+            description=("Agent ID (e.g., 'backend-developer' or '01-core-backend-developer')"),
             examples=["backend-developer", "01-core-backend-developer"],
         ),
     ) -> AgentDetailResponse:

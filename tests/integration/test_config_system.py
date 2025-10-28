@@ -215,9 +215,7 @@ class TestMigrationScenarios:
         """Create temporary config file."""
         return tmp_path / "config.yaml"
 
-    def test_no_migration_needed_for_current_version(
-        self, temp_config_path: Path
-    ) -> None:
+    def test_no_migration_needed_for_current_version(self, temp_config_path: Path) -> None:
         """Test that current version configs don't trigger migration."""
         # Create current version config
         manager = ConfigManager(config_path=temp_config_path)
@@ -365,9 +363,7 @@ class TestErrorHandlingAndRecovery:
         """Create temporary config file."""
         return tmp_path / "config.yaml"
 
-    def test_load_nonexistent_file_returns_defaults(
-        self, temp_config_path: Path
-    ) -> None:
+    def test_load_nonexistent_file_returns_defaults(self, temp_config_path: Path) -> None:
         """Test that loading nonexistent file returns defaults."""
         manager = ConfigManager(config_path=temp_config_path)
 
@@ -446,9 +442,7 @@ class TestErrorHandlingAndRecovery:
         with pytest.raises((ConfigLoadError, ConfigValidationError)):
             manager.load()
 
-    def test_atomic_write_failure_doesnt_corrupt(
-        self, temp_config_path: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_atomic_write_failure_doesnt_corrupt(self, temp_config_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         """Test that save failure doesn't corrupt existing config."""
         manager = ConfigManager(config_path=temp_config_path)
 

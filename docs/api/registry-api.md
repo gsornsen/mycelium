@@ -2,11 +2,12 @@
 
 ## Overview
 
-The Agent Registry provides a centralized system for managing agent metadata with PostgreSQL backend and pgvector support for semantic search. This API enables CRUD operations, full-text search, and vector similarity search for agent discovery.
+The Agent Registry provides a centralized system for managing agent metadata with PostgreSQL backend and pgvector
+support for semantic search. This API enables CRUD operations, full-text search, and vector similarity search for agent
+discovery.
 
-**Version:** 1.0.0
-**Database:** PostgreSQL 15+ with pgvector extension
-**Vector Dimensions:** 384 (for sentence-transformers/all-MiniLM-L6-v2)
+**Version:** 1.0.0 **Database:** PostgreSQL 15+ with pgvector extension **Vector Dimensions:** 384 (for
+sentence-transformers/all-MiniLM-L6-v2)
 
 ## Architecture
 
@@ -21,9 +22,9 @@ The registry uses the following core tables:
 
 ### Performance Characteristics
 
-- **Query Performance**: <100ms for standard lookups
-- **Search Performance**: <100ms for full-text search
-- **Similarity Search**: <200ms with HNSW index
+- **Query Performance**: \<100ms for standard lookups
+- **Search Performance**: \<100ms for full-text search
+- **Similarity Search**: \<200ms with HNSW index
 - **Bulk Insert**: ~10-50 agents/second depending on batch size
 
 ## Installation
@@ -88,7 +89,7 @@ async with AgentRegistry(connection_string) as registry:
 
 - `DATABASE_URL`: PostgreSQL connection string (default: `postgresql://localhost:5432/mycelium_registry`)
 
----
+______________________________________________________________________
 
 ### CRUD Operations
 
@@ -97,6 +98,7 @@ async with AgentRegistry(connection_string) as registry:
 Create a new agent in the registry.
 
 **Signature:**
+
 ```python
 async def create_agent(
     agent_id: str,
@@ -116,6 +118,7 @@ async def create_agent(
 ```
 
 **Parameters:**
+
 - `agent_id` (str): Unique agent identifier (e.g., "01-core-backend-developer")
 - `agent_type` (str): Agent type/name (e.g., "backend-developer")
 - `name` (str): Agent name
@@ -123,19 +126,21 @@ async def create_agent(
 - `category` (str): Agent category
 - `description` (str): Agent description
 - `file_path` (str): Path to agent definition file
-- `capabilities` (List[str], optional): List of agent capabilities
-- `tools` (List[str], optional): List of tools the agent can use
-- `keywords` (List[str], optional): Keywords for search
-- `embedding` (List[float], optional): Vector embedding (384-dim)
+- `capabilities` (List\[str\], optional): List of agent capabilities
+- `tools` (List\[str\], optional): List of tools the agent can use
+- `keywords` (List\[str\], optional): Keywords for search
+- `embedding` (List\[float\], optional): Vector embedding (384-dim)
 - `estimated_tokens` (int, optional): Estimated token count
 - `metadata` (Dict, optional): Additional metadata as JSON
 
 **Returns:** UUID of the created agent
 
 **Raises:**
+
 - `AgentAlreadyExistsError`: If agent_id or agent_type already exists
 
 **Example:**
+
 ```python
 agent_uuid = await registry.create_agent(
     agent_id="01-core-backend-developer",
@@ -153,26 +158,30 @@ agent_uuid = await registry.create_agent(
 )
 ```
 
----
+______________________________________________________________________
 
 #### get_agent_by_id()
 
 Retrieve an agent by its agent_id.
 
 **Signature:**
+
 ```python
 async def get_agent_by_id(agent_id: str) -> Dict[str, Any]
 ```
 
 **Parameters:**
+
 - `agent_id` (str): The agent_id to search for
 
 **Returns:** Dictionary containing agent data
 
 **Raises:**
+
 - `AgentNotFoundError`: If the agent is not found
 
 **Example:**
+
 ```python
 agent = await registry.get_agent_by_id("01-core-backend-developer")
 print(f"Agent: {agent['name']}")
@@ -180,50 +189,58 @@ print(f"Description: {agent['description']}")
 print(f"Capabilities: {agent['capabilities']}")
 ```
 
----
+______________________________________________________________________
 
 #### get_agent_by_type()
 
 Retrieve an agent by its agent_type.
 
 **Signature:**
+
 ```python
 async def get_agent_by_type(agent_type: str) -> Dict[str, Any]
 ```
 
 **Parameters:**
+
 - `agent_type` (str): The agent_type to search for
 
 **Returns:** Dictionary containing agent data
 
 **Raises:**
+
 - `AgentNotFoundError`: If the agent is not found
 
 **Example:**
+
 ```python
 agent = await registry.get_agent_by_type("backend-developer")
 ```
 
----
+______________________________________________________________________
 
 #### get_agent_by_uuid()
 
 Retrieve an agent by its UUID.
 
 **Signature:**
+
 ```python
 async def get_agent_by_uuid(uuid: UUID) -> Dict[str, Any]
 ```
 
 **Parameters:**
+
 - `uuid` (UUID): The agent's UUID
 
 **Returns:** Dictionary containing agent data
 
 **Raises:**
+
 - `AgentNotFoundError`: If the agent is not found
 
 **Example:**
+
 ```python
 from uuid import UUID
 agent = await registry.get_agent_by_uuid(
@@ -231,25 +248,29 @@ agent = await registry.get_agent_by_uuid(
 )
 ```
 
----
+______________________________________________________________________
 
 #### update_agent()
 
 Update an agent's fields.
 
 **Signature:**
+
 ```python
 async def update_agent(agent_id: str, **fields: Any) -> None
 ```
 
 **Parameters:**
+
 - `agent_id` (str): The agent_id to update
 - `**fields`: Fields to update (any field from the agents table)
 
 **Raises:**
+
 - `AgentNotFoundError`: If the agent is not found
 
 **Example:**
+
 ```python
 await registry.update_agent(
     "01-core-backend-developer",
@@ -259,29 +280,33 @@ await registry.update_agent(
 )
 ```
 
----
+______________________________________________________________________
 
 #### delete_agent()
 
 Delete an agent from the registry.
 
 **Signature:**
+
 ```python
 async def delete_agent(agent_id: str) -> None
 ```
 
 **Parameters:**
+
 - `agent_id` (str): The agent_id to delete
 
 **Raises:**
+
 - `AgentNotFoundError`: If the agent is not found
 
 **Example:**
+
 ```python
 await registry.delete_agent("01-core-backend-developer")
 ```
 
----
+______________________________________________________________________
 
 ### Query Operations
 
@@ -290,6 +315,7 @@ await registry.delete_agent("01-core-backend-developer")
 List agents with optional filtering and pagination.
 
 **Signature:**
+
 ```python
 async def list_agents(
     category: Optional[str] = None,
@@ -299,6 +325,7 @@ async def list_agents(
 ```
 
 **Parameters:**
+
 - `category` (str, optional): Filter by category
 - `limit` (int): Maximum number of results (default: 100)
 - `offset` (int): Offset for pagination (default: 0)
@@ -306,6 +333,7 @@ async def list_agents(
 **Returns:** List of agent dictionaries
 
 **Example:**
+
 ```python
 # Get all agents
 all_agents = await registry.list_agents()
@@ -318,13 +346,14 @@ page1 = await registry.list_agents(limit=20, offset=0)
 page2 = await registry.list_agents(limit=20, offset=20)
 ```
 
----
+______________________________________________________________________
 
 #### search_agents()
 
 Full-text search on agent descriptions and keywords.
 
 **Signature:**
+
 ```python
 async def search_agents(
     query: str,
@@ -333,12 +362,14 @@ async def search_agents(
 ```
 
 **Parameters:**
+
 - `query` (str): Search query
 - `limit` (int): Maximum number of results (default: 10)
 
 **Returns:** List of matching agent dictionaries, ranked by relevance
 
 **Example:**
+
 ```python
 # Search for backend-related agents
 results = await registry.search_agents("backend api development")
@@ -347,13 +378,14 @@ for agent in results:
     print(f"{agent['name']}: {agent['description']}")
 ```
 
----
+______________________________________________________________________
 
 #### similarity_search()
 
 Semantic search using vector embeddings (pgvector).
 
 **Signature:**
+
 ```python
 async def similarity_search(
     embedding: List[float],
@@ -363,13 +395,15 @@ async def similarity_search(
 ```
 
 **Parameters:**
-- `embedding` (List[float]): Query embedding vector (384-dim)
+
+- `embedding` (List\[float\]): Query embedding vector (384-dim)
 - `limit` (int): Maximum number of results (default: 10)
 - `threshold` (float): Minimum similarity threshold 0.0-1.0 (default: 0.5)
 
 **Returns:** List of tuples (agent_dict, similarity_score) sorted by similarity
 
 **Example:**
+
 ```python
 # Generate embedding for query
 from sentence_transformers import SentenceTransformer
@@ -387,23 +421,26 @@ for agent, similarity in results:
     print(f"{agent['name']}: {similarity:.2%} match")
 ```
 
----
+______________________________________________________________________
 
 #### get_agent_count()
 
 Get the total number of agents in the registry.
 
 **Signature:**
+
 ```python
 async def get_agent_count(category: Optional[str] = None) -> int
 ```
 
 **Parameters:**
+
 - `category` (str, optional): Optional category filter
 
 **Returns:** Total agent count
 
 **Example:**
+
 ```python
 total = await registry.get_agent_count()
 print(f"Total agents: {total}")
@@ -412,13 +449,14 @@ core_count = await registry.get_agent_count(category="Core Development")
 print(f"Core agents: {core_count}")
 ```
 
----
+______________________________________________________________________
 
 #### get_categories()
 
 Get all unique categories in the registry.
 
 **Signature:**
+
 ```python
 async def get_categories() -> List[str]
 ```
@@ -426,12 +464,13 @@ async def get_categories() -> List[str]
 **Returns:** List of category names
 
 **Example:**
+
 ```python
 categories = await registry.get_categories()
 print("Available categories:", categories)
 ```
 
----
+______________________________________________________________________
 
 ### Bulk Operations
 
@@ -440,6 +479,7 @@ print("Available categories:", categories)
 Bulk insert agents into the registry.
 
 **Signature:**
+
 ```python
 async def bulk_insert_agents(
     agents: List[Dict[str, Any]],
@@ -448,7 +488,8 @@ async def bulk_insert_agents(
 ```
 
 **Parameters:**
-- `agents` (List[Dict]): List of agent dictionaries
+
+- `agents` (List\[Dict\]): List of agent dictionaries
 - `batch_size` (int): Number of agents per batch (default: 100)
 
 **Returns:** Number of agents successfully inserted
@@ -456,6 +497,7 @@ async def bulk_insert_agents(
 **Note:** Duplicates are skipped without error
 
 **Example:**
+
 ```python
 agents_to_insert = [
     {
@@ -474,7 +516,7 @@ count = await registry.bulk_insert_agents(agents_to_insert)
 print(f"Inserted {count} agents")
 ```
 
----
+______________________________________________________________________
 
 ### Utility Methods
 
@@ -483,6 +525,7 @@ print(f"Inserted {count} agents")
 Perform a health check on the registry.
 
 **Signature:**
+
 ```python
 async def health_check() -> Dict[str, Any]
 ```
@@ -490,6 +533,7 @@ async def health_check() -> Dict[str, Any]
 **Returns:** Dictionary with health check results
 
 **Example:**
+
 ```python
 health = await registry.health_check()
 print(f"Status: {health['status']}")
@@ -498,7 +542,7 @@ print(f"Agent count: {health['agent_count']}")
 print(f"Database size: {health['database_size']}")
 ```
 
----
+______________________________________________________________________
 
 ## Helper Functions
 
@@ -507,6 +551,7 @@ print(f"Database size: {health['database_size']}")
 Load agents from index.json file into the registry.
 
 **Signature:**
+
 ```python
 async def load_agents_from_index(
     index_path: str | Path,
@@ -515,15 +560,18 @@ async def load_agents_from_index(
 ```
 
 **Parameters:**
+
 - `index_path` (str | Path): Path to the index.json file
 - `registry` (AgentRegistry): Registry instance
 
 **Returns:** Number of agents loaded
 
 **Raises:**
+
 - `FileNotFoundError`: If index file doesn't exist
 
 **Example:**
+
 ```python
 from plugins.mycelium_core.registry import load_agents_from_index
 
@@ -535,7 +583,7 @@ async with AgentRegistry(connection_string) as registry:
     print(f"Loaded {count} agents")
 ```
 
----
+______________________________________________________________________
 
 ## Exceptions
 
@@ -548,6 +596,7 @@ Base exception for all registry errors.
 Raised when an agent is not found in the registry.
 
 **Example:**
+
 ```python
 try:
     agent = await registry.get_agent_by_id("nonexistent")
@@ -560,6 +609,7 @@ except AgentNotFoundError as e:
 Raised when attempting to create an agent that already exists.
 
 **Example:**
+
 ```python
 try:
     await registry.create_agent(...)
@@ -567,7 +617,7 @@ except AgentAlreadyExistsError as e:
     print(f"Agent already exists: {e}")
 ```
 
----
+______________________________________________________________________
 
 ## Usage Examples
 
@@ -672,7 +722,7 @@ import asyncio
 asyncio.run(benchmark_queries())
 ```
 
----
+______________________________________________________________________
 
 ## Performance Tuning
 
@@ -708,24 +758,26 @@ registry = AgentRegistry(pool=pool)
 ### Query Performance Tips
 
 1. **Use indexes**: The schema includes indexes on commonly queried fields
-2. **Limit results**: Always use `limit` parameter to prevent large result sets
-3. **Use specific queries**: `get_agent_by_id` is faster than `search_agents`
-4. **Cache results**: Cache frequently accessed agents in application layer
-5. **Batch operations**: Use `bulk_insert_agents` for loading multiple agents
+1. **Limit results**: Always use `limit` parameter to prevent large result sets
+1. **Use specific queries**: `get_agent_by_id` is faster than `search_agents`
+1. **Cache results**: Cache frequently accessed agents in application layer
+1. **Batch operations**: Use `bulk_insert_agents` for loading multiple agents
 
----
+______________________________________________________________________
 
 ## Troubleshooting
 
 ### Common Issues
 
 **Issue: "pgvector extension not found"**
+
 ```bash
 # Install pgvector extension
 CREATE EXTENSION IF NOT EXISTS vector;
 ```
 
 **Issue: "Connection pool timeout"**
+
 ```python
 # Increase pool size or timeout
 pool = await asyncpg.create_pool(
@@ -736,6 +788,7 @@ pool = await asyncpg.create_pool(
 ```
 
 **Issue: "Slow similarity search"**
+
 ```sql
 -- Rebuild HNSW index with better parameters
 DROP INDEX idx_agents_embedding_hnsw;
@@ -747,11 +800,12 @@ WITH (m = 16, ef_construction = 64);
 ANALYZE agents;
 ```
 
----
+______________________________________________________________________
 
 ## Support
 
 For issues or questions:
+
 - Documentation: `/docs/api/registry-api.md`
 - Source: `/plugins/mycelium-core/registry/`
 - Tests: `/tests/unit/test_registry.py`

@@ -4,20 +4,20 @@
 
 **Audience:** Developers building workflows with S1 (Discovery) and S2 (Coordination)
 
----
+______________________________________________________________________
 
 ## Table of Contents
 
 1. [Workflow Design Principles](#workflow-design-principles)
-2. [Agent Discovery Strategies](#agent-discovery-strategies)
-3. [Context Management](#context-management)
-4. [Failure Handling](#failure-handling)
-5. [Performance Optimization](#performance-optimization)
-6. [Security and Privacy](#security-and-privacy)
-7. [Testing and Validation](#testing-and-validation)
-8. [Common Anti-Patterns](#common-anti-patterns)
+1. [Agent Discovery Strategies](#agent-discovery-strategies)
+1. [Context Management](#context-management)
+1. [Failure Handling](#failure-handling)
+1. [Performance Optimization](#performance-optimization)
+1. [Security and Privacy](#security-and-privacy)
+1. [Testing and Validation](#testing-and-validation)
+1. [Common Anti-Patterns](#common-anti-patterns)
 
----
+______________________________________________________________________
 
 ## Workflow Design Principles
 
@@ -66,7 +66,8 @@ workflow = coordinate_workflow(
 )
 ```
 
-**Why:** Clear, focused steps are easier to debug, monitor, and reuse. Vague tasks lead to inconsistent results and difficult troubleshooting.
+**Why:** Clear, focused steps are easier to debug, monitor, and reuse. Vague tasks lead to inconsistent results and
+difficult troubleshooting.
 
 ### Principle 2: Explicit Dependencies
 
@@ -167,11 +168,12 @@ workflow = coordinate_workflow(
 )
 ```
 
-**Why:** Too many steps increase coordination overhead; too few steps lose benefits of specialization and make failure recovery difficult.
+**Why:** Too many steps increase coordination overhead; too few steps lose benefits of specialization and make failure
+recovery difficult.
 
 **Rule of Thumb:** 3-7 steps per workflow is optimal for most use cases.
 
----
+______________________________________________________________________
 
 ## Agent Discovery Strategies
 
@@ -196,7 +198,8 @@ agents = discover_agents("help")  # No useful information
 agents = discover_agents("computer stuff")  # Meaningless
 ```
 
-**Why:** Specific queries leverage NLP matching to find the most relevant specialists, while generic queries return random results.
+**Why:** Specific queries leverage NLP matching to find the most relevant specialists, while generic queries return
+random results.
 
 ### Strategy 2: Multi-Stage Discovery
 
@@ -254,7 +257,7 @@ chosen = agents["agents"][0]  # Blindly use first result
 
 **Why:** Confidence scores indicate match quality; high-confidence matches are more likely to succeed.
 
----
+______________________________________________________________________
 
 ## Context Management
 
@@ -365,7 +368,7 @@ context = {
 
 **Why:** File references and summaries reduce context size dramatically while preserving necessary information.
 
----
+______________________________________________________________________
 
 ## Failure Handling
 
@@ -505,7 +508,7 @@ except Exception as e:
 
 **Why:** Detailed error context enables rapid diagnosis and resolution of workflow failures.
 
----
+______________________________________________________________________
 
 ## Performance Optimization
 
@@ -642,7 +645,7 @@ for module in ["auth.py", "api.py", "models.py"]:
 
 **Performance Impact:** Reduces coordination overhead from N workflows to 1, saving 200-400ms per task.
 
----
+______________________________________________________________________
 
 ## Security and Privacy
 
@@ -743,7 +746,7 @@ for event in events["events"]:
 
 **Why:** Audit trails enable compliance, debugging, and security investigations.
 
----
+______________________________________________________________________
 
 ## Testing and Validation
 
@@ -866,7 +869,7 @@ workflow = coordinate_workflow(**workflow_spec)
 
 **Why:** Early validation prevents runtime failures and provides clear error messages.
 
----
+______________________________________________________________________
 
 ## Common Anti-Patterns
 
@@ -1007,55 +1010,61 @@ except WorkflowExecutionError as e:
 
 **Why:** Failure handling prevents cascading failures and enables graceful degradation.
 
----
+______________________________________________________________________
 
 ## Summary Checklist
 
 Use this checklist when designing workflows:
 
 **Workflow Design:**
+
 - [ ] Each step has clear, single purpose
 - [ ] Dependencies are explicit and necessary
 - [ ] Appropriate granularity (3-7 steps typical)
 - [ ] Failure strategy matches criticality
 
 **Agent Discovery:**
+
 - [ ] Specific queries that match specializations
 - [ ] Confidence scores considered
 - [ ] Multi-stage discovery for complex teams
 
 **Context Management:**
+
 - [ ] Minimal necessary context only
 - [ ] Structured, schema-based context
 - [ ] Sensitive data handled securely
 - [ ] Large data referenced, not embedded
 
 **Performance:**
+
 - [ ] Independent steps run in parallel
 - [ ] Agents reused across multiple calls
 - [ ] Similar tasks batched when possible
 
 **Security:**
+
 - [ ] Least privilege access
 - [ ] No sensitive data in context
 - [ ] Comprehensive audit trail
 
 **Testing:**
+
 - [ ] Incremental workflow testing
 - [ ] Workflow structure validated
 - [ ] Mock agents used for unit tests
 
 **Avoid Anti-Patterns:**
+
 - [ ] No chatty workflows (excessive handoffs)
 - [ ] No god workflows (monolithic)
 - [ ] No implicit state dependencies
 - [ ] Comprehensive failure planning
 
----
+______________________________________________________________________
 
-**Document Version:** 1.0
-**Last Updated:** 2025-10-21
-**Related Docs:**
+**Document Version:** 1.0 **Last Updated:** 2025-10-21 **Related Docs:**
+
 - [S1: Agent Discovery](/home/gerald/git/mycelium/docs/skills/S1-agent-discovery.md)
 - [S2: Coordination](/home/gerald/git/mycelium/docs/skills/S2-coordination.md)
 - [Quick Start Guide](/home/gerald/git/mycelium/docs/guides/discovery-coordination-quickstart.md)

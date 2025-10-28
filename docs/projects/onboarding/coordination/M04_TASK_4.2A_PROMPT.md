@@ -1,26 +1,29 @@
 # Task 4.2A: Design InquirerPy Screen Specifications
 
-**Agent**: frontend-developer
-**Duration**: 4 hours
-**Status**: READY TO START
-**Parallel**: Can run alongside Task 4.1
+**Agent**: frontend-developer **Duration**: 4 hours **Status**: READY TO START **Parallel**: Can run alongside Task 4.1
 
 ## Mission
 
-Design detailed specifications for all 7 wizard screens using InquirerPy components. Create comprehensive validation rules, help text, and interaction patterns that guide users through Mycelium setup with clarity and confidence.
+Design detailed specifications for all 7 wizard screens using InquirerPy components. Create comprehensive validation
+rules, help text, and interaction patterns that guide users through Mycelium setup with clarity and confidence.
 
 ## Context
 
 ### Dependencies Complete
+
 - ✅ M01 Environment Isolation
 - ✅ M02 Configuration System
 - ✅ M03 Service Detection
 
 ### Your Role
-You are specifying the user interface for each wizard screen. Your specifications will be implemented by python-pro in Task 4.2B. Focus on UX, not implementation details.
+
+You are specifying the user interface for each wizard screen. Your specifications will be implemented by python-pro in
+Task 4.2B. Focus on UX, not implementation details.
 
 ### Target Library
+
 InquirerPy - Modern, beautiful CLI prompts for Python
+
 - Components: select, checkbox, text, confirm, number
 - Features: Validation, help text, colors, keyboard shortcuts
 - Rich integration for formatting
@@ -34,6 +37,7 @@ InquirerPy - Modern, beautiful CLI prompts for Python
 **Component**: Informational display + confirm
 
 **Layout**:
+
 ```
 ╔═══════════════════════════════════════════════════════════╗
 ║        🔍 System Detection Results                        ║
@@ -62,6 +66,7 @@ InquirerPy - Modern, beautiful CLI prompts for Python
 ```
 
 **Interaction**:
+
 - Display detection summary table
 - Show welcome panel with expectations
 - Confirm prompt (default: Yes)
@@ -73,7 +78,7 @@ InquirerPy - Modern, beautiful CLI prompts for Python
 
 **Defaults**: Yes
 
----
+______________________________________________________________________
 
 ### Screen 2: Service Selection
 
@@ -82,6 +87,7 @@ InquirerPy - Modern, beautiful CLI prompts for Python
 **Component**: checkbox (multi-select)
 
 **Layout**:
+
 ```
 ╔═══════════════════════════════════════════════════════════╗
 ║  Service Selection                                         ║
@@ -106,6 +112,7 @@ InquirerPy - Modern, beautiful CLI prompts for Python
 ```
 
 **Interaction**:
+
 - Checkbox list with InquirerPy
 - Space bar toggles selection
 - Up/Down arrows navigate
@@ -113,12 +120,14 @@ InquirerPy - Modern, beautiful CLI prompts for Python
 - Each option shows status from detection
 
 **Help Text**:
+
 - Redis: "Fast pub/sub messaging and state management. Recommended for real-time coordination."
 - PostgreSQL: "Persistent data storage for agent state, workflows, and history."
 - Temporal: "Workflow orchestration for complex multi-step agent tasks."
 - TaskQueue: "Task distribution system built on MCP. Always available, no deployment needed."
 
 **Validation**:
+
 ```python
 def validate_service_selection(selected: list[str]) -> bool:
     if len(selected) == 0:
@@ -127,15 +136,17 @@ def validate_service_selection(selected: list[str]) -> bool:
 ```
 
 **Defaults**:
+
 - Redis: Pre-checked if detected and running
 - PostgreSQL: Pre-checked if detected and running
 - Temporal: Pre-checked if detected and running
 - TaskQueue: Always pre-checked (always available)
 
 **Error Messages**:
-- "⚠️  You must select at least one service"
 
----
+- "⚠️ You must select at least one service"
+
+______________________________________________________________________
 
 ### Screen 3: Service Configuration
 
@@ -144,6 +155,7 @@ def validate_service_selection(selected: list[str]) -> bool:
 **Component**: Multiple prompts (dynamic based on selection)
 
 **Layout** (example for Redis):
+
 ```
 ╔═══════════════════════════════════════════════════════════╗
 ║  Redis Configuration                                       ║
@@ -166,6 +178,7 @@ def validate_service_selection(selected: list[str]) -> bool:
 ```
 
 **For PostgreSQL**:
+
 ```
 ╔═══════════════════════════════════════════════════════════╗
 ║  PostgreSQL Configuration                                  ║
@@ -177,6 +190,7 @@ def validate_service_selection(selected: list[str]) -> bool:
 ```
 
 **For Temporal**:
+
 ```
 ╔═══════════════════════════════════════════════════════════╗
 ║  Temporal Configuration                                    ║
@@ -188,6 +202,7 @@ def validate_service_selection(selected: list[str]) -> bool:
 ```
 
 **Interaction**:
+
 - Text input for ports (with validation)
 - Confirm for yes/no options
 - Text input for names and limits
@@ -195,6 +210,7 @@ def validate_service_selection(selected: list[str]) -> bool:
 - Validate immediately on input
 
 **Help Text**:
+
 - Port: "Port number between 1 and 65535. Uses standard default if not changed."
 - Persistence: "Recommended for production. Saves state to disk."
 - Max memory: "Prevents Redis from consuming all system memory."
@@ -202,6 +218,7 @@ def validate_service_selection(selected: list[str]) -> bool:
 - Connections: "Maximum simultaneous connections to PostgreSQL."
 
 **Validation**:
+
 ```python
 def validate_port(port: str) -> bool:
     try:
@@ -225,13 +242,14 @@ def validate_identifier(name: str) -> bool:
 ```
 
 **Defaults**:
+
 - Use detected values from M03
 - Fall back to standard defaults if not detected
 - Redis: port=6379, persistence=true, max_memory="256mb"
 - PostgreSQL: port=5432, database="mycelium", max_connections=100
 - Temporal: frontend_port=7233, ui_port=8080, namespace="default"
 
----
+______________________________________________________________________
 
 ### Screen 4: Deployment Method
 
@@ -240,6 +258,7 @@ def validate_identifier(name: str) -> bool:
 **Component**: select (single choice)
 
 **Layout** (Docker available):
+
 ```
 ╔═══════════════════════════════════════════════════════════╗
 ║  Deployment Method                                         ║
@@ -264,6 +283,7 @@ def validate_identifier(name: str) -> bool:
 ```
 
 **Layout** (Docker NOT available):
+
 ```
 ╔═══════════════════════════════════════════════════════════╗
 ║  Deployment Method                                         ║
@@ -280,6 +300,7 @@ Press Enter to continue...
 ```
 
 **Interaction**:
+
 - If Docker available: select between options
 - If Docker NOT available: auto-select Justfile, show info, confirm
 - Up/Down arrows navigate
@@ -287,16 +308,18 @@ Press Enter to continue...
 - Show implications of each choice
 
 **Help Text**:
+
 - Docker Compose: "Best for most users. Containers provide isolation and easy management."
 - Justfile: "For advanced users or when Docker unavailable. Requires manual setup."
 
 **Validation**: None (always valid selection)
 
 **Defaults**:
+
 - If Docker available and running: "docker-compose"
 - If Docker not available: "justfile" (auto-selected)
 
----
+______________________________________________________________________
 
 ### Screen 5: Project Metadata
 
@@ -305,6 +328,7 @@ Press Enter to continue...
 **Component**: text inputs
 
 **Layout**:
+
 ```
 ╔═══════════════════════════════════════════════════════════╗
 ║  Project Metadata                                          ║
@@ -325,16 +349,19 @@ Press Enter to continue...
 ```
 
 **Interaction**:
+
 - Text input for project name (required, validated)
 - Text input for description (optional)
 - Enter on empty description → use default
 - Validate project name immediately
 
 **Help Text**:
+
 - Project name: "Identifies your Mycelium instance. Used in config files and deployments."
 - Description: "Optional. Helps document your setup for team members."
 
 **Validation**:
+
 ```python
 def validate_project_name(name: str) -> bool:
     import re
@@ -344,15 +371,17 @@ def validate_project_name(name: str) -> bool:
 ```
 
 **Defaults**:
+
 - Project name: "mycelium"
 - Description: "Multi-agent coordination system"
 
 **Error Messages**:
-- "⚠️  Project name cannot be empty"
-- "⚠️  Must contain only alphanumeric characters, hyphens, and underscores"
-- "⚠️  Invalid characters: space, special symbols not allowed"
 
----
+- "⚠️ Project name cannot be empty"
+- "⚠️ Must contain only alphanumeric characters, hyphens, and underscores"
+- "⚠️ Invalid characters: space, special symbols not allowed"
+
+______________________________________________________________________
 
 ### Screen 6: Configuration Review
 
@@ -361,6 +390,7 @@ def validate_project_name(name: str) -> bool:
 **Component**: Informational display + confirm
 
 **Layout**:
+
 ```
 ╔═══════════════════════════════════════════════════════════╗
 ║  Configuration Review                                      ║
@@ -396,6 +426,7 @@ Configuration will be saved to:
 ```
 
 **Interaction**:
+
 - Display complete configuration table
 - Show save location
 - Confirm to save
@@ -404,6 +435,7 @@ Configuration will be saved to:
 - Ctrl+C → cancel and exit
 
 **Help Text**:
+
 - "Review all settings carefully. You can edit the config file later if needed."
 
 **Validation**: None (review only)
@@ -411,6 +443,7 @@ Configuration will be saved to:
 **Defaults**: Yes (confirm)
 
 **Navigation** (if user selects 'n'):
+
 ```
 ╔═══════════════════════════════════════════════════════════╗
 ║  Go back to edit?                                          ║
@@ -425,7 +458,7 @@ Configuration will be saved to:
 ? Which step would you like to edit?
 ```
 
----
+______________________________________________________________________
 
 ### Screen 7: Finalization
 
@@ -434,6 +467,7 @@ Configuration will be saved to:
 **Component**: Informational display
 
 **Layout**:
+
 ```
 ╔═══════════════════════════════════════════════════════════╗
 ║  ✓ Configuration Saved Successfully!                       ║
@@ -466,6 +500,7 @@ Press Enter to exit...
 ```
 
 **Interaction**:
+
 - Display success panel
 - Show config location
 - List numbered next steps with commands
@@ -475,7 +510,7 @@ Press Enter to exit...
 
 **Help Text**: None (informational only)
 
----
+______________________________________________________________________
 
 ## Validation Rules Summary
 
@@ -641,9 +676,11 @@ Create comprehensive validation specification document:
 ## Deliverables
 
 ### 1. Screen Specifications Document
+
 **File**: `docs/projects/onboarding/M04_screen_specifications.md`
 
 All 7 screens with:
+
 - Purpose
 - Component type
 - Layout (ASCII mockup)
@@ -654,24 +691,29 @@ All 7 screens with:
 - Error messages
 
 ### 2. Validation Rules Document
+
 **File**: `docs/projects/onboarding/M04_validation_rules.md`
 
 Comprehensive validation specifications for all inputs
 
 ### 3. Style Guide
+
 **File**: `docs/projects/onboarding/M04_style_guide.md`
 
 Color scheme, typography, icons, layout principles
 
 ### 4. Accessibility Checklist
+
 **File**: `docs/projects/onboarding/M04_accessibility.md`
 
 Accessibility requirements and validation
 
 ### 5. Implementation Handoff
+
 **File**: `docs/projects/onboarding/M04_implementation_notes.md`
 
 Notes for python-pro (Task 4.2B):
+
 - InquirerPy component mapping
 - Rich formatting examples
 - Validation function signatures
@@ -681,6 +723,7 @@ Notes for python-pro (Task 4.2B):
 ## Quality Standards
 
 ### Specification Quality
+
 - [ ] All 7 screens fully specified
 - [ ] Validation rules comprehensive
 - [ ] Help text clear and helpful
@@ -688,6 +731,7 @@ Notes for python-pro (Task 4.2B):
 - [ ] Defaults sensible
 
 ### Documentation Quality
+
 - [ ] Clear and thorough
 - [ ] Examples provided
 - [ ] Edge cases considered
@@ -695,6 +739,7 @@ Notes for python-pro (Task 4.2B):
 - [ ] Ready for review
 
 ### UX Quality
+
 - [ ] Progressive disclosure
 - [ ] Intelligent defaults
 - [ ] Clear communication
@@ -714,36 +759,33 @@ Notes for python-pro (Task 4.2B):
 
 ## Timeline
 
-**Hour 0-1**: Study InquirerPy and Rich libraries
-**Hour 1-2**: Design screens 1-4
-**Hour 2-3**: Design screens 5-7
+**Hour 0-1**: Study InquirerPy and Rich libraries **Hour 1-2**: Design screens 1-4 **Hour 2-3**: Design screens 5-7
 **Hour 3-4**: Create validation rules, style guide, documentation
 
 ## Next Steps After Completion
 
 1. Submit all deliverables
-2. Review with python-pro
-3. Incorporate any feedback
-4. Approve for Task 4.2B implementation
-5. Support python-pro during implementation
+1. Review with python-pro
+1. Incorporate any feedback
+1. Approve for Task 4.2B implementation
+1. Support python-pro during implementation
 
 ## Reference Materials
 
 ### InquirerPy Documentation
+
 - Components: https://inquirerpy.readthedocs.io/
 - Examples: Check examples/ in InquirerPy repo
 - Validation: Built-in validators and custom
 
 ### Rich Documentation
+
 - Console: https://rich.readthedocs.io/en/stable/console.html
 - Tables: https://rich.readthedocs.io/en/stable/tables.html
 - Panels: https://rich.readthedocs.io/en/stable/panel.html
 - Styling: https://rich.readthedocs.io/en/stable/style.html
 
----
+______________________________________________________________________
 
-**Status**: READY TO START
-**Agent**: frontend-developer
-**Estimated Completion**: +4 hours
-**Parallel With**: Task 4.1
+**Status**: READY TO START **Agent**: frontend-developer **Estimated Completion**: +4 hours **Parallel With**: Task 4.1
 **Blocks**: Task 4.2B (implementation)

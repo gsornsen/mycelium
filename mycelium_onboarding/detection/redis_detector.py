@@ -31,9 +31,7 @@ class RedisDetectionResult:
     error_message: str | None = None
 
 
-def detect_redis(
-    host: str = "localhost", port: int = 6379, timeout: float = 2.0
-) -> RedisDetectionResult:
+def detect_redis(host: str = "localhost", port: int = 6379, timeout: float = 2.0) -> RedisDetectionResult:
     """Detect Redis server availability.
 
     Args:
@@ -99,7 +97,7 @@ def detect_redis(
             available=False,
             host=host,
             port=port,
-                error_message=(
+            error_message=(
                 f"Connection to Redis at {host}:{port} timed out after {timeout}s. "
                 "Check if Redis is running and accessible."
             ),
@@ -109,10 +107,8 @@ def detect_redis(
             available=False,
             host=host,
             port=port,
-                error_message=(
-                f"Could not connect to {host}:{port}. "
-                "Redis is not running on this port. "
-                "Start Redis: redis-server"
+            error_message=(
+                f"Could not connect to {host}:{port}. Redis is not running on this port. Start Redis: redis-server"
             ),
         )
     except socket.gaierror:

@@ -630,6 +630,7 @@ def show_extended_deployment(self) -> str:
 ### 1. State Management
 
 **DO**:
+
 ```python
 # Always save state before potentially failing operations
 persistence.save(state)
@@ -641,6 +642,7 @@ except Exception:
 ```
 
 **DON'T**:
+
 ```python
 # Don't modify state without validation
 state.postgres_database = user_input  # Could be invalid!
@@ -654,6 +656,7 @@ if validator.validate_postgres_database(user_input):
 ### 2. Error Handling
 
 **DO**:
+
 ```python
 # Provide helpful error messages
 try:
@@ -665,6 +668,7 @@ except ValueError as e:
 ```
 
 **DON'T**:
+
 ```python
 # Don't silently fail
 try:
@@ -676,6 +680,7 @@ except ValueError:
 ### 3. User Experience
 
 **DO**:
+
 ```python
 # Provide defaults based on context
 default_db = state.project_name.lower().replace("-", "_")
@@ -686,6 +691,7 @@ db_name = inquirer.text(
 ```
 
 **DON'T**:
+
 ```python
 # Don't make users type everything
 db_name = inquirer.text(
@@ -697,6 +703,7 @@ db_name = inquirer.text(
 ### 4. Testing
 
 **DO**:
+
 ```python
 # Test with realistic mock data
 mock_detection = Mock(spec=DetectionSummary)
@@ -712,6 +719,7 @@ def test_validation_failure():
 ```
 
 **DON'T**:
+
 ```python
 # Don't only test happy paths
 def test_wizard():
@@ -722,6 +730,7 @@ def test_wizard():
 ### 5. Documentation
 
 **DO**:
+
 ```python
 def custom_screen(self) -> dict:
     """Show custom configuration screen.
@@ -741,6 +750,7 @@ def custom_screen(self) -> dict:
 ### 6. Backward Compatibility
 
 **DO**:
+
 ```python
 # Handle old state format gracefully
 def _deserialize_state(self, data: dict) -> WizardState:
@@ -907,7 +917,6 @@ registry.register(MonitoringPlugin())
 - [Testing Guide](./testing.md) - Testing best practices
 - [Configuration Schema](./config-schema.md) - Config format details
 
----
+______________________________________________________________________
 
-**Last Updated**: 2025-10-14
-**Version**: M04 (Interactive Onboarding)
+**Last Updated**: 2025-10-14 **Version**: M04 (Interactive Onboarding)

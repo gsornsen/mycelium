@@ -106,15 +106,11 @@ def mock_index(tmp_dir):
     (tmp_dir / "agent1.md").write_text(
         "# Test Agent 1\n\nAPI design specialist.\n\n## Expertise\n- REST APIs\n- GraphQL"
     )
-    (tmp_dir / "agent2.md").write_text(
-        "# Test Agent 2\n\nDevOps expert.\n\n## Expertise\n- Kubernetes\n- Docker"
-    )
+    (tmp_dir / "agent2.md").write_text("# Test Agent 2\n\nDevOps expert.\n\n## Expertise\n- Kubernetes\n- Docker")
     (tmp_dir / "agent3.md").write_text(
         "# Test Agent 3\n\nPython specialist.\n\n## Expertise\n- Async programming\n- Testing"
     )
-    (tmp_dir / "agent4.md").write_text(
-        "# Test Agent 4\n\nML engineer.\n\n## Expertise\n- PyTorch\n- Model training"
-    )
+    (tmp_dir / "agent4.md").write_text("# Test Agent 4\n\nML engineer.\n\n## Expertise\n- PyTorch\n- Model training")
 
     return index_path
 
@@ -449,9 +445,7 @@ class TestPerformance:
         discovery.get_agent("test-agent-1")
         elapsed_ms = (time.perf_counter() - start) * 1000
 
-        assert elapsed_ms < 5.0, (
-            f"get_agent (first) took {elapsed_ms:.2f}ms, target: <5ms"
-        )
+        assert elapsed_ms < 5.0, f"get_agent (first) took {elapsed_ms:.2f}ms, target: <5ms"
 
     def test_get_agent_cached_performance(self, mock_index):
         """Test get_agent cached access meets <1ms target."""
@@ -468,9 +462,7 @@ class TestPerformance:
             discovery.get_agent("test-agent-1")
         elapsed_ms = (time.perf_counter() - start) * 1000 / 100
 
-        assert elapsed_ms < 1.0, (
-            f"get_agent (cached) took {elapsed_ms:.2f}ms, target: <1ms"
-        )
+        assert elapsed_ms < 1.0, f"get_agent (cached) took {elapsed_ms:.2f}ms, target: <1ms"
 
     def test_search_performance(self, mock_index):
         """Test search meets <10ms target."""

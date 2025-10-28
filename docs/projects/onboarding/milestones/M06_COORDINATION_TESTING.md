@@ -2,17 +2,19 @@
 
 ## Overview
 
-**Duration**: 3 days
-**Dependencies**: M05 (deployment generation), M02 (configuration), M03 (service detection)
-**Blocks**: M07, M08, M09, M10 (all Phase 3 milestones)
-**Lead Agent**: multi-agent-coordinator
-**Support Agents**: test-automator, python-pro, ai-engineer
+**Duration**: 3 days **Dependencies**: M05 (deployment generation), M02 (configuration), M03 (service detection)
+**Blocks**: M07, M08, M09, M10 (all Phase 3 milestones) **Lead Agent**: multi-agent-coordinator **Support Agents**:
+test-automator, python-pro, ai-engineer
 
 ## Why This Milestone
 
-Coordination testing validates that multi-agent infrastructure works correctly under real-world conditions. Unlike unit tests that isolate components, functional coordination tests verify complete patterns (pub/sub, task queues, barriers) across actual or mock MCP servers. This milestone ensures reliability before production use and establishes patterns for future test development.
+Coordination testing validates that multi-agent infrastructure works correctly under real-world conditions. Unlike unit
+tests that isolate components, functional coordination tests verify complete patterns (pub/sub, task queues, barriers)
+across actual or mock MCP servers. This milestone ensures reliability before production use and establishes patterns for
+future test development.
 
 Well-designed coordination tests:
+
 - Validate complete communication flows
 - Test failure scenarios and recovery
 - Measure performance and latency
@@ -25,7 +27,8 @@ Well-designed coordination tests:
 ### Functional Requirements (FR)
 
 - **FR-6.1**: Test orchestrator using asyncio TaskGroup for parallel test execution
-- **FR-6.2**: Functional tests for all coordination patterns (pub/sub, task queue, request-reply, scatter-gather, barrier, circuit breaker)
+- **FR-6.2**: Functional tests for all coordination patterns (pub/sub, task queue, request-reply, scatter-gather,
+  barrier, circuit breaker)
 - **FR-6.3**: Support both mock and real MCP server modes
 - **FR-6.4**: Failure injection for testing error handling and recovery
 - **FR-6.5**: Metrics collection (latency, throughput, success rate)
@@ -57,10 +60,10 @@ Well-designed coordination tests:
 
 ### Task 6.1: Design Test Orchestrator Architecture
 
-**Agent**: multi-agent-coordinator (lead), test-automator (support)
-**Effort**: 4 hours
+**Agent**: multi-agent-coordinator (lead), test-automator (support) **Effort**: 4 hours
 
-**Description**: Design test orchestrator that manages parallel test execution, resource lifecycle, metrics collection, and result aggregation using asyncio TaskGroup.
+**Description**: Design test orchestrator that manages parallel test execution, resource lifecycle, metrics collection,
+and result aggregation using asyncio TaskGroup.
 
 **Implementation**:
 
@@ -263,6 +266,7 @@ class TestOrchestrator:
 ```
 
 **Acceptance Criteria**:
+
 - [ ] Orchestrator runs tests in parallel with configurable limit
 - [ ] Per-test timeout protection implemented
 - [ ] Metrics collection and aggregation working
@@ -271,10 +275,10 @@ class TestOrchestrator:
 
 ### Task 6.2: Implement MCP Client Fixtures
 
-**Agent**: python-pro, test-automator
-**Effort**: 4 hours
+**Agent**: python-pro, test-automator **Effort**: 4 hours
 
-**Description**: Create pytest fixtures for MCP client lifecycle management, supporting both mock and real server modes with environment variable control.
+**Description**: Create pytest fixtures for MCP client lifecycle management, supporting both mock and real server modes
+with environment variable control.
 
 **Implementation**:
 
@@ -406,6 +410,7 @@ async def cleanup_test_data(mcp_clients):
 ```
 
 **Acceptance Criteria**:
+
 - [ ] Fixtures support both mock and real MCP clients
 - [ ] Environment variable controls mock/real mode
 - [ ] Automatic cleanup after each test
@@ -413,10 +418,10 @@ async def cleanup_test_data(mcp_clients):
 
 ### Task 6.3: Create Functional Coordination Tests
 
-**Agent**: multi-agent-coordinator (lead), test-automator, ai-engineer
-**Effort**: 10 hours
+**Agent**: multi-agent-coordinator (lead), test-automator, ai-engineer **Effort**: 10 hours
 
-**Description**: Implement functional tests for all coordination patterns using pytest-asyncio, validating complete message flows and agent interactions.
+**Description**: Implement functional tests for all coordination patterns using pytest-asyncio, validating complete
+message flows and agent interactions.
 
 **Implementation**:
 
@@ -673,6 +678,7 @@ async def test_circuit_breaker_pattern(redis_client):
 ```
 
 **Test Plan**: Complete test matrix covering:
+
 - [x] Pub/sub: basic delivery, multiple subscribers, pattern matching
 - [x] Task queue: distribution, completion flow, priority handling
 - [x] Request-reply: synchronous communication
@@ -681,6 +687,7 @@ async def test_circuit_breaker_pattern(redis_client):
 - [x] Circuit breaker: fault tolerance
 
 **Acceptance Criteria**:
+
 - [ ] All 6 coordination patterns tested
 - [ ] Tests pass with both mock and real MCP servers
 - [ ] Each test is deterministic and repeatable
@@ -688,10 +695,10 @@ async def test_circuit_breaker_pattern(redis_client):
 
 ### Task 6.4: Add Failure Injection and Metrics
 
-**Agent**: multi-agent-coordinator, ai-engineer
-**Effort**: 4 hours
+**Agent**: multi-agent-coordinator, ai-engineer **Effort**: 4 hours
 
-**Description**: Implement failure injection (network delays, timeouts, errors) and metrics collection (latency, throughput) to validate resilience.
+**Description**: Implement failure injection (network delays, timeouts, errors) and metrics collection (latency,
+throughput) to validate resilience.
 
 **Implementation**:
 
@@ -891,6 +898,7 @@ async def test_pubsub_with_network_delays(redis_client, failure_injector, metric
 ```
 
 **Acceptance Criteria**:
+
 - [ ] Failure injection decorators implemented
 - [ ] Metrics collector tracks latency, throughput, errors
 - [ ] Tests validate resilience under failures
@@ -898,10 +906,10 @@ async def test_pubsub_with_network_delays(redis_client, failure_injector, metric
 
 ### Task 6.5: Create /mycelium-test Command
 
-**Agent**: claude-code-developer, multi-agent-coordinator
-**Effort**: 3 hours
+**Agent**: claude-code-developer, multi-agent-coordinator **Effort**: 3 hours
 
-**Description**: Integrate test framework as `/mycelium-test` command with options for test selection, verbosity, and reporting.
+**Description**: Integrate test framework as `/mycelium-test` command with options for test selection, verbosity, and
+reporting.
 
 **Implementation**:
 
@@ -915,8 +923,10 @@ Run coordination pattern tests to validate infrastructure.
 ## Usage
 
 ```
-/mycelium-test [--pattern PATTERN] [--mock] [--verbose] [--report]
-```
+
+/mycelium-test \[--pattern PATTERN\] \[--mock\] \[--verbose\] \[--report\]
+
+````
 
 ## Options
 
@@ -940,7 +950,7 @@ Run coordination pattern tests to validate infrastructure.
 
 # Verbose output with metrics
 /mycelium-test --verbose --report
-```
+````
 
 ## Test Patterns
 
@@ -961,6 +971,7 @@ Run coordination pattern tests to validate infrastructure.
 ## Troubleshooting
 
 ### Tests Fail to Connect
+
 ```bash
 # Check services are running
 docker-compose ps
@@ -971,6 +982,7 @@ just status
 ```
 
 ### Timeout Errors
+
 ```bash
 # Increase timeout (in config)
 /mycelium-configuration edit
@@ -978,7 +990,8 @@ just status
 # Run single pattern
 /mycelium-test --pattern pubsub
 ```
-```
+
+````
 
 ```python
 # mycelium_onboarding/cli/test.py
@@ -1057,9 +1070,10 @@ def _get_tests_for_pattern(pattern: str) -> list:
 
 if __name__ == '__main__':
     test()
-```
+````
 
 **Acceptance Criteria**:
+
 - [ ] Command runs all or selected test patterns
 - [ ] Mock mode works for development
 - [ ] Reports show pass/fail status clearly
@@ -1081,51 +1095,55 @@ if __name__ == '__main__':
 ## Deliverables
 
 1. **Test Framework**:
+
    - `mycelium_testing/orchestrator.py`
    - `mycelium_testing/failure_injection.py`
    - `mycelium_testing/metrics.py`
 
-2. **Test Fixtures**:
+1. **Test Fixtures**:
+
    - `tests/fixtures/mcp_clients.py`
 
-3. **Functional Tests**:
+1. **Functional Tests**:
+
    - `tests/functional/test_coordination_patterns.py`
    - `tests/functional/test_with_failures.py`
 
-4. **CLI Command**:
+1. **CLI Command**:
+
    - `mycelium_onboarding/cli/test.py`
    - `~/.claude/plugins/mycelium-core/commands/mycelium-test.md`
 
-5. **Documentation**:
+1. **Documentation**:
+
    - `docs/testing/coordination-tests.md`
    - `docs/testing/failure-scenarios.md`
 
 ## Risk Assessment
 
-| Risk | Probability | Impact | Mitigation |
-|------|------------|--------|------------|
-| Flaky tests due to timing | Medium | High | Deterministic seeds, clear timeouts, retry logic |
-| MCP server connection failures | Medium | High | Mock mode for development, health checks before tests |
-| Test data pollution | Low | Medium | Automatic cleanup fixtures, isolated namespaces |
-| Performance bottlenecks in parallel tests | Low | Medium | Configurable parallelism limit, resource monitoring |
+| Risk                                      | Probability | Impact | Mitigation                                            |
+| ----------------------------------------- | ----------- | ------ | ----------------------------------------------------- |
+| Flaky tests due to timing                 | Medium      | High   | Deterministic seeds, clear timeouts, retry logic      |
+| MCP server connection failures            | Medium      | High   | Mock mode for development, health checks before tests |
+| Test data pollution                       | Low         | Medium | Automatic cleanup fixtures, isolated namespaces       |
+| Performance bottlenecks in parallel tests | Low         | Medium | Configurable parallelism limit, resource monitoring   |
 
 ## Dependencies for Next Milestones
 
 **M07, M08, M09** (Phase 3 parallel work) require:
+
 - Working coordination tests as validation
 - Test patterns for documentation examples
 - Metrics baseline for performance monitoring
 - Test infrastructure for CI/CD (M09)
 
 **M10 (Polish & Release)** requires:
+
 - All coordination tests passing
 - Performance metrics meeting targets
 - Test suite as quality gate
 
----
+______________________________________________________________________
 
-**Milestone Owner**: multi-agent-coordinator
-**Reviewers**: test-automator, python-pro
-**Status**: Ready for Implementation
-**Created**: 2025-10-13
-**Target Completion**: Day 16 (3 days after M05)
+**Milestone Owner**: multi-agent-coordinator **Reviewers**: test-automator, python-pro **Status**: Ready for
+Implementation **Created**: 2025-10-13 **Target Completion**: Day 16 (3 days after M05)

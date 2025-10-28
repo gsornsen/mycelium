@@ -2,17 +2,19 @@
 
 ## Overview
 
-**Duration**: 3 days
-**Dependencies**: M01 (environment isolation), M02 (configuration system), M03 (service detection)
-**Blocks**: M05 (deployment generation)
-**Lead Agent**: python-pro
-**Support Agents**: devops-engineer, claude-code-developer
+**Duration**: 3 days **Dependencies**: M01 (environment isolation), M02 (configuration system), M03 (service detection)
+**Blocks**: M05 (deployment generation) **Lead Agent**: python-pro **Support Agents**: devops-engineer,
+claude-code-developer
 
 ## Why This Milestone
 
-The interactive onboarding wizard is the primary user touchpoint for Mycelium setup. It transforms detected infrastructure into user-friendly choices, guides deployment method selection, and captures configuration in a type-safe manner. This milestone bridges technical detection (M03) with automated deployment (M05), making complex distributed system setup accessible to users of all skill levels.
+The interactive onboarding wizard is the primary user touchpoint for Mycelium setup. It transforms detected
+infrastructure into user-friendly choices, guides deployment method selection, and captures configuration in a type-safe
+manner. This milestone bridges technical detection (M03) with automated deployment (M05), making complex distributed
+system setup accessible to users of all skill levels.
 
 A well-designed wizard:
+
 - Reduces cognitive load through progressive disclosure
 - Provides intelligent defaults based on detection results
 - Offers clear explanations for each decision point
@@ -55,10 +57,10 @@ A well-designed wizard:
 
 ### Task 4.1: Design Wizard Flow and UX
 
-**Agent**: python-pro (lead), devops-engineer (review)
-**Effort**: 4 hours
+**Agent**: python-pro (lead), devops-engineer (review) **Effort**: 4 hours
 
-**Description**: Design the complete onboarding flow with decision trees, prompt sequences, and error handling strategies. Create mockups of each screen with example inputs/outputs.
+**Description**: Design the complete onboarding flow with decision trees, prompt sequences, and error handling
+strategies. Create mockups of each screen with example inputs/outputs.
 
 **Implementation**:
 
@@ -125,6 +127,7 @@ def create_wizard_state(detection_results: 'DetectionResults') -> WizardState:
 ```
 
 **Acceptance Criteria**:
+
 - [ ] Flow diagram covers all user paths (happy path + error paths)
 - [ ] Each step has clear entry/exit conditions
 - [ ] State management handles interruption and resume
@@ -132,10 +135,10 @@ def create_wizard_state(detection_results: 'DetectionResults') -> WizardState:
 
 ### Task 4.2: Implement InquirerPy Wizard Screens
 
-**Agent**: python-pro
-**Effort**: 8 hours
+**Agent**: python-pro **Effort**: 8 hours
 
-**Description**: Implement all wizard screens using InquirerPy with rich formatting, validation, and help text. Each screen should be self-contained and testable.
+**Description**: Implement all wizard screens using InquirerPy with rich formatting, validation, and help text. Each
+screen should be self-contained and testable.
 
 **Implementation**:
 
@@ -337,6 +340,7 @@ def test_project_metadata_validates_identifier():
 ```
 
 **Acceptance Criteria**:
+
 - [ ] All screens render correctly with rich formatting
 - [ ] Input validation prevents invalid configurations
 - [ ] Help text provides clear guidance
@@ -345,10 +349,10 @@ def test_project_metadata_validates_identifier():
 
 ### Task 4.3: Integrate Detection Results
 
-**Agent**: python-pro, devops-engineer
-**Effort**: 3 hours
+**Agent**: python-pro, devops-engineer **Effort**: 3 hours
 
-**Description**: Connect wizard to M03 service detection, using cached results to provide intelligent defaults and disable unavailable options.
+**Description**: Connect wizard to M03 service detection, using cached results to provide intelligent defaults and
+disable unavailable options.
 
 **Implementation**:
 
@@ -445,6 +449,7 @@ def build_config_from_selections(
 ```
 
 **Acceptance Criteria**:
+
 - [ ] Detection results correctly populate wizard defaults
 - [ ] Unavailable services are disabled/hidden in prompts
 - [ ] Detected ports/hosts are used as defaults
@@ -452,10 +457,10 @@ def build_config_from_selections(
 
 ### Task 4.4: Implement Configuration Persistence
 
-**Agent**: python-pro
-**Effort**: 2 hours
+**Agent**: python-pro **Effort**: 2 hours
 
-**Description**: Save final configuration using M02 ConfigManager, handle errors gracefully, provide user feedback on success/failure.
+**Description**: Save final configuration using M02 ConfigManager, handle errors gracefully, provide user feedback on
+success/failure.
 
 **Implementation**:
 
@@ -552,6 +557,7 @@ def resume_from_previous() -> Optional[MyceliumConfig]:
 ```
 
 **Acceptance Criteria**:
+
 - [ ] Configuration saved to correct location (project vs user)
 - [ ] Success message includes next steps
 - [ ] Error messages are actionable
@@ -559,10 +565,10 @@ def resume_from_previous() -> Optional[MyceliumConfig]:
 
 ### Task 4.5: Create /mycelium-onboarding Command
 
-**Agent**: claude-code-developer, python-pro
-**Effort**: 4 hours
+**Agent**: claude-code-developer, python-pro **Effort**: 4 hours
 
-**Description**: Integrate wizard as Claude Code slash command with proper argument parsing, help text, and error handling.
+**Description**: Integrate wizard as Claude Code slash command with proper argument parsing, help text, and error
+handling.
 
 **Implementation**:
 
@@ -576,8 +582,10 @@ Launch interactive wizard to configure Mycelium multi-agent coordination system.
 ## Usage
 
 ```
-/mycelium-onboarding [--project-local] [--force] [--no-cache]
-```
+
+/mycelium-onboarding \[--project-local\] \[--force\] \[--no-cache\]
+
+````
 
 ## Options
 
@@ -603,19 +611,20 @@ Launch interactive wizard to configure Mycelium multi-agent coordination system.
 
 # Non-interactive mode for automation
 /mycelium-onboarding --non-interactive
-```
+````
 
 ## What This Command Does
 
 1. Detects available services (Docker, Redis, PostgreSQL, Temporal, GPU)
-2. Launches interactive CLI wizard
-3. Guides you through service selection and deployment method
-4. Generates configuration file
-5. Provides next steps for deployment
+1. Launches interactive CLI wizard
+1. Guides you through service selection and deployment method
+1. Generates configuration file
+1. Provides next steps for deployment
 
 ## After Onboarding
 
 Once complete, proceed with:
+
 - `/mycelium-generate` - Generate deployment files (docker-compose.yml or Justfile)
 - `/mycelium-configuration show` - View current configuration
 - Start services using generated deployment method
@@ -631,7 +640,8 @@ Once complete, proceed with:
 - **"Detection failed"**: Run with `--no-cache` to retry detection
 - **"Config not saved"**: Check permissions on ~/.config/mycelium
 - **"Missing services"**: Install missing services or proceed without them
-```
+
+````
 
 ```python
 # mycelium_onboarding/cli.py
@@ -693,9 +703,10 @@ def onboard(project_local: bool, force: bool, no_cache: bool, non_interactive: b
 
 if __name__ == '__main__':
     onboard()
-```
+````
 
 **Acceptance Criteria**:
+
 - [ ] Command registered and discoverable via `/mycelium-onboarding`
 - [ ] All flags work correctly
 - [ ] Help text is clear and comprehensive
@@ -703,10 +714,10 @@ if __name__ == '__main__':
 
 ### Task 4.6: Testing and Documentation
 
-**Agent**: test-automator (lead), python-pro (support)
-**Effort**: 4 hours
+**Agent**: test-automator (lead), python-pro (support) **Effort**: 4 hours
 
-**Description**: Create comprehensive test suite covering wizard flow, validation, error handling. Write user-facing documentation.
+**Description**: Create comprehensive test suite covering wizard flow, validation, error handling. Write user-facing
+documentation.
 
 **Test Plan**:
 
@@ -764,7 +775,7 @@ def test_wizard_resume_functionality():
 
 **Documentation**:
 
-```markdown
+````markdown
 # docs/guides/interactive-onboarding.md
 
 # Interactive Onboarding Guide
@@ -785,14 +796,15 @@ The Mycelium onboarding wizard helps you configure your multi-agent coordination
 
 ```bash
 /mycelium-onboarding
-```
+````
 
 This will:
+
 1. Detect available services on your system
-2. Launch interactive wizard
-3. Guide you through configuration
-4. Save configuration file
-5. Show next steps
+1. Launch interactive wizard
+1. Guide you through configuration
+1. Save configuration file
+1. Show next steps
 
 ### Advanced Options
 
@@ -815,6 +827,7 @@ This will:
 ### 1. Welcome & Detection
 
 Shows detected services with status indicators:
+
 - ✓ Available: Service installed and working
 - ○ Available: Service installed but not running
 - ✗ Not Found: Service not detected
@@ -822,6 +835,7 @@ Shows detected services with status indicators:
 ### 2. Service Selection
 
 Choose which coordination services to enable:
+
 - **Redis**: Fast pub/sub messaging and state management
 - **PostgreSQL**: Persistent data storage
 - **Temporal**: Workflow orchestration
@@ -834,12 +848,14 @@ Choose which coordination services to enable:
 Choose how to deploy services:
 
 **Docker Compose** (Recommended)
+
 - ✓ Automatic dependency management
 - ✓ Isolated environments
 - ✓ Easy to start/stop
 - ✗ Requires Docker
 
 **Justfile** (Bare-metal)
+
 - ✓ No container overhead
 - ✓ Direct system access
 - ✗ Manual service management
@@ -847,12 +863,14 @@ Choose how to deploy services:
 ### 4. Project Metadata
 
 Enter project details:
+
 - **Name**: Valid Python identifier (e.g., `mycelium`, `my_project`)
 - **Description**: Optional project description
 
 ### 5. Configuration Review
 
 Review all selections before saving. You can:
+
 - Confirm and save
 - Cancel and start over
 
@@ -907,6 +925,7 @@ ls -la ~/.config/mycelium
 ## Configuration File Location
 
 Configuration is saved to:
+
 - **User config**: `~/.config/mycelium/mycelium.yaml`
 - **Project config**: `.mycelium/mycelium.yaml` (with `--project-local`)
 
@@ -915,6 +934,7 @@ Configuration is saved to:
 - [Configuration Management](./configuration-management.md)
 - [Deployment Generation](./deployment-generation.md)
 - [Testing Framework](./coordination-testing.md)
+
 ```
 
 **Acceptance Criteria**:
@@ -982,3 +1002,4 @@ Configuration is saved to:
 **Status**: Ready for Implementation
 **Created**: 2025-10-13
 **Target Completion**: Day 11 (3 days after M03)
+```

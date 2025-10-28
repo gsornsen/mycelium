@@ -16,9 +16,11 @@ Complete API documentation for all service detection modules in the Mycelium onb
 
 ## Overview
 
-The detection system provides a comprehensive API for discovering infrastructure services and hardware. All detection functions are non-blocking, thread-safe, and include built-in error handling.
+The detection system provides a comprehensive API for discovering infrastructure services and hardware. All detection
+functions are non-blocking, thread-safe, and include built-in error handling.
 
 **Import paths:**
+
 ```python
 from mycelium_onboarding.detection import (
     detect_all,
@@ -44,19 +46,23 @@ The orchestrator coordinates all detection modules and provides high-level APIs.
 Run all detections synchronously using parallel execution.
 
 **Signature:**
+
 ```python
 def detect_all() -> DetectionSummary
 ```
 
 **Returns:**
+
 - `DetectionSummary`: Complete detection results for all services
 
 **Performance:**
-- Target: <5 seconds
+
+- Target: \<5 seconds
 - Typical: 2-3 seconds
 - All detections run in parallel using ThreadPoolExecutor
 
 **Example:**
+
 ```python
 from mycelium_onboarding.detection import detect_all
 
@@ -73,25 +79,29 @@ print(f"Detection completed in {summary.detection_time:.2f}s")
 ```
 
 **Error Handling:**
+
 - Individual detector failures are caught and returned as unavailable
 - Network timeouts are handled gracefully
 - Returns complete summary even if some services fail
 
----
+______________________________________________________________________
 
 ### detect_all_async()
 
 Async version of detect_all() for use in async contexts.
 
 **Signature:**
+
 ```python
 async def detect_all_async() -> DetectionSummary
 ```
 
 **Returns:**
+
 - `DetectionSummary`: Complete detection results for all services
 
 **Example:**
+
 ```python
 import asyncio
 from mycelium_onboarding.detection import detect_all_async
@@ -104,17 +114,19 @@ asyncio.run(main())
 ```
 
 **Usage:**
+
 - Preferred in async applications (FastAPI, aiohttp, etc.)
 - Uses same parallel execution as synchronous version
 - Can be awaited alongside other async operations
 
----
+______________________________________________________________________
 
 ### generate_detection_report()
 
 Generate formatted detection report in multiple formats.
 
 **Signature:**
+
 ```python
 def generate_detection_report(
     summary: DetectionSummary,
@@ -123,16 +135,20 @@ def generate_detection_report(
 ```
 
 **Parameters:**
+
 - `summary` (DetectionSummary): Detection results to format
 - `format` (str): Output format - "text", "json", or "yaml"
 
 **Returns:**
+
 - `str`: Formatted report string
 
 **Raises:**
+
 - `ValueError`: If format is not supported
 
 **Example:**
+
 ```python
 from mycelium_onboarding.detection import detect_all, generate_detection_report
 
@@ -151,13 +167,14 @@ data = json.loads(json_report)
 yaml_report = generate_detection_report(summary, format="yaml")
 ```
 
----
+______________________________________________________________________
 
 ### update_config_from_detection()
 
 Update MyceliumConfig based on detection results.
 
 **Signature:**
+
 ```python
 def update_config_from_detection(
     summary: DetectionSummary,
@@ -166,19 +183,23 @@ def update_config_from_detection(
 ```
 
 **Parameters:**
+
 - `summary` (DetectionSummary): Detection results
 - `base_config` (MyceliumConfig | None): Optional base config to update
 
 **Returns:**
+
 - `MyceliumConfig`: Updated configuration with detected values
 
 **Logic:**
+
 - Enables services that are detected and available
 - Updates ports from first detected instance
 - Preserves existing custom configuration values
 - Re-enables all services with defaults if nothing detected
 
 **Example:**
+
 ```python
 from mycelium_onboarding.detection import detect_all, update_config_from_detection
 from mycelium_onboarding.config.manager import ConfigManager
@@ -197,13 +218,14 @@ updated_config = update_config_from_detection(summary, existing_config)
 manager.save(updated_config)
 ```
 
----
+______________________________________________________________________
 
 ### DetectionSummary
 
 Summary dataclass containing all detection results.
 
 **Definition:**
+
 ```python
 @dataclass
 class DetectionSummary:
@@ -245,6 +267,7 @@ def has_gpu(self) -> bool:
 ```
 
 **Example:**
+
 ```python
 summary = detect_all()
 
@@ -270,20 +293,24 @@ Detect Docker daemon availability and version.
 ### detect_docker()
 
 **Signature:**
+
 ```python
 def detect_docker() -> DockerDetectionResult
 ```
 
 **Returns:**
+
 - `DockerDetectionResult`: Docker detection result
 
 **Detection Method:**
+
 - Attempts to import and use docker Python SDK
 - Checks Docker socket accessibility
 - Retrieves version information
 - Validates user permissions
 
 **Example:**
+
 ```python
 from mycelium_onboarding.detection.docker_detector import detect_docker
 
@@ -295,23 +322,27 @@ else:
     print(f"Docker unavailable: {result.error_message}")
 ```
 
----
+______________________________________________________________________
 
 ### verify_docker_permissions()
 
 **Signature:**
+
 ```python
 def verify_docker_permissions() -> tuple[bool, str]
 ```
 
 **Returns:**
+
 - `tuple[bool, str]`: (success, message)
 
 **Purpose:**
+
 - Check if current user has Docker permissions
 - Provide helpful error messages for permission issues
 
 **Example:**
+
 ```python
 from mycelium_onboarding.detection.docker_detector import verify_docker_permissions
 
@@ -321,11 +352,12 @@ if not has_perms:
     print("Try: sudo usermod -aG docker $USER")
 ```
 
----
+______________________________________________________________________
 
 ### DockerDetectionResult
 
 **Definition:**
+
 ```python
 @dataclass
 class DockerDetectionResult:
@@ -336,6 +368,7 @@ class DockerDetectionResult:
 ```
 
 **Fields:**
+
 - `available`: Whether Docker daemon is accessible
 - `version`: Docker version string (e.g., "24.0.5")
 - `socket_path`: Path to Docker socket (e.g., "/var/run/docker.sock")
@@ -350,6 +383,7 @@ Detect Redis instances on common ports.
 Scan common Redis ports for active instances.
 
 **Signature:**
+
 ```python
 def scan_common_redis_ports(
     host: str = "localhost",
@@ -359,14 +393,17 @@ def scan_common_redis_ports(
 ```
 
 **Parameters:**
+
 - `host` (str): Host to scan (default: "localhost")
-- `ports` (list[int] | None): Ports to scan (default: [6379, 6380, 6381])
+- `ports` (list\[int\] | None): Ports to scan (default: \[6379, 6380, 6381\])
 - `timeout` (float): Connection timeout in seconds (default: 1.0)
 
 **Returns:**
+
 - `list[RedisDetectionResult]`: List of detected Redis instances
 
 **Example:**
+
 ```python
 from mycelium_onboarding.detection.redis_detector import scan_common_redis_ports
 
@@ -383,13 +420,14 @@ custom_instances = scan_common_redis_ports(
 )
 ```
 
----
+______________________________________________________________________
 
 ### detect_redis()
 
 Detect single Redis instance on specific port.
 
 **Signature:**
+
 ```python
 def detect_redis(
     host: str = "localhost",
@@ -399,14 +437,17 @@ def detect_redis(
 ```
 
 **Parameters:**
+
 - `host` (str): Redis host
 - `port` (int): Redis port
 - `timeout` (float): Connection timeout in seconds
 
 **Returns:**
+
 - `RedisDetectionResult`: Detection result for specified instance
 
 **Example:**
+
 ```python
 from mycelium_onboarding.detection.redis_detector import detect_redis
 
@@ -418,11 +459,12 @@ if result.available:
         print(f"Redis {result.version} accessible")
 ```
 
----
+______________________________________________________________________
 
 ### RedisDetectionResult
 
 **Definition:**
+
 ```python
 @dataclass
 class RedisDetectionResult:
@@ -435,6 +477,7 @@ class RedisDetectionResult:
 ```
 
 **Fields:**
+
 - `available`: Whether Redis instance is accessible
 - `host`: Redis host address
 - `port`: Redis port number
@@ -451,6 +494,7 @@ Detect PostgreSQL instances on common ports.
 Scan common PostgreSQL ports for active instances.
 
 **Signature:**
+
 ```python
 def scan_common_postgres_ports(
     host: str = "localhost",
@@ -460,14 +504,17 @@ def scan_common_postgres_ports(
 ```
 
 **Parameters:**
+
 - `host` (str): Host to scan (default: "localhost")
-- `ports` (list[int] | None): Ports to scan (default: [5432, 5433])
+- `ports` (list\[int\] | None): Ports to scan (default: \[5432, 5433\])
 - `timeout` (float): Connection timeout in seconds (default: 2.0)
 
 **Returns:**
+
 - `list[PostgresDetectionResult]`: List of detected PostgreSQL instances
 
 **Example:**
+
 ```python
 from mycelium_onboarding.detection.postgres_detector import scan_common_postgres_ports
 
@@ -477,13 +524,14 @@ for pg in instances:
     print(f"  Auth method: {pg.authentication_method}")
 ```
 
----
+______________________________________________________________________
 
 ### detect_postgres()
 
 Detect single PostgreSQL instance on specific port.
 
 **Signature:**
+
 ```python
 def detect_postgres(
     host: str = "localhost",
@@ -493,14 +541,17 @@ def detect_postgres(
 ```
 
 **Parameters:**
+
 - `host` (str): PostgreSQL host
 - `port` (int): PostgreSQL port
 - `timeout` (float): Connection timeout in seconds
 
 **Returns:**
+
 - `PostgresDetectionResult`: Detection result for specified instance
 
 **Example:**
+
 ```python
 from mycelium_onboarding.detection.postgres_detector import detect_postgres
 
@@ -510,11 +561,12 @@ if result.available:
     print(f"Authentication: {result.authentication_method}")
 ```
 
----
+______________________________________________________________________
 
 ### PostgresDetectionResult
 
 **Definition:**
+
 ```python
 @dataclass
 class PostgresDetectionResult:
@@ -527,6 +579,7 @@ class PostgresDetectionResult:
 ```
 
 **Fields:**
+
 - `available`: Whether PostgreSQL instance is accessible
 - `host`: PostgreSQL host address
 - `port`: PostgreSQL port number
@@ -541,6 +594,7 @@ Detect Temporal workflow server.
 ### detect_temporal()
 
 **Signature:**
+
 ```python
 def detect_temporal(
     host: str = "localhost",
@@ -551,20 +605,24 @@ def detect_temporal(
 ```
 
 **Parameters:**
+
 - `host` (str): Temporal host (default: "localhost")
 - `frontend_port` (int): gRPC frontend port (default: 7233)
 - `ui_port` (int): Web UI port (default: 8233)
 - `timeout` (float): Connection timeout in seconds
 
 **Returns:**
+
 - `TemporalDetectionResult`: Temporal detection result
 
 **Detection Method:**
+
 - Checks gRPC health endpoint on frontend port
 - Checks HTTP health endpoint on UI port
 - Retrieves version information if available
 
 **Example:**
+
 ```python
 from mycelium_onboarding.detection.temporal_detector import detect_temporal
 
@@ -578,11 +636,12 @@ else:
     print(f"Temporal unavailable: {result.error_message}")
 ```
 
----
+______________________________________________________________________
 
 ### TemporalDetectionResult
 
 **Definition:**
+
 ```python
 @dataclass
 class TemporalDetectionResult:
@@ -594,6 +653,7 @@ class TemporalDetectionResult:
 ```
 
 **Fields:**
+
 - `available`: Whether Temporal server is accessible
 - `frontend_port`: gRPC frontend port (typically 7233)
 - `ui_port`: Web UI port (typically 8233)
@@ -609,19 +669,23 @@ Detect GPU hardware and capabilities.
 Detect all available GPUs (NVIDIA, AMD, Intel).
 
 **Signature:**
+
 ```python
 def detect_gpus() -> GPUDetectionResult
 ```
 
 **Returns:**
+
 - `GPUDetectionResult`: GPU detection result with all devices
 
 **Detection Method:**
+
 - NVIDIA: Parses nvidia-smi XML output
 - AMD: Parses rocm-smi output
 - Intel: Parses sycl-ls output
 
 **Example:**
+
 ```python
 from mycelium_onboarding.detection.gpu_detector import detect_gpus
 
@@ -644,11 +708,12 @@ else:
     print(f"No GPUs detected: {result.error_message}")
 ```
 
----
+______________________________________________________________________
 
 ### GPUDetectionResult
 
 **Definition:**
+
 ```python
 @dataclass
 class GPUDetectionResult:
@@ -659,16 +724,18 @@ class GPUDetectionResult:
 ```
 
 **Fields:**
+
 - `available`: Whether any GPUs are detected
 - `gpus`: List of detected GPU devices
 - `total_memory_mb`: Sum of memory across all GPUs
 - `error_message`: Error description if none detected
 
----
+______________________________________________________________________
 
 ### GPU
 
 **Definition:**
+
 ```python
 @dataclass
 class GPU:
@@ -682,6 +749,7 @@ class GPU:
 ```
 
 **Fields:**
+
 - `vendor`: GPU vendor (GPUVendor.NVIDIA, GPUVendor.AMD, GPUVendor.INTEL)
 - `model`: GPU model name
 - `memory_mb`: GPU memory in megabytes
@@ -690,11 +758,12 @@ class GPU:
 - `rocm_version`: ROCm version (AMD only)
 - `index`: Device index number
 
----
+______________________________________________________________________
 
 ### GPUVendor
 
 **Definition:**
+
 ```python
 class GPUVendor(str, Enum):
     NVIDIA = "nvidia"
@@ -704,6 +773,7 @@ class GPUVendor(str, Enum):
 ```
 
 **Values:**
+
 - `NVIDIA`: NVIDIA GPUs (detected via nvidia-smi)
 - `AMD`: AMD GPUs (detected via rocm-smi)
 - `INTEL`: Intel GPUs (detected via sycl-ls)
@@ -713,25 +783,28 @@ class GPUVendor(str, Enum):
 
 ### Summary of All Detection Result Types
 
-| Service | Result Type | Multiple Instances | Version Info |
-|---------|-------------|-------------------|--------------|
-| Docker | `DockerDetectionResult` | No | Yes |
-| Redis | `RedisDetectionResult` | Yes | Yes |
-| PostgreSQL | `PostgresDetectionResult` | Yes | Yes |
-| Temporal | `TemporalDetectionResult` | No | Yes |
-| GPU | `GPUDetectionResult` | Yes (multiple GPUs) | Yes (driver/CUDA/ROCm) |
+| Service    | Result Type               | Multiple Instances  | Version Info           |
+| ---------- | ------------------------- | ------------------- | ---------------------- |
+| Docker     | `DockerDetectionResult`   | No                  | Yes                    |
+| Redis      | `RedisDetectionResult`    | Yes                 | Yes                    |
+| PostgreSQL | `PostgresDetectionResult` | Yes                 | Yes                    |
+| Temporal   | `TemporalDetectionResult` | No                  | Yes                    |
+| GPU        | `GPUDetectionResult`      | Yes (multiple GPUs) | Yes (driver/CUDA/ROCm) |
 
 ### Common Patterns
 
 **All detection results include:**
+
 - `available: bool` - Service availability status
 - `error_message: str | None` - Error description if unavailable
 
 **Service results with network connection:**
+
 - `host: str` - Service host address
 - `port: int` - Service port number
 
 **Results with version information:**
+
 - `version: str | None` - Service version string
 
 ## Type Definitions
@@ -773,6 +846,7 @@ if not result.available:
 ```
 
 **Common error messages:**
+
 - Docker: "Docker daemon not running", "Permission denied"
 - Redis: "Connection refused", "Authentication required"
 - PostgreSQL: "Connection refused", "Authentication failed"
@@ -841,6 +915,7 @@ redis_instances = len(data["redis"]["instances"])
 ### Parallelization
 
 All detections run in parallel using ThreadPoolExecutor:
+
 - Maximum 5 concurrent detections
 - Individual timeouts prevent hanging
 - Total time typically 2-3 seconds
@@ -848,6 +923,7 @@ All detections run in parallel using ThreadPoolExecutor:
 ### Timeouts
 
 Default timeouts for each service:
+
 - Docker: Internal timeout (immediate)
 - Redis: 1.0 second per port
 - PostgreSQL: 2.0 seconds per port
@@ -880,6 +956,6 @@ if time.time() - last_detection > 60:
 - [Configuration Reference](configuration-reference.md) - Config system API
 - [Architecture Overview](ARCHITECTURE_DIAGRAMS.md) - System architecture
 
----
+______________________________________________________________________
 
 For issues or contributions, visit: https://github.com/gsornsen/mycelium

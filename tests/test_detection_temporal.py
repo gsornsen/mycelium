@@ -41,9 +41,7 @@ class TestDetectTemporal:
         assert result.namespace == "default"
         assert result.error_message is None
 
-    def test_detect_temporal_custom_ports(
-        self, mocker: pytest_mock.MockerFixture
-    ) -> None:
+    def test_detect_temporal_custom_ports(self, mocker: pytest_mock.MockerFixture) -> None:
         """Test Temporal detection with custom ports."""
         mocker.patch(
             "mycelium_onboarding.detection.temporal_detector._check_port_open",
@@ -61,9 +59,7 @@ class TestDetectTemporal:
         assert result.frontend_port == 7234
         assert result.ui_port == 8081
 
-    def test_detect_temporal_frontend_not_available(
-        self, mocker: pytest_mock.MockerFixture
-    ) -> None:
+    def test_detect_temporal_frontend_not_available(self, mocker: pytest_mock.MockerFixture) -> None:
         """Test Temporal frontend not available."""
         mocker.patch(
             "mycelium_onboarding.detection.temporal_detector._check_port_open",
@@ -77,9 +73,7 @@ class TestDetectTemporal:
         assert "frontend not responding" in result.error_message
         assert "temporal server start-dev" in result.error_message
 
-    def test_detect_temporal_ui_not_available(
-        self, mocker: pytest_mock.MockerFixture
-    ) -> None:
+    def test_detect_temporal_ui_not_available(self, mocker: pytest_mock.MockerFixture) -> None:
         """Test Temporal with UI not available (but frontend is)."""
         # Frontend available, UI not available
         mocker.patch(
@@ -157,9 +151,7 @@ class TestCheckPortOpen:
 
         assert result is False
 
-    def test_check_port_open_cleanup_on_error(
-        self, mocker: pytest_mock.MockerFixture
-    ) -> None:
+    def test_check_port_open_cleanup_on_error(self, mocker: pytest_mock.MockerFixture) -> None:
         """Test that socket is cleaned up even on error."""
         from mycelium_onboarding.detection.temporal_detector import _check_port_open
 
@@ -186,8 +178,7 @@ class TestAttemptVersionFromUI:
 
         mock_socket = Mock()
         mock_socket.recv.return_value = (
-            b"HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n"
-            b"<html><body>Temporal v1.22.3</body></html>"
+            b"HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<html><body>Temporal v1.22.3</body></html>"
         )
 
         mock_socket_class = mocker.patch("socket.socket")
@@ -206,8 +197,7 @@ class TestAttemptVersionFromUI:
 
         mock_socket = Mock()
         mock_socket.recv.return_value = (
-            b"HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n"
-            b"<html><body>Temporal UI</body></html>"
+            b"HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<html><body>Temporal UI</body></html>"
         )
 
         mock_socket_class = mocker.patch("socket.socket")
@@ -217,9 +207,7 @@ class TestAttemptVersionFromUI:
 
         assert version is None
 
-    def test_attempt_version_connection_error(
-        self, mocker: pytest_mock.MockerFixture
-    ) -> None:
+    def test_attempt_version_connection_error(self, mocker: pytest_mock.MockerFixture) -> None:
         """Test version detection with connection error."""
         from mycelium_onboarding.detection.temporal_detector import (
             _attempt_version_from_ui,
@@ -252,9 +240,7 @@ class TestAttemptVersionFromUI:
 
         assert version is None
 
-    def test_attempt_version_cleanup_on_error(
-        self, mocker: pytest_mock.MockerFixture
-    ) -> None:
+    def test_attempt_version_cleanup_on_error(self, mocker: pytest_mock.MockerFixture) -> None:
         """Test that socket is cleaned up even on error."""
         from mycelium_onboarding.detection.temporal_detector import (
             _attempt_version_from_ui,
@@ -275,9 +261,7 @@ class TestAttemptVersionFromUI:
 class TestParseTemporalVersion:
     """Tests for _parse_temporal_version helper function."""
 
-    def test_parse_version_various_formats(
-        self, mocker: pytest_mock.MockerFixture
-    ) -> None:
+    def test_parse_version_various_formats(self, mocker: pytest_mock.MockerFixture) -> None:
         """Test parsing various version string formats."""
         from mycelium_onboarding.detection.temporal_detector import (
             _parse_temporal_version,
@@ -301,11 +285,7 @@ class TestParseTemporalVersion:
             _parse_temporal_version,
         )
 
-        response = (
-            "HTTP/1.1 200 OK\r\n"
-            "X-Temporal-Server-Version: 1.22.3\r\n"
-            "Content-Type: text/html\r\n"
-        )
+        response = "HTTP/1.1 200 OK\r\nX-Temporal-Server-Version: 1.22.3\r\nContent-Type: text/html\r\n"
 
         # This might not match if the regex doesn't catch the header format
         # but it tests the general parsing capability
@@ -313,9 +293,7 @@ class TestParseTemporalVersion:
         # Could be None if header format not supported, which is OK
         assert result is None or result == "1.22.3"
 
-    def test_parse_version_exception_handling(
-        self, mocker: pytest_mock.MockerFixture
-    ) -> None:
+    def test_parse_version_exception_handling(self, mocker: pytest_mock.MockerFixture) -> None:
         """Test that parsing handles exceptions gracefully."""
         from mycelium_onboarding.detection.temporal_detector import (
             _parse_temporal_version,

@@ -4,7 +4,8 @@ This directory contains detailed specifications for all screens in the Mycelium 
 
 ## Overview
 
-The wizard guides users through a 7-screen flow to configure their Mycelium environment. Each screen is designed to be friendly, accessible, and informative.
+The wizard guides users through a 7-screen flow to configure their Mycelium environment. Each screen is designed to be
+friendly, accessible, and informative.
 
 ## Screen Flow
 
@@ -19,21 +20,25 @@ WELCOME → DETECTION → SERVICES → DEPLOYMENT → ADVANCED* → REVIEW → C
 ## Screens
 
 ### 1. [Welcome](screen_welcome.md)
+
 **Purpose**: Introduction and setup mode selection
 
 **Key Features**:
+
 - Project overview
 - Quick vs Custom setup choice
 - Exit confirmation
 
 **Duration**: 30 seconds
 
----
+______________________________________________________________________
 
 ### 2. [Detection](screen_detection.md)
+
 **Purpose**: Automatic service detection
 
 **Key Features**:
+
 - Real-time progress indicators
 - Detection results with versions
 - Re-run capability
@@ -41,12 +46,14 @@ WELCOME → DETECTION → SERVICES → DEPLOYMENT → ADVANCED* → REVIEW → C
 
 **Duration**: 2-5 seconds (detection time)
 
----
+______________________________________________________________________
 
 ### 3. [Services](screen_services.md)
+
 **Purpose**: Service selection and basic configuration
 
 **Key Features**:
+
 - Project name input
 - Service enable/disable checkboxes
 - Port configuration
@@ -55,12 +62,14 @@ WELCOME → DETECTION → SERVICES → DEPLOYMENT → ADVANCED* → REVIEW → C
 
 **Duration**: 1-2 minutes
 
----
+______________________________________________________________________
 
 ### 4. [Deployment](screen_deployment.md)
+
 **Purpose**: Deployment method selection
 
 **Key Features**:
+
 - Docker Compose (recommended)
 - Kubernetes
 - systemd
@@ -70,12 +79,14 @@ WELCOME → DETECTION → SERVICES → DEPLOYMENT → ADVANCED* → REVIEW → C
 
 **Duration**: 30-60 seconds
 
----
+______________________________________________________________________
 
 ### 5. [Advanced](screen_advanced.md) *(Custom Setup only)*
+
 **Purpose**: Advanced service-specific settings
 
 **Key Features**:
+
 - Redis: Persistence, memory limits
 - PostgreSQL: Max connections
 - Temporal: Namespace, retention
@@ -83,12 +94,14 @@ WELCOME → DETECTION → SERVICES → DEPLOYMENT → ADVANCED* → REVIEW → C
 
 **Duration**: 1-2 minutes
 
----
+______________________________________________________________________
 
 ### 6. [Review](screen_review.md)
+
 **Purpose**: Configuration summary and confirmation
 
 **Key Features**:
+
 - Complete configuration display
 - Jump back to edit any section
 - Save and exit option
@@ -96,12 +109,14 @@ WELCOME → DETECTION → SERVICES → DEPLOYMENT → ADVANCED* → REVIEW → C
 
 **Duration**: 1-2 minutes
 
----
+______________________________________________________________________
 
 ### 7. [Complete](screen_complete.md)
+
 **Purpose**: Success message and next steps
 
 **Key Features**:
+
 - Success confirmation
 - Generated files list
 - Deployment-specific next steps
@@ -111,41 +126,47 @@ WELCOME → DETECTION → SERVICES → DEPLOYMENT → ADVANCED* → REVIEW → C
 
 **Duration**: Read-only, exit when ready
 
----
+______________________________________________________________________
 
 ## Design Principles
 
 ### 1. Accessibility First
+
 - Keyboard-only navigation
 - Screen reader friendly
 - Clear visual hierarchy
 - No color-only indicators
 
 ### 2. Progressive Disclosure
+
 - Show only relevant options
 - Quick Setup hides complexity
 - Custom Setup reveals all options
 - Help text available but not intrusive
 
 ### 3. Smart Defaults
+
 - Detection results pre-populate settings
 - Industry-standard ports
 - Sensible configuration values
 - Minimal required input
 
 ### 4. Error Prevention
+
 - Validation on all inputs
 - Clear error messages
 - Confirmation dialogs
 - Easy error recovery
 
 ### 5. Flexibility
+
 - Back navigation (except Welcome/Complete)
 - Jump to edit from Review
 - Save and resume capability
 - Re-run detection option
 
 ### 6. Transparency
+
 - Show what's happening
 - Explain prerequisites
 - Display generated files
@@ -154,6 +175,7 @@ WELCOME → DETECTION → SERVICES → DEPLOYMENT → ADVANCED* → REVIEW → C
 ## User Flows
 
 ### Quick Setup Flow (2-3 minutes)
+
 ```
 WELCOME (Quick)
   ↓
@@ -169,6 +191,7 @@ COMPLETE
 ```
 
 ### Custom Setup Flow (4-5 minutes)
+
 ```
 WELCOME (Custom)
   ↓
@@ -186,6 +209,7 @@ COMPLETE
 ```
 
 ### Edit Flow (from Review)
+
 ```
 REVIEW
   ↓ (Edit Services)
@@ -203,11 +227,11 @@ COMPLETE
 Each screen should implement:
 
 1. **Header**: Title and description
-2. **Content**: Inputs, displays, or results
-3. **Help**: Context-sensitive help text
-4. **Validation**: Input validation with clear errors
-5. **Navigation**: Next/Back/Cancel options
-6. **State**: Update WizardState on completion
+1. **Content**: Inputs, displays, or results
+1. **Help**: Context-sensitive help text
+1. **Validation**: Input validation with clear errors
+1. **Navigation**: Next/Back/Cancel options
+1. **State**: Update WizardState on completion
 
 ### InquirerPy Widgets
 
@@ -288,6 +312,7 @@ Use these box-drawing characters:
 ```
 
 Status indicators:
+
 ```
 ✓  Success / Enabled
 ✗  Failure / Disabled
@@ -299,6 +324,7 @@ Status indicators:
 ## Keyboard Navigation
 
 Standard keys:
+
 - `↑/↓`: Navigate options
 - `Space`: Select/deselect (checkbox)
 - `Enter`: Confirm selection
@@ -309,11 +335,13 @@ Standard keys:
 ## Responsive Design
 
 Screens should work with:
+
 - Minimum width: 64 characters
 - Recommended width: 80 characters
 - Maximum width: 120 characters
 
 Use dynamic padding for centering:
+
 ```python
 width = shutil.get_terminal_size().columns
 padding = (width - 64) // 2
@@ -324,6 +352,7 @@ padding = (width - 64) // 2
 All screens should handle:
 
 1. **Keyboard Interrupt** (Ctrl+C):
+
    ```python
    try:
        result = inquirer.select(...).execute()
@@ -332,12 +361,14 @@ All screens should handle:
        sys.exit(0)
    ```
 
-2. **Validation Errors**:
+1. **Validation Errors**:
+
    - Show inline with input
    - Provide correction guidance
    - Don't advance until valid
 
-3. **System Errors**:
+1. **System Errors**:
+
    - Graceful degradation
    - Clear error messages
    - Offer recovery options
@@ -380,12 +411,12 @@ Potential improvements:
 When adding or modifying screens:
 
 1. Update this README
-2. Follow existing patterns
-3. Include complete spec
-4. Add help text
-5. Write tests
-6. Update flow diagram
-7. Test with real users
+1. Follow existing patterns
+1. Include complete spec
+1. Add help text
+1. Write tests
+1. Update flow diagram
+1. Test with real users
 
 ## References
 

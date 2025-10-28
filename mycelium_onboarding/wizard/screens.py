@@ -127,9 +127,7 @@ class WizardScreens:
             summary = detect_all()
 
         # Display detection results in table
-        table = Table(
-            title="Detection Results", show_header=True, header_style="bold cyan"
-        )
+        table = Table(title="Detection Results", show_header=True, header_style="bold cyan")
         table.add_column("Service", style="cyan")
         table.add_column("Status", justify="center")
         table.add_column("Details")
@@ -174,8 +172,7 @@ class WizardScreens:
             table.add_row(
                 "Temporal",
                 "[green]✓ Found[/green]",
-                f"Frontend: {summary.temporal.frontend_port}, "
-                f"UI: {summary.temporal.ui_port}",
+                f"Frontend: {summary.temporal.frontend_port}, UI: {summary.temporal.ui_port}",
             )
         else:
             table.add_row("Temporal", "[yellow]✗ Not Found[/yellow]", "Not running")
@@ -190,9 +187,7 @@ class WizardScreens:
             table.add_row("GPU", "[yellow]✗ Not Found[/yellow]", "No GPU detected")
 
         console.print(table)
-        console.print(
-            f"\n[dim]Detection completed in {summary.detection_time:.2f}s[/dim]\n"
-        )
+        console.print(f"\n[dim]Detection completed in {summary.detection_time:.2f}s[/dim]\n")
 
         # Store in state (cast to Any to avoid type errors with dict[str, Any])
         self.state.detection_results = summary  # type: ignore[assignment]
@@ -242,9 +237,7 @@ class WizardScreens:
 
         # Multi-select with checkboxes
         services = inquirer.checkbox(  # type: ignore[attr-defined]
-            message=(
-                "Select services to enable (use space to select, enter to confirm):"
-            ),
+            message=("Select services to enable (use space to select, enter to confirm):"),
             choices=[
                 Choice(value="redis", name="Redis - Message broker and caching"),
                 Choice(value="postgres", name="PostgreSQL - Primary database"),
@@ -266,14 +259,9 @@ class WizardScreens:
         if services_enabled["postgres"]:
             db_name = inquirer.text(  # type: ignore[attr-defined]
                 message="PostgreSQL database name:",
-                default=self.state.project_name.lower().replace("-", "_")
-                if self.state.project_name
-                else "mycelium",
-                validate=lambda text: len(text) > 0
-                and text.replace("_", "").replace("-", "").isalnum(),
-                invalid_message=(
-                    "Database name must be alphanumeric with underscores/hyphens"
-                ),
+                default=self.state.project_name.lower().replace("-", "_") if self.state.project_name else "mycelium",
+                validate=lambda text: len(text) > 0 and text.replace("_", "").replace("-", "").isalnum(),
+                invalid_message=("Database name must be alphanumeric with underscores/hyphens"),
             ).execute()
             self.state.postgres_database = str(db_name)
 
@@ -326,10 +314,7 @@ class WizardScreens:
                 )
             )
         else:
-            console.print(
-                "[yellow]⚠ Docker not detected. "
-                "Some deployment options may be limited.[/yellow]\n"
-            )
+            console.print("[yellow]⚠ Docker not detected. Some deployment options may be limited.[/yellow]\n")
 
         choices.append(Choice(value="systemd", name="systemd - Native Linux services"))
 
@@ -451,9 +436,7 @@ class WizardScreens:
 
             # Only show advanced if in custom mode or resumed
             if self.state.setup_mode == "custom" or self.state.resumed:
-                edit_choices.append(
-                    Choice(value=WizardStep.ADVANCED, name="Advanced Settings")
-                )
+                edit_choices.append(Choice(value=WizardStep.ADVANCED, name="Advanced Settings"))
 
             edit_step = inquirer.select(  # type: ignore[attr-defined]
                 message="Which section would you like to edit?",

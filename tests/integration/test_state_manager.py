@@ -172,9 +172,7 @@ async def test_state_snapshot_creation(state_manager):
         state = await state_manager.update_workflow(state)
 
     # Verify we can rollback to initial version
-    rolled_back = await state_manager.rollback_workflow(
-        state.workflow_id, initial_version
-    )
+    rolled_back = await state_manager.rollback_workflow(state.workflow_id, initial_version)
     assert rolled_back.version == initial_version
 
 
@@ -187,9 +185,7 @@ async def test_rollback_workflow(state_manager):
     version1 = state.version
 
     # Update task
-    await state_manager.update_task(
-        state.workflow_id, "task1", status=TaskStatus.COMPLETED
-    )
+    await state_manager.update_task(state.workflow_id, "task1", status=TaskStatus.COMPLETED)
     state = await state_manager.get_workflow(state.workflow_id)
     version2 = state.version
 

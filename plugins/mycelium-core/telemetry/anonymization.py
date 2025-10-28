@@ -117,9 +117,7 @@ class DataAnonymizer:
         # (which may contain emails, paths, etc.)
         return self._anonymize_message(trace)
 
-    def anonymize_error(
-        self, error_type: str, error_message: str, stack_trace: str | None = None
-    ) -> dict[str, Any]:
+    def anonymize_error(self, error_type: str, error_message: str, stack_trace: str | None = None) -> dict[str, Any]:
         """Anonymize error information.
 
         Args:
@@ -154,9 +152,7 @@ class DataAnonymizer:
         # Replace file paths in message (both quoted and unquoted)
         # First handle quoted paths
         message = self._path_pattern.sub(
-            lambda m: m.group(0).replace(
-                m.group(1), self.anonymize_file_path(m.group(1))
-            ),
+            lambda m: m.group(0).replace(m.group(1), self.anonymize_file_path(m.group(1))),
             message,
         )
 
@@ -179,9 +175,7 @@ class DataAnonymizer:
         message = re.sub(r"://[^:]+:([^@]+)@", "://<user>:<password>@", message)
 
         # Remove any potential email addresses
-        return re.sub(
-            r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b", "<email>", message
-        )
+        return re.sub(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b", "<email>", message)
 
     def anonymize_agent_usage(
         self, agent_id: str, operation: str, metadata: dict[str, Any] | None = None
@@ -228,11 +222,7 @@ class DataAnonymizer:
             "status_code",
         }
 
-        return {
-            k: v
-            for k, v in metadata.items()
-            if k in safe_keys and not isinstance(v, (dict, list))
-        }
+        return {k: v for k, v in metadata.items() if k in safe_keys and not isinstance(v, dict | list)}
 
     def anonymize_performance_metric(
         self,

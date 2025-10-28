@@ -2,7 +2,8 @@
 
 ## Overview
 
-Mycelium includes an **opt-in telemetry system** designed with privacy-first principles. Telemetry helps improve the platform by collecting anonymized usage and performance data.
+Mycelium includes an **opt-in telemetry system** designed with privacy-first principles. Telemetry helps improve the
+platform by collecting anonymized usage and performance data.
 
 **Important**: Telemetry is **DISABLED BY DEFAULT**. You must explicitly opt-in to enable it.
 
@@ -30,7 +31,8 @@ When enabled, we only collect anonymized, non-sensitive data:
 - ✅ Error types (sanitized stack traces, no user data)
 - ✅ System metadata (OS, Python version, Mycelium version)
 
-All identifiers are hashed using SHA-256 with a unique salt before transmission, making them irreversible and non-identifying.
+All identifiers are hashed using SHA-256 with a unique salt before transmission, making them irreversible and
+non-identifying.
 
 ## Configuration
 
@@ -48,15 +50,15 @@ That's it! Telemetry will use default settings.
 
 All telemetry configuration is done through environment variables:
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `TELEMETRY_ENABLED` | `false` | Enable telemetry collection (true/false) |
-| `TELEMETRY_ENDPOINT` | `https://mycelium-telemetry.sornsen.io` | Telemetry collection endpoint |
-| `TELEMETRY_TIMEOUT` | `5` | Request timeout in seconds (1-30) |
-| `TELEMETRY_BATCH_SIZE` | `100` | Number of events to batch before sending (1-1000) |
-| `TELEMETRY_RETRY_ATTEMPTS` | `3` | Number of retry attempts on failure (0-10) |
-| `TELEMETRY_RETRY_BACKOFF` | `2.0` | Exponential backoff multiplier (1.0-10.0) |
-| `TELEMETRY_SALT` | Auto-generated | Salt for hashing identifiers (optional) |
+| Variable                   | Default                                 | Description                                       |
+| -------------------------- | --------------------------------------- | ------------------------------------------------- |
+| `TELEMETRY_ENABLED`        | `false`                                 | Enable telemetry collection (true/false)          |
+| `TELEMETRY_ENDPOINT`       | `https://mycelium-telemetry.sornsen.io` | Telemetry collection endpoint                     |
+| `TELEMETRY_TIMEOUT`        | `5`                                     | Request timeout in seconds (1-30)                 |
+| `TELEMETRY_BATCH_SIZE`     | `100`                                   | Number of events to batch before sending (1-1000) |
+| `TELEMETRY_RETRY_ATTEMPTS` | `3`                                     | Number of retry attempts on failure (0-10)        |
+| `TELEMETRY_RETRY_BACKOFF`  | `2.0`                                   | Exponential backoff multiplier (1.0-10.0)         |
+| `TELEMETRY_SALT`           | Auto-generated                          | Salt for hashing identifiers (optional)           |
 
 ### Example Configurations
 
@@ -101,6 +103,7 @@ You can run your own telemetry collection endpoint instead of using the default.
 ### Requirements
 
 Your endpoint must:
+
 - Accept POST requests at the configured URL
 - Handle JSON payloads with this structure:
 
@@ -136,7 +139,7 @@ TELEMETRY_TIMEOUT=10
 - No background threads created
 - No network connections initiated
 - No memory allocated for telemetry
-- Impact: <1 microsecond per call
+- Impact: \<1 microsecond per call
 
 ### When Enabled
 
@@ -145,7 +148,7 @@ Minimal overhead with non-blocking operation:
 - Background thread handles all network I/O
 - Events are queued and batched for efficiency
 - Failed sends don't impact application performance
-- Typical overhead: <1ms per tracked event
+- Typical overhead: \<1ms per tracked event
 - Memory usage: ~5MB for event queue
 
 ## Event Types
@@ -155,6 +158,7 @@ Minimal overhead with non-blocking operation:
 Tracks when agents are used and which operations they perform.
 
 **Example event** (as sent to endpoint):
+
 ```json
 {
   "event_type": "agent_usage",
@@ -173,6 +177,7 @@ Tracks when agents are used and which operations they perform.
 Tracks system performance characteristics.
 
 **Example event**:
+
 ```json
 {
   "event_type": "performance",
@@ -191,6 +196,7 @@ Tracks system performance characteristics.
 Tracks errors with anonymized details.
 
 **Example event**:
+
 ```json
 {
   "event_type": "error",
@@ -208,6 +214,7 @@ Note: File paths and any sensitive information are anonymized before sending.
 Tracks system metadata (sent once on startup).
 
 **Example event**:
+
 ```json
 {
   "event_type": "system_info",
@@ -288,6 +295,7 @@ The telemetry system is designed to **never impact your application**, even when
 ### Network Failures
 
 If the telemetry endpoint is unreachable:
+
 - Events are queued and retried with exponential backoff
 - After max retries, events are discarded (logged but not saved)
 - Application continues normally
@@ -295,6 +303,7 @@ If the telemetry endpoint is unreachable:
 ### Configuration Errors
 
 If configuration is invalid:
+
 - Telemetry defaults to disabled
 - Warning logged but application continues
 - No exceptions raised
@@ -302,6 +311,7 @@ If configuration is invalid:
 ### Queue Overflow
 
 If event queue fills up:
+
 - New events are dropped (oldest first)
 - Warning logged
 - Application continues normally
@@ -339,24 +349,28 @@ echo "TELEMETRY_SALT=$TELEMETRY_SALT" >> .env
 ### Telemetry Not Sending Events
 
 1. **Verify telemetry is enabled**:
+
    ```bash
    echo $TELEMETRY_ENABLED  # Should print "true"
    ```
 
-2. **Check logs** for telemetry errors:
+1. **Check logs** for telemetry errors:
+
    ```bash
    # Look for "telemetry" in logs
    grep -i telemetry logs/mycelium.log
    ```
 
-3. **Test endpoint connectivity**:
+1. **Test endpoint connectivity**:
+
    ```bash
    curl -X POST https://mycelium-telemetry.sornsen.io \
      -H "Content-Type: application/json" \
      -d '{"test": true}'
    ```
 
-4. **Verify configuration**:
+1. **Verify configuration**:
+
    ```python
    from plugins.mycelium_core.telemetry import TelemetryConfig
 
@@ -370,15 +384,18 @@ echo "TELEMETRY_SALT=$TELEMETRY_SALT" >> .env
 If telemetry is using excessive memory:
 
 1. **Reduce batch size**:
+
    ```bash
    TELEMETRY_BATCH_SIZE=50  # Default is 100
    ```
 
-2. **Check for endpoint issues**:
+1. **Check for endpoint issues**:
+
    - Events accumulate if endpoint is down
    - Verify endpoint is responding
 
-3. **Monitor queue size** (programmatically):
+1. **Monitor queue size** (programmatically):
+
    ```python
    client = TelemetryClient()
    print(f"Queue size: {client._event_queue.qsize()}")
@@ -387,10 +404,12 @@ If telemetry is using excessive memory:
 ### Events Not Batching
 
 Events are sent when:
+
 - Batch size is reached (default: 100 events), OR
 - 30 seconds have passed since last send
 
 For immediate sending, reduce batch size:
+
 ```bash
 TELEMETRY_BATCH_SIZE=1  # Send immediately
 ```
@@ -420,7 +439,8 @@ Currently, telemetry is system-wide. You can only enable/disable for the entire 
 
 ### How long are events retained?
 
-Event retention is determined by your telemetry endpoint. The default Mycelium endpoint retains anonymized data for 90 days.
+Event retention is determined by your telemetry endpoint. The default Mycelium endpoint retains anonymized data for 90
+days.
 
 ### Can I export my telemetry data?
 

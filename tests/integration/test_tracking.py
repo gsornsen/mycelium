@@ -18,9 +18,7 @@ from pathlib import Path
 import asyncpg
 import pytest
 
-sys.path.insert(
-    0, str(Path(__file__).parent.parent.parent / "plugins" / "mycelium-core")
-)
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "plugins" / "mycelium-core"))
 
 from coordination.tracker import (
     AgentInfo,
@@ -35,9 +33,7 @@ from coordination.tracker import (
 )
 
 # Test database configuration
-TEST_DB_URL = (
-    "postgresql://mycelium:mycelium_dev_password@localhost:5432/mycelium_registry"
-)
+TEST_DB_URL = "postgresql://mycelium:mycelium_dev_password@localhost:5432/mycelium_registry"
 
 
 @pytest.fixture
@@ -58,9 +54,7 @@ async def tracker(db_pool):
 
     # Cleanup: delete test events
     async with db_pool.acquire() as conn:
-        await conn.execute(
-            "DELETE FROM coordination_events WHERE workflow_id LIKE 'test-%'"
-        )
+        await conn.execute("DELETE FROM coordination_events WHERE workflow_id LIKE 'test-%'")
 
     await tracker.close()
 
@@ -196,23 +190,13 @@ class TestEventRetrieval:
         workflow_id = "test-workflow-006"
 
         # Create mixed events
-        await tracker.track_event(
-            CoordinationEvent(EventType.WORKFLOW_STARTED, workflow_id)
-        )
-        await tracker.track_event(
-            CoordinationEvent(EventType.TASK_STARTED, workflow_id, task_id="t1")
-        )
-        await tracker.track_event(
-            CoordinationEvent(EventType.HANDOFF, workflow_id, task_id="t1")
-        )
-        await tracker.track_event(
-            CoordinationEvent(EventType.TASK_COMPLETED, workflow_id, task_id="t1")
-        )
+        await tracker.track_event(CoordinationEvent(EventType.WORKFLOW_STARTED, workflow_id))
+        await tracker.track_event(CoordinationEvent(EventType.TASK_STARTED, workflow_id, task_id="t1"))
+        await tracker.track_event(CoordinationEvent(EventType.HANDOFF, workflow_id, task_id="t1"))
+        await tracker.track_event(CoordinationEvent(EventType.TASK_COMPLETED, workflow_id, task_id="t1"))
 
         # Filter by handoff
-        handoffs = await tracker.get_workflow_events(
-            workflow_id, event_type=EventType.HANDOFF
-        )
+        handoffs = await tracker.get_workflow_events(workflow_id, event_type=EventType.HANDOFF)
         assert len(handoffs) == 1
         assert handoffs[0].event_type == EventType.HANDOFF
 
@@ -223,20 +207,12 @@ class TestEventRetrieval:
         task_id = "specific-task"
 
         # Create events for specific task
-        await tracker.track_event(
-            CoordinationEvent(EventType.TASK_STARTED, workflow_id, task_id=task_id)
-        )
-        await tracker.track_event(
-            CoordinationEvent(EventType.EXECUTION_START, workflow_id, task_id=task_id)
-        )
-        await tracker.track_event(
-            CoordinationEvent(EventType.EXECUTION_END, workflow_id, task_id=task_id)
-        )
+        await tracker.track_event(CoordinationEvent(EventType.TASK_STARTED, workflow_id, task_id=task_id))
+        await tracker.track_event(CoordinationEvent(EventType.EXECUTION_START, workflow_id, task_id=task_id))
+        await tracker.track_event(CoordinationEvent(EventType.EXECUTION_END, workflow_id, task_id=task_id))
 
         # Also create events for other tasks
-        await tracker.track_event(
-            CoordinationEvent(EventType.TASK_STARTED, workflow_id, task_id="other-task")
-        )
+        await tracker.track_event(CoordinationEvent(EventType.TASK_STARTED, workflow_id, task_id="other-task"))
 
         events = await tracker.get_task_events(task_id)
         assert len(events) == 3
@@ -364,11 +340,7 @@ class TestStatistics:
         for w in range(3):
             workflow_id = f"test-workflow-stats-{w}"
             for e in range(5):
-                await tracker.track_event(
-                    CoordinationEvent(
-                        EventType.TASK_STARTED, workflow_id, task_id=f"t-{e}"
-                    )
-                )
+                await tracker.track_event(CoordinationEvent(EventType.TASK_STARTED, workflow_id, task_id=f"t-{e}"))
 
         stats = await tracker.get_statistics()
 
@@ -400,9 +372,7 @@ class TestPerformance:
         avg_time_per_event = total_time_ms / num_events
 
         # Should be fast (<10ms per event for reasonable performance)
-        assert avg_time_per_event < 10.0, (
-            f"Tracking too slow: {avg_time_per_event}ms per event"
-        )
+        assert avg_time_per_event < 10.0, f"Tracking too slow: {avg_time_per_event}ms per event"
 
         print(f"\nTracking performance: {avg_time_per_event:.2f}ms per event")
 
@@ -437,14 +407,10 @@ class TestPerformance:
         # Extrapolate to 1000 events
         extrapolated_size_mb = (size_bytes / num_events * 1000) / (1024 * 1024)
 
-        print(
-            f"\nStorage efficiency: {extrapolated_size_mb:.2f}MB per 1000 events (extrapolated)"
-        )
+        print(f"\nStorage efficiency: {extrapolated_size_mb:.2f}MB per 1000 events (extrapolated)")
 
         # Should be under 10MB per 1000 events
-        assert extrapolated_size_mb < 10.0, (
-            f"Storage too large: {extrapolated_size_mb:.2f}MB per 1000 events"
-        )
+        assert extrapolated_size_mb < 10.0, f"Storage too large: {extrapolated_size_mb:.2f}MB per 1000 events"
 
     @pytest.mark.asyncio
     async def test_concurrent_tracking(self, tracker):
@@ -560,9 +526,7 @@ class TestDataCleanup:
 
         # Create events
         for i in range(5):
-            await tracker.track_event(
-                CoordinationEvent(EventType.TASK_STARTED, workflow_id, task_id=f"t-{i}")
-            )
+            await tracker.track_event(CoordinationEvent(EventType.TASK_STARTED, workflow_id, task_id=f"t-{i}"))
 
         # Verify created
         events = await tracker.get_workflow_events(workflow_id)

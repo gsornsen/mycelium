@@ -106,13 +106,13 @@ The health check script:
 
 ## Performance Targets
 
-| Metric          | Target | Status Indicator                          |
-| --------------- | ------ | ----------------------------------------- |
-| list_agents p95 | < 20ms | ✅ Pass, ⚠️ Warn (>20ms), ❌ Fail (>30ms) |
-| get_agent p95   | < 5ms  | ✅ Pass, ⚠️ Warn (>5ms), ❌ Fail (>7.5ms) |
-| search p95      | < 10ms | ✅ Pass, ⚠️ Warn (>10ms), ❌ Fail (>15ms) |
-| Cache hit rate  | > 80%  | ✅ Pass, ⚠️ Warn (\<80%), ❌ Fail (\<60%) |
-| Token savings   | > 40%  | ✅ Pass, ⚠️ Warn (\<40%), ❌ Fail (\<30%) |
+| Metric          | Target  | Status Indicator                          |
+| --------------- | ------- | ----------------------------------------- |
+| list_agents p95 | \< 20ms | ✅ Pass, ⚠️ Warn (>20ms), ❌ Fail (>30ms) |
+| get_agent p95   | \< 5ms  | ✅ Pass, ⚠️ Warn (>5ms), ❌ Fail (>7.5ms) |
+| search p95      | \< 10ms | ✅ Pass, ⚠️ Warn (>10ms), ❌ Fail (>15ms) |
+| Cache hit rate  | > 80%   | ✅ Pass, ⚠️ Warn (\<80%), ❌ Fail (\<60%) |
+| Token savings   | > 40%   | ✅ Pass, ⚠️ Warn (\<40%), ❌ Fail (\<30%) |
 
 ## Dependencies
 

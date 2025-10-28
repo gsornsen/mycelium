@@ -17,10 +17,10 @@ mycelium-switch git
 
 ## When to Use Each Mode
 
-| Mode | When | What Happens |
-|------|------|--------------|
+| Mode       | When                                                  | What Happens                                              |
+| ---------- | ----------------------------------------------------- | --------------------------------------------------------- |
 | **source** | Developing features, debugging, testing local changes | Creates symlink to `~/git/mycelium/plugins/mycelium-core` |
-| **git** | Normal usage, stable version, sharing with team | Clones from `https://github.com/gsornsen/mycelium` |
+| **git**    | Normal usage, stable version, sharing with team       | Clones from `https://github.com/gsornsen/mycelium`        |
 
 ## Safety Features
 
@@ -32,6 +32,7 @@ mycelium-switch git
 ## Common Workflows
 
 ### Development Session
+
 ```bash
 mycelium-switch source   # Start
 # ... edit code in ~/git/mycelium ...
@@ -40,6 +41,7 @@ mycelium-switch git      # End (back to stable)
 ```
 
 ### Test Before Commit
+
 ```bash
 mycelium-switch source --dry-run  # Preview
 mycelium-switch source            # Apply
@@ -49,12 +51,12 @@ cd ~/git/mycelium && git commit   # Commit if satisfied
 
 ## Troubleshooting
 
-| Problem | Solution |
-|---------|----------|
-| "Local source not found" | `cd ~/git && git clone https://github.com/gsornsen/mycelium` |
-| "Cannot access git repository" | Check internet connection: `ping github.com` |
-| "Plugin not appearing" | Restart Claude Code completely |
-| Changes not reflecting | Verify symlink: `ls -la ~/.claude/plugins/mycelium-core` |
+| Problem                        | Solution                                                     |
+| ------------------------------ | ------------------------------------------------------------ |
+| "Local source not found"       | `cd ~/git && git clone https://github.com/gsornsen/mycelium` |
+| "Cannot access git repository" | Check internet connection: `ping github.com`                 |
+| "Plugin not appearing"         | Restart Claude Code completely                               |
+| Changes not reflecting         | Verify symlink: `ls -la ~/.claude/plugins/mycelium-core`     |
 
 ## Advanced Options
 
@@ -83,6 +85,6 @@ mycelium-switch source --verbose
 
 See [PLUGIN_VERSION_SWITCHING.md](PLUGIN_VERSION_SWITCHING.md) for comprehensive guide.
 
----
+______________________________________________________________________
 
 **TL;DR**: Run `mycelium-switch source` for development, `mycelium-switch git` for production. That's it!

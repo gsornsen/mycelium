@@ -2,18 +2,19 @@
 
 ## Overview
 
-**Duration**: 3 days
-**Dependencies**: M04 (onboarding), M05 (deployment), M06 (testing)
-**Blocks**: M10 (polish & release)
-**Lead Agent**: technical-writer
-**Support Agents**: documentation-engineer, python-pro
-**Parallel With**: M07 (Config Management), M09 (Testing Suite)
+**Duration**: 3 days **Dependencies**: M04 (onboarding), M05 (deployment), M06 (testing) **Blocks**: M10 (polish &
+release) **Lead Agent**: technical-writer **Support Agents**: documentation-engineer, python-pro **Parallel With**: M07
+(Config Management), M09 (Testing Suite)
 
 ## Why This Milestone
 
-Comprehensive documentation transforms complex infrastructure into accessible tools. While the codebase is technically complete after M04-M06, users cannot leverage Mycelium without clear guides, examples, and troubleshooting resources. This milestone ensures every user—from beginners to power users—can successfully onboard, deploy, and maintain their coordination infrastructure.
+Comprehensive documentation transforms complex infrastructure into accessible tools. While the codebase is technically
+complete after M04-M06, users cannot leverage Mycelium without clear guides, examples, and troubleshooting resources.
+This milestone ensures every user—from beginners to power users—can successfully onboard, deploy, and maintain their
+coordination infrastructure.
 
 Well-crafted documentation:
+
 - Reduces support burden through self-service
 - Accelerates onboarding with clear tutorials
 - Builds confidence through worked examples
@@ -56,14 +57,14 @@ Well-crafted documentation:
 
 ### Task 8.1: Create Installation Guide
 
-**Agent**: technical-writer, documentation-engineer
-**Effort**: 6 hours
+**Agent**: technical-writer, documentation-engineer **Effort**: 6 hours
 
-**Description**: Write comprehensive installation guide covering all supported platforms with prerequisites, installation steps, and verification.
+**Description**: Write comprehensive installation guide covering all supported platforms with prerequisites,
+installation steps, and verification.
 
 **Deliverable**:
 
-```markdown
+````markdown
 # Installation Guide
 
 ## Prerequisites
@@ -109,14 +110,16 @@ Well-crafted documentation:
 ```bash
 sudo apt update
 sudo apt install python3.11 python3.11-venv python3-pip
-```
+````
 
 #### macOS (Homebrew)
+
 ```bash
 brew install python@3.11
 ```
 
 #### Windows (WSL2)
+
 ```bash
 # Inside WSL2 Ubuntu
 sudo apt update
@@ -131,6 +134,7 @@ source $HOME/.cargo/env  # Add to PATH
 ```
 
 Verify installation:
+
 ```bash
 uv --version  # Should show 0.1.0 or later
 ```
@@ -157,11 +161,13 @@ uv sync
 #### Option A: Docker Compose (Recommended)
 
 Install Docker:
+
 - **Linux**: Follow [Docker Engine installation](https://docs.docker.com/engine/install/)
 - **macOS**: Install [Docker Desktop](https://www.docker.com/products/docker-desktop)
 - **Windows**: Install [Docker Desktop with WSL2](https://docs.docker.com/desktop/windows/wsl/)
 
 Verify:
+
 ```bash
 docker --version        # Should show 20.10+
 docker-compose --version  # Should show 2.0+
@@ -170,6 +176,7 @@ docker-compose --version  # Should show 2.0+
 #### Option B: Manual Installation (Bare-metal)
 
 **Redis:**
+
 ```bash
 # Linux
 sudo apt install redis-server
@@ -182,6 +189,7 @@ brew services start redis
 ```
 
 **PostgreSQL:**
+
 ```bash
 # Linux
 sudo apt install postgresql postgresql-contrib
@@ -194,6 +202,7 @@ brew services start postgresql@16
 ```
 
 **Temporal** (Docker recommended for Temporal):
+
 ```bash
 docker run -d -p 7233:7233 temporalio/auto-setup:latest
 ```
@@ -221,7 +230,7 @@ psql --version
 ### Set Up Claude Code Integration
 
 1. Ensure Mycelium plugin is installed in `~/.claude/plugins/mycelium-core`
-2. Verify commands are available:
+1. Verify commands are available:
    ```bash
    # Inside Claude Code
    /help mycelium
@@ -242,6 +251,7 @@ Follow the interactive wizard to configure your infrastructure.
 **Problem**: `python3.11: command not found`
 
 **Solution**:
+
 ```bash
 # Linux: Add deadsnakes PPA
 sudo add-apt-repository ppa:deadsnakes/ppa
@@ -260,6 +270,7 @@ python3.11 --version
 **Problem**: `permission denied while trying to connect to the Docker daemon socket`
 
 **Solution**:
+
 ```bash
 # Linux: Add user to docker group
 sudo usermod -aG docker $USER
@@ -274,6 +285,7 @@ docker ps
 **Problem**: `curl: command not found` or `Failed to download uv`
 
 **Solution**:
+
 ```bash
 # Install curl first
 sudo apt install curl  # Linux
@@ -288,7 +300,8 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 - [Getting Started Tutorial](./getting-started.md)
 - [Command Reference](./command-reference.md)
 - [Configuration Guide](./configuration.md)
-```
+
+````
 
 **Acceptance Criteria**:
 - [ ] Covers all three platforms (Linux, macOS, Windows/WSL2)
@@ -333,7 +346,7 @@ Launch the interactive onboarding wizard:
 
 ```bash
 /mycelium-onboarding
-```
+````
 
 ### Welcome Screen
 
@@ -413,6 +426,7 @@ Press Y to save.
 ```
 
 This creates:
+
 - `docker-compose.yml` - Service definitions
 - `.env` - Secrets (gitignored)
 - `.env.example` - Template for team
@@ -426,11 +440,13 @@ docker-compose up -d
 ```
 
 Verify services:
+
 ```bash
 docker-compose ps
 ```
 
 You should see:
+
 ```
 NAME              STATUS    PORTS
 mycelium-redis    Up        0.0.0.0:6379->6379/tcp
@@ -443,6 +459,7 @@ just up
 ```
 
 Verify:
+
 ```bash
 just status
 ```
@@ -456,6 +473,7 @@ Run functional tests:
 ```
 
 Expected output:
+
 ```
 Running pub/sub tests...
 
@@ -481,11 +499,13 @@ Success Rate: 100.0%
 ### Add More Services
 
 Edit configuration:
+
 ```bash
 /mycelium-configuration edit
 ```
 
 Enable PostgreSQL or Temporal, then regenerate:
+
 ```bash
 /mycelium-generate --force
 docker-compose up -d
@@ -510,14 +530,15 @@ just logs redis
 
 ## Troubleshooting
 
-[Include troubleshooting for common getting-started issues]
+\[Include troubleshooting for common getting-started issues\]
 
 ## Next Steps
 
 - [Command Reference](./command-reference.md) - All available commands
 - [Configuration Guide](./configuration.md) - Detailed configuration options
 - [Coordination Patterns](./coordination-patterns.md) - Learn coordination patterns
-```
+
+````
 
 **Acceptance Criteria**:
 - [ ] Step-by-step tutorial with clear instructions
@@ -556,16 +577,16 @@ Launch interactive wizard to configure Mycelium infrastructure.
 
 ```bash
 /mycelium-onboarding [options]
-```
+````
 
 ### Options
 
-| Option | Description | Default |
-|--------|-------------|---------|
-| `--project-local` | Save to project directory | User config |
-| `--force` | Skip resume prompt | false |
-| `--no-cache` | Re-run service detection | false |
-| `--non-interactive` | Use defaults (CI/CD) | false |
+| Option              | Description               | Default     |
+| ------------------- | ------------------------- | ----------- |
+| `--project-local`   | Save to project directory | User config |
+| `--force`           | Skip resume prompt        | false       |
+| `--no-cache`        | Re-run service detection  | false       |
+| `--non-interactive` | Use defaults (CI/CD)      | false       |
 
 ### Examples
 
@@ -595,27 +616,27 @@ Launch interactive wizard to configure Mycelium infrastructure.
 - `/mycelium-configuration show` - View current config
 - `/mycelium-generate` - Generate deployment after onboarding
 
----
+______________________________________________________________________
 
 ## /mycelium-generate
 
 Generate deployment files from configuration.
 
-[Full documentation for each command...]
+\[Full documentation for each command...\]
 
----
+______________________________________________________________________
 
 ## /mycelium-configuration
 
-[Documentation for configuration subcommands: show, edit, validate, init...]
+\[Documentation for configuration subcommands: show, edit, validate, init...\]
 
----
+______________________________________________________________________
 
 ## /mycelium-test
 
-[Documentation for testing command with all patterns...]
+\[Documentation for testing command with all patterns...\]
 
-```
+````
 
 **Acceptance Criteria**:
 - [ ] All commands documented with usage, options, examples
@@ -661,40 +682,43 @@ Generate deployment files from configuration.
    # macOS
    brew install redis
    brew services start redis
-   ```
+````
 
 2. **Check Redis status:**
+
    ```bash
    redis-cli ping  # Should return PONG
    ```
 
-3. **Non-standard port:**
+1. **Non-standard port:**
+
    ```bash
    # Tell wizard about custom port
    export REDIS_PORT=6380
    /mycelium-onboarding --no-cache
    ```
 
----
+______________________________________________________________________
 
 ## Docker Compose Issues
 
 ### Healthcheck Failures
 
-[Detailed troubleshooting for each category]
+\[Detailed troubleshooting for each category\]
 
----
+______________________________________________________________________
 
 ## Configuration Issues
 
-[Configuration-specific troubleshooting]
+\[Configuration-specific troubleshooting\]
 
----
+______________________________________________________________________
 
 ## Testing Issues
 
-[Test-specific troubleshooting]
-```
+\[Test-specific troubleshooting\]
+
+````
 
 **Acceptance Criteria**:
 - [ ] Covers all major issue categories
@@ -747,21 +771,22 @@ from mycelium_onboarding.config.manager import ConfigManager
 # Load configuration
 config = ConfigManager.load()
 print(f"Project: {config.project_name}")
-```
+````
 
-[Continue with all public APIs...]
+\[Continue with all public APIs...\]
 
 ## Deployment Generation
 
 ### DockerComposeGenerator
 
-[API documentation for generators...]
+\[API documentation for generators...\]
 
 ## Testing Framework
 
 ### TestOrchestrator
 
-[API documentation for test orchestrator...]
+\[API documentation for test orchestrator...\]
+
 ```
 
 **Acceptance Criteria**:
@@ -830,3 +855,4 @@ print(f"Project: {config.project_name}")
 **Status**: Ready for Implementation
 **Created**: 2025-10-13
 **Target Completion**: Day 19 (parallel with M07, M09, longest of the three)
+```

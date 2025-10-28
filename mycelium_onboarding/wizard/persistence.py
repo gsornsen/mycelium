@@ -219,25 +219,17 @@ class WizardStatePersistence:
             return WizardState(
                 current_step=WizardStep(str(state_dict["current_step"])),
                 started_at=datetime.fromisoformat(
-                    str(
-                        state_dict.get(
-                            "started_at", datetime.now(timezone.utc).isoformat()
-                        )
-                    )
+                    str(state_dict.get("started_at", datetime.now(timezone.utc).isoformat()))
                 ),
                 project_name=str(state_dict.get("project_name", "")),
                 services_enabled=services_enabled,
-                deployment_method=str(
-                    state_dict.get("deployment_method", "docker-compose")
-                ),
+                deployment_method=str(state_dict.get("deployment_method", "docker-compose")),
                 redis_port=int(state_dict.get("redis_port", 6379) or 6379),
                 postgres_port=int(state_dict.get("postgres_port", 5432) or 5432),
                 postgres_database=str(state_dict.get("postgres_database", "")),
                 temporal_namespace=str(state_dict.get("temporal_namespace", "default")),
                 temporal_ui_port=int(state_dict.get("temporal_ui_port", 8080) or 8080),
-                temporal_frontend_port=int(
-                    state_dict.get("temporal_frontend_port", 7233) or 7233
-                ),
+                temporal_frontend_port=int(state_dict.get("temporal_frontend_port", 7233) or 7233),
                 auto_start=bool(state_dict.get("auto_start", True)),
                 enable_persistence=bool(state_dict.get("enable_persistence", True)),
                 setup_mode=str(state_dict.get("setup_mode", "quick")),

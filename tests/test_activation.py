@@ -36,9 +36,7 @@ def clean_environment(monkeypatch) -> None:
 class TestActivationScript:
     """Test bin/activate.sh script."""
 
-    def test_activation_sets_environment_variables(
-        self, project_root: Path, clean_environment
-    ):
+    def test_activation_sets_environment_variables(self, project_root: Path, clean_environment):
         """Test that activation sets all required environment variables."""
         # Source the activation script and check variables
         script = f"""
@@ -79,9 +77,7 @@ class TestActivationScript:
         assert "/.local/state/mycelium" in env_vars.get("MYCELIUM_STATE_DIR", "")
         assert env_vars.get("MYCELIUM_PROJECT_DIR") == str(project_root / ".mycelium")
 
-    def test_activation_creates_xdg_directories(
-        self, project_root: Path, clean_environment, tmp_path: Path
-    ):
+    def test_activation_creates_xdg_directories(self, project_root: Path, clean_environment, tmp_path: Path):
         """Test that activation creates XDG directories."""
         # Use temp HOME to avoid modifying user's actual directories
         script = f"""
@@ -155,9 +151,7 @@ class TestActivationScript:
         assert "(mycelium)" in prompt
         assert "original>" in prompt
 
-    def test_activation_prevents_double_activation(
-        self, project_root: Path, clean_environment
-    ):
+    def test_activation_prevents_double_activation(self, project_root: Path, clean_environment):
         """Test that activating twice shows warning."""
         script = f"""
         cd {project_root}
@@ -311,9 +305,7 @@ class TestDeactivation:
 class TestWrapperScript:
     """Test bin/mycelium wrapper script."""
 
-    def test_wrapper_fails_without_activation(
-        self, project_root: Path, clean_environment
-    ):
+    def test_wrapper_fails_without_activation(self, project_root: Path, clean_environment):
         """Test that wrapper script fails when environment not active."""
         result = subprocess.run(
             [str(project_root / "bin" / "mycelium"), "--help"],
@@ -373,9 +365,7 @@ class TestDiagnosticCommand:
         assert "Virtual Environment" in output
         assert "Recommendations" in output
 
-    def test_diagnose_detects_inactive_environment(
-        self, project_root: Path, clean_environment
-    ):
+    def test_diagnose_detects_inactive_environment(self, project_root: Path, clean_environment):
         """Test that diagnose detects when environment is not active."""
         result = subprocess.run(
             [str(project_root / "bin" / "mycelium-diagnose")],
@@ -557,9 +547,7 @@ class TestEdgeCases:
         # Should fail with error about missing pyproject.toml
         assert result.returncode != 0 or "pyproject.toml" in result.stdout
 
-    def test_activation_with_missing_directories(
-        self, project_root: Path, tmp_path: Path, clean_environment
-    ):
+    def test_activation_with_missing_directories(self, project_root: Path, tmp_path: Path, clean_environment):
         """Test that activation creates missing XDG directories."""
         script = f"""
         export HOME={tmp_path}
@@ -587,9 +575,7 @@ class TestEdgeCases:
 class TestFullActivationCycle:
     """Test full activation and deactivation cycle."""
 
-    def test_complete_activation_deactivation_cycle(
-        self, project_root: Path, clean_environment, tmp_path: Path
-    ):
+    def test_complete_activation_deactivation_cycle(self, project_root: Path, clean_environment, tmp_path: Path):
         """Test complete activation and deactivation cycle."""
         script = f"""
         export HOME={tmp_path}

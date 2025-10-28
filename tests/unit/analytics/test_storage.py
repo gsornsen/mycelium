@@ -108,9 +108,7 @@ class TestEventStorageBasics:
         # Read all events
         read_events = storage.read_events()
         assert len(read_events) == 5
-        assert all(
-            e["event_type"] in [f"event{i}" for i in range(5)] for e in read_events
-        )
+        assert all(e["event_type"] in [f"event{i}" for i in range(5)] for e in read_events)
 
     def test_read_events_with_limit(self, storage):
         """Test reading events with limit."""
@@ -253,10 +251,7 @@ class TestThreadSafety:
                 )
 
         # Spawn threads
-        threads = [
-            threading.Thread(target=append_events, args=(tid,))
-            for tid in range(num_threads)
-        ]
+        threads = [threading.Thread(target=append_events, args=(tid,)) for tid in range(num_threads)]
 
         for thread in threads:
             thread.start()
@@ -288,10 +283,7 @@ class TestThreadSafety:
                     }
                 )
 
-        threads = [
-            threading.Thread(target=append_large_events, args=(tid,))
-            for tid in range(num_threads)
-        ]
+        threads = [threading.Thread(target=append_large_events, args=(tid,)) for tid in range(num_threads)]
 
         for thread in threads:
             thread.start()

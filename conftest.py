@@ -21,7 +21,8 @@ else:
 
 # Debug: verify imports work
 try:
-    from coordination.protocol import HandoffProtocol
+    from coordination.protocol import HandoffProtocol  # noqa: F401
+
     print("[conftest.py] Successfully imported HandoffProtocol")
 except ImportError as e:
     print(f"[conftest.py] Failed to import: {e}")

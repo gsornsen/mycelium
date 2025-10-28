@@ -2,18 +2,18 @@
 
 ## Overview
 
-**Duration**: 2 days
-**Dependencies**: M02 (configuration system)
-**Blocks**: M10 (polish & release)
-**Lead Agent**: python-pro
-**Support Agents**: claude-code-developer
-**Parallel With**: M08 (Documentation), M09 (Testing Suite)
+**Duration**: 2 days **Dependencies**: M02 (configuration system) **Blocks**: M10 (polish & release) **Lead Agent**:
+python-pro **Support Agents**: claude-code-developer **Parallel With**: M08 (Documentation), M09 (Testing Suite)
 
 ## Why This Milestone
 
-Configuration management commands provide user-friendly interfaces for viewing, editing, and validating Mycelium configurations after initial onboarding. While M04 creates configuration through the wizard, users need ongoing tools to inspect settings, make adjustments, and troubleshoot issues. This milestone empowers users to maintain their infrastructure configuration without manual YAML editing.
+Configuration management commands provide user-friendly interfaces for viewing, editing, and validating Mycelium
+configurations after initial onboarding. While M04 creates configuration through the wizard, users need ongoing tools to
+inspect settings, make adjustments, and troubleshoot issues. This milestone empowers users to maintain their
+infrastructure configuration without manual YAML editing.
 
 Well-designed configuration commands:
+
 - Lower barrier to configuration changes
 - Prevent syntax errors through validation
 - Provide clear visibility into current settings
@@ -54,10 +54,10 @@ Well-designed configuration commands:
 
 ### Task 7.1: Implement Config Show Command
 
-**Agent**: python-pro
-**Effort**: 3 hours
+**Agent**: python-pro **Effort**: 3 hours
 
-**Description**: Create command to display current configuration in readable format with syntax highlighting and sensitive data masking.
+**Description**: Create command to display current configuration in readable format with syntax highlighting and
+sensitive data masking.
 
 **Implementation**:
 
@@ -265,6 +265,7 @@ def test_show_path_only():
 ```
 
 **Acceptance Criteria**:
+
 - [ ] Table format shows key configuration settings
 - [ ] YAML/JSON formats display complete configuration
 - [ ] Sensitive data is masked in all formats
@@ -273,8 +274,7 @@ def test_show_path_only():
 
 ### Task 7.2: Implement Config Edit Command
 
-**Agent**: python-pro
-**Effort**: 4 hours
+**Agent**: python-pro **Effort**: 4 hours
 
 **Description**: Create command to open configuration in user's preferred editor with validation after editing.
 
@@ -367,6 +367,7 @@ def edit(project: bool, editor: str):
 ```
 
 **Acceptance Criteria**:
+
 - [ ] Opens configuration in $EDITOR (or specified editor)
 - [ ] Validates edited configuration before saving
 - [ ] Provides clear error messages for validation failures
@@ -375,10 +376,10 @@ def edit(project: bool, editor: str):
 
 ### Task 7.3: Implement Config Validate Command
 
-**Agent**: python-pro
-**Effort**: 2 hours
+**Agent**: python-pro **Effort**: 2 hours
 
-**Description**: Create command to validate configuration file without making changes, useful for CI/CD and troubleshooting.
+**Description**: Create command to validate configuration file without making changes, useful for CI/CD and
+troubleshooting.
 
 **Implementation**:
 
@@ -516,6 +517,7 @@ def test_validate_invalid_config(tmp_invalid_config):
 ```
 
 **Acceptance Criteria**:
+
 - [ ] Validates configuration using Pydantic schema
 - [ ] Shows clear error messages for validation failures
 - [ ] Detects and reports warnings
@@ -524,8 +526,7 @@ def test_validate_invalid_config(tmp_invalid_config):
 
 ### Task 7.4: Implement Config Init Command
 
-**Agent**: python-pro
-**Effort**: 2 hours
+**Agent**: python-pro **Effort**: 2 hours
 
 **Description**: Create command to initialize new configuration with defaults or from template.
 
@@ -656,6 +657,7 @@ def _create_from_template(template: str) -> MyceliumConfig:
 ```
 
 **Acceptance Criteria**:
+
 - [ ] Creates configuration from template
 - [ ] Supports multiple templates (minimal, docker, justfile, full)
 - [ ] Respects --force flag for overwriting
@@ -664,8 +666,7 @@ def _create_from_template(template: str) -> MyceliumConfig:
 
 ### Task 7.5: Create /mycelium-configuration Command
 
-**Agent**: claude-code-developer, python-pro
-**Effort**: 2 hours
+**Agent**: claude-code-developer, python-pro **Effort**: 2 hours
 
 **Description**: Integrate configuration management as `/mycelium-configuration` command with all subcommands.
 
@@ -681,8 +682,10 @@ Manage Mycelium configuration files.
 ## Usage
 
 ```
-/mycelium-configuration <subcommand> [options]
-```
+
+/mycelium-configuration <subcommand> \[options\]
+
+````
 
 ## Subcommands
 
@@ -702,7 +705,7 @@ Display current configuration.
 
 # Show configuration file path
 /mycelium-configuration show --path
-```
+````
 
 ### edit
 
@@ -794,6 +797,7 @@ export EDITOR=vim
 # Or specify editor
 /mycelium-configuration edit --editor nano
 ```
+
 ```
 
 **Acceptance Criteria**:
@@ -853,3 +857,4 @@ export EDITOR=vim
 **Status**: Ready for Implementation
 **Created**: 2025-10-13
 **Target Completion**: Day 19 (parallel with M08, M09)
+```

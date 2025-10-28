@@ -32,9 +32,7 @@ class PostgresDetectionResult:
     error_message: str | None = None
 
 
-def detect_postgres(
-    host: str = "localhost", port: int = 5432, timeout: float = 2.0
-) -> PostgresDetectionResult:
+def detect_postgres(host: str = "localhost", port: int = 5432, timeout: float = 2.0) -> PostgresDetectionResult:
     """Detect PostgreSQL server availability.
 
     Args:
@@ -96,7 +94,7 @@ def detect_postgres(
             available=False,
             host=host,
             port=port,
-                error_message=(
+            error_message=(
                 f"Connection to PostgreSQL at {host}:{port} timed out after {timeout}s. "
                 "Check if PostgreSQL is running and accessible."
             ),
@@ -106,7 +104,7 @@ def detect_postgres(
             available=False,
             host=host,
             port=port,
-                error_message=(
+            error_message=(
                 f"Could not connect to {host}:{port}. "
                 "PostgreSQL is not running on this port. "
                 "Start PostgreSQL: sudo systemctl start postgresql"

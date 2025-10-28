@@ -100,9 +100,7 @@ class TestDockerComposeGeneration:
         """Test that .env file is created."""
         config = MyceliumConfig(
             project_name="test",
-            services=ServicesConfig(
-                postgres=PostgresConfig(enabled=True, database="testdb")
-            ),
+            services=ServicesConfig(postgres=PostgresConfig(enabled=True, database="testdb")),
         )
         gen = DeploymentGenerator(config, output_dir=tmp_path)
         result = gen.generate(DeploymentMethod.DOCKER_COMPOSE)
@@ -580,9 +578,7 @@ class TestHelperMethods:
         """Test _generate_env_file with PostgreSQL."""
         config = MyceliumConfig(
             project_name="test",
-            services=ServicesConfig(
-                postgres=PostgresConfig(enabled=True, database="mydb")
-            ),
+            services=ServicesConfig(postgres=PostgresConfig(enabled=True, database="mydb")),
         )
         gen = DeploymentGenerator(config, output_dir=tmp_path)
         env_content = gen._generate_env_file()
@@ -596,9 +592,7 @@ class TestHelperMethods:
         """Test _generate_env_file with Redis."""
         config = MyceliumConfig(
             project_name="test",
-            services=ServicesConfig(
-                redis=RedisConfig(enabled=True, max_memory="512mb")
-            ),
+            services=ServicesConfig(redis=RedisConfig(enabled=True, max_memory="512mb")),
         )
         gen = DeploymentGenerator(config, output_dir=tmp_path)
         env_content = gen._generate_env_file()
@@ -609,9 +603,7 @@ class TestHelperMethods:
         """Test _generate_env_file with Temporal."""
         config = MyceliumConfig(
             project_name="test",
-            services=ServicesConfig(
-                temporal=TemporalConfig(enabled=True, namespace="production")
-            ),
+            services=ServicesConfig(temporal=TemporalConfig(enabled=True, namespace="production")),
         )
         gen = DeploymentGenerator(config, output_dir=tmp_path)
         env_content = gen._generate_env_file()

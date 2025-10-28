@@ -1,10 +1,12 @@
 # Markdown Coordination Pattern
 
-This document defines best practices for using markdown files as a coordination mechanism between Claude Code agents when Redis/TaskQueue MCP servers are unavailable.
+This document defines best practices for using markdown files as a coordination mechanism between Claude Code agents
+when Redis/TaskQueue MCP servers are unavailable.
 
 ## Overview
 
-Markdown coordination uses filesystem-based `.md` files in `.claude/coordination/` directory to share state between agents. While less robust than Redis, it provides a zero-dependency fallback for development environments.
+Markdown coordination uses filesystem-based `.md` files in `.claude/coordination/` directory to share state between
+agents. While less robust than Redis, it provides a zero-dependency fallback for development environments.
 
 ## Directory Structure
 
@@ -26,13 +28,13 @@ Markdown coordination uses filesystem-based `.md` files in `.claude/coordination
 
 ## File Naming Convention
 
-| Entity Type | Pattern | Example |
-|-------------|---------|---------|
-| Agent Status | `agent-{name}.md` | `agent-ai-engineer.md` |
-| Task Status | `task-{id}.md` or `task-{name}.md` | `task-train-model.md` |
-| Events | `events-{channel}.md` | `events-training.md` |
-| Metrics | `metrics-{type}.md` | `metrics-performance.md` |
-| Shared Context | `context-{project}-{domain}.md` | `context-proj1-dataset.md` |
+| Entity Type    | Pattern                            | Example                    |
+| -------------- | ---------------------------------- | -------------------------- |
+| Agent Status   | `agent-{name}.md`                  | `agent-ai-engineer.md`     |
+| Task Status    | `task-{id}.md` or `task-{name}.md` | `task-train-model.md`      |
+| Events         | `events-{channel}.md`              | `events-training.md`       |
+| Metrics        | `metrics-{type}.md`                | `metrics-performance.md`   |
+| Shared Context | `context-{project}-{domain}.md`    | `context-proj1-dataset.md` |
 
 ## Agent Status File Format
 
@@ -99,7 +101,7 @@ Agent is at high capacity (85%). Consider routing new tasks to other agents if a
 
 **File**: `.claude/coordination/task-train-model.md`
 
-```markdown
+````markdown
 # Task: Train model on Alice dataset
 
 **Task ID**: task-123
@@ -133,7 +135,7 @@ Agent is at high capacity (85%). Consider routing new tasks to other agents if a
   "gpu_utilization_pct": 97,
   "samples_per_second": 45.2
 }
-```
+````
 
 ## Context References
 
@@ -149,20 +151,23 @@ Agent is at high capacity (85%). Consider routing new tasks to other agents if a
 ## Next Steps
 
 On completion:
+
 1. Save final model to `checkpoints/voice-clone-training-proj-1/final.pt`
-2. Store metrics in `.claude/coordination/context-proj1-training-results.md`
-3. Create evaluation task (task-124)
+1. Store metrics in `.claude/coordination/context-proj1-training-results.md`
+1. Create evaluation task (task-124)
 
 ## Logs
 
 Recent activity:
+
 ```
 [2025-10-12 14:30:00] Checkpoint saved at step 3500
 [2025-10-12 14:20:00] Loss: 0.42
 [2025-10-12 14:10:00] Loss: 0.45
 [2025-10-12 14:00:00] Checkpoint saved at step 3000
 ```
-```
+
+````
 
 ## Event Log File Format
 
@@ -211,13 +216,13 @@ Last updated: 2025-10-12T14:30:00Z
 ---
 
 _Note: This log contains the last 100 events. Older events are in `archive/events-training-2025-10-11.md`_
-```
+````
 
 ## Context Sharing File Format
 
 **File**: `.claude/coordination/context-proj1-dataset.md`
 
-```markdown
+````markdown
 # Dataset Context: Project 1 (Alice Voice Clone)
 
 **Project**: proj-1
@@ -237,15 +242,15 @@ _Note: This log contains the last 100 events. Older events are in `archive/event
   "average_quality": 0.964,
   "average_snr_db": 24.3
 }
-```
+````
 
 ## Splits
 
 | Split | Count | Duration |
-|-------|-------|----------|
-| Train | 1450 | 36m 10s |
-| Val | 181 | 4m 31s |
-| Test | 181 | 4m 31s |
+| ----- | ----- | -------- |
+| Train | 1450  | 36m 10s  |
+| Val   | 181   | 4m 31s   |
+| Test  | 181   | 4m 31s   |
 
 ## Quality Report
 
@@ -270,7 +275,8 @@ train_segments = manifest[manifest["split"] == "train"]
 - Source recordings: `recordings/alice/`
 - Processing script: `voice_dataset_kit.cli.process`
 - Configuration: `podcast_config.yaml`
-```
+
+````
 
 ## File Lifecycle Management
 
@@ -298,7 +304,7 @@ cat > ".claude/coordination/task-${TASK_ID}.md" <<EOF
 
 Starting work...
 EOF
-```
+````
 
 ### Updates
 
@@ -502,15 +508,15 @@ EOF
 ## Best Practices
 
 1. **Update frequently** - Every 5-10 minutes during long-running tasks
-2. **Use atomic updates** - Temporary file + move to avoid partial reads
-3. **Implement locking** - Use `flock` for critical sections
-4. **Check staleness** - Warn if files older than 1 hour
-5. **Clean up regularly** - Archive completed/stale files
-6. **Include timestamps** - Always timestamp updates
-7. **Structured content** - Use consistent markdown format
-8. **Limit log size** - Rotate event logs to prevent unbounded growth
-9. **Don't commit** - Add to `.gitignore` (ephemeral state)
-10. **Provide fallback** - Gracefully handle missing files
+1. **Use atomic updates** - Temporary file + move to avoid partial reads
+1. **Implement locking** - Use `flock` for critical sections
+1. **Check staleness** - Warn if files older than 1 hour
+1. **Clean up regularly** - Archive completed/stale files
+1. **Include timestamps** - Always timestamp updates
+1. **Structured content** - Use consistent markdown format
+1. **Limit log size** - Rotate event logs to prevent unbounded growth
+1. **Don't commit** - Add to `.gitignore` (ephemeral state)
+1. **Provide fallback** - Gracefully handle missing files
 
 ## Limitations and Workarounds
 
@@ -562,12 +568,12 @@ echo "$CURRENT_EVENT_COUNT" > .claude/coordination/.last-event-count
 
 **Workaround**: Use JSON blocks in markdown + `jq` for parsing
 
-```bash
+````bash
 # Extract JSON from markdown
 sed -n '/```json/,/```/p' .claude/coordination/context-proj1-dataset.md |
   sed '1d;$d' |
   jq '.segments_count'
-```
+````
 
 ## Migration to Redis
 
@@ -609,7 +615,6 @@ echo "Migration complete! Update agents to use Redis coordination."
 - [Redis MCP Integration](./redis-mcp-integration.md) - Redis migration guide
 - [Agent Coordination Overview](./agent-coordination-overview.md) - High-level patterns
 
----
+______________________________________________________________________
 
-**Maintained by**: Claude Code Extensibility Team
-**Last Updated**: 2025-10-12
+**Maintained by**: Claude Code Extensibility Team **Last Updated**: 2025-10-12

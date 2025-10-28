@@ -258,6 +258,7 @@ MyceliumConfig
 ## Security Considerations
 
 ### Docker Compose
+
 - ✓ No hardcoded passwords
 - ✓ Environment variables for secrets
 - ✓ Named volumes for data persistence
@@ -266,16 +267,18 @@ MyceliumConfig
 - ✓ Restart policies configurable
 
 ### Kubernetes
+
 - ✓ Secrets for credentials (must be updated!)
 - ✓ ConfigMaps for non-sensitive config
 - ✓ Resource limits prevent resource exhaustion
 - ✓ Readiness probes prevent premature traffic
 - ✓ Liveness probes enable auto-recovery
 - ✓ Namespaces for isolation
-- ⚠️  Default passwords must be changed
-- 🔄  Future: Network policies, RBAC, Pod Security Standards
+- ⚠️ Default passwords must be changed
+- 🔄 Future: Network policies, RBAC, Pod Security Standards
 
 ### systemd
+
 - ✓ Service isolation (User/Group)
 - ✓ NoNewPrivileges prevents escalation
 - ✓ PrivateTmp isolates /tmp
@@ -287,42 +290,48 @@ MyceliumConfig
 ## Template Variables Reference
 
 ### Global Variables
+
 - `config.project_name` - Project identifier (used in names)
 - `config.version` - Config schema version
 - `config.created_at` - Timestamp (formatted in templates)
 
 ### Deployment Config
+
 - `config.deployment.method` - DeploymentMethod enum
 - `config.deployment.auto_start` - bool (affects restart policies)
 - `config.deployment.healthcheck_timeout` - int (seconds)
 
 ### Redis Config
+
 - `config.services.redis.enabled` - bool
 - `config.services.redis.version` - str | None (default: "latest")
 - `config.services.redis.port` - int (1-65535)
 - `config.services.redis.persistence` - bool
 - `config.services.redis.max_memory` - str (e.g., "512mb")
-- `config.services.redis.custom_config` - dict[str, Any]
+- `config.services.redis.custom_config` - dict\[str, Any\]
 
 ### PostgreSQL Config
+
 - `config.services.postgres.enabled` - bool
 - `config.services.postgres.version` - str | None (default: "latest")
 - `config.services.postgres.port` - int (1-65535)
 - `config.services.postgres.database` - str
 - `config.services.postgres.max_connections` - int (1-10000)
-- `config.services.postgres.custom_config` - dict[str, Any]
+- `config.services.postgres.custom_config` - dict\[str, Any\]
 
 ### Temporal Config
+
 - `config.services.temporal.enabled` - bool
 - `config.services.temporal.version` - str | None (default: "latest")
 - `config.services.temporal.ui_port` - int (1-65535)
 - `config.services.temporal.frontend_port` - int (1-65535)
 - `config.services.temporal.namespace` - str
-- `config.services.temporal.custom_config` - dict[str, Any]
+- `config.services.temporal.custom_config` - dict\[str, Any\]
 
 ## Template Techniques
 
 ### Conditional Rendering
+
 ```jinja2
 {% if config.services.redis.enabled %}
   redis:
@@ -331,6 +340,7 @@ MyceliumConfig
 ```
 
 ### Iteration
+
 ```jinja2
 {% for key, value in config.services.redis.custom_config.items() %}
   - --{{ key }}
@@ -339,21 +349,25 @@ MyceliumConfig
 ```
 
 ### Filters
+
 ```jinja2
 {{ config.project_name | kebab_case }}
 ```
 
 ### Default Values
+
 ```jinja2
 image: redis:{{ config.services.redis.version or 'latest' }}
 ```
 
 ### Ternary Expressions
+
 ```jinja2
 restart: {{ "always" if config.deployment.auto_start else "on-failure" }}
 ```
 
 ### Multi-line Strings
+
 ```jinja2
 command:
   - --port
@@ -365,24 +379,28 @@ command:
 ### Adding New Services
 
 1. **Update Config Schema**
+
    ```python
    class NewServiceConfig(ServiceConfig):
        # Service-specific fields
        pass
    ```
 
-2. **Create Templates**
+1. **Create Templates**
+
    - `templates/docker-compose.yml.j2` - Add service block
    - `templates/kubernetes/newservice.yaml.j2` - Create manifest
    - `templates/systemd/newservice.service.j2` - Create unit
 
-3. **Update Renderer**
+1. **Update Renderer**
+
    ```python
    if config.services.newservice.enabled:
        # Render new service
    ```
 
-4. **Add Tests**
+1. **Add Tests**
+
    ```python
    def test_newservice_renders():
        # Comprehensive tests
@@ -391,6 +409,7 @@ command:
 ### Custom Filters
 
 Add to `renderer.py`:
+
 ```python
 @staticmethod
 def _custom_filter(value: str) -> str:
@@ -411,39 +430,43 @@ renderer = TemplateRenderer(template_dir=Path("/custom/templates"))
 
 - Template loading: ~5ms (cached by Jinja2)
 - Rendering time: ~1ms per template
-- Memory usage: <10MB for all templates
+- Memory usage: \<10MB for all templates
 - Validation: ~2ms for YAML parsing
 
 ## Testing Strategy
 
 1. **Unit Tests**: Individual template rendering
-2. **Integration Tests**: Full config → output
-3. **Validation Tests**: YAML/INI syntax
-4. **Content Tests**: Specific configuration values
-5. **Security Tests**: No hardcoded secrets
-6. **Edge Cases**: Empty configs, all disabled, etc.
+1. **Integration Tests**: Full config → output
+1. **Validation Tests**: YAML/INI syntax
+1. **Content Tests**: Specific configuration values
+1. **Security Tests**: No hardcoded secrets
+1. **Edge Cases**: Empty configs, all disabled, etc.
 
 ## Future Enhancements
 
 1. **Additional Formats**
+
    - Helm charts
    - Docker Swarm
    - Nomad jobs
    - Terraform modules
 
-2. **Advanced Features**
+1. **Advanced Features**
+
    - Template inheritance
    - Macros for common patterns
    - Template composition
    - Plugin system for custom templates
 
-3. **Validation**
+1. **Validation**
+
    - Pre-deployment validation
    - Linting (yamllint, kubeval)
    - Security scanning
    - Best practice checks
 
-4. **Optimization**
+1. **Optimization**
+
    - Template caching
    - Lazy loading
    - Parallel rendering

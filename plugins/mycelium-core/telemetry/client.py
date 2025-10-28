@@ -39,9 +39,7 @@ class TelemetryClient:
         """
         self.config = config or TelemetryConfig.from_env()
         self.anonymizer = DataAnonymizer(self.config.salt)
-        self._event_queue: queue.Queue[dict[str, Any]] = queue.Queue(
-            maxsize=self.config.batch_size * 2
-        )
+        self._event_queue: queue.Queue[dict[str, Any]] = queue.Queue(maxsize=self.config.batch_size * 2)
         self._worker_thread: threading.Thread | None = None
         self._shutdown = threading.Event()
         self._enabled = self.config.is_enabled()
@@ -54,9 +52,7 @@ class TelemetryClient:
 
     def _start_worker(self) -> None:
         """Start background worker thread for processing events."""
-        self._worker_thread = threading.Thread(
-            target=self._worker_loop, name="telemetry-worker", daemon=True
-        )
+        self._worker_thread = threading.Thread(target=self._worker_loop, name="telemetry-worker", daemon=True)
         self._worker_thread.start()
         logger.debug("Telemetry worker thread started")
 
@@ -74,10 +70,7 @@ class TelemetryClient:
                 batch.append(event)
 
                 # Send batch if full or timeout reached
-                should_send = (
-                    len(batch) >= self.config.batch_size
-                    or time.time() - last_send >= batch_timeout
-                )
+                should_send = len(batch) >= self.config.batch_size or time.time() - last_send >= batch_timeout
 
                 if should_send and batch:
                     self._send_batch(batch)
@@ -132,13 +125,9 @@ class TelemetryClient:
 
                 with urlopen(request, timeout=self.config.timeout) as response:
                     if response.status == 200:
-                        logger.debug(
-                            f"Successfully sent {len(events)} telemetry events"
-                        )
+                        logger.debug(f"Successfully sent {len(events)} telemetry events")
                         return
-                    logger.debug(
-                        f"Telemetry endpoint returned status {response.status}"
-                    )
+                    logger.debug(f"Telemetry endpoint returned status {response.status}")
 
             except HTTPError as e:
                 logger.debug(f"HTTP error sending telemetry: {e.code}")
@@ -180,9 +169,7 @@ class TelemetryClient:
         except queue.Full:
             logger.debug("Telemetry queue full - dropping event")
 
-    def track_agent_usage(
-        self, agent_id: str, operation: str, metadata: dict[str, Any] | None = None
-    ) -> None:
+    def track_agent_usage(self, agent_id: str, operation: str, metadata: dict[str, Any] | None = None) -> None:
         """Track agent usage event.
 
         Args:
@@ -215,9 +202,7 @@ class TelemetryClient:
         if not self._enabled:
             return
 
-        event = self.anonymizer.anonymize_performance_metric(
-            metric_name, value, unit, tags
-        )
+        event = self.anonymizer.anonymize_performance_metric(metric_name, value, unit, tags)
         event["event_type"] = "performance"
         self._enqueue_event(event)
 

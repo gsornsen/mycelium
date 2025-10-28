@@ -22,9 +22,7 @@ class TestValidationError:
 
     def test_validation_error_with_severity(self) -> None:
         """Test creating validation error with custom severity."""
-        error = ValidationError(
-            field="test", message="Test warning", severity="warning"
-        )
+        error = ValidationError(field="test", message="Test warning", severity="warning")
         assert error.severity == "warning"
 
     def test_validation_error_str(self) -> None:
@@ -442,7 +440,4 @@ class TestValidatorHelpers:
         # validate_state should reset errors
         validator.validate_state()
         # Should only have errors from validate_state, not the previous call
-        assert all(
-            err.field != "project_name" or "empty" not in err.message
-            for err in validator.errors
-        )
+        assert all(err.field != "project_name" or "empty" not in err.message for err in validator.errors)

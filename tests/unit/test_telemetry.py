@@ -268,9 +268,7 @@ class TestTelemetryClient:
         # Queue should be empty
         assert client._event_queue.empty()
 
-    def test_client_enabled_starts_worker(
-        self, enabled_config: TelemetryConfig
-    ) -> None:
+    def test_client_enabled_starts_worker(self, enabled_config: TelemetryConfig) -> None:
         """Test that enabled client starts worker thread."""
         client = TelemetryClient(config=enabled_config)
 
@@ -283,9 +281,7 @@ class TestTelemetryClient:
         """Test tracking agent usage."""
         client = TelemetryClient(config=enabled_config)
 
-        client.track_agent_usage(
-            agent_id="test-agent", operation="discover", metadata={"duration_ms": 150}
-        )
+        client.track_agent_usage(agent_id="test-agent", operation="discover", metadata={"duration_ms": 150})
 
         # Event should be queued
         assert not client._event_queue.empty()
@@ -336,9 +332,7 @@ class TestTelemetryClient:
         client.shutdown()
 
     @patch("telemetry.client.urlopen")
-    def test_batch_sending(
-        self, mock_urlopen: MagicMock, enabled_config: TelemetryConfig
-    ) -> None:
+    def test_batch_sending(self, mock_urlopen: MagicMock, enabled_config: TelemetryConfig) -> None:
         """Test that events are batched before sending."""
         mock_response = MagicMock()
         mock_response.status = 200
@@ -361,9 +355,7 @@ class TestTelemetryClient:
         client.shutdown()
 
     @patch("telemetry.client.urlopen")
-    def test_graceful_failure_handling(
-        self, mock_urlopen: MagicMock, enabled_config: TelemetryConfig
-    ) -> None:
+    def test_graceful_failure_handling(self, mock_urlopen: MagicMock, enabled_config: TelemetryConfig) -> None:
         """Test that network failures are handled gracefully."""
         mock_urlopen.side_effect = URLError("Network error")
 
@@ -423,9 +415,7 @@ class TestPrivacyGuarantees:
     def test_no_user_prompts_collected(self, client: TelemetryClient) -> None:
         """Verify that user prompts are never collected."""
         # Try to track with user prompt in metadata
-        client.track_agent_usage(
-            "agent-1", "test", metadata={"user_prompt": "secret user input"}
-        )
+        client.track_agent_usage("agent-1", "test", metadata={"user_prompt": "secret user input"})
 
         event = client._event_queue.get(timeout=1.0)
 
@@ -437,9 +427,7 @@ class TestPrivacyGuarantees:
 
     def test_no_code_content_collected(self, client: TelemetryClient) -> None:
         """Verify that code content is never collected."""
-        client.track_agent_usage(
-            "agent-1", "test", metadata={"code": "def secret(): pass"}
-        )
+        client.track_agent_usage("agent-1", "test", metadata={"code": "def secret(): pass"})
 
         event = client._event_queue.get(timeout=1.0)
 

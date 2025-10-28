@@ -1,25 +1,27 @@
 # Task 4.1: Design Wizard Flow and UX
 
-**Agent**: frontend-developer
-**Duration**: 4 hours
-**Status**: READY TO START
-**Parallel**: Can run alongside Task 4.2A
+**Agent**: frontend-developer **Duration**: 4 hours **Status**: READY TO START **Parallel**: Can run alongside Task 4.2A
 
 ## Mission
 
-Design the complete wizard flow with state machine, decision trees, and UX patterns for the Mycelium onboarding wizard. Create a clear, accessible, and user-friendly experience that guides users from detection to configuration.
+Design the complete wizard flow with state machine, decision trees, and UX patterns for the Mycelium onboarding wizard.
+Create a clear, accessible, and user-friendly experience that guides users from detection to configuration.
 
 ## Context
 
 ### Dependencies Complete
+
 - ✅ M01 Environment Isolation (xdg_dirs, env_validator, config_loader)
 - ✅ M02 Configuration System (schema, manager, migrations)
 - ✅ M03 Service Detection (orchestrator, detectors, caching)
 
 ### Your Role
-You are designing the user experience for the PRIMARY touchpoint of Mycelium setup. This wizard transforms complex infrastructure choices into an accessible, guided experience for developers of all skill levels.
+
+You are designing the user experience for the PRIMARY touchpoint of Mycelium setup. This wizard transforms complex
+infrastructure choices into an accessible, guided experience for developers of all skill levels.
 
 ### Integration Points
+
 - **Input**: DetectionResults from M03 (Docker, Redis, Postgres, Temporal, GPU status)
 - **Output**: MyceliumConfig saved via M02 ConfigManager
 - **Storage**: XDG directories from M01
@@ -27,21 +29,25 @@ You are designing the user experience for the PRIMARY touchpoint of Mycelium set
 ## Requirements
 
 ### Wizard Flow Sequence
+
 Design 7 screens in this order:
 
 1. **Welcome Screen**
+
    - Display detection summary (table format)
    - Show system capabilities found
    - Confirm user ready to begin
    - Set expectations (5-minute wizard)
 
-2. **Service Selection**
+1. **Service Selection**
+
    - Checkbox selection: Redis, PostgreSQL, Temporal, TaskQueue
    - Pre-check based on detection
    - Show recommendations (e.g., "Redis detected and running")
    - Validate: At least one service must be selected
 
-3. **Service Configuration**
+1. **Service Configuration**
+
    - Configure each selected service
    - For Redis: port, persistence, max_memory
    - For PostgreSQL: port, database name, max_connections
@@ -49,23 +55,27 @@ Design 7 screens in this order:
    - Use detected values as defaults
    - Validate port ranges (1-65535)
 
-4. **Deployment Method**
+1. **Deployment Method**
+
    - Select: Docker Compose (recommended) or Justfile
    - If Docker not available: auto-select Justfile
    - Explain implications of each choice
    - Show what will be generated
 
-5. **Project Metadata**
+1. **Project Metadata**
+
    - Project name (validate: alphanumeric, hyphens, underscores)
    - Project description (optional)
    - Defaults: name="mycelium", description="Multi-agent coordination"
 
-6. **Configuration Review**
+1. **Configuration Review**
+
    - Display final configuration (table format)
    - Show all selections
    - Confirm to save or go back to edit
 
-7. **Finalization**
+1. **Finalization**
+
    - Success message with config location
    - Next steps: generate deployment, start services
    - Commands to run next
@@ -161,27 +171,32 @@ def create_wizard_state(detection_results: 'DetectionResults') -> WizardState:
 ### UX Principles
 
 **Progressive Disclosure**
+
 - Don't overwhelm users with all options at once
 - Show relevant options based on previous choices
 - Hide advanced options unless requested
 
 **Intelligent Defaults**
+
 - Use detection results to pre-fill values
 - Recommend based on what's available
 - Make the "happy path" obvious
 
 **Clear Communication**
+
 - Consistent terminology throughout
 - Clear error messages with solutions
 - Contextual help available at each step
 
 **Safety & Confidence**
+
 - Review step before finalizing
 - Show what will happen before doing it
 - Allow going back to change choices
 - Graceful exit at any point
 
 **Accessibility**
+
 - Keyboard-only navigation
 - Screen reader friendly prompts
 - Clear visual hierarchy
@@ -190,18 +205,21 @@ def create_wizard_state(detection_results: 'DetectionResults') -> WizardState:
 ### Error Handling Patterns
 
 **Validation Errors**
+
 - Validate immediately (don't wait until submit)
 - Show specific error message
 - Suggest valid alternatives
 - Don't lose user's work
 
 **System Errors**
+
 - Detection failures: explain and continue
 - Save failures: show path to fix
 - Permission errors: provide commands to fix
 - Interruption: save state for resume
 
 **User Cancellation**
+
 - Ctrl+C at any point: graceful exit
 - Confirm if significant progress made
 - Don't write partial configuration
@@ -210,9 +228,11 @@ def create_wizard_state(detection_results: 'DetectionResults') -> WizardState:
 ## Deliverables
 
 ### 1. Flow Implementation
+
 **File**: `mycelium_onboarding/wizard/flow.py`
 
 Contents:
+
 - WizardStep enum
 - WizardState dataclass
 - create_wizard_state() function
@@ -221,6 +241,7 @@ Contents:
 - Comprehensive docstrings
 
 ### 2. Flow Diagram
+
 **File**: `docs/projects/onboarding/M04_wizard_flow.md`
 
 Create visual flow using Mermaid:
@@ -288,9 +309,11 @@ Or ASCII art if Mermaid not available:
 ```
 
 ### 3. UX Design Document
+
 **File**: `docs/projects/onboarding/M04_ux_design.md`
 
 Include:
+
 - User personas (beginner, intermediate, advanced)
 - Use cases and scenarios
 - Screen-by-screen UX specifications
@@ -300,21 +323,23 @@ Include:
 - Example dialog flows
 
 ### 4. State Transition Table
+
 **File**: Documentation in `flow.py` or separate design doc
 
-| Current Step | User Action | Validation | Next Step | Error State |
-|--------------|-------------|------------|-----------|-------------|
-| WELCOME | Confirm | None | SERVICE_SELECTION | N/A |
-| SERVICE_SELECTION | Select services | ≥1 selected | SERVICE_CONFIG | Show error |
-| SERVICE_CONFIG | Configure each | All configured | DEPLOYMENT_METHOD | Prompt missing |
-| DEPLOYMENT_METHOD | Select method | Method chosen | PROJECT_METADATA | N/A |
-| PROJECT_METADATA | Enter name | Valid identifier | REVIEW | Show validation |
-| REVIEW | Confirm | Config valid | FINALIZE | Back to edit |
-| FINALIZE | Done | N/A | Exit | N/A |
+| Current Step      | User Action     | Validation       | Next Step         | Error State     |
+| ----------------- | --------------- | ---------------- | ----------------- | --------------- |
+| WELCOME           | Confirm         | None             | SERVICE_SELECTION | N/A             |
+| SERVICE_SELECTION | Select services | ≥1 selected      | SERVICE_CONFIG    | Show error      |
+| SERVICE_CONFIG    | Configure each  | All configured   | DEPLOYMENT_METHOD | Prompt missing  |
+| DEPLOYMENT_METHOD | Select method   | Method chosen    | PROJECT_METADATA  | N/A             |
+| PROJECT_METADATA  | Enter name      | Valid identifier | REVIEW            | Show validation |
+| REVIEW            | Confirm         | Config valid     | FINALIZE          | Back to edit    |
+| FINALIZE          | Done            | N/A              | Exit              | N/A             |
 
 ## Implementation Guidelines
 
 ### Code Organization
+
 ```
 mycelium_onboarding/
 └── wizard/
@@ -326,6 +351,7 @@ mycelium_onboarding/
 ```
 
 ### Type Safety
+
 ```python
 from typing import Optional, TYPE_CHECKING
 
@@ -335,7 +361,9 @@ if TYPE_CHECKING:
 ```
 
 ### Testing Strategy
+
 You don't need to write tests (python-pro will), but design for testability:
+
 - Pure functions where possible
 - Clear state transitions
 - No hidden dependencies
@@ -344,14 +372,17 @@ You don't need to write tests (python-pro will), but design for testability:
 ## Reference Materials
 
 ### M04 Milestone Document
+
 Location: `/home/gerald/git/mycelium/docs/projects/onboarding/milestones/M04_INTERACTIVE_ONBOARDING.md`
 
 Key sections:
+
 - Task 4.1 implementation pattern (lines 56-131)
 - Complete requirements (lines 22-53)
 - UX principles
 
 ### Related Schemas (M02)
+
 ```python
 # From mycelium_onboarding/config/schema.py
 class MyceliumConfig(BaseModel):
@@ -372,6 +403,7 @@ class DeploymentConfig(BaseModel):
 ```
 
 ### Detection Results (M03)
+
 ```python
 # From mycelium_onboarding/detection/orchestrator.py
 class DetectionResults:
@@ -385,6 +417,7 @@ class DetectionResults:
 ## Quality Standards
 
 ### Design Quality
+
 - [ ] Flow covers all user paths (happy + error)
 - [ ] State transitions are clear and logical
 - [ ] Validation rules prevent invalid states
@@ -392,6 +425,7 @@ class DetectionResults:
 - [ ] Error handling comprehensive
 
 ### Code Quality
+
 - [ ] mypy --strict passes
 - [ ] ruff check passes
 - [ ] Comprehensive docstrings
@@ -399,6 +433,7 @@ class DetectionResults:
 - [ ] Clear variable names
 
 ### Documentation Quality
+
 - [ ] Flow diagram clear and complete
 - [ ] UX design document thorough
 - [ ] State transitions documented
@@ -420,30 +455,27 @@ class DetectionResults:
 
 ## Timeline
 
-**Hour 0-1**: Study requirements and existing code
-**Hour 1-2**: Design flow and state machine
-**Hour 2-3**: Implement flow.py
-**Hour 3-4**: Create flow diagram and UX documentation
+**Hour 0-1**: Study requirements and existing code **Hour 1-2**: Design flow and state machine **Hour 2-3**: Implement
+flow.py **Hour 3-4**: Create flow diagram and UX documentation
 
 ## Next Steps After Completion
 
 1. Submit deliverables for review
-2. python-pro reviews flow design
-3. Incorporate feedback if needed
-4. Approve for Task 4.2B (screen implementation)
-5. Unblock Task 4.3 (detection integration)
+1. python-pro reviews flow design
+1. Incorporate feedback if needed
+1. Approve for Task 4.2B (screen implementation)
+1. Unblock Task 4.3 (detection integration)
 
 ## Questions or Blockers?
 
 Escalate to multi-agent-coordinator if:
+
 - Design decisions need clarification
 - Requirements conflict or unclear
 - Technical blockers discovered
 - Need additional context from M01/M02/M03
 
----
+______________________________________________________________________
 
-**Status**: READY TO START
-**Agent**: frontend-developer
-**Estimated Completion**: +4 hours
-**Next Task**: 4.2A (can run in parallel)
+**Status**: READY TO START **Agent**: frontend-developer **Estimated Completion**: +4 hours **Next Task**: 4.2A (can run
+in parallel)

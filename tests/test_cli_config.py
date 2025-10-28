@@ -19,13 +19,7 @@ from mycelium_onboarding.config.schema import MyceliumConfig
 def runner():
     """Create Click test runner with clean environment."""
     # Create runner with isolated environment (no MYCELIUM_* vars)
-    return CliRunner(
-        env={
-            k: v
-            for k, v in __import__("os").environ.items()
-            if not k.startswith("MYCELIUM_")
-        }
-    )
+    return CliRunner(env={k: v for k, v in __import__("os").environ.items() if not k.startswith("MYCELIUM_")})
 
 
 @pytest.fixture
@@ -479,10 +473,7 @@ def test_config_validate_default(runner, tmp_path):
 
         # Should validate default config
         assert result.exit_code == 0
-        assert (
-            "Configuration valid" in result.output
-            or "using defaults" in result.output.lower()
-        )
+        assert "Configuration valid" in result.output or "using defaults" in result.output.lower()
 
 
 # ============================================================================
@@ -562,9 +553,7 @@ def test_config_set_with_save_error(runner, tmp_path):
         config_path.parent.chmod(0o444)
 
         try:
-            with patch(
-                "mycelium_onboarding.cli.get_config_path", return_value=config_path
-            ):
+            with patch("mycelium_onboarding.cli.get_config_path", return_value=config_path):
                 result = runner.invoke(
                     cli,
                     ["config", "set", "project_name", "test"],
@@ -680,9 +669,7 @@ def test_config_workflow_init_get_set_validate(runner, tmp_path):
         assert result.exit_code == 0
 
         # 2. Get initial value (directly from file)
-        result = runner.invoke(
-            cli, ["config", "get", "services.redis.port", "--path", str(config_path)]
-        )
+        result = runner.invoke(cli, ["config", "get", "services.redis.port", "--path", str(config_path)])
         assert result.exit_code == 0
         assert "6379" in result.output
 
@@ -695,9 +682,7 @@ def test_config_workflow_init_get_set_validate(runner, tmp_path):
         assert result.exit_code == 0
 
         # 4. Verify new value (directly from file)
-        result = runner.invoke(
-            cli, ["config", "get", "services.redis.port", "--path", str(config_path)]
-        )
+        result = runner.invoke(cli, ["config", "get", "services.redis.port", "--path", str(config_path)])
         assert result.exit_code == 0
         assert "6380" in result.output
 
@@ -723,9 +708,7 @@ def test_config_multiple_sets(runner, tmp_path):
             runner.invoke(cli, ["config", "set", "services.redis.port", "6380"])
 
         with patch("mycelium_onboarding.cli.get_config_path", return_value=config_path):
-            runner.invoke(
-                cli, ["config", "set", "services.postgres.database", "testdb"]
-            )
+            runner.invoke(cli, ["config", "set", "services.postgres.database", "testdb"])
 
         # Verify all values
         config = yaml.safe_load(config_path.read_text())

@@ -30,13 +30,7 @@ from mycelium_onboarding.wizard.validation import WizardValidator
 def runner() -> CliRunner:
     """Provide Click test runner with clean environment."""
     # Create runner with isolated environment (no MYCELIUM_* vars)
-    return CliRunner(
-        env={
-            k: v
-            for k, v in __import__("os").environ.items()
-            if not k.startswith("MYCELIUM_")
-        }
-    )
+    return CliRunner(env={k: v for k, v in __import__("os").environ.items() if not k.startswith("MYCELIUM_")})
 
 
 @pytest.fixture
@@ -108,9 +102,7 @@ class TestWizardE2EQuickMode:
         mock_detection_summary: DetectionSummary,
     ) -> None:
         """Test full wizard completion in quick mode from welcome to complete."""
-        with patch(
-            "mycelium_onboarding.wizard.persistence.WizardStatePersistence"
-        ) as mock_persistence_class:
+        with patch("mycelium_onboarding.wizard.persistence.WizardStatePersistence") as mock_persistence_class:
             # Setup persistence mock
             mock_persistence = MagicMock()
             mock_persistence.exists.return_value = False
@@ -132,39 +124,36 @@ class TestWizardE2EQuickMode:
                 ]
 
                 # Services screen: select services
-                mock_inquirer.checkbox.return_value = MagicMock(
-                    execute=lambda: ["redis", "postgres"]
-                )
+                mock_inquirer.checkbox.return_value = MagicMock(execute=lambda: ["redis", "postgres"])
 
                 # Services screen: database name
                 mock_inquirer.text.return_value = MagicMock(execute=lambda: "test_db")
 
                 # Mock detection
-                with patch(
-                    "mycelium_onboarding.wizard.screens.detect_all",
-                    return_value=mock_detection_summary,
-                ), patch(
-                    "mycelium_onboarding.config.manager.ConfigManager"
-                ) as mock_config_class:
-                        mock_config = MagicMock()
-                        mock_config._determine_save_path.return_value = (
-                            tmp_path / "config.yaml"
-                        )
-                        mock_config_class.return_value = mock_config
+                with (
+                    patch(
+                        "mycelium_onboarding.wizard.screens.detect_all",
+                        return_value=mock_detection_summary,
+                    ),
+                    patch("mycelium_onboarding.config.manager.ConfigManager") as mock_config_class,
+                ):
+                    mock_config = MagicMock()
+                    mock_config._determine_save_path.return_value = tmp_path / "config.yaml"
+                    mock_config_class.return_value = mock_config
 
-                        # Mock project name prompt
-                        with patch("click.prompt", return_value="test-project"):
-                            # Execute
-                            result = runner.invoke(cli, ["init", "--no-resume"])
+                    # Mock project name prompt
+                    with patch("click.prompt", return_value="test-project"):
+                        # Execute
+                        result = runner.invoke(cli, ["init", "--no-resume"])
 
-                        # Assert success
-                        assert result.exit_code == 0, f"Output: {result.output}"
-                        # Wizard should complete successfully
-                        assert (
-                            "Configuration Complete" in result.output
-                            or "Setup Complete" in result.output
-                            or result.exit_code == 0
-                        )
+                    # Assert success
+                    assert result.exit_code == 0, f"Output: {result.output}"
+                    # Wizard should complete successfully
+                    assert (
+                        "Configuration Complete" in result.output
+                        or "Setup Complete" in result.output
+                        or result.exit_code == 0
+                    )
 
     def test_quick_mode_skips_advanced_screen(
         self,
@@ -173,9 +162,7 @@ class TestWizardE2EQuickMode:
         mock_detection_summary: DetectionSummary,
     ) -> None:
         """Test that quick mode skips the advanced configuration screen."""
-        with patch(
-            "mycelium_onboarding.wizard.persistence.WizardStatePersistence"
-        ) as mock_persistence_class:
+        with patch("mycelium_onboarding.wizard.persistence.WizardStatePersistence") as mock_persistence_class:
             mock_persistence = MagicMock()
             mock_persistence.exists.return_value = False
             mock_persistence_class.return_value = mock_persistence
@@ -190,9 +177,7 @@ class TestWizardE2EQuickMode:
                     MagicMock(execute=lambda: False),
                     MagicMock(execute=lambda: True),
                 ]
-                mock_inquirer.checkbox.return_value = MagicMock(
-                    execute=lambda: ["redis"]
-                )
+                mock_inquirer.checkbox.return_value = MagicMock(execute=lambda: ["redis"])
                 mock_inquirer.text.return_value = MagicMock(execute=lambda: "test_db")
 
                 with (
@@ -200,14 +185,10 @@ class TestWizardE2EQuickMode:
                         "mycelium_onboarding.wizard.screens.detect_all",
                         return_value=mock_detection_summary,
                     ),
-                    patch(
-                        "mycelium_onboarding.config.manager.ConfigManager"
-                    ) as mock_config_class,
+                    patch("mycelium_onboarding.config.manager.ConfigManager") as mock_config_class,
                 ):
                     mock_config = MagicMock()
-                    mock_config._determine_save_path.return_value = (
-                        tmp_path / "config.yaml"
-                    )
+                    mock_config._determine_save_path.return_value = tmp_path / "config.yaml"
                     mock_config_class.return_value = mock_config
 
                     with patch("click.prompt", return_value="test-project"):
@@ -224,9 +205,7 @@ class TestWizardE2EQuickMode:
         mock_detection_summary: DetectionSummary,
     ) -> None:
         """Test quick mode with minimal service selection (Redis only)."""
-        with patch(
-            "mycelium_onboarding.wizard.persistence.WizardStatePersistence"
-        ) as mock_persistence_class:
+        with patch("mycelium_onboarding.wizard.persistence.WizardStatePersistence") as mock_persistence_class:
             mock_persistence = MagicMock()
             mock_persistence.exists.return_value = False
             mock_persistence_class.return_value = mock_persistence
@@ -250,14 +229,10 @@ class TestWizardE2EQuickMode:
                         "mycelium_onboarding.wizard.screens.detect_all",
                         return_value=mock_detection_summary,
                     ),
-                    patch(
-                        "mycelium_onboarding.config.manager.ConfigManager"
-                    ) as mock_config_class,
+                    patch("mycelium_onboarding.config.manager.ConfigManager") as mock_config_class,
                 ):
                     mock_config = MagicMock()
-                    mock_config._determine_save_path.return_value = (
-                        tmp_path / "config.yaml"
-                    )
+                    mock_config._determine_save_path.return_value = tmp_path / "config.yaml"
                     mock_config_class.return_value = mock_config
 
                     with patch("click.prompt", return_value="minimal-project"):
@@ -281,9 +256,7 @@ class TestWizardE2ECustomMode:
         mock_detection_summary: DetectionSummary,
     ) -> None:
         """Test full wizard with advanced configuration in custom mode."""
-        with patch(
-            "mycelium_onboarding.wizard.persistence.WizardStatePersistence"
-        ) as mock_persistence_class:
+        with patch("mycelium_onboarding.wizard.persistence.WizardStatePersistence") as mock_persistence_class:
             mock_persistence = MagicMock()
             mock_persistence.exists.return_value = False
             mock_persistence_class.return_value = mock_persistence
@@ -307,9 +280,7 @@ class TestWizardE2ECustomMode:
                     MagicMock(execute=lambda: True),  # Enable persistence
                 ]
 
-                mock_inquirer.checkbox.return_value = MagicMock(
-                    execute=lambda: ["redis", "postgres", "temporal"]
-                )
+                mock_inquirer.checkbox.return_value = MagicMock(execute=lambda: ["redis", "postgres", "temporal"])
 
                 # Service configs: db name, namespace
                 mock_inquirer.text.side_effect = [
@@ -328,14 +299,10 @@ class TestWizardE2ECustomMode:
                         "mycelium_onboarding.wizard.screens.detect_all",
                         return_value=mock_detection_summary,
                     ),
-                    patch(
-                        "mycelium_onboarding.config.manager.ConfigManager"
-                    ) as mock_config_class,
+                    patch("mycelium_onboarding.config.manager.ConfigManager") as mock_config_class,
                 ):
                     mock_config = MagicMock()
-                    mock_config._determine_save_path.return_value = (
-                        tmp_path / "config.yaml"
-                    )
+                    mock_config._determine_save_path.return_value = tmp_path / "config.yaml"
                     mock_config_class.return_value = mock_config
 
                     with patch("click.prompt", return_value="custom-project"):
@@ -353,16 +320,10 @@ class TestWizardE2ECustomMode:
         # Update mock to show all services available
         mock_detection_summary.has_temporal = True
         mock_detection_summary.has_gpu = True
-        mock_detection_summary.temporal = Mock(
-            available=True, frontend_port=7233, ui_port=8080
-        )
-        mock_detection_summary.gpu = Mock(
-            available=True, gpus=[Mock(model="NVIDIA RTX 4090")]
-        )
+        mock_detection_summary.temporal = Mock(available=True, frontend_port=7233, ui_port=8080)
+        mock_detection_summary.gpu = Mock(available=True, gpus=[Mock(model="NVIDIA RTX 4090")])
 
-        with patch(
-            "mycelium_onboarding.wizard.persistence.WizardStatePersistence"
-        ) as mock_persistence_class:
+        with patch("mycelium_onboarding.wizard.persistence.WizardStatePersistence") as mock_persistence_class:
             mock_persistence = MagicMock()
             mock_persistence.exists.return_value = False
             mock_persistence_class.return_value = mock_persistence
@@ -380,9 +341,7 @@ class TestWizardE2ECustomMode:
                     MagicMock(execute=lambda: True),
                 ]
 
-                mock_inquirer.checkbox.return_value = MagicMock(
-                    execute=lambda: ["redis", "postgres", "temporal"]
-                )
+                mock_inquirer.checkbox.return_value = MagicMock(execute=lambda: ["redis", "postgres", "temporal"])
 
                 mock_inquirer.text.side_effect = [
                     MagicMock(execute=lambda: "all_services_db"),
@@ -399,14 +358,10 @@ class TestWizardE2ECustomMode:
                         "mycelium_onboarding.wizard.screens.detect_all",
                         return_value=mock_detection_summary,
                     ),
-                    patch(
-                        "mycelium_onboarding.config.manager.ConfigManager"
-                    ) as mock_config_class,
+                    patch("mycelium_onboarding.config.manager.ConfigManager") as mock_config_class,
                 ):
                     mock_config = MagicMock()
-                    mock_config._determine_save_path.return_value = (
-                        tmp_path / "config.yaml"
-                    )
+                    mock_config._determine_save_path.return_value = tmp_path / "config.yaml"
                     mock_config_class.return_value = mock_config
 
                     with patch("click.prompt", return_value="full-stack"):
@@ -435,9 +390,7 @@ class TestWizardResume:
         complete_wizard_state.project_name = "resumed-project"
         complete_wizard_state.detection_results = Mock(spec=DetectionSummary)
 
-        with patch(
-            "mycelium_onboarding.wizard.persistence.WizardStatePersistence"
-        ) as mock_persistence_class:
+        with patch("mycelium_onboarding.wizard.persistence.WizardStatePersistence") as mock_persistence_class:
             mock_persistence = MagicMock()
             mock_persistence.exists.return_value = True
             mock_persistence.load.return_value = complete_wizard_state
@@ -445,25 +398,17 @@ class TestWizardResume:
 
             with patch("mycelium_onboarding.wizard.screens.inquirer") as mock_inquirer:
                 # Start from services screen
-                mock_inquirer.checkbox.return_value = MagicMock(
-                    execute=lambda: ["redis", "postgres"]
-                )
-                mock_inquirer.text.return_value = MagicMock(
-                    execute=lambda: "resumed_db"
-                )
+                mock_inquirer.checkbox.return_value = MagicMock(execute=lambda: ["redis", "postgres"])
+                mock_inquirer.text.return_value = MagicMock(execute=lambda: "resumed_db")
                 mock_inquirer.select.side_effect = [
                     MagicMock(execute=lambda: "docker-compose"),
                     MagicMock(execute=lambda: "confirm"),
                 ]
                 mock_inquirer.confirm.return_value = MagicMock(execute=lambda: True)
 
-                with patch(
-                    "mycelium_onboarding.config.manager.ConfigManager"
-                ) as mock_config_class:
+                with patch("mycelium_onboarding.config.manager.ConfigManager") as mock_config_class:
                     mock_config = MagicMock()
-                    mock_config._determine_save_path.return_value = (
-                        tmp_path / "config.yaml"
-                    )
+                    mock_config._determine_save_path.return_value = tmp_path / "config.yaml"
                     mock_config_class.return_value = mock_config
 
                     # Mock user confirming resume
@@ -488,9 +433,7 @@ class TestWizardResume:
             "temporal": False,
         }
 
-        with patch(
-            "mycelium_onboarding.wizard.persistence.WizardStatePersistence"
-        ) as mock_persistence_class:
+        with patch("mycelium_onboarding.wizard.persistence.WizardStatePersistence") as mock_persistence_class:
             mock_persistence = MagicMock()
             mock_persistence.exists.return_value = True
             mock_persistence.load.return_value = complete_wizard_state
@@ -503,13 +446,9 @@ class TestWizardResume:
                 ]
                 mock_inquirer.confirm.return_value = MagicMock(execute=lambda: True)
 
-                with patch(
-                    "mycelium_onboarding.config.manager.ConfigManager"
-                ) as mock_config_class:
+                with patch("mycelium_onboarding.config.manager.ConfigManager") as mock_config_class:
                     mock_config = MagicMock()
-                    mock_config._determine_save_path.return_value = (
-                        tmp_path / "config.yaml"
-                    )
+                    mock_config._determine_save_path.return_value = tmp_path / "config.yaml"
                     mock_config_class.return_value = mock_config
 
                     with patch("click.confirm", return_value=True):
@@ -523,18 +462,17 @@ class TestWizardResume:
         complete_wizard_state: WizardState,
     ) -> None:
         """Test that user is prompted to resume when saved state exists."""
-        with patch(
-            "mycelium_onboarding.wizard.persistence.WizardStatePersistence"
-        ) as mock_persistence_class:
+        with patch("mycelium_onboarding.wizard.persistence.WizardStatePersistence") as mock_persistence_class:
             mock_persistence = MagicMock()
             mock_persistence.exists.return_value = True
             mock_persistence.load.return_value = complete_wizard_state
             mock_persistence_class.return_value = mock_persistence
 
             # User declines to resume
-            with patch("click.confirm", return_value=False), patch(
-                "mycelium_onboarding.wizard.screens.inquirer"
-            ) as mock_inquirer:
+            with (
+                patch("click.confirm", return_value=False),
+                patch("mycelium_onboarding.wizard.screens.inquirer") as mock_inquirer,
+            ):
                 mock_inquirer.select.side_effect = SystemExit(0)
 
                 runner.invoke(cli, ["init"])
@@ -548,9 +486,7 @@ class TestWizardResume:
         complete_wizard_state: WizardState,
     ) -> None:
         """Test that --no-resume flag ignores saved state."""
-        with patch(
-            "mycelium_onboarding.wizard.persistence.WizardStatePersistence"
-        ) as mock_persistence_class:
+        with patch("mycelium_onboarding.wizard.persistence.WizardStatePersistence") as mock_persistence_class:
             mock_persistence = MagicMock()
             mock_persistence.exists.return_value = True
             mock_persistence_class.return_value = mock_persistence
@@ -581,9 +517,7 @@ class TestWizardEditFlow:
         """Test jumping back to edit services from review screen."""
         complete_wizard_state.current_step = WizardStep.REVIEW
 
-        with patch(
-            "mycelium_onboarding.wizard.persistence.WizardStatePersistence"
-        ) as mock_persistence_class:
+        with patch("mycelium_onboarding.wizard.persistence.WizardStatePersistence") as mock_persistence_class:
             mock_persistence = MagicMock()
             mock_persistence.exists.return_value = False
             mock_persistence_class.return_value = mock_persistence
@@ -593,9 +527,7 @@ class TestWizardEditFlow:
                 mock_inquirer.select.side_effect = [
                     MagicMock(execute=lambda: "edit"),  # Edit action
                     MagicMock(execute=lambda: WizardStep.SERVICES),  # Edit services
-                    MagicMock(
-                        execute=lambda: "docker-compose"
-                    ),  # After re-doing services
+                    MagicMock(execute=lambda: "docker-compose"),  # After re-doing services
                     MagicMock(execute=lambda: "confirm"),  # Final confirm
                 ]
 
@@ -603,19 +535,13 @@ class TestWizardEditFlow:
                     execute=lambda: ["redis", "temporal"]  # Changed selection
                 )
 
-                mock_inquirer.text.return_value = MagicMock(
-                    execute=lambda: "production"
-                )
+                mock_inquirer.text.return_value = MagicMock(execute=lambda: "production")
 
                 mock_inquirer.confirm.return_value = MagicMock(execute=lambda: True)
 
-                with patch(
-                    "mycelium_onboarding.config.manager.ConfigManager"
-                ) as mock_config_class:
+                with patch("mycelium_onboarding.config.manager.ConfigManager") as mock_config_class:
                     mock_config = MagicMock()
-                    mock_config._determine_save_path.return_value = (
-                        tmp_path / "config.yaml"
-                    )
+                    mock_config._determine_save_path.return_value = tmp_path / "config.yaml"
                     mock_config_class.return_value = mock_config
 
                     # Manually drive the wizard state
@@ -651,9 +577,7 @@ class TestWizardEditFlow:
         """Test canceling wizard from review screen."""
         complete_wizard_state.current_step = WizardStep.REVIEW
 
-        with patch(
-            "mycelium_onboarding.wizard.persistence.WizardStatePersistence"
-        ) as mock_persistence_class:
+        with patch("mycelium_onboarding.wizard.persistence.WizardStatePersistence") as mock_persistence_class:
             mock_persistence = MagicMock()
             mock_persistence.exists.return_value = False
             mock_persistence_class.return_value = mock_persistence
@@ -662,11 +586,12 @@ class TestWizardEditFlow:
                 mock_inquirer.select.return_value = MagicMock(execute=lambda: "cancel")
 
                 # User confirms cancellation
-                with patch("click.confirm", return_value=True), patch(
-                    "mycelium_onboarding.wizard.screens.WizardScreens"
+                with (
+                    patch("click.confirm", return_value=True),
+                    patch("mycelium_onboarding.wizard.screens.WizardScreens"),
                 ):
-                        # Verify cancel clears state
-                        assert True  # Placeholder for cancel behavior validation
+                    # Verify cancel clears state
+                    assert True  # Placeholder for cancel behavior validation
 
 
 # ============================================================================
@@ -913,9 +838,7 @@ class TestWizardErrorHandling:
         tmp_path: Path,
     ) -> None:
         """Test that Ctrl+C saves state for resume."""
-        with patch(
-            "mycelium_onboarding.wizard.persistence.WizardStatePersistence"
-        ) as mock_persistence_class:
+        with patch("mycelium_onboarding.wizard.persistence.WizardStatePersistence") as mock_persistence_class:
             mock_persistence = MagicMock()
             mock_persistence.exists.return_value = False
             mock_persistence_class.return_value = mock_persistence
@@ -935,9 +858,7 @@ class TestWizardErrorHandling:
         runner: CliRunner,
     ) -> None:
         """Test that --reset clears corrupted state and starts fresh."""
-        with patch(
-            "mycelium_onboarding.wizard.persistence.WizardStatePersistence"
-        ) as mock_persistence_class:
+        with patch("mycelium_onboarding.wizard.persistence.WizardStatePersistence") as mock_persistence_class:
             mock_persistence = MagicMock()
             mock_persistence.exists.return_value = True
             mock_persistence_class.return_value = mock_persistence

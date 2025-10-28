@@ -1,17 +1,18 @@
 # Claude Code Skills - Feedback Incorporation Plan
 
-**Version:** 1.0
-**Date:** 2025-10-20
-**Lead:** Technical Lead (claude-code-developer)
-**Purpose:** Systematic incorporation of Gerald's technical feedback across all project documentation
+**Version:** 1.0 **Date:** 2025-10-20 **Lead:** Technical Lead (claude-code-developer) **Purpose:** Systematic
+incorporation of Gerald's technical feedback across all project documentation
 
----
+______________________________________________________________________
 
 ## Executive Summary
 
-This document provides a comprehensive plan for incorporating Gerald's architectural and technical feedback into the Claude Code Skills project documentation. The feedback fundamentally shifts several technical decisions while maintaining the project's core objectives and timeline.
+This document provides a comprehensive plan for incorporating Gerald's architectural and technical feedback into the
+Claude Code Skills project documentation. The feedback fundamentally shifts several technical decisions while
+maintaining the project's core objectives and timeline.
 
 **Key Changes:**
+
 - Database: PostgreSQL only (no SQLite)
 - Embeddings: pgvector for caching
 - Time-series: TimescaleDB for analytics
@@ -21,24 +22,26 @@ This document provides a comprehensive plan for incorporating Gerald's architect
 - CLI: Text commands + Textual TUI
 - Skill repository: Filesystem-based
 
-**Impact:** These changes increase architectural complexity moderately but provide production-grade scalability, better developer experience, and align with Gerald's operational requirements.
+**Impact:** These changes increase architectural complexity moderately but provide production-grade scalability, better
+developer experience, and align with Gerald's operational requirements.
 
----
+______________________________________________________________________
 
 ## Documents Requiring Updates
 
 ### Core Documents (9 total)
-1. `/home/gerald/git/mycelium/docs/projects/claude-code-skills/architecture.md`
-2. `/home/gerald/git/mycelium/docs/projects/claude-code-skills/README.md`
-3. `/home/gerald/git/mycelium/docs/projects/claude-code-skills/success-metrics.md`
-4. `/home/gerald/git/mycelium/docs/TECHNICAL_ARCHITECTURE_SKILLS.md`
-5. `/home/gerald/git/mycelium/docs/SKILLS_TECHNICAL_ROADMAP.md`
-6. `/home/gerald/git/mycelium/docs/SKILLS_IMPLEMENTATION_QUICKSTART.md`
-7. `/home/gerald/git/mycelium/docs/projects/claude-code-skills/milestones/M01_AGENT_DISCOVERY_SKILLS.md`
-8. `/home/gerald/git/mycelium/docs/projects/claude-code-skills/milestones/M02_SKILL_INFRASTRUCTURE.md`
-9. `/home/gerald/git/mycelium/docs/projects/claude-code-skills/milestones/M03_TOKEN_OPTIMIZATION.md`
 
----
+1. `/home/gerald/git/mycelium/docs/projects/claude-code-skills/architecture.md`
+1. `/home/gerald/git/mycelium/docs/projects/claude-code-skills/README.md`
+1. `/home/gerald/git/mycelium/docs/projects/claude-code-skills/success-metrics.md`
+1. `/home/gerald/git/mycelium/docs/TECHNICAL_ARCHITECTURE_SKILLS.md`
+1. `/home/gerald/git/mycelium/docs/SKILLS_TECHNICAL_ROADMAP.md`
+1. `/home/gerald/git/mycelium/docs/SKILLS_IMPLEMENTATION_QUICKSTART.md`
+1. `/home/gerald/git/mycelium/docs/projects/claude-code-skills/milestones/M01_AGENT_DISCOVERY_SKILLS.md`
+1. `/home/gerald/git/mycelium/docs/projects/claude-code-skills/milestones/M02_SKILL_INFRASTRUCTURE.md`
+1. `/home/gerald/git/mycelium/docs/projects/claude-code-skills/milestones/M03_TOKEN_OPTIMIZATION.md`
+
+______________________________________________________________________
 
 ## Detailed Change Specifications
 
@@ -49,6 +52,7 @@ This document provides a comprehensive plan for incorporating Gerald's architect
 #### Section 2.1: Data Architecture - Data Stores
 
 **Current:**
+
 ```markdown
 **Agent Registry** (M01)
 - Technology: PostgreSQL or SQLite
@@ -56,6 +60,7 @@ This document provides a comprehensive plan for incorporating Gerald's architect
 ```
 
 **Change To:**
+
 ```markdown
 **Agent Registry** (M01)
 - Technology: PostgreSQL 15+ (production requirement)
@@ -65,6 +70,7 @@ This document provides a comprehensive plan for incorporating Gerald's architect
 ```
 
 **New Addition After Agent Registry:**
+
 ```markdown
 **Embeddings Cache** (M01)
 - Technology: pgvector extension in PostgreSQL
@@ -77,12 +83,14 @@ This document provides a comprehensive plan for incorporating Gerald's architect
 #### Section 2.1: Data Architecture - Analytics Store
 
 **Current:**
+
 ```markdown
 **Analytics Store** (M05)
 - Technology: TimescaleDB or partitioned SQLite
 ```
 
 **Change To:**
+
 ```markdown
 **Analytics Store** (M05)
 - Technology: TimescaleDB (hypertables on PostgreSQL)
@@ -93,6 +101,7 @@ This document provides a comprehensive plan for incorporating Gerald's architect
 #### Section 3.1: Integration Points - External Integrations
 
 **Add New Subsection:**
+
 ```markdown
 ### Web UI Integration
 
@@ -118,7 +127,8 @@ This document provides a comprehensive plan for incorporating Gerald's architect
 #### Section 3.1: Integration Points - CLI Integration
 
 **Add New Subsection:**
-```markdown
+
+````markdown
 ### CLI Integration
 
 **Dual Interface Approach:**
@@ -143,7 +153,7 @@ def install(skill_name: str):
     """Install a skill from the repository."""
     loader = SkillLoader()
     loader.install(skill_name)
-```
+````
 
 ```python
 # Textual TUI example
@@ -161,7 +171,8 @@ class MyceliumTUI(App):
 #### Section 4: Performance Architecture - New Subsection
 
 **Add After Performance Budgets:**
-```markdown
+
+````markdown
 ### Token Budget Policy
 
 **Approach:** Alert/Warn, Don't Limit (Configurable)
@@ -187,19 +198,22 @@ class MyceliumTUI(App):
     }
   }
 }
-```
+````
 
 **Use Cases:**
+
 - **Warn mode (default):** Development and exploration
 - **Limit mode (opt-in):** Production cost control
 - **Off mode:** No budget tracking
 
 **Implementation:**
+
 - Budget calculator runs as advisory service
 - Warnings displayed in UI/CLI
 - Analytics track actual vs predicted consumption
 - Self-optimization in M05 improves predictions
-```
+
+````
 
 #### Section 5: Security Architecture - Add Telemetry Privacy
 
@@ -223,9 +237,10 @@ class MyceliumTUI(App):
     }
   }
 }
-```
+````
 
 **Opt-In Process:**
+
 ```bash
 # User explicitly enables telemetry
 mycelium config telemetry enable --endpoint=https://telemetry.mycelium.local
@@ -239,6 +254,7 @@ mycelium config telemetry enable-performance-metrics
 ```
 
 **Privacy Guarantees:**
+
 - No data sent without explicit opt-in
 - Configurable endpoint (private deployment supported)
 - Data minimization: only specified metrics collected
@@ -247,10 +263,12 @@ mycelium config telemetry enable-performance-metrics
 - User can revoke consent at any time
 
 **Transparency:**
+
 - Telemetry dashboard shows what data is being sent
 - Export capability for audit
 - Open-source telemetry SDK
-```
+
+````
 
 ---
 
@@ -283,13 +301,14 @@ mycelium config telemetry enable-performance-metrics
 - Token budgets: Alert/warn by default, optional limits
 - Telemetry: Opt-in only, configurable endpoint
 - Privacy-first: Local-only mode always available
-```
+````
 
 #### Section: Milestones & Deliverables - Update M02
 
 **Current M02 Description:** (mentions multiple storage options)
 
 **Change To:**
+
 ```markdown
 ### M02: Skill Infrastructure
 **Phase:** Dogfooding
@@ -314,7 +333,7 @@ mycelium config telemetry enable-performance-metrics
 - **NEW:** TUI demonstrates interactive workflows
 ```
 
----
+______________________________________________________________________
 
 ### 3. Success Metrics (`success-metrics.md`)
 
@@ -323,6 +342,7 @@ mycelium config telemetry enable-performance-metrics
 #### Section 1.2: Add Token Budget Effectiveness Metrics
 
 **Add New Subsection:**
+
 ```markdown
 ### 1.4 Token Budget Effectiveness
 
@@ -346,6 +366,7 @@ mycelium config telemetry enable-performance-metrics
 #### Section 2: Performance Metrics - Add UI/TUI Targets
 
 **Add New Table:**
+
 ```markdown
 ### 2.4 User Interface Performance
 
@@ -362,6 +383,7 @@ mycelium config telemetry enable-performance-metrics
 #### Section 5: System Health Metrics - Add Database Metrics
 
 **Add New Subsection:**
+
 ```markdown
 ### 5.4 Database Performance
 
@@ -377,6 +399,7 @@ mycelium config telemetry enable-performance-metrics
 #### Section 6: Business Impact - Update Technology Costs
 
 **Update Cost Savings Table:**
+
 ```markdown
 ### 6.1 Cost Savings (Updated for PostgreSQL + UI Investment)
 
@@ -397,7 +420,7 @@ mycelium config telemetry enable-performance-metrics
 - Payback period: 9-12 months
 ```
 
----
+______________________________________________________________________
 
 ### 4. Technical Architecture Skills (`TECHNICAL_ARCHITECTURE_SKILLS.md`)
 
@@ -406,12 +429,14 @@ mycelium config telemetry enable-performance-metrics
 #### Section 2.1: Skill Definition Schema - Update Registry Location
 
 **Current:**
+
 ```json
 "Location:** `plugins/mycelium-core/skills/registry.json`
 ```
 
 **Change To:**
-```markdown
+
+````markdown
 **Location Options:**
 - **Metadata Index:** `plugins/mycelium-core/skills/registry.json` (lightweight index)
 - **Database:** PostgreSQL `skills` table (primary source of truth)
@@ -446,8 +471,9 @@ CREATE TABLE skill_embeddings (
 
 -- Create HNSW index for fast similarity search
 CREATE INDEX ON skill_embeddings USING hnsw (embedding vector_cosine_ops);
-```
-```
+````
+
+````
 
 #### Section 2.3: Skill Interface Contract - Add Token Budget Hooks
 
@@ -497,12 +523,13 @@ class BudgetAwareSkill(BaseSkill):
             True to proceed anyway, False to abort
         """
         return False  # Default: respect hard limits
-```
+````
 
 #### Section 7: Integration with Existing Systems - Add UI Integration
 
 **Add New Subsection 7.4:**
-```markdown
+
+````markdown
 ## 7.4 Web UI Integration
 
 **File:** `plugins/mycelium-core/ui/`
@@ -542,7 +569,7 @@ function App() {
     </QueryClientProvider>
   )
 }
-```
+````
 
 ### Design System Integration
 
@@ -602,7 +629,8 @@ function SkillsDashboard() {
   )
 }
 ```
-```
+
+````
 
 ---
 
@@ -617,9 +645,10 @@ function SkillsDashboard() {
 ├── Day 1-2: Skills infrastructure (16 dev-hours)
     ├── Create `skills/` directory structure
     ├── Implement `BaseSkill` interface (Python)
-```
+````
 
 **Change To:**
+
 ```markdown
 ├── Day 1-2: Skills infrastructure (20 dev-hours, +4h for database)
     ├── Create `skills/` directory structure
@@ -633,6 +662,7 @@ function SkillsDashboard() {
 #### Week 1: Day 3-4 - Add Embeddings Generation
 
 **Add to S1 Tasks:**
+
 ```markdown
 ├── Day 3-4: S1 - Agent Discovery Skill (20 dev-hours, +4h for pgvector)
     ├── Extract TF-IDF logic from `scripts/agent_discovery.py`
@@ -650,6 +680,7 @@ function SkillsDashboard() {
 #### Week 2-3: Add UI Foundation Tasks
 
 **Add New Week 2.5 Section:**
+
 ```markdown
 ### Week 2.5: UI Foundation (NEW - 24 dev-hours)
 
@@ -676,6 +707,7 @@ function SkillsDashboard() {
 #### Success Metrics Section - Add UI Metrics
 
 **Add After Performance Metrics:**
+
 ```markdown
 **User Interface Performance:**
 - Web UI initial load <1s (p95)
@@ -684,7 +716,7 @@ function SkillsDashboard() {
 - Storybook component coverage >90%
 ```
 
----
+______________________________________________________________________
 
 ### 6. Implementation Quickstart (`SKILLS_IMPLEMENTATION_QUICKSTART.md`)
 
@@ -693,6 +725,7 @@ function SkillsDashboard() {
 #### Development Environment Setup - Update Prerequisites
 
 **Current:**
+
 ```bash
 # 2. Install Python dependencies
 pip install -r requirements.txt
@@ -700,6 +733,7 @@ pip install scikit-learn>=1.0.0 pytest pytest-asyncio pytest-benchmark
 ```
 
 **Change To:**
+
 ```bash
 # 2. Install Python dependencies
 pip install -r requirements.txt
@@ -728,7 +762,8 @@ psql mycelium_skills -c "SELECT * FROM pg_extension WHERE extname = 'vector';"
 #### Day 1: Skills Infrastructure - Add Database Setup
 
 **Add After Step 3:**
-```markdown
+
+````markdown
 ### Step 3.5: Initialize Database Schema (30 minutes)
 
 **File:** `plugins/mycelium-core/skills/schema.sql`
@@ -769,9 +804,10 @@ ON skill_embeddings USING hnsw (embedding vector_cosine_ops);
 CREATE INDEX IF NOT EXISTS skills_name_idx ON skills(name);
 CREATE INDEX IF NOT EXISTS skills_tier_idx ON skills(tier);
 CREATE INDEX IF NOT EXISTS skills_capabilities_idx ON skills USING gin(capabilities);
-```
+````
 
 **Apply Schema:**
+
 ```bash
 # Apply database schema
 psql mycelium_skills -f plugins/mycelium-core/skills/schema.sql
@@ -784,6 +820,7 @@ psql mycelium_skills -c "\dt"
 ```
 
 **Python Database Connection:**
+
 ```python
 # plugins/mycelium-core/skills/database.py
 import os
@@ -814,7 +851,8 @@ class DatabaseManager:
         """Return connection to pool."""
         self.pool.putconn(conn)
 ```
-```
+
+````
 
 #### Day 2-3: First Skill - Update with pgvector
 
@@ -1013,9 +1051,9 @@ class AgentVectorizer:
         # Sort by combined score
         combined.sort(key=lambda x: x['score'], reverse=True)
         return combined
-```
+````
 
----
+______________________________________________________________________
 
 ### 7. M01 Milestone (`M01_AGENT_DISCOVERY_SKILLS.md`)
 
@@ -1024,12 +1062,14 @@ class AgentVectorizer:
 #### Task 1.1: Agent Registry Infrastructure - Update for PostgreSQL
 
 **Current Acceptance Criteria:**
+
 ```markdown
 - [ ] Agent metadata schema defined with fields for name, capabilities...
 - [ ] Database tables created with proper indexing...
 ```
 
 **Change To:**
+
 ```markdown
 **Acceptance Criteria:**
 - [ ] PostgreSQL database created: `mycelium_skills`
@@ -1046,6 +1086,7 @@ class AgentVectorizer:
 ```
 
 **Update Deliverables:**
+
 ```markdown
 **Deliverables:**
 - `/plugins/mycelium-core/registry/schema.sql` - PostgreSQL schema with pgvector
@@ -1062,6 +1103,7 @@ class AgentVectorizer:
 #### Task 1.3: NLP Capability Matching Engine - Update for pgvector
 
 **Current:**
+
 ```markdown
 **Acceptance Criteria:**
 - [ ] Embedding model selected and integrated (sentence-transformers recommended)
@@ -1069,6 +1111,7 @@ class AgentVectorizer:
 ```
 
 **Change To:**
+
 ```markdown
 **Acceptance Criteria:**
 - [ ] Embedding model integrated: sentence-transformers/all-MiniLM-L6-v2 (384 dimensions)
@@ -1085,6 +1128,7 @@ class AgentVectorizer:
 ```
 
 **Update Deliverables:**
+
 ```markdown
 **Deliverables:**
 - `/plugins/mycelium-core/matching/matcher.py` - Hybrid matching engine
@@ -1097,7 +1141,7 @@ class AgentVectorizer:
 - `/docs/technical/pgvector-integration.md` - pgvector usage guide
 ```
 
----
+______________________________________________________________________
 
 ### 8. M02 Milestone (`M02_SKILL_INFRASTRUCTURE.md`)
 
@@ -1106,11 +1150,13 @@ class AgentVectorizer:
 #### Overview Section - Update Effort Estimate
 
 **Current:**
+
 ```markdown
 | Duration | 5 weeks (100 hours) |
 ```
 
 **Change To:**
+
 ```markdown
 | Duration | 6 weeks (140 hours) |
 | Additional Scope | +40 hours for Web UI foundation and Textual TUI |
@@ -1119,6 +1165,7 @@ class AgentVectorizer:
 #### Section: Requirements - Add UI Requirements
 
 **Add New Subsection After IR-2.5:**
+
 ```markdown
 ### User Interface Requirements (UR)
 
@@ -1179,7 +1226,7 @@ Implement dual CLI interface: traditional text commands + interactive TUI:
 
 **Insert After Task 2.6:**
 
-```markdown
+````markdown
 ### Task 2.7: Web UI Foundation
 **Owner:** Frontend Developer
 **Effort:** 24 hours (Week 5-6)
@@ -1246,17 +1293,17 @@ function App() {
     </QueryClientProvider>
   )
 }
-```
+````
 
 ### Task 2.8: CLI Enhancement with Textual TUI
-**Owner:** CLI Developer
-**Effort:** 16 hours (Week 6)
-**Dependencies:** Task 2.2 (API endpoints), Task 2.5 (Registry)
+
+**Owner:** CLI Developer **Effort:** 16 hours (Week 6) **Dependencies:** Task 2.2 (API endpoints), Task 2.5 (Registry)
 **Supports Requirements:** UR-2.2
 
 Implement dual CLI interface with text commands and interactive TUI.
 
 **Acceptance Criteria:**
+
 - [ ] Click-based CLI commands for core operations
 - [ ] JSON output format for scripting
 - [ ] Textual TUI application with main dashboard
@@ -1266,19 +1313,21 @@ Implement dual CLI interface with text commands and interactive TUI.
 - [ ] Rich formatting with progress bars and spinners
 - [ ] Cross-platform testing (macOS, Linux, Windows)
 - [ ] Documentation for both interfaces
-- [ ] Performance targets met (<500ms startup)
+- [ ] Performance targets met (\<500ms startup)
 
 **Deliverables:**
+
 1. `/home/gerald/git/mycelium/plugins/mycelium-core/cli/commands/` - Click commands
-2. `/home/gerald/git/mycelium/plugins/mycelium-core/cli/tui/app.py` - Textual application
-3. `/home/gerald/git/mycelium/plugins/mycelium-core/cli/tui/widgets/` - Custom widgets
-4. `/home/gerald/git/mycelium/plugins/mycelium-core/cli/tui/screens/` - TUI screens
-5. `/home/gerald/git/mycelium/tests/cli/` - CLI test suite
-6. `/home/gerald/git/mycelium/docs/cli/commands.md` - Command reference
-7. `/home/gerald/git/mycelium/docs/cli/tui-guide.md` - TUI user guide
-8. `/home/gerald/git/mycelium/docs/cli/keyboard-shortcuts.md` - Shortcut reference
+1. `/home/gerald/git/mycelium/plugins/mycelium-core/cli/tui/app.py` - Textual application
+1. `/home/gerald/git/mycelium/plugins/mycelium-core/cli/tui/widgets/` - Custom widgets
+1. `/home/gerald/git/mycelium/plugins/mycelium-core/cli/tui/screens/` - TUI screens
+1. `/home/gerald/git/mycelium/tests/cli/` - CLI test suite
+1. `/home/gerald/git/mycelium/docs/cli/commands.md` - Command reference
+1. `/home/gerald/git/mycelium/docs/cli/tui-guide.md` - TUI user guide
+1. `/home/gerald/git/mycelium/docs/cli/keyboard-shortcuts.md` - Shortcut reference
 
 **Implementation Notes:**
+
 ```python
 # Click commands
 import click
@@ -1350,7 +1399,8 @@ if __name__ == '__main__':
     app = MyceliumTUI()
     app.run()
 ```
-```
+
+````
 
 ---
 
@@ -1388,8 +1438,9 @@ System shall support multiple budget enforcement modes: warn-only (default), har
     }
   }
 }
-```
-```
+````
+
+````
 
 #### Task 3.2: Token Budget Optimizer - Update Implementation
 
@@ -1397,9 +1448,10 @@ System shall support multiple budget enforcement modes: warn-only (default), har
 ```markdown
 - [ ] Task complexity estimator using agent metadata and historical data
 - [ ] Constraint satisfaction solver allocates budgets meeting task requirements
-```
+````
 
 **Change To:**
+
 ```markdown
 **Acceptance Criteria:**
 - [ ] Task complexity estimator using agent metadata and historical analytics
@@ -1417,6 +1469,7 @@ System shall support multiple budget enforcement modes: warn-only (default), har
 ```
 
 **Update Deliverables:**
+
 ```markdown
 **Deliverables:**
 1. `/home/gerald/git/mycelium/plugins/mycelium-core/optimization/budget_calculator.py` - Budget calculation (advisory)
@@ -1430,6 +1483,7 @@ System shall support multiple budget enforcement modes: warn-only (default), har
 ```
 
 **Add Implementation Example:**
+
 ```python
 class TokenBudgetCalculator:
     """Calculate token budgets with advisory warnings (no enforcement by default)."""
@@ -1501,24 +1555,25 @@ class TokenBudgetCalculator:
         return status
 ```
 
----
+______________________________________________________________________
 
 ## Scope Impact Assessment
 
 ### Effort Increase Breakdown
 
-| Milestone | Original Effort | Additional Effort | New Total | Primary Changes |
-|-----------|----------------|-------------------|-----------|-----------------|
-| M01 | 120 hours | +16 hours | 136 hours | PostgreSQL setup, pgvector integration, embeddings |
-| M02 | 100 hours | +40 hours | 140 hours | Web UI foundation (24h), Textual TUI (16h) |
-| M03 | 120 hours | +8 hours | 128 hours | Budget policy configuration, warning system |
-| M04 | 80 hours | 0 hours | 80 hours | No changes (orchestration logic unchanged) |
-| M05 | 100 hours | +12 hours | 112 hours | TimescaleDB setup, telemetry opt-in system |
-| **Total** | **520 hours** | **+76 hours** | **596 hours** | **~15% increase** |
+| Milestone | Original Effort | Additional Effort | New Total     | Primary Changes                                    |
+| --------- | --------------- | ----------------- | ------------- | -------------------------------------------------- |
+| M01       | 120 hours       | +16 hours         | 136 hours     | PostgreSQL setup, pgvector integration, embeddings |
+| M02       | 100 hours       | +40 hours         | 140 hours     | Web UI foundation (24h), Textual TUI (16h)         |
+| M03       | 120 hours       | +8 hours          | 128 hours     | Budget policy configuration, warning system        |
+| M04       | 80 hours        | 0 hours           | 80 hours      | No changes (orchestration logic unchanged)         |
+| M05       | 100 hours       | +12 hours         | 112 hours     | TimescaleDB setup, telemetry opt-in system         |
+| **Total** | **520 hours**   | **+76 hours**     | **596 hours** | **~15% increase**                                  |
 
 ### New Infrastructure Components
 
 **Database Infrastructure:**
+
 - PostgreSQL 15+ installation and configuration
 - pgvector extension setup and tuning
 - TimescaleDB hypertables for analytics
@@ -1526,6 +1581,7 @@ class TokenBudgetCalculator:
 - Backup and recovery procedures
 
 **User Interface Components:**
+
 - React application with Vite build system
 - TanStack ecosystem integration (Query, Router, Table, Virtual)
 - Design system with Storybook documentation
@@ -1533,36 +1589,41 @@ class TokenBudgetCalculator:
 - API endpoints for UI data access
 
 **Configuration Management:**
+
 - Token budget policy system
 - Telemetry opt-in configuration
 - Database connection parameters
 - UI/TUI preferences
 
----
+______________________________________________________________________
 
 ## Architectural Implications
 
 ### Positive Impacts
 
 **1. Production-Ready Scalability**
+
 - PostgreSQL handles growth to 1000+ agents and 1M+ analytics events
 - pgvector provides sub-linear similarity search performance
 - TimescaleDB optimizes time-series queries automatically
 - No migration path needed from development to production
 
 **2. Enhanced Developer Experience**
+
 - Web UI provides visual exploration and configuration
 - Textual TUI offers rich interactive experience in terminal
 - Storybook documents component library for consistency
 - Dual CLI modes support both automation and interaction
 
 **3. Operational Flexibility**
+
 - Token budgets inform rather than restrict (configurable)
 - Telemetry opt-in respects privacy by default
 - Private deployment support (configurable endpoint)
 - Gradual adoption path for advanced features
 
 **4. Future-Proof Foundation**
+
 - pgvector enables advanced semantic search capabilities
 - TimescaleDB supports advanced analytics and forecasting
 - Web UI foundation supports future dashboard features
@@ -1571,185 +1632,201 @@ class TokenBudgetCalculator:
 ### Challenges and Mitigations
 
 **1. Increased Complexity**
+
 - **Challenge:** More moving parts (PostgreSQL, pgvector, TimescaleDB, UI, TUI)
 - **Mitigation:** Comprehensive documentation, automated setup scripts, Docker Compose for local development
 
 **2. Infrastructure Dependencies**
+
 - **Challenge:** Requires PostgreSQL + extensions, not just Python
-- **Mitigation:** Provide installation scripts for all platforms, Docker image with all dependencies, clear setup documentation
+- **Mitigation:** Provide installation scripts for all platforms, Docker image with all dependencies, clear setup
+  documentation
 
 **3. Development Environment Setup**
+
 - **Challenge:** Longer onboarding time for new developers
 - **Mitigation:** One-command setup script, VS Code dev container, detailed troubleshooting guide
 
 **4. Testing Complexity**
-- **Challenge:** Need test databases, embedding generation, UI testing
-- **Mitigation:** Test fixtures with pre-generated embeddings, database mocking for unit tests, GitHub Actions CI with PostgreSQL service
 
----
+- **Challenge:** Need test databases, embedding generation, UI testing
+- **Mitigation:** Test fixtures with pre-generated embeddings, database mocking for unit tests, GitHub Actions CI with
+  PostgreSQL service
+
+______________________________________________________________________
 
 ## Implementation Guidance
 
 ### Phase 1: Database Foundation (Week 1)
 
-**Priority:** Critical
-**Blocking:** All subsequent work
+**Priority:** Critical **Blocking:** All subsequent work
 
 **Tasks:**
+
 1. Install PostgreSQL 15+ on development machines
-2. Install pgvector extension
-3. Set up TimescaleDB (for M05)
-4. Create database schema
-5. Write migration scripts
-6. Document setup process
-7. Create Docker Compose for local development
+1. Install pgvector extension
+1. Set up TimescaleDB (for M05)
+1. Create database schema
+1. Write migration scripts
+1. Document setup process
+1. Create Docker Compose for local development
 
 **Validation:**
+
 - All developers can connect to PostgreSQL
-- pgvector similarity search works (<20ms)
+- pgvector similarity search works (\<20ms)
 - Schema migrations run successfully
 - Backup/restore procedures tested
 
 ### Phase 2: Hybrid Search Implementation (Week 2-3)
 
-**Priority:** High
-**Blocking:** M01 completion
+**Priority:** High **Blocking:** M01 completion
 
 **Tasks:**
+
 1. Generate embeddings for all existing agents
-2. Store embeddings in pgvector table
-3. Create HNSW index
-4. Implement hybrid search (TF-IDF + embeddings)
-5. Benchmark search performance
-6. Write comprehensive tests
+1. Store embeddings in pgvector table
+1. Create HNSW index
+1. Implement hybrid search (TF-IDF + embeddings)
+1. Benchmark search performance
+1. Write comprehensive tests
 
 **Validation:**
-- Embedding generation <1s per agent
+
+- Embedding generation \<1s per agent
 - Search accuracy >90% (hybrid approach)
-- Search performance <20ms P95
+- Search performance \<20ms P95
 - Test coverage >90%
 
 ### Phase 3: UI Foundation (Week 4-6)
 
-**Priority:** Medium (can be parallelized)
-**Non-blocking:** Can develop while other features progress
+**Priority:** Medium (can be parallelized) **Non-blocking:** Can develop while other features progress
 
 **Tasks:**
+
 1. Set up React project with Vite
-2. Configure TanStack ecosystem
-3. Create design system foundations
-4. Build Storybook component library
-5. Implement Skills Dashboard prototype
-6. Implement Analytics Dashboard prototype
-7. Set up Textual TUI application
-8. Implement interactive widgets
+1. Configure TanStack ecosystem
+1. Create design system foundations
+1. Build Storybook component library
+1. Implement Skills Dashboard prototype
+1. Implement Analytics Dashboard prototype
+1. Set up Textual TUI application
+1. Implement interactive widgets
 
 **Validation:**
-- Web UI loads in <1s
+
+- Web UI loads in \<1s
 - All components documented in Storybook
-- TUI starts in <500ms
+- TUI starts in \<500ms
 - Both interfaces functional for basic operations
 
 ### Phase 4: Policy Systems (Week 7-8)
 
-**Priority:** Medium
-**Blocking:** M03 completion
+**Priority:** Medium **Blocking:** M03 completion
 
 **Tasks:**
+
 1. Implement policy configuration system
-2. Create budget calculator (advisory mode)
-3. Build warning generation system
-4. Add optional hard limit enforcement
-5. Integrate telemetry opt-in system
-6. Write policy documentation
+1. Create budget calculator (advisory mode)
+1. Build warning generation system
+1. Add optional hard limit enforcement
+1. Integrate telemetry opt-in system
+1. Write policy documentation
 
 **Validation:**
+
 - Default warn-only mode works correctly
 - Hard limit mode functions when enabled
 - Telemetry respects opt-in requirement
 - Configuration changes take effect immediately
 
----
+______________________________________________________________________
 
 ## Risk Mitigation Strategies
 
 ### Risk 1: PostgreSQL Setup Complexity
 
-**Probability:** Medium
-**Impact:** High (blocks all work)
+**Probability:** Medium **Impact:** High (blocks all work)
 
 **Mitigation:**
+
 - Provide automated setup scripts for macOS, Linux, Windows
 - Create Docker Compose configuration for instant setup
 - Document common installation issues and solutions
 - Offer pre-configured database dumps for quick start
 
 **Contingency:**
+
 - Provide managed database instance for team during development
 - Create database-as-a-service Docker container
 - Pair programming for setup assistance
 
 ### Risk 2: pgvector Performance Issues
 
-**Probability:** Low
-**Impact:** Medium (search slower than expected)
+**Probability:** Low **Impact:** Medium (search slower than expected)
 
 **Mitigation:**
+
 - Benchmark early with realistic data volumes (500+ agents)
 - Tune HNSW index parameters for optimal performance
 - Implement caching layer for frequent queries
 - Profile and optimize query patterns
 
 **Contingency:**
+
 - Fall back to TF-IDF only if pgvector underperforms
 - Use pgvector for offline batch processing, cache results
 - Upgrade to more powerful database instance
 
 ### Risk 3: UI Development Timeline
 
-**Probability:** Medium
-**Impact:** Low (UI is enhancement, not critical path)
+**Probability:** Medium **Impact:** Low (UI is enhancement, not critical path)
 
 **Mitigation:**
+
 - Start UI development early (Week 4)
 - Parallelize with other milestone work
 - Use component library for faster development
 - Scope MVP UI features carefully
 
 **Contingency:**
+
 - Defer advanced UI features to post-GA
 - Focus on core functionality first (skills browsing)
 - Release CLI/TUI first, Web UI follows
 
 ### Risk 4: Telemetry Privacy Concerns
 
-**Probability:** Low
-**Impact:** Medium (user trust)
+**Probability:** Low **Impact:** Medium (user trust)
 
 **Mitigation:**
+
 - Default to OFF, require explicit opt-in
 - Support private deployment endpoints
 - Document exactly what data is collected
 - Provide data export and deletion capabilities
 
 **Contingency:**
+
 - Remove centralized telemetry entirely if needed
 - Implement local-only analytics dashboard
 - Make telemetry completely optional feature
 
----
+______________________________________________________________________
 
 ## Testing Strategy Updates
 
 ### Database Testing
 
 **Unit Tests:**
+
 - Mock PostgreSQL connections using `pytest-postgresql`
 - Test schema migrations forward and backward
 - Verify embedding generation and storage
 - Test query performance with realistic data
 
 **Integration Tests:**
+
 - Use test database with pgvector
 - Pre-generated embeddings for test fixtures
 - Test similarity search accuracy
@@ -1758,11 +1835,13 @@ class TokenBudgetCalculator:
 ### UI Testing
 
 **Component Tests:**
+
 - React Testing Library for component behavior
 - Storybook interaction tests
 - Visual regression testing with Chromatic
 
 **E2E Tests:**
+
 - Playwright for user workflows
 - Test key scenarios (install skill, view analytics)
 - Cross-browser testing (Chrome, Firefox, Safari)
@@ -1770,81 +1849,92 @@ class TokenBudgetCalculator:
 ### TUI Testing
 
 **Snapshot Tests:**
+
 - Textual snapshot testing for screen layouts
 - Verify keyboard navigation
 - Test different terminal sizes
 
 **Manual Testing:**
+
 - Test on macOS Terminal, iTerm2, Linux terminals, Windows Terminal
 - Verify colors and formatting across terminals
 - Test with screen readers for accessibility
 
----
+______________________________________________________________________
 
 ## Documentation Priorities
 
 ### Critical Documentation (Before M01)
+
 1. PostgreSQL setup guide (macOS, Linux, Windows)
-2. pgvector installation and configuration
-3. Database schema and migrations
-4. Embedding generation process
-5. Development environment setup (comprehensive)
+1. pgvector installation and configuration
+1. Database schema and migrations
+1. Embedding generation process
+1. Development environment setup (comprehensive)
 
 ### High Priority Documentation (Before M02)
+
 6. Web UI development guide
-7. Design system documentation (Storybook)
-8. Textual TUI development guide
-9. CLI command reference
-10. Database backup and recovery procedures
+1. Design system documentation (Storybook)
+1. Textual TUI development guide
+1. CLI command reference
+1. Database backup and recovery procedures
 
 ### Medium Priority Documentation (Before M03)
+
 11. Token budget policy configuration
-12. Telemetry opt-in guide
-13. Performance tuning guide
-14. Troubleshooting guide (database, UI, TUI)
+01. Telemetry opt-in guide
+01. Performance tuning guide
+01. Troubleshooting guide (database, UI, TUI)
 
 ### Nice-to-Have Documentation (Post-GA)
-15. Advanced database optimization
-16. Custom UI theme development
-17. TUI plugin development
-18. Telemetry analytics cookbook
 
----
+15. Advanced database optimization
+01. Custom UI theme development
+01. TUI plugin development
+01. Telemetry analytics cookbook
+
+______________________________________________________________________
 
 ## Communication Plan
 
 ### Stakeholder Updates
 
 **Immediate Actions:**
+
 1. Share this plan with Gerald for approval
-2. Present updated estimates to project team
-3. Align on priorities and scope decisions
-4. Get commitment on infrastructure setup timeline
+1. Present updated estimates to project team
+1. Align on priorities and scope decisions
+1. Get commitment on infrastructure setup timeline
 
 **Weekly Updates:**
+
 - Progress on database setup and pgvector integration
 - UI/TUI development milestones
 - Policy system implementation status
 - Risks and blockers
 
 **Milestone Reviews:**
+
 - Demo database performance and search accuracy
 - Showcase Web UI and TUI prototypes
 - Validate budget policy configuration
 - Review telemetry opt-in implementation
 
----
+______________________________________________________________________
 
 ## Success Criteria (Updated)
 
 ### M01 Success Criteria (Updated)
+
 - [ ] PostgreSQL with pgvector operational on all dev machines
 - [ ] All 130+ agents have embeddings stored in database
 - [ ] Hybrid search achieves >90% accuracy
-- [ ] Search performance <20ms P95 (pgvector)
+- [ ] Search performance \<20ms P95 (pgvector)
 - [ ] Database schema supports future scaling to 1000+ agents
 
 ### M02 Success Criteria (Updated)
+
 - [ ] All original M02 criteria met
 - [ ] **NEW:** Web UI foundation functional with TanStack
 - [ ] **NEW:** Skills Dashboard displays data from PostgreSQL
@@ -1853,13 +1943,14 @@ class TokenBudgetCalculator:
 - [ ] **NEW:** Both CLI modes functional (text + TUI)
 
 ### M03 Success Criteria (Updated)
+
 - [ ] All original M03 criteria met
 - [ ] **NEW:** Token budget policy configurable (warn/limit/off)
 - [ ] **NEW:** Warning system provides actionable guidance
 - [ ] **NEW:** Hard limit enforcement available as opt-in
 - [ ] **NEW:** Telemetry opt-in system respects privacy defaults
 
----
+______________________________________________________________________
 
 ## Appendix: Quick Reference
 
@@ -1902,22 +1993,22 @@ mycelium config telemetry enable
 
 ### Performance Targets (Quick Reference)
 
-| Operation | Target | Technology |
-|-----------|--------|------------|
-| Agent search (keyword) | <10ms P95 | PostgreSQL B-tree |
-| Agent search (semantic) | <20ms P95 | pgvector HNSW |
-| Embeddings generation | <1s per agent | sentence-transformers |
-| Web UI initial load | <1s | React + Vite |
-| TUI startup | <500ms | Textual |
-| Budget calculation | <50ms | Python (advisory) |
+| Operation               | Target         | Technology            |
+| ----------------------- | -------------- | --------------------- |
+| Agent search (keyword)  | \<10ms P95     | PostgreSQL B-tree     |
+| Agent search (semantic) | \<20ms P95     | pgvector HNSW         |
+| Embeddings generation   | \<1s per agent | sentence-transformers |
+| Web UI initial load     | \<1s           | React + Vite          |
+| TUI startup             | \<500ms        | Textual               |
+| Budget calculation      | \<50ms         | Python (advisory)     |
 
----
+______________________________________________________________________
 
-**Document Status:** Complete - Ready for Review
-**Next Steps:**
+**Document Status:** Complete - Ready for Review **Next Steps:**
+
 1. Gerald reviews and approves changes
-2. Technical lead creates implementation tasks
-3. Team begins database setup (Week 1)
-4. Parallel workstreams: database + UI foundation
+1. Technical lead creates implementation tasks
+1. Team begins database setup (Week 1)
+1. Parallel workstreams: database + UI foundation
 
 **Questions or Concerns:** Contact technical lead for clarification on any changes.

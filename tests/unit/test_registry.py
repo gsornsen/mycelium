@@ -68,10 +68,7 @@ async def db_pool():
 @pytest.fixture(scope="session")
 async def schema_setup(db_pool):
     """Set up the database schema once for all tests."""
-    schema_path = (
-        Path(__file__).parent.parent.parent
-        / "plugins/mycelium-core/registry/schema.sql"
-    )
+    schema_path = Path(__file__).parent.parent.parent / "plugins/mycelium-core/registry/schema.sql"
 
     if not schema_path.exists():
         pytest.skip(f"Schema file not found: {schema_path}")
@@ -195,9 +192,7 @@ class TestAgentCRUD:
         await registry.create_agent(**SAMPLE_AGENT)
 
         new_description = "Updated description"
-        await registry.update_agent(
-            SAMPLE_AGENT["agent_id"], description=new_description
-        )
+        await registry.update_agent(SAMPLE_AGENT["agent_id"], description=new_description)
 
         agent = await registry.get_agent_by_id(SAMPLE_AGENT["agent_id"])
         assert agent["description"] == new_description
@@ -379,9 +374,7 @@ class TestVectorSearch:
 
         # Search with similar embedding
         query_embedding = [0.11] * 384
-        results = await registry.similarity_search(
-            query_embedding, limit=3, threshold=0.5
-        )
+        results = await registry.similarity_search(query_embedding, limit=3, threshold=0.5)
 
         assert len(results) > 0
         # Results should be tuples of (agent_dict, similarity_score)
@@ -422,9 +415,7 @@ class TestVectorSearch:
 
         # Search with embedding close to middle one
         query_embedding = [0.5] * 384
-        results = await registry.similarity_search(
-            query_embedding, limit=3, threshold=0.0
-        )
+        results = await registry.similarity_search(query_embedding, limit=3, threshold=0.0)
 
         # Results should be ordered by similarity (descending)
         similarities = [sim for _, sim in results]

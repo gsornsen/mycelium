@@ -131,9 +131,7 @@ class HandoffMessage:
     workflow_id: str | None = None
     state: HandoffState = field(default_factory=HandoffState)
     metadata: HandoffMetadata = field(default_factory=HandoffMetadata)
-    timestamp: str = field(
-        default_factory=lambda: datetime.now(timezone.utc).isoformat() + "Z"
-    )
+    timestamp: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat() + "Z")
 
     def to_dict(self) -> dict[str, Any]:
         """Convert handoff message to dictionary."""
@@ -220,9 +218,7 @@ class HandoffMessage:
             context=context,
             state=state,
             metadata=metadata,
-            timestamp=data.get(
-                "timestamp", datetime.now(timezone.utc).isoformat() + "Z"
-            ),
+            timestamp=data.get("timestamp", datetime.now(timezone.utc).isoformat() + "Z"),
         )
 
     @classmethod
@@ -249,9 +245,7 @@ class HandoffProtocol:
             message_dict = message.to_dict()
             jsonschema.validate(instance=message_dict, schema=HANDOFF_SCHEMA)
         except jsonschema.ValidationError as e:
-            raise HandoffValidationError(
-                f"Handoff validation failed: {e.message}"
-            ) from e
+            raise HandoffValidationError(f"Handoff validation failed: {e.message}") from e
         except Exception as e:
             raise HandoffValidationError(f"Handoff validation error: {str(e)}") from e
 

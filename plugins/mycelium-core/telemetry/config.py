@@ -23,25 +23,19 @@ class TelemetryConfig(BaseModel):
         salt: Salt for hashing identifiers (generated if not provided)
     """
 
-    enabled: bool = Field(
-        default=False, description="Enable telemetry collection (default: disabled)"
-    )
+    enabled: bool = Field(default=False, description="Enable telemetry collection (default: disabled)")
     endpoint: HttpUrl = Field(
         default=HttpUrl("https://mycelium-telemetry.sornsen.io"),
         description="Telemetry collection endpoint",
     )
-    timeout: int = Field(
-        default=5, ge=1, le=30, description="Request timeout in seconds"
-    )
+    timeout: int = Field(default=5, ge=1, le=30, description="Request timeout in seconds")
     batch_size: int = Field(
         default=100,
         ge=1,
         le=1000,
         description="Number of events to batch before sending",
     )
-    retry_attempts: int = Field(
-        default=3, ge=0, le=10, description="Number of retry attempts on failure"
-    )
+    retry_attempts: int = Field(default=3, ge=0, le=10, description="Number of retry attempts on failure")
     retry_backoff: float = Field(
         default=2.0,
         ge=1.0,
