@@ -17,8 +17,19 @@ from registry import AgentRegistry
 
 @pytest.fixture(scope="module")
 def test_database_url():
-    """Get test database URL from environment or use default."""
-    return os.getenv("TEST_DATABASE_URL", "postgresql://localhost:5432/mycelium_registry_test")
+    """Get test database URL from environment or construct from credentials."""
+    # Check for full URL first
+    if url := os.getenv("TEST_DATABASE_URL"):
+        return url
+
+    # Otherwise construct from individual components
+    user = os.getenv("POSTGRES_USER", "postgres")
+    password = os.getenv("POSTGRES_PASSWORD", "postgres")
+    host = os.getenv("POSTGRES_HOST", "localhost")
+    port = os.getenv("POSTGRES_PORT", "5432")
+    db = os.getenv("POSTGRES_DB", "mycelium_registry_test")
+
+    return f"postgresql://{user}:{password}@{host}:{port}/{db}"
 
 
 @pytest_asyncio.fixture(scope="module")

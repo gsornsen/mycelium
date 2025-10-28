@@ -88,6 +88,7 @@ jobs:
         run: uv sync --frozen --all-extras --group dev
 
       - name: Run unit tests
+        shell: bash
         run: |
           uv run pytest tests/unit/ tests/test_*.py -v \
             -m "not integration and not benchmark and not slow" \
@@ -197,6 +198,7 @@ jobs:
           PGPASSWORD=mycelium_test psql -h localhost -U mycelium -d mycelium_test -c "\dt" | grep agents
 
       - name: Run all integration tests
+        shell: bash
         env:
           POSTGRES_HOST: localhost
           POSTGRES_PORT: 5432
@@ -234,6 +236,9 @@ jobs:
   benchmarks:
     name: Performance Benchmarks
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -271,6 +276,7 @@ jobs:
         run: uv sync --frozen --all-extras --group dev
 
       - name: Run benchmarks
+        shell: bash
         run: |
           uv run pytest tests/ -v \
             -m "benchmark" \
@@ -288,7 +294,7 @@ jobs:
             .benchmarks/
 
       - name: Comment benchmark results on PR
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
         uses: actions/github-script@v7
         with:
           script: |

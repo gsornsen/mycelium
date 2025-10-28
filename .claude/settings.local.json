@@ -48,7 +48,8 @@
       "Read(//tmp/**)",
       "Bash(gh pr checks:*)",
       "Bash(jq:*)",
-      "Bash(git config:*)"
+      "Bash(git config:*)",
+      "Bash(gh pr view:*)"
     ],
     "deny": [],
     "ask": []

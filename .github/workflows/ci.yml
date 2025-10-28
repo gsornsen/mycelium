@@ -135,6 +135,7 @@ jobs:
         run: uv sync --frozen --all-extras --group dev
 
       - name: Run full unit test suite
+        shell: bash
         run: |
           uv run pytest tests/unit/ tests/test_*.py -v \
             -m "not integration and not benchmark and not slow" \
@@ -234,6 +235,7 @@ jobs:
           PGPASSWORD=mycelium_test psql -h localhost -U mycelium -d mycelium_test -c "\dt" | grep agents
 
       - name: Run integration tests
+        shell: bash
         env:
           POSTGRES_HOST: localhost
           POSTGRES_PORT: 5432
@@ -298,6 +300,7 @@ jobs:
         run: uv sync --frozen --all-extras --group dev
 
       - name: Run benchmarks
+        shell: bash
         run: |
           uv run pytest tests/ -v \
             -m "benchmark" \
