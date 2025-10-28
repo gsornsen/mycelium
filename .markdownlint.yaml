@@ -1,0 +1,27 @@
+# Markdownlint configuration to align with mdformat behavior
+# Disables rules that conflict with mdformat or are too strict for our documentation
+
+# Line length - handled by mdformat with --wrap 120
+MD013: false
+
+# Multiple headings with same content - common in long documentation
+MD024: false
+
+# Inline HTML - needed for complex formatting
+MD033: false
+
+# Fenced code blocks should have language specified
+# TODO: Fix in future - many code blocks missing language tags
+MD040: false
+
+# Bare URLs - should use markdown link syntax
+# TODO: Fix in future - convert bare URLs to proper links
+MD034: false
+
+# Emphasis used instead of heading
+# Some bold text is intentional emphasis, not headings
+MD036: false
+
+# Fenced code blocks should be surrounded by blank lines
+# mdformat handles this, but some edge cases differ
+MD031: false

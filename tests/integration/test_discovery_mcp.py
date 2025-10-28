@@ -7,14 +7,14 @@ from unittest.mock import Mock
 
 import httpx
 import pytest
-from mcp.models import (
+from mycelium_mcp.models import (
     AgentDetails,
     AgentMatch,
     DiscoverAgentsResponse,
     GetAgentDetailsResponse,
     HealthCheckResponse,
 )
-from mcp.tools.discovery_tools import (
+from mycelium_mcp.tools.discovery_tools import (
     DiscoveryAPIError,
     DiscoveryTimeoutError,
     check_discovery_health,
