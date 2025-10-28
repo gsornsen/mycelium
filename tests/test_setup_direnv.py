@@ -6,6 +6,7 @@ and .envrc template copying.
 
 from __future__ import annotations
 
+import shutil
 import subprocess
 from pathlib import Path
 from unittest.mock import MagicMock, patch
@@ -24,6 +25,9 @@ from mycelium_onboarding.setup_direnv import (
     get_shell_config_path,
     setup_direnv,
 )
+
+# Skip all tests in this file if direnv is not installed (e.g., in CI)
+pytestmark = pytest.mark.skipif(shutil.which("direnv") is None, reason="direnv not installed")
 
 
 class TestDirenvDetection:

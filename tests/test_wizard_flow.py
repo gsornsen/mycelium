@@ -448,7 +448,7 @@ class TestWizardFlow:
         assert save_path.exists()
 
         # Verify content
-        with Path(save_path).open() as f:
+        with save_path.open() as f:
             data = json.load(f)
 
         assert data["project_name"] == "test-save"
@@ -488,7 +488,7 @@ class TestWizardFlow:
         }
 
         save_path = tmp_path / "wizard_state.json"
-        with Path(save_path, "w").open() as f:
+        with save_path.open("w") as f:
             json.dump(state_data, f)
 
         # Load state
@@ -688,7 +688,7 @@ class TestEdgeCases:
     def test_malformed_saved_state(self, tmp_path: Path) -> None:
         """Test loading malformed saved state."""
         save_path = tmp_path / "malformed.json"
-        with Path(save_path, "w").open() as f:
+        with save_path.open("w") as f:
             f.write("{invalid json}")
 
         with pytest.raises(json.JSONDecodeError):

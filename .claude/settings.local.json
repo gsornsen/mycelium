@@ -45,7 +45,9 @@
       "Bash(python:*)",
       "Bash(gh run view:*)",
       "Bash(gh run list:*)",
-      "Read(//tmp/**)"
+      "Read(//tmp/**)",
+      "Bash(gh pr checks:*)",
+      "Bash(jq:*)"
     ],
     "deny": [],
     "ask": []
