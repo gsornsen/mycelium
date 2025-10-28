@@ -148,23 +148,11 @@ module = "asyncpg.*"
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
-module = "fastapi.*"
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
 module = "uvicorn.*"
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
 module = "httpx.*"
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
-module = "pydantic.*"
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
-module = "starlette.*"
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
