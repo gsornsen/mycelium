@@ -105,11 +105,18 @@ async def registry(db_pool, schema_setup) -> AsyncGenerator[AgentRegistry, None]
 class TestAgentRegistryInitialization:
     """Test registry initialization and connection management."""
 
-    async def test_initialize_with_connection_string(self):
+    async def test_initialize_with_connection_string(self, mocker):
         """Test registry initialization with connection string."""
+        # Mock asyncpg.create_pool to avoid real database connection in unit test
+        mock_pool = mocker.AsyncMock()
+        mocker.patch("asyncpg.create_pool", return_value=mock_pool)
+
         registry = AgentRegistry(connection_string=TEST_DB_URL)
         await registry.initialize()
+
         assert registry._pool is not None
+        assert registry._pool == mock_pool
+
         await registry.close()
 
     async def test_initialize_with_pool(self, db_pool):

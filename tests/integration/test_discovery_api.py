@@ -10,7 +10,7 @@ from contextlib import suppress
 
 import pytest
 import pytest_asyncio
-from api.discovery import create_app
+from api.discovery import create_app, set_registry
 from fastapi.testclient import TestClient
 from registry import AgentRegistry
 
@@ -84,11 +84,21 @@ async def registry(test_database_url) -> AsyncGenerator[AgentRegistry, None]:
 
 
 @pytest.fixture(scope="module")
-def app(test_database_url):
+def app(test_database_url, registry):
     """Create test FastAPI application."""
     # Override database URL for testing
     os.environ["DATABASE_URL"] = test_database_url
-    return create_app(rate_limit=1000)  # Higher limit for testing
+
+    # Set the registry for the API to use
+    set_registry(registry)
+
+    # Create app - it won't trigger lifespan in TestClient
+    test_app = create_app(rate_limit=1000)  # Higher limit for testing
+
+    yield test_app
+
+    # Cleanup: Clear the registry
+    set_registry(None)
 
 
 @pytest.fixture(scope="module")

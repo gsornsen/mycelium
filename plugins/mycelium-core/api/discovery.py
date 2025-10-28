@@ -54,6 +54,18 @@ def get_registry() -> AgentRegistry:
     return _registry
 
 
+def set_registry(registry: AgentRegistry | None) -> None:
+    """Set the global registry instance.
+
+    This function is primarily for testing purposes to inject a test registry.
+
+    Args:
+        registry: AgentRegistry instance or None to clear
+    """
+    global _registry
+    _registry = registry
+
+
 @asynccontextmanager
 async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
     """Application lifespan manager.
