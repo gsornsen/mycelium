@@ -109,13 +109,15 @@ class TestAgentRegistryInitialization:
         """Test registry initialization with connection string."""
         # Mock asyncpg.create_pool to avoid real database connection in unit test
         mock_pool = mocker.AsyncMock()
-        mocker.patch("asyncpg.create_pool", return_value=mock_pool)
+        mock_create_pool = mocker.AsyncMock(return_value=mock_pool)
+        mocker.patch("asyncpg.create_pool", mock_create_pool)
 
         registry = AgentRegistry(connection_string=TEST_DB_URL)
         await registry.initialize()
 
         assert registry._pool is not None
         assert registry._pool == mock_pool
+        mock_create_pool.assert_called_once()
 
         await registry.close()
 
