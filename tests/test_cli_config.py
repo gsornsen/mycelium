@@ -5,6 +5,7 @@ testing framework (CliRunner) to ensure robust command-line interface.
 """
 
 import json
+import sys
 from unittest.mock import patch
 
 import pytest
@@ -540,6 +541,7 @@ def test_config_show_with_load_error(runner, tmp_path, monkeypatch):
         assert "Error" in result.output
 
 
+@pytest.mark.skipif(sys.platform == "win32", reason="File permissions not supported on Windows")
 def test_config_set_with_save_error(runner, tmp_path):
     """Test 'config set' handles ConfigSaveError gracefully."""
     config_path = tmp_path / "config.yaml"

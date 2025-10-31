@@ -2,7 +2,8 @@
 
 This module provides functions to get and manage XDG-compliant directories
 for the Mycelium onboarding system. All functions follow the XDG Base
-Directory Specification (https://specifications.freedesktop.org/basedir-spec/).
+Directory Specification (https://specifications.freedesktop.org/basedir-spec/)
+on Unix systems, and use Windows-appropriate paths on Windows.
 
 Example:
     >>> from mycelium_onboarding.xdg_dirs import get_config_dir
@@ -15,6 +16,7 @@ from __future__ import annotations
 import logging
 import os
 import shutil
+import sys
 from functools import lru_cache
 from pathlib import Path
 from typing import Final
@@ -25,7 +27,7 @@ logger = logging.getLogger(__name__)
 # Module constants
 DEFAULT_PROJECT_NAME: Final[str] = "mycelium"
 
-# Directory permission modes
+# Directory permission modes (Unix only)
 CONFIG_DIR_MODE: Final[int] = 0o700  # rwx------
 DATA_DIR_MODE: Final[int] = 0o755  # rwxr-xr-x
 CACHE_DIR_MODE: Final[int] = 0o755  # rwxr-xr-x
@@ -50,13 +52,104 @@ class XDGDirectoryError(Exception):
     pass
 
 
+def _get_default_config_base() -> Path:
+    """Get platform-specific default config directory base.
+
+    Returns:
+        Path to config base directory:
+        - Unix: ~/.config
+        - Windows: %LOCALAPPDATA% or %APPDATA%
+    """
+    if sys.platform == "win32":
+        # On Windows, prefer LOCALAPPDATA over APPDATA for config
+        appdata = os.environ.get("LOCALAPPDATA") or os.environ.get("APPDATA")
+        if appdata:
+            return Path(appdata)
+        # Fallback to HOME if neither is set (unusual on Windows)
+        return Path.home() / "AppData" / "Local"
+    # Unix: XDG spec default
+    return Path.home() / ".config"
+
+
+def _get_default_data_base() -> Path:
+    """Get platform-specific default data directory base.
+
+    Returns:
+        Path to data base directory:
+        - Unix: ~/.local/share
+        - Windows: %LOCALAPPDATA% or %APPDATA%
+    """
+    if sys.platform == "win32":
+        # On Windows, use LOCALAPPDATA for data
+        appdata = os.environ.get("LOCALAPPDATA") or os.environ.get("APPDATA")
+        if appdata:
+            return Path(appdata)
+        return Path.home() / "AppData" / "Local"
+    # Unix: XDG spec default
+    return Path.home() / ".local" / "share"
+
+
+def _get_default_cache_base() -> Path:
+    r"""Get platform-specific default cache directory base.
+
+    Returns:
+        Path to cache base directory:
+        - Unix: ~/.cache
+        - Windows: %LOCALAPPDATA%\\cache
+    """
+    if sys.platform == "win32":
+        # On Windows, use LOCALAPPDATA\cache
+        appdata = os.environ.get("LOCALAPPDATA") or os.environ.get("APPDATA")
+        if appdata:
+            return Path(appdata)
+        return Path.home() / "AppData" / "Local"
+    # Unix: XDG spec default
+    return Path.home() / ".cache"
+
+
+def _get_default_state_base() -> Path:
+    """Get platform-specific default state directory base.
+
+    Returns:
+        Path to state base directory:
+        - Unix: ~/.local/state
+        - Windows: %LOCALAPPDATA%
+    """
+    if sys.platform == "win32":
+        # On Windows, use LOCALAPPDATA for state
+        appdata = os.environ.get("LOCALAPPDATA") or os.environ.get("APPDATA")
+        if appdata:
+            return Path(appdata)
+        return Path.home() / "AppData" / "Local"
+    # Unix: XDG spec default
+    return Path.home() / ".local" / "state"
+
+
+def _mkdir_with_mode(path: Path, mode: int) -> None:
+    """Create directory with platform-appropriate permissions.
+
+    Args:
+        path: Directory path to create
+        mode: Unix permission mode (ignored on Windows)
+
+    Raises:
+        OSError: If directory creation fails
+    """
+    if sys.platform == "win32":
+        # On Windows, mkdir doesn't support mode parameter effectively
+        path.mkdir(parents=True, exist_ok=True)
+    else:
+        # On Unix, use the specified mode
+        path.mkdir(parents=True, exist_ok=True, mode=mode)
+
+
 @lru_cache(maxsize=1)
 def get_config_dir(project_name: str = DEFAULT_PROJECT_NAME) -> Path:
     """Get XDG config directory, creating if needed.
 
-    Respects XDG_CONFIG_HOME environment variable, falling back to
-    ~/.config if not set. Creates the directory with restrictive
-    permissions (0700) to protect configuration data.
+    Respects XDG_CONFIG_HOME environment variable on Unix, falling back to
+    ~/.config if not set. On Windows, uses %LOCALAPPDATA% or %APPDATA%.
+    Creates the directory with restrictive permissions (0700 on Unix).
 
     Args:
         project_name: Name of the project subdirectory (default: "mycelium")
@@ -74,14 +167,14 @@ def get_config_dir(project_name: str = DEFAULT_PROJECT_NAME) -> Path:
     """
     base_str = os.environ.get("XDG_CONFIG_HOME")
     if base_str is None:
-        base: Path = Path.home() / ".config"
+        base: Path = _get_default_config_base()
     else:
         base = Path(base_str)
 
     config_dir: Path = base / project_name
 
     try:
-        config_dir.mkdir(parents=True, exist_ok=True, mode=CONFIG_DIR_MODE)
+        _mkdir_with_mode(config_dir, CONFIG_DIR_MODE)
         logger.debug("Config directory ensured: %s", config_dir)
     except OSError as e:
         logger.error("Failed to create config directory: %s", config_dir, exc_info=True)
@@ -99,8 +192,8 @@ def get_config_dir(project_name: str = DEFAULT_PROJECT_NAME) -> Path:
 def get_data_dir(project_name: str = DEFAULT_PROJECT_NAME) -> Path:
     """Get XDG data directory, creating if needed.
 
-    Respects XDG_DATA_HOME environment variable, falling back to
-    ~/.local/share if not set.
+    Respects XDG_DATA_HOME environment variable on Unix, falling back to
+    ~/.local/share if not set. On Windows, uses %LOCALAPPDATA% or %APPDATA%.
 
     Args:
         project_name: Name of the project subdirectory (default: "mycelium")
@@ -117,14 +210,14 @@ def get_data_dir(project_name: str = DEFAULT_PROJECT_NAME) -> Path:
     """
     base_str = os.environ.get("XDG_DATA_HOME")
     if base_str is None:
-        base: Path = Path.home() / ".local" / "share"
+        base: Path = _get_default_data_base()
     else:
         base = Path(base_str)
 
     data_dir: Path = base / project_name
 
     try:
-        data_dir.mkdir(parents=True, exist_ok=True, mode=DATA_DIR_MODE)
+        _mkdir_with_mode(data_dir, DATA_DIR_MODE)
         logger.debug("Data directory ensured: %s", data_dir)
     except OSError as e:
         logger.error("Failed to create data directory: %s", data_dir, exc_info=True)
@@ -141,8 +234,9 @@ def get_data_dir(project_name: str = DEFAULT_PROJECT_NAME) -> Path:
 def get_cache_dir(project_name: str = DEFAULT_PROJECT_NAME) -> Path:
     """Get XDG cache directory, creating if needed.
 
-    Respects XDG_CACHE_HOME environment variable, falling back to
-    ~/.cache if not set. Cache directory can be safely deleted.
+    Respects XDG_CACHE_HOME environment variable on Unix, falling back to
+    ~/.cache if not set. On Windows, uses %LOCALAPPDATA%. Cache directory
+    can be safely deleted.
 
     Args:
         project_name: Name of the project subdirectory (default: "mycelium")
@@ -159,14 +253,14 @@ def get_cache_dir(project_name: str = DEFAULT_PROJECT_NAME) -> Path:
     """
     base_str = os.environ.get("XDG_CACHE_HOME")
     if base_str is None:
-        base: Path = Path.home() / ".cache"
+        base: Path = _get_default_cache_base()
     else:
         base = Path(base_str)
 
     cache_dir: Path = base / project_name
 
     try:
-        cache_dir.mkdir(parents=True, exist_ok=True, mode=CACHE_DIR_MODE)
+        _mkdir_with_mode(cache_dir, CACHE_DIR_MODE)
         logger.debug("Cache directory ensured: %s", cache_dir)
     except OSError as e:
         logger.error("Failed to create cache directory: %s", cache_dir, exc_info=True)
@@ -183,8 +277,9 @@ def get_cache_dir(project_name: str = DEFAULT_PROJECT_NAME) -> Path:
 def get_state_dir(project_name: str = DEFAULT_PROJECT_NAME) -> Path:
     """Get XDG state directory, creating if needed.
 
-    Respects XDG_STATE_HOME environment variable, falling back to
-    ~/.local/state if not set. Used for application state and logs.
+    Respects XDG_STATE_HOME environment variable on Unix, falling back to
+    ~/.local/state if not set. On Windows, uses %LOCALAPPDATA%.
+    Used for application state and logs.
 
     Args:
         project_name: Name of the project subdirectory (default: "mycelium")
@@ -201,14 +296,14 @@ def get_state_dir(project_name: str = DEFAULT_PROJECT_NAME) -> Path:
     """
     base_str = os.environ.get("XDG_STATE_HOME")
     if base_str is None:
-        base: Path = Path.home() / ".local" / "state"
+        base: Path = _get_default_state_base()
     else:
         base = Path(base_str)
 
     state_dir: Path = base / project_name
 
     try:
-        state_dir.mkdir(parents=True, exist_ok=True, mode=STATE_DIR_MODE)
+        _mkdir_with_mode(state_dir, STATE_DIR_MODE)
         logger.debug("State directory ensured: %s", state_dir)
     except OSError as e:
         logger.error("Failed to create state directory: %s", state_dir, exc_info=True)

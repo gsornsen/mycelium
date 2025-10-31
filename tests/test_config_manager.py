@@ -15,6 +15,7 @@ Tests cover:
 from __future__ import annotations
 
 import os
+import sys
 from pathlib import Path
 from unittest.mock import patch
 
@@ -209,6 +210,7 @@ services:
 
         assert "validation failed" in str(exc_info.value).lower()
 
+    @pytest.mark.skipif(sys.platform == "win32", reason="File permissions not supported on Windows")
     def test_load_unreadable_file_raises_error(self, tmp_path: Path) -> None:
         """Test loading unreadable file raises ConfigLoadError."""
         config_path = tmp_path / "config.yaml"
@@ -399,6 +401,7 @@ class TestConfigManagerSave:
             loaded = MyceliumConfig.from_yaml(config_path.read_text())
             assert loaded.project_name == "updated"
 
+    @pytest.mark.skipif(sys.platform == "win32", reason="File permissions not supported on Windows")
     def test_save_sets_secure_permissions(self, tmp_path: Path) -> None:
         """Test that saved config file has secure permissions (0600)."""
         config_path = tmp_path / "config.yaml"
@@ -655,6 +658,7 @@ class TestConfigManagerIntegration:
         # Should not be flow style (all on one line)
         assert yaml_content.count("\n") > 5
 
+    @pytest.mark.skipif(sys.platform == "win32", reason="Directory permissions not supported on Windows")
     def test_handles_permission_error_on_directory_creation(self, tmp_path: Path) -> None:
         """Test graceful handling of permission errors during directory creation."""
         config_dir = tmp_path / "readonly"
