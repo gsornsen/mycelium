@@ -5,7 +5,9 @@ import os
 import pytest
 
 # Set test database URL
-os.environ["DATABASE_URL"] = "postgresql://localhost:5432/mycelium_test"
+os.environ["DATABASE_URL"] = os.getenv(
+    "DATABASE_URL", "postgresql://mycelium:mycelium_test@localhost:5432/mycelium_test"
+)
 
 from coordination.state_manager import (
     StateManager,

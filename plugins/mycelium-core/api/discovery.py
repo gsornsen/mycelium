@@ -297,83 +297,8 @@ def create_app(
             processing_time_ms=processing_time,
         )
 
-    # Agent detail endpoint
-    @app.get(
-        "/api/v1/agents/{agent_id}",
-        response_model=AgentDetailResponse,
-        tags=["Discovery"],
-        summary="Get agent details",
-        description="Retrieve detailed information about a specific agent",
-        responses={
-            200: {"description": "Agent found"},
-            404: {"model": ErrorResponse, "description": "Agent not found"},
-            500: {"model": ErrorResponse, "description": "Server error"},
-        },
-    )
-    async def get_agent_details(
-        agent_id: str = Path(
-            ...,
-            description=("Agent ID (e.g., 'backend-developer' or '01-core-backend-developer')"),
-            examples=["backend-developer", "01-core-backend-developer"],
-        ),
-    ) -> AgentDetailResponse:
-        """Get detailed information about a specific agent.
-
-        Args:
-            agent_id: Agent ID or agent type
-
-        Returns:
-            Agent metadata and details
-
-        Raises:
-            HTTPException: If agent is not found
-        """
-        registry = get_registry()
-
-        # Try to get by agent_id first
-        try:
-            agent_data = await registry.get_agent_by_id(agent_id)
-        except AgentNotFoundError:
-            # Try by agent_type
-            try:
-                agent_data = await registry.get_agent_by_type(agent_id)
-            except AgentNotFoundError as e:
-                raise HTTPException(
-                    status_code=404,
-                    detail=f"Agent with ID or type '{agent_id}' not found",
-                ) from e
-
-        # Parse metadata
-        metadata_str = agent_data.get("metadata", "{}")
-        metadata_dict = json.loads(metadata_str) if isinstance(metadata_str, str) else metadata_str
-
-        agent_meta = AgentMetadata(
-            id=agent_data["id"],
-            agent_id=agent_data["agent_id"],
-            agent_type=agent_data["agent_type"],
-            name=agent_data["name"],
-            display_name=agent_data["display_name"],
-            category=agent_data["category"],
-            description=agent_data["description"],
-            capabilities=agent_data["capabilities"],
-            tools=agent_data["tools"],
-            keywords=agent_data["keywords"],
-            file_path=agent_data["file_path"],
-            estimated_tokens=agent_data.get("estimated_tokens"),
-            avg_response_time_ms=agent_data.get("avg_response_time_ms"),
-            success_rate=agent_data.get("success_rate"),
-            usage_count=agent_data.get("usage_count", 0),
-            created_at=agent_data["created_at"],
-            updated_at=agent_data["updated_at"],
-            last_used_at=agent_data.get("last_used_at"),
-        )
-
-        return AgentDetailResponse(
-            agent=agent_meta,
-            metadata=metadata_dict,
-        )
-
     # Agent search endpoint
+
     @app.get(
         "/api/v1/agents/search",
         response_model=AgentSearchResponse,
@@ -469,6 +394,83 @@ def create_app(
             agents=agents,
             total_count=len(agents),
             processing_time_ms=processing_time,
+        )
+
+    # Agent detail endpoint
+
+    @app.get(
+        "/api/v1/agents/{agent_id}",
+        response_model=AgentDetailResponse,
+        tags=["Discovery"],
+        summary="Get agent details",
+        description="Retrieve detailed information about a specific agent",
+        responses={
+            200: {"description": "Agent found"},
+            404: {"model": ErrorResponse, "description": "Agent not found"},
+            500: {"model": ErrorResponse, "description": "Server error"},
+        },
+    )
+    async def get_agent_details(
+        agent_id: str = Path(
+            ...,
+            description=("Agent ID (e.g., 'backend-developer' or '01-core-backend-developer')"),
+            examples=["backend-developer", "01-core-backend-developer"],
+        ),
+    ) -> AgentDetailResponse:
+        """Get detailed information about a specific agent.
+
+        Args:
+            agent_id: Agent ID or agent type
+
+        Returns:
+            Agent metadata and details
+
+        Raises:
+            HTTPException: If agent is not found
+        """
+        registry = get_registry()
+
+        # Try to get by agent_id first
+        try:
+            agent_data = await registry.get_agent_by_id(agent_id)
+        except AgentNotFoundError:
+            # Try by agent_type
+            try:
+                agent_data = await registry.get_agent_by_type(agent_id)
+            except AgentNotFoundError as e:
+                raise HTTPException(
+                    status_code=404,
+                    detail=f"Agent with ID or type '{agent_id}' not found",
+                ) from e
+
+        # Parse metadata
+        metadata_str = agent_data.get("metadata", "{}")
+        metadata_dict = json.loads(metadata_str) if isinstance(metadata_str, str) else metadata_str
+
+        agent_meta = AgentMetadata(
+            id=agent_data["id"],
+            agent_id=agent_data["agent_id"],
+            agent_type=agent_data["agent_type"],
+            name=agent_data["name"],
+            display_name=agent_data["display_name"],
+            category=agent_data["category"],
+            description=agent_data["description"],
+            capabilities=agent_data["capabilities"],
+            tools=agent_data["tools"],
+            keywords=agent_data["keywords"],
+            file_path=agent_data["file_path"],
+            estimated_tokens=agent_data.get("estimated_tokens"),
+            avg_response_time_ms=agent_data.get("avg_response_time_ms"),
+            success_rate=agent_data.get("success_rate"),
+            usage_count=agent_data.get("usage_count", 0),
+            created_at=agent_data["created_at"],
+            updated_at=agent_data["updated_at"],
+            last_used_at=agent_data.get("last_used_at"),
+        )
+
+        return AgentDetailResponse(
+            agent=agent_meta,
+            metadata=metadata_dict,
         )
 
     return app

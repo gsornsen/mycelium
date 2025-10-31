@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class DiscoverRequest(BaseModel):
@@ -61,10 +61,8 @@ class AgentMetadata(BaseModel):
     updated_at: datetime = Field(description="Last update timestamp")
     last_used_at: datetime | None = Field(default=None, description="Last usage timestamp")
 
-    class Config:
-        """Pydantic configuration."""
-
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "id": "123e4567-e89b-12d3-a456-426614174000",
                 "agent_id": "01-core-backend-developer",
@@ -90,6 +88,7 @@ class AgentMetadata(BaseModel):
                 "last_used_at": "2025-10-21T14:00:00Z",
             }
         }
+    )
 
 
 class AgentMatch(BaseModel):
@@ -108,10 +107,8 @@ class DiscoverResponse(BaseModel):
     total_count: int = Field(description="Total number of matches found")
     processing_time_ms: float = Field(description="Processing time in milliseconds")
 
-    class Config:
-        """Pydantic configuration."""
-
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "query": "python backend development",
                 "matches": [
@@ -144,6 +141,7 @@ class DiscoverResponse(BaseModel):
                 "processing_time_ms": 45.3,
             }
         }
+    )
 
 
 class AgentDetailResponse(BaseModel):
@@ -152,10 +150,8 @@ class AgentDetailResponse(BaseModel):
     agent: AgentMetadata
     metadata: dict[str, Any] | None = Field(default=None, description="Additional metadata")
 
-    class Config:
-        """Pydantic configuration."""
-
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "agent": {
                     "id": "123e4567-e89b-12d3-a456-426614174000",
@@ -176,6 +172,7 @@ class AgentDetailResponse(BaseModel):
                 "metadata": {"version": "1.0.0"},
             }
         }
+    )
 
 
 class AgentSearchResponse(BaseModel):
@@ -186,10 +183,8 @@ class AgentSearchResponse(BaseModel):
     total_count: int = Field(description="Total number of results")
     processing_time_ms: float = Field(description="Processing time in milliseconds")
 
-    class Config:
-        """Pydantic configuration."""
-
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "query": "security",
                 "agents": [
@@ -214,6 +209,7 @@ class AgentSearchResponse(BaseModel):
                 "processing_time_ms": 35.2,
             }
         }
+    )
 
 
 class ErrorResponse(BaseModel):
@@ -223,16 +219,15 @@ class ErrorResponse(BaseModel):
     message: str = Field(description="Human-readable error message")
     details: dict[str, Any] | None = Field(default=None, description="Additional error details")
 
-    class Config:
-        """Pydantic configuration."""
-
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "error": "ValidationError",
                 "message": "Query must be at least 1 character long",
                 "details": {"field": "query", "constraint": "min_length"},
             }
         }
+    )
 
 
 class HealthResponse(BaseModel):
@@ -245,10 +240,8 @@ class HealthResponse(BaseModel):
     timestamp: str = Field(description="Health check timestamp")
     version: str = Field(default="1.0.0", description="API version")
 
-    class Config:
-        """Pydantic configuration."""
-
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "status": "healthy",
                 "pgvector_installed": True,
@@ -258,3 +251,4 @@ class HealthResponse(BaseModel):
                 "version": "1.0.0",
             }
         }
+    )
