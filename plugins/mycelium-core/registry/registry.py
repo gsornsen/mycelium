@@ -12,7 +12,7 @@ from typing import Any
 from uuid import UUID
 
 import asyncpg
-from asyncpg import Connection, Pool
+from asyncpg import Pool
 
 
 class AgentRegistryError(Exception):
@@ -78,17 +78,6 @@ class AgentRegistry:
             await self._pool.close()
             self._pool = None
 
-    async def _get_connection(self) -> Connection:
-        """Get a database connection from the pool."""
-        if self._pool is None:
-            raise AgentRegistryError("Registry not initialized. Call initialize() first.")
-        return await self._pool.acquire()
-
-    async def _release_connection(self, conn: Connection) -> None:
-        """Release a database connection back to the pool."""
-        if self._pool is not None:
-            await self._pool.release(conn)
-
     # CRUD Operations
 
     async def create_agent(
@@ -130,42 +119,43 @@ class AgentRegistry:
         Raises:
             AgentAlreadyExistsError: If an agent with the same agent_id already exists
         """
-        conn = await self._get_connection()
-        try:
-            query = """
-                INSERT INTO agents (
-                    agent_id, agent_type, name, display_name, category,
-                    description, file_path, capabilities, tools, keywords,
-                    embedding, estimated_tokens, metadata
+        if self._pool is None:
+            raise AgentRegistryError("Registry not initialized. Call initialize() first.")
+
+        async with self._pool.acquire() as conn:
+            try:
+                query = """
+                    INSERT INTO agents (
+                        agent_id, agent_type, name, display_name, category,
+                        description, file_path, capabilities, tools, keywords,
+                        embedding, estimated_tokens, metadata
+                    )
+                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+                    RETURNING id
+                """
+
+                result: UUID = await conn.fetchval(
+                    query,
+                    agent_id,
+                    agent_type,
+                    name,
+                    display_name,
+                    category,
+                    description,
+                    file_path,
+                    capabilities or [],
+                    tools or [],
+                    keywords or [],
+                    embedding,
+                    estimated_tokens,
+                    json.dumps(metadata or {}),
                 )
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
-                RETURNING id
-            """
+                return result
 
-            result: UUID = await conn.fetchval(
-                query,
-                agent_id,
-                agent_type,
-                name,
-                display_name,
-                category,
-                description,
-                file_path,
-                capabilities or [],
-                tools or [],
-                keywords or [],
-                embedding,
-                estimated_tokens,
-                json.dumps(metadata or {}),
-            )
-            return result
-
-        except asyncpg.UniqueViolationError as e:
-            raise AgentAlreadyExistsError(
-                f"Agent with agent_id '{agent_id}' or agent_type '{agent_type}' already exists"
-            ) from e
-        finally:
-            await self._release_connection(conn)
+            except asyncpg.UniqueViolationError as e:
+                raise AgentAlreadyExistsError(
+                    f"Agent with agent_id '{agent_id}' or agent_type '{agent_type}' already exists"
+                ) from e
 
     async def get_agent_by_id(self, agent_id: str) -> dict[str, Any]:
         """Get an agent by its agent_id.
@@ -179,8 +169,10 @@ class AgentRegistry:
         Raises:
             AgentNotFoundError: If the agent is not found
         """
-        conn = await self._get_connection()
-        try:
+        if self._pool is None:
+            raise AgentRegistryError("Registry not initialized. Call initialize() first.")
+
+        async with self._pool.acquire() as conn:
             query = """
                 SELECT
                     id, agent_id, agent_type, name, display_name, category,
@@ -197,9 +189,6 @@ class AgentRegistry:
 
             return dict(row)
 
-        finally:
-            await self._release_connection(conn)
-
     async def get_agent_by_type(self, agent_type: str) -> dict[str, Any]:
         """Get an agent by its agent_type.
 
@@ -212,8 +201,10 @@ class AgentRegistry:
         Raises:
             AgentNotFoundError: If the agent is not found
         """
-        conn = await self._get_connection()
-        try:
+        if self._pool is None:
+            raise AgentRegistryError("Registry not initialized. Call initialize() first.")
+
+        async with self._pool.acquire() as conn:
             query = """
                 SELECT
                     id, agent_id, agent_type, name, display_name, category,
@@ -230,9 +221,6 @@ class AgentRegistry:
 
             return dict(row)
 
-        finally:
-            await self._release_connection(conn)
-
     async def get_agent_by_uuid(self, uuid: UUID) -> dict[str, Any]:
         """Get an agent by its UUID.
 
@@ -245,8 +233,10 @@ class AgentRegistry:
         Raises:
             AgentNotFoundError: If the agent is not found
         """
-        conn = await self._get_connection()
-        try:
+        if self._pool is None:
+            raise AgentRegistryError("Registry not initialized. Call initialize() first.")
+
+        async with self._pool.acquire() as conn:
             query = """
                 SELECT
                     id, agent_id, agent_type, name, display_name, category,
@@ -262,9 +252,6 @@ class AgentRegistry:
                 raise AgentNotFoundError(f"Agent with UUID '{uuid}' not found")
 
             return dict(row)
-
-        finally:
-            await self._release_connection(conn)
 
     async def update_agent(
         self,
@@ -283,8 +270,10 @@ class AgentRegistry:
         if not fields:
             return
 
-        conn = await self._get_connection()
-        try:
+        if self._pool is None:
+            raise AgentRegistryError("Registry not initialized. Call initialize() first.")
+
+        async with self._pool.acquire() as conn:
             # Build dynamic UPDATE query
             set_clauses = []
             values = []
@@ -309,9 +298,6 @@ class AgentRegistry:
             if result is None:
                 raise AgentNotFoundError(f"Agent with agent_id '{agent_id}' not found")
 
-        finally:
-            await self._release_connection(conn)
-
     async def delete_agent(self, agent_id: str) -> None:
         """Delete an agent from the registry.
 
@@ -321,16 +307,15 @@ class AgentRegistry:
         Raises:
             AgentNotFoundError: If the agent is not found
         """
-        conn = await self._get_connection()
-        try:
+        if self._pool is None:
+            raise AgentRegistryError("Registry not initialized. Call initialize() first.")
+
+        async with self._pool.acquire() as conn:
             query = "DELETE FROM agents WHERE agent_id = $1 RETURNING id"
             result = await conn.fetchval(query, agent_id)
 
             if result is None:
                 raise AgentNotFoundError(f"Agent with agent_id '{agent_id}' not found")
-
-        finally:
-            await self._release_connection(conn)
 
     async def list_agents(
         self,
@@ -348,8 +333,10 @@ class AgentRegistry:
         Returns:
             List of agent dictionaries
         """
-        conn = await self._get_connection()
-        try:
+        if self._pool is None:
+            raise AgentRegistryError("Registry not initialized. Call initialize() first.")
+
+        async with self._pool.acquire() as conn:
             if category:
                 query = """
                     SELECT
@@ -378,9 +365,6 @@ class AgentRegistry:
 
             return [dict(row) for row in rows]
 
-        finally:
-            await self._release_connection(conn)
-
     async def search_agents(
         self,
         query: str,
@@ -395,8 +379,10 @@ class AgentRegistry:
         Returns:
             List of agent dictionaries matching the query
         """
-        conn = await self._get_connection()
-        try:
+        if self._pool is None:
+            raise AgentRegistryError("Registry not initialized. Call initialize() first.")
+
+        async with self._pool.acquire() as conn:
             sql = """
                 SELECT
                     id, agent_id, agent_type, name, display_name, category,
@@ -424,9 +410,6 @@ class AgentRegistry:
             rows = await conn.fetch(sql, search_pattern, limit)
             return [dict(row) for row in rows]
 
-        finally:
-            await self._release_connection(conn)
-
     async def similarity_search(
         self,
         embedding: list[float],
@@ -443,8 +426,10 @@ class AgentRegistry:
         Returns:
             List of tuples (agent_dict, similarity_score) sorted by similarity
         """
-        conn = await self._get_connection()
-        try:
+        if self._pool is None:
+            raise AgentRegistryError("Registry not initialized. Call initialize() first.")
+
+        async with self._pool.acquire() as conn:
             query = """
                 SELECT
                     id, agent_id, agent_type, name, display_name, category,
@@ -469,9 +454,6 @@ class AgentRegistry:
 
             return results
 
-        finally:
-            await self._release_connection(conn)
-
     async def get_agent_count(self, category: str | None = None) -> int:
         """Get the total number of agents in the registry.
 
@@ -481,8 +463,10 @@ class AgentRegistry:
         Returns:
             Total agent count
         """
-        conn = await self._get_connection()
-        try:
+        if self._pool is None:
+            raise AgentRegistryError("Registry not initialized. Call initialize() first.")
+
+        async with self._pool.acquire() as conn:
             if category:
                 query = "SELECT COUNT(*) FROM agents WHERE category = $1"
                 count: int = await conn.fetchval(query, category)
@@ -491,23 +475,19 @@ class AgentRegistry:
             result: int = await conn.fetchval(query)
             return result
 
-        finally:
-            await self._release_connection(conn)
-
     async def get_categories(self) -> list[str]:
         """Get all unique categories in the registry.
 
         Returns:
             List of category names
         """
-        conn = await self._get_connection()
-        try:
+        if self._pool is None:
+            raise AgentRegistryError("Registry not initialized. Call initialize() first.")
+
+        async with self._pool.acquire() as conn:
             query = "SELECT DISTINCT category FROM agents ORDER BY category"
             rows = await conn.fetch(query)
             return [row["category"] for row in rows]
-
-        finally:
-            await self._release_connection(conn)
 
     # Bulk operations
 
@@ -525,26 +505,50 @@ class AgentRegistry:
         Returns:
             Number of agents inserted
         """
-        conn = await self._get_connection()
+        if self._pool is None:
+            raise AgentRegistryError("Registry not initialized. Call initialize() first.")
+
         inserted = 0
 
-        try:
+        async with self._pool.acquire() as conn:
             for i in range(0, len(agents), batch_size):
                 batch = agents[i : i + batch_size]
 
                 async with conn.transaction():
                     for agent in batch:
                         try:
-                            await self.create_agent(**agent)
+                            # Use direct insert within transaction instead of calling create_agent
+                            # to avoid nested connection acquisition
+                            query = """
+                                INSERT INTO agents (
+                                    agent_id, agent_type, name, display_name, category,
+                                    description, file_path, capabilities, tools, keywords,
+                                    embedding, estimated_tokens, metadata
+                                )
+                                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+                            """
+                            await conn.execute(
+                                query,
+                                agent["agent_id"],
+                                agent["agent_type"],
+                                agent["name"],
+                                agent["display_name"],
+                                agent["category"],
+                                agent["description"],
+                                agent["file_path"],
+                                agent.get("capabilities", []),
+                                agent.get("tools", []),
+                                agent.get("keywords", []),
+                                agent.get("embedding"),
+                                agent.get("estimated_tokens"),
+                                json.dumps(agent.get("metadata", {})),
+                            )
                             inserted += 1
-                        except AgentAlreadyExistsError:
+                        except asyncpg.UniqueViolationError:
                             # Skip duplicates
                             continue
 
-            return inserted
-
-        finally:
-            await self._release_connection(conn)
+        return inserted
 
     # Utility methods
 
@@ -554,38 +558,39 @@ class AgentRegistry:
         Returns:
             Dictionary with health check results
         """
-        conn = await self._get_connection()
-        try:
-            # Test basic connectivity
-            await conn.fetchval("SELECT 1")
+        if self._pool is None:
+            raise AgentRegistryError("Registry not initialized. Call initialize() first.")
 
-            # Check pgvector extension
-            pgvector_installed = await conn.fetchval(
-                "SELECT EXISTS(SELECT 1 FROM pg_extension WHERE extname = 'vector')"
-            )
+        async with self._pool.acquire() as conn:
+            try:
+                # Test basic connectivity
+                await conn.fetchval("SELECT 1")
 
-            # Get agent count
-            agent_count = await self.get_agent_count()
+                # Check pgvector extension
+                pgvector_installed = await conn.fetchval(
+                    "SELECT EXISTS(SELECT 1 FROM pg_extension WHERE extname = 'vector')"
+                )
 
-            # Get database size
-            db_size = await conn.fetchval("SELECT pg_size_pretty(pg_database_size(current_database()))")
+                # Get agent count - use a separate connection acquisition
+                agent_count = await self.get_agent_count()
 
-            return {
-                "status": "healthy",
-                "pgvector_installed": pgvector_installed,
-                "agent_count": agent_count,
-                "database_size": db_size,
-                "timestamp": datetime.utcnow().isoformat(),
-            }
+                # Get database size
+                db_size = await conn.fetchval("SELECT pg_size_pretty(pg_database_size(current_database()))")
 
-        except Exception as e:
-            return {
-                "status": "unhealthy",
-                "error": str(e),
-                "timestamp": datetime.utcnow().isoformat(),
-            }
-        finally:
-            await self._release_connection(conn)
+                return {
+                    "status": "healthy",
+                    "pgvector_installed": pgvector_installed,
+                    "agent_count": agent_count,
+                    "database_size": db_size,
+                    "timestamp": datetime.utcnow().isoformat(),
+                }
+
+            except Exception as e:
+                return {
+                    "status": "unhealthy",
+                    "error": str(e),
+                    "timestamp": datetime.utcnow().isoformat(),
+                }
 
     async def __aenter__(self) -> "AgentRegistry":
         """Async context manager entry."""

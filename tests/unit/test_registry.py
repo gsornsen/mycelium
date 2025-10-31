@@ -133,11 +133,11 @@ class TestAgentRegistryInitialization:
         async with AgentRegistry(pool=db_pool) as registry:
             assert registry._pool is not None
 
-    async def test_get_connection_before_init(self):
-        """Test that getting connection before init raises error."""
+    async def test_operation_before_init(self):
+        """Test that calling operations before init raises error."""
         registry = AgentRegistry(connection_string=TEST_DB_URL)
-        with pytest.raises(AgentRegistryError):
-            await registry._get_connection()
+        with pytest.raises(AgentRegistryError, match="Registry not initialized"):
+            await registry.get_agent_count()
 
 
 @pytest.mark.asyncio
