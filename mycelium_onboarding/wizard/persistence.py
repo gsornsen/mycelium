@@ -87,8 +87,8 @@ class WizardStatePersistence:
             with temp_file.open("w") as f:
                 json.dump(state_dict, f, indent=2)
 
-            # Atomic rename
-            temp_file.rename(self.state_file)
+            # Atomic replace (works on Windows too, unlike rename)
+            temp_file.replace(self.state_file)
             logger.info("Wizard state saved to %s", self.state_file)
 
         except (OSError, TypeError, ValueError) as e:
