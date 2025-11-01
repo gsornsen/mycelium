@@ -93,9 +93,9 @@ def test_metrics_analyzer_with_real_data():
 
     # If we have data, verify it's well-formed
     if stats["total_operations"] > 0:
-        assert (
-            "list_agents" in stats["by_operation"] or "get_agent" in stats["by_operation"]
-        ), "Should have at least one operation type"
+        assert "list_agents" in stats["by_operation"] or "get_agent" in stats["by_operation"], (
+            "Should have at least one operation type"
+        )
 
         for op_name, op_stats in stats["by_operation"].items():
             assert "count" in op_stats, f"{op_name} should have count"
@@ -289,6 +289,6 @@ def test_privacy_guarantees(tmp_path):
         "estimated_tokens",
     }
     event_fields = set(event.keys())
-    assert event_fields.issubset(
-        allowed_fields
-    ), f"Should only have allowed fields, got extra: {event_fields - allowed_fields}"
+    assert event_fields.issubset(allowed_fields), (
+        f"Should only have allowed fields, got extra: {event_fields - allowed_fields}"
+    )

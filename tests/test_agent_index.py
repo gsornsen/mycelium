@@ -168,9 +168,9 @@ class TestAgentIndexCompleteness:
         with Path(index_path).open() as f:
             index = json.load(f)
 
-        assert len(index["agents"]) == len(
-            agent_files
-        ), f"Agent count mismatch: {len(index['agents'])} indexed vs {len(agent_files)} files"
+        assert len(index["agents"]) == len(agent_files), (
+            f"Agent count mismatch: {len(index['agents'])} indexed vs {len(agent_files)} files"
+        )
 
     def test_all_categories_present(self, index_path):
         """Index should contain all expected categories."""
@@ -233,9 +233,9 @@ Agent content here.
 
         for filename, expected_category in test_cases:
             category = generator._extract_category_from_filename(filename)
-            assert (
-                category == expected_category
-            ), f"Filename {filename} should map to {expected_category}, got {category}"
+            assert category == expected_category, (
+                f"Filename {filename} should map to {expected_category}, got {category}"
+            )
 
     def test_generate_display_name(self, generator):
         """Generator should create proper display names."""

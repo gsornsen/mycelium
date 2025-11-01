@@ -5,6 +5,7 @@ including state persistence, versioning, and rollback mechanisms.
 """
 
 import json
+import os
 import uuid
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
@@ -139,7 +140,9 @@ class StateManager:
             self._pool: Pool | None = pool
             self._owns_pool = False
         else:
-            self._connection_string = connection_string or "postgresql://localhost:5432/mycelium_registry"
+            self._connection_string = connection_string or os.getenv(
+                "DATABASE_URL", "postgresql://localhost:5432/mycelium_registry"
+            )
             self._pool = None
             self._owns_pool = True
 
