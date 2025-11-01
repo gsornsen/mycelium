@@ -4,7 +4,7 @@
 
 **Last Updated:** 2025-10-21
 
----
+______________________________________________________________________
 
 ## Quick Diagnosis Flowchart
 
@@ -17,13 +17,14 @@ Issue Type?
 └── System Health Issues → Section 5
 ```
 
----
+______________________________________________________________________
 
 ## Section 1: Discovery Issues
 
 ### Issue 1.1: No Agents Found
 
 **Symptom:**
+
 ```python
 result = discover_agents("my query")
 # result["agents"] == []
@@ -33,9 +34,9 @@ result = discover_agents("my query")
 **Possible Causes:**
 
 1. **Query too specific**
-2. **Confidence threshold too high**
-3. **Agent registry empty or not loaded**
-4. **Discovery API unreachable**
+1. **Confidence threshold too high**
+1. **Agent registry empty or not loaded**
+1. **Discovery API unreachable**
 
 **Diagnosis:**
 
@@ -85,6 +86,7 @@ print(f"Discovery API URL: {os.getenv('DISCOVERY_API_URL')}")
 ### Issue 1.2: Low Confidence Scores
 
 **Symptom:**
+
 ```python
 result = discover_agents("machine learning deployment")
 # All agents have confidence < 0.5
@@ -93,8 +95,8 @@ result = discover_agents("machine learning deployment")
 **Possible Causes:**
 
 1. **Query doesn't match agent keywords**
-2. **Agent descriptions need updating**
-3. **NLP model needs retraining**
+1. **Agent descriptions need updating**
+1. **NLP model needs retraining**
 
 **Diagnosis:**
 
@@ -145,6 +147,7 @@ print(f"Best match: {best_result['agents'][0]['name']} ({best_confidence})")
 ### Issue 1.3: Wrong Agents Returned
 
 **Symptom:**
+
 ```python
 result = discover_agents("Python backend development")
 # Returns: frontend-developer, data-scientist, devops-engineer
@@ -198,6 +201,7 @@ else:
 ### Issue 1.4: Discovery Timeout
 
 **Symptom:**
+
 ```python
 result = discover_agents("query")
 # DiscoveryTimeoutError: Request timed out after 30s
@@ -246,13 +250,14 @@ except DiscoveryTimeoutError:
     result = get_cached_results("query")
 ```
 
----
+______________________________________________________________________
 
 ## Section 2: Coordination Issues
 
 ### Issue 2.1: Workflow Stuck "In Progress"
 
 **Symptom:**
+
 ```python
 workflow = coordinate_workflow(steps=[...])
 time.sleep(60)
@@ -328,6 +333,7 @@ if not agent_health["available"]:
 ### Issue 2.2: Workflow Fails Immediately
 
 **Symptom:**
+
 ```python
 workflow = coordinate_workflow(steps=[...])
 # workflow["status"] == "failed"
@@ -433,6 +439,7 @@ if workflow["status"] == "completed":
 ### Issue 2.3: Context Not Preserved in Handoff
 
 **Symptom:**
+
 ```python
 result = handoff_to_agent(
     target_agent="security-expert",
@@ -525,6 +532,7 @@ if not result.get("context_preserved", False):
 ### Issue 2.4: Handoff Timeout
 
 **Symptom:**
+
 ```python
 result = handoff_to_agent(target_agent="slow-agent", task="complex task")
 # HandoffTimeoutError: Handoff did not complete within 30s
@@ -590,13 +598,14 @@ result = handoff_to_agent(
 )
 ```
 
----
+______________________________________________________________________
 
 ## Section 3: Performance Issues
 
 ### Issue 3.1: Slow Workflow Execution
 
 **Symptom:**
+
 ```python
 workflow = coordinate_workflow(steps=[...])
 # workflow["total_duration_ms"] > expected
@@ -693,6 +702,7 @@ print(f"Using {fastest['agent']['name']} "
 ### Issue 3.2: High Memory Usage
 
 **Symptom:**
+
 ```python
 # System monitoring shows high memory usage during workflows
 # Memory usage > 500MB per workflow
@@ -757,6 +767,7 @@ workflow = coordinate_workflow(
 ### Issue 3.3: Discovery Cache Misses
 
 **Symptom:**
+
 ```python
 # Repeated discovery calls have low cache hit rate
 # Every call takes 50-100ms instead of <10ms
@@ -812,13 +823,14 @@ for query in common_queries:
 # Now actual queries will hit cache
 ```
 
----
+______________________________________________________________________
 
 ## Section 4: Context & Handoff Issues
 
 ### Issue 4.1: Large Context Serialization Failure
 
 **Symptom:**
+
 ```python
 context = {"large_data": [...]}
 result = handoff_to_agent("agent", "task", context=context)
@@ -878,6 +890,7 @@ def stream_data_to_agent(agent_id, data_chunks):
 ### Issue 4.2: Context Schema Mismatch
 
 **Symptom:**
+
 ```python
 result = handoff_to_agent("agent", "task", context={"foo": "bar"})
 # Agent expects different context structure
@@ -932,13 +945,14 @@ context_example = details["metadata"].get("context_example")
 # Use example as guide for structure
 ```
 
----
+______________________________________________________________________
 
 ## Section 5: System Health Issues
 
 ### Issue 5.1: Discovery API Unhealthy
 
 **Symptom:**
+
 ```python
 health = check_discovery_health()
 # health["status"] == "unhealthy"
@@ -988,6 +1002,7 @@ rebuild_registry(
 ### Issue 5.2: Coordination Service Unavailable
 
 **Symptom:**
+
 ```python
 workflow = coordinate_workflow(steps=[...])
 # CoordinationServiceError: Service unavailable
@@ -1050,7 +1065,7 @@ except CoordinationServiceError:
         results.append(result)
 ```
 
----
+______________________________________________________________________
 
 ## Diagnostic Commands Reference
 
@@ -1117,25 +1132,28 @@ avg_handoff = sum(e["metadata"]["duration_ms"] for e in handoffs) / len(handoffs
 print(f"\nAverage Handoff Time: {avg_handoff:.2f}ms")
 ```
 
----
+______________________________________________________________________
 
 ## Getting Help
 
 ### Self-Service Resources
 
 1. **Documentation**
+
    - [S1: Agent Discovery](/home/gerald/git/mycelium/docs/skills/S1-agent-discovery.md)
    - [S2: Coordination](/home/gerald/git/mycelium/docs/skills/S2-coordination.md)
    - [Quick Start Guide](/home/gerald/git/mycelium/docs/guides/discovery-coordination-quickstart.md)
    - [Best Practices](/home/gerald/git/mycelium/docs/guides/coordination-best-practices.md)
 
-2. **Diagnostic Tools**
+1. **Diagnostic Tools**
+
    - `check_discovery_health()` - Discovery system health
    - `check_coordination_health()` - Coordination system health
    - `get_coordination_events()` - Event history
    - `get_agent_details()` - Agent information
 
-3. **Logs**
+1. **Logs**
+
    - Discovery API: `logs/discovery-api.log`
    - Coordination: `logs/coordination.log`
    - Events: `logs/coordination-events.log`
@@ -1145,22 +1163,24 @@ print(f"\nAverage Handoff Time: {avg_handoff:.2f}ms")
 If issues persist:
 
 1. **Check system requirements**
+
    - PostgreSQL 15+ running
    - MCP server active
    - Network connectivity
 
-2. **Collect diagnostics**
+1. **Collect diagnostics**
+
    ```bash
    python scripts/collect_diagnostics.py > diagnostics.txt
    ```
 
-3. **Report issue**
+1. **Report issue**
+
    - Issue description
    - Error messages
    - Diagnostic output
    - Reproduction steps
 
----
+______________________________________________________________________
 
-**Last Updated:** 2025-10-21
-**Version:** 1.0
+**Last Updated:** 2025-10-21 **Version:** 1.0

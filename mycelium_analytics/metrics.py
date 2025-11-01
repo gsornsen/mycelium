@@ -115,9 +115,7 @@ class MetricsAnalyzer:
         events = self.storage.read_events(start_date=start_date, limit=100000)
 
         # Filter for agent_discovery events
-        discovery_events = [
-            e for e in events if e.get("event_type") == "agent_discovery"
-        ]
+        discovery_events = [e for e in events if e.get("event_type") == "agent_discovery"]
 
         if not discovery_events:
             return {
@@ -139,9 +137,7 @@ class MetricsAnalyzer:
         all_durations = []
 
         for operation, events_list in by_operation.items():
-            durations = [
-                e["duration_ms"] for e in events_list if "duration_ms" in e
-            ]
+            durations = [e["duration_ms"] for e in events_list if "duration_ms" in e]
             all_durations.extend(durations)
 
             stats = {
@@ -149,21 +145,13 @@ class MetricsAnalyzer:
                 "p50_ms": self._percentile(durations, 50),
                 "p95_ms": self._percentile(durations, 95),
                 "p99_ms": self._percentile(durations, 99),
-                "avg_ms": (
-                    round(statistics.mean(durations), 2) if durations else 0.0
-                ),
+                "avg_ms": (round(statistics.mean(durations), 2) if durations else 0.0),
             }
 
             # Add cache hit rate for get_agent
             if operation == "get_agent":
-                cache_hits = sum(
-                    1 for e in events_list if e.get("cache_hit", False)
-                )
-                stats["cache_hit_rate"] = (
-                    round((cache_hits / len(events_list)) * 100, 2)
-                    if events_list
-                    else 0.0
-                )
+                cache_hits = sum(1 for e in events_list if e.get("cache_hit", False))
+                stats["cache_hit_rate"] = round((cache_hits / len(events_list)) * 100, 2) if events_list else 0.0
 
             operation_stats[operation] = stats
 
@@ -172,11 +160,7 @@ class MetricsAnalyzer:
             "p50_ms": self._percentile(all_durations, 50),
             "p95_ms": self._percentile(all_durations, 95),
             "p99_ms": self._percentile(all_durations, 99),
-            "avg_ms": (
-                round(statistics.mean(all_durations), 2)
-                if all_durations
-                else 0.0
-            ),
+            "avg_ms": (round(statistics.mean(all_durations), 2) if all_durations else 0.0),
         }
 
         return {
@@ -242,17 +226,11 @@ class MetricsAnalyzer:
         # loaded agents consume tokens.
         total_agents_baseline = 119
         avg_tokens_per_agent_baseline = 450
-        estimated_baseline = (
-            total_agents_baseline * avg_tokens_per_agent_baseline
-        )
+        estimated_baseline = total_agents_baseline * avg_tokens_per_agent_baseline
 
         # Actual usage (with lazy loading)
         estimated_savings = estimated_baseline - total_tokens
-        savings_percentage = (
-            (estimated_savings / estimated_baseline) * 100
-            if estimated_baseline > 0
-            else 0.0
-        )
+        savings_percentage = (estimated_savings / estimated_baseline) * 100 if estimated_baseline > 0 else 0.0
 
         return {
             "total_agents_loaded": total_agents,
@@ -299,10 +277,7 @@ class MetricsAnalyzer:
 
         # Filter for get_agent operations (only these have cache_hit field)
         get_agent_events = [
-            e
-            for e in events
-            if e.get("event_type") == "agent_discovery"
-            and e.get("operation") == "get_agent"
+            e for e in events if e.get("event_type") == "agent_discovery" and e.get("operation") == "get_agent"
         ]
 
         if not get_agent_events:
@@ -319,29 +294,15 @@ class MetricsAnalyzer:
         misses = [e for e in get_agent_events if not e.get("cache_hit", False)]
 
         hit_latencies = [e["duration_ms"] for e in hits if "duration_ms" in e]
-        miss_latencies = [
-            e["duration_ms"] for e in misses if "duration_ms" in e
-        ]
+        miss_latencies = [e["duration_ms"] for e in misses if "duration_ms" in e]
 
         return {
             "total_lookups": len(get_agent_events),
             "cache_hits": len(hits),
             "cache_misses": len(misses),
-            "hit_rate_percentage": (
-                round((len(hits) / len(get_agent_events)) * 100, 2)
-                if get_agent_events
-                else 0.0
-            ),
-            "avg_hit_latency_ms": (
-                round(statistics.mean(hit_latencies), 2)
-                if hit_latencies
-                else 0.0
-            ),
-            "avg_miss_latency_ms": (
-                round(statistics.mean(miss_latencies), 2)
-                if miss_latencies
-                else 0.0
-            ),
+            "hit_rate_percentage": (round((len(hits) / len(get_agent_events)) * 100, 2) if get_agent_events else 0.0),
+            "avg_hit_latency_ms": (round(statistics.mean(hit_latencies), 2) if hit_latencies else 0.0),
+            "avg_miss_latency_ms": (round(statistics.mean(miss_latencies), 2) if miss_latencies else 0.0),
         }
 
     def get_performance_trends(self, days: int = 7) -> dict[str, Any]:
@@ -383,9 +344,7 @@ class MetricsAnalyzer:
         events = self.storage.read_events(start_date=start_date, limit=100000)
 
         # Filter discovery events
-        discovery_events = [
-            e for e in events if e.get("event_type") == "agent_discovery"
-        ]
+        discovery_events = [e for e in events if e.get("event_type") == "agent_discovery"]
 
         if not discovery_events:
             return {"daily_stats": [], "trend": "stable"}
@@ -407,31 +366,17 @@ class MetricsAnalyzer:
         daily_stats = []
         for date in sorted(by_date.keys()):
             events_list = by_date[date]
-            durations = [
-                e["duration_ms"] for e in events_list if "duration_ms" in e
-            ]
+            durations = [e["duration_ms"] for e in events_list if "duration_ms" in e]
 
-            get_agent_events = [
-                e for e in events_list if e.get("operation") == "get_agent"
-            ]
-            cache_hits = sum(
-                1 for e in get_agent_events if e.get("cache_hit", False)
-            )
-            cache_hit_rate = (
-                (cache_hits / len(get_agent_events)) * 100
-                if get_agent_events
-                else 0.0
-            )
+            get_agent_events = [e for e in events_list if e.get("operation") == "get_agent"]
+            cache_hits = sum(1 for e in get_agent_events if e.get("cache_hit", False))
+            cache_hit_rate = (cache_hits / len(get_agent_events)) * 100 if get_agent_events else 0.0
 
             daily_stats.append(
                 {
                     "date": date,
                     "operations": len(events_list),
-                    "avg_latency_ms": (
-                        round(statistics.mean(durations), 2)
-                        if durations
-                        else 0.0
-                    ),
+                    "avg_latency_ms": (round(statistics.mean(durations), 2) if durations else 0.0),
                     "cache_hit_rate": round(cache_hit_rate, 2),
                 }
             )
@@ -440,12 +385,8 @@ class MetricsAnalyzer:
         if len(daily_stats) >= 2:
             midpoint = len(daily_stats) // 2
             # Extract latencies as floats for type safety
-            first_half_latencies: list[float] = [
-                float(d["avg_latency_ms"]) for d in daily_stats[:midpoint]
-            ]
-            second_half_latencies: list[float] = [
-                float(d["avg_latency_ms"]) for d in daily_stats[midpoint:]
-            ]
+            first_half_latencies: list[float] = [float(d["avg_latency_ms"]) for d in daily_stats[:midpoint]]
+            second_half_latencies: list[float] = [float(d["avg_latency_ms"]) for d in daily_stats[midpoint:]]
 
             first_half_avg = statistics.mean(first_half_latencies)
             second_half_avg = statistics.mean(second_half_latencies)

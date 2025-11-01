@@ -18,9 +18,7 @@ from __future__ import annotations
 import os
 import shutil
 import subprocess
-import sys
 from pathlib import Path
-from typing import Any
 
 import pytest
 
@@ -53,9 +51,7 @@ def temp_home(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
 class TestManualActivation:
     """Test manual activation using bin/activate.sh."""
 
-    def test_manual_activation_full_flow(
-        self, project_root: Path, temp_home: Path
-    ) -> None:
+    def test_manual_activation_full_flow(self, project_root: Path, temp_home: Path) -> None:
         """Test complete manual activation flow with all checks.
 
         Verifies:
@@ -122,9 +118,7 @@ class TestManualActivation:
         # Verify PATH modification
         assert env_vars.get("PATH_CONTAINS_BIN") == "yes"
 
-    def test_activation_deactivation_cycle(
-        self, project_root: Path, temp_home: Path
-    ) -> None:
+    def test_activation_deactivation_cycle(self, project_root: Path, temp_home: Path) -> None:
         """Test full activation/deactivation cycle restores environment.
 
         Verifies:
@@ -190,9 +184,7 @@ class TestManualActivation:
         # This is more reliable than comparing paths here due to environment differences
         assert env_vars.get("PATH_RESTORED") == "yes", f"PATH was not restored. Script output: {result.stdout}"
 
-    def test_nested_activation_prevention(
-        self, project_root: Path, temp_home: Path
-    ) -> None:
+    def test_nested_activation_prevention(self, project_root: Path, temp_home: Path) -> None:
         """Test that nested activation is prevented with warning.
 
         Verifies:
@@ -337,9 +329,7 @@ class TestDirenvActivation:
 class TestRuntimeValidation:
     """Test runtime validation catches missing environment."""
 
-    def test_runtime_validation_catches_missing_environment(
-        self, project_root: Path, clean_environment: None
-    ) -> None:
+    def test_runtime_validation_catches_missing_environment(self, project_root: Path, clean_environment: None) -> None:
         """Test env_validator catches when environment is not active.
 
         Verifies:
@@ -380,9 +370,7 @@ except EnvironmentValidationError as e:
         assert "VALIDATION_FAILED=yes" in output
         assert "VALIDATION_PASSED=yes" not in output
 
-    def test_runtime_validation_passes_when_active(
-        self, project_root: Path, temp_home: Path
-    ) -> None:
+    def test_runtime_validation_passes_when_active(self, project_root: Path, temp_home: Path) -> None:
         """Test env_validator passes when environment is properly activated.
 
         Verifies:
@@ -430,9 +418,7 @@ except Exception as e:
 class TestXDGDirectories:
     """Test XDG directory creation and management."""
 
-    def test_xdg_directories_created_with_correct_structure(
-        self, project_root: Path, temp_home: Path
-    ) -> None:
+    def test_xdg_directories_created_with_correct_structure(self, project_root: Path, temp_home: Path) -> None:
         """Test all XDG directories are created with correct paths.
 
         Verifies:
@@ -499,9 +485,7 @@ class TestXDGDirectories:
 class TestConfigHierarchy:
     """Test configuration hierarchy (project-local overrides user-global)."""
 
-    def test_project_local_config_accessible(
-        self, project_root: Path, temp_home: Path
-    ) -> None:
+    def test_project_local_config_accessible(self, project_root: Path, temp_home: Path) -> None:
         """Test project-local config directory is accessible.
 
         Verifies:
@@ -545,9 +529,7 @@ class TestConfigHierarchy:
 class TestCrossPlatform:
     """Test cross-platform path handling."""
 
-    def test_cross_platform_paths(
-        self, project_root: Path, temp_home: Path
-    ) -> None:
+    def test_cross_platform_paths(self, project_root: Path, temp_home: Path) -> None:
         """Test path handling works correctly on current platform.
 
         Verifies:
@@ -606,7 +588,7 @@ class TestCrossPlatform:
         """
         # Only run if we're actually on WSL
         try:
-            with open("/proc/version") as f:
+            with Path("/proc/version").open() as f:
                 if "microsoft" not in f.read().lower():
                     pytest.skip("Not running on WSL")
         except Exception:
@@ -627,7 +609,7 @@ class TestCrossPlatform:
 
         # Check if WSL was mentioned (either detected or warning shown)
         # This is informational, not a hard requirement
-        output = result.stdout.strip()
+        result.stdout.strip()
         # Test passes regardless, just checking detection works
         assert result.returncode in (0, 1)  # May exit 1 if warning not confirmed
 
@@ -635,9 +617,7 @@ class TestCrossPlatform:
 class TestMissingDependencies:
     """Test graceful handling of missing dependencies."""
 
-    def test_missing_venv_shows_warning(
-        self, tmp_path: Path, temp_home: Path
-    ) -> None:
+    def test_missing_venv_shows_warning(self, tmp_path: Path, temp_home: Path) -> None:
         """Test activation warns about missing virtual environment.
 
         Verifies:

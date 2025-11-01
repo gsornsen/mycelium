@@ -5,15 +5,14 @@ testing framework (CliRunner) to ensure robust command-line interface.
 """
 
 import json
-from pathlib import Path
-from unittest.mock import Mock, patch
+import sys
+from unittest.mock import patch
 
 import pytest
 import yaml
 from click.testing import CliRunner
 
 from mycelium_onboarding.cli import cli
-from mycelium_onboarding.config.manager import ConfigManager
 from mycelium_onboarding.config.schema import MyceliumConfig
 
 
@@ -21,10 +20,7 @@ from mycelium_onboarding.config.schema import MyceliumConfig
 def runner():
     """Create Click test runner with clean environment."""
     # Create runner with isolated environment (no MYCELIUM_* vars)
-    return CliRunner(env={
-        k: v for k, v in __import__('os').environ.items()
-        if not k.startswith('MYCELIUM_')
-    })
+    return CliRunner(env={k: v for k, v in __import__("os").environ.items() if not k.startswith("MYCELIUM_")})
 
 
 @pytest.fixture
@@ -534,7 +530,7 @@ def test_config_set_help(runner):
 
 def test_config_show_with_load_error(runner, tmp_path, monkeypatch):
     """Test 'config show' handles ConfigLoadError gracefully."""
-    config_path = tmp_path / "config.yaml"
+    tmp_path / "config.yaml"
 
     with patch("mycelium_onboarding.cli.ConfigManager") as mock_manager:
         mock_manager.return_value.load.side_effect = Exception("Load failed")
@@ -545,6 +541,7 @@ def test_config_show_with_load_error(runner, tmp_path, monkeypatch):
         assert "Error" in result.output
 
 
+@pytest.mark.skipif(sys.platform == "win32", reason="File permissions not supported on Windows")
 def test_config_set_with_save_error(runner, tmp_path):
     """Test 'config set' handles ConfigSaveError gracefully."""
     config_path = tmp_path / "config.yaml"
@@ -620,13 +617,7 @@ def test_get_nested_value():
     """Test _get_nested_value retrieves nested dictionary values."""
     from mycelium_onboarding.cli import _get_nested_value
 
-    data = {
-        "level1": {
-            "level2": {
-                "level3": "value"
-            }
-        }
-    }
+    data = {"level1": {"level2": {"level3": "value"}}}
 
     assert _get_nested_value(data, "level1.level2.level3") == "value"
     assert _get_nested_value(data, "level1.level2") == {"level3": "value"}

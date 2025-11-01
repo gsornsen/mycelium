@@ -5,11 +5,12 @@
 This guide shows how to implement Agent Discovery using FastMCP 2.0 with Pydantic models and modern MCP patterns.
 
 **Prerequisites:**
+
 - FastMCP 2.0+ installed
 - Pydantic 2.0+ installed
 - M01 Tasks 1.1-1.3 completed
 
----
+______________________________________________________________________
 
 ## Pydantic Models
 
@@ -245,7 +246,7 @@ class GetAgentDetailsResponse(BaseModel):
     )
 ```
 
----
+______________________________________________________________________
 
 ## FastMCP Tool Implementation
 
@@ -380,8 +381,8 @@ async def get_agent_details(
         avg_response_time_ms=details.get("avg_response_time_ms", 0.0),
         success_rate=details.get("success_rate", 0.95),
         usage_count=details.get("usage_count", 0),
-        created_at=details.get("created_at", datetime.now()),
-        updated_at=details.get("updated_at", datetime.now()),
+        created_at=details.get("created_at", datetime.now(UTC)),
+        updated_at=details.get("updated_at", datetime.now(UTC)),
         last_used_at=details.get("last_used_at")
     )
 
@@ -414,7 +415,7 @@ async def handle_discovery_error(error: Exception) -> Dict[str, Any]:
     }
 ```
 
----
+______________________________________________________________________
 
 ## Service Implementation
 
@@ -601,7 +602,7 @@ class NLPMatcher:
             return agent.get("description", "")[:100]
 ```
 
----
+______________________________________________________________________
 
 ## Usage Examples
 
@@ -672,7 +673,7 @@ async def find_security_agents(task: str) -> List[AgentMatch]:
 security_experts = await find_security_agents("authentication audit")
 ```
 
----
+______________________________________________________________________
 
 ## Testing with Pydantic
 
@@ -764,7 +765,7 @@ def test_discover_agents_response_serialization():
     assert "test" in json_str
 ```
 
----
+______________________________________________________________________
 
 ## Configuration
 
@@ -816,7 +817,7 @@ NLP_BATCH_SIZE=32
 DATABASE_URL=postgresql://localhost:5432/mycelium_registry
 ```
 
----
+______________________________________________________________________
 
 ## Performance Optimization
 
@@ -874,7 +875,7 @@ queries = ["Python dev", "database optimization", "security audit"]
 results = await batch_discover(queries)
 ```
 
----
+______________________________________________________________________
 
 ## Monitoring and Telemetry
 
@@ -926,7 +927,7 @@ class InstrumentedDiscoveryService(AgentDiscoveryService):
             raise
 ```
 
----
+______________________________________________________________________
 
 ## Migration Guide
 
@@ -947,7 +948,7 @@ response = await discover_agents(request)
 results = [agent.model_dump() for agent in response.agents]
 ```
 
----
+______________________________________________________________________
 
 ## References
 
@@ -956,8 +957,6 @@ results = [agent.model_dump() for agent in response.agents]
 - [S1 Agent Discovery](/home/gerald/git/mycelium/docs/skills/S1-agent-discovery.md)
 - [M01 Milestone](/home/gerald/git/mycelium/docs/projects/claude-code-skills/milestones/M01_AGENT_DISCOVERY_SKILLS.md)
 
----
+______________________________________________________________________
 
-**Last Updated:** 2025-10-21
-**FastMCP Version:** 2.0+
-**Pydantic Version:** 2.0+
+**Last Updated:** 2025-10-21 **FastMCP Version:** 2.0+ **Pydantic Version:** 2.0+

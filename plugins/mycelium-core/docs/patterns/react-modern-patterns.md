@@ -2,9 +2,12 @@
 
 ## Overview
 
-Modern React development patterns using TanStack ecosystem (Query, Table, Router, Form), Next.js App Router, and headless UI libraries. This guide covers production-ready implementations of data fetching, state management, routing, forms, and component abstractions.
+Modern React development patterns using TanStack ecosystem (Query, Table, Router, Form), Next.js App Router, and
+headless UI libraries. This guide covers production-ready implementations of data fetching, state management, routing,
+forms, and component abstractions.
 
 **Use Cases:**
+
 - Type-safe data fetching and caching
 - Complex table implementations with sorting/filtering
 - Type-safe routing with loaders and search params
@@ -15,6 +18,7 @@ Modern React development patterns using TanStack ecosystem (Query, Table, Router
 ## Prerequisites
 
 ### Required Tools
+
 - **React 18+** - Concurrent features, Server Components
 - **TypeScript 5+** - Type safety across the stack
 - **TanStack Query** - Server state management
@@ -24,16 +28,19 @@ Modern React development patterns using TanStack ecosystem (Query, Table, Router
 ### Component Library Recommendations
 
 **For New Projects (Headless-First):**
+
 - React Aria (Adobe) - Industrial-strength accessibility
 - Ark UI - Framework-agnostic, modern patterns
 - Radix UI - Battle-tested primitives
 - Floating UI - Positioning engine for tooltips, popovers
 
 **For Quick Prototypes:**
+
 - Mantine v7 - 100+ components, hooks-based
 - Shadcn UI - Copy-paste components (Radix + Tailwind)
 
 **Styling:**
+
 - Tailwind CSS - Utility-first standard
 - Panda CSS - Zero-runtime, type-safe
 
@@ -41,7 +48,8 @@ Modern React development patterns using TanStack ecosystem (Query, Table, Router
 
 **Use Case:** Fetch, cache, and synchronize server state with automatic background updates
 
-**Why TanStack Query?** Eliminates boilerplate; handles caching, deduplication, stale-while-revalidate; optimistic updates.
+**Why TanStack Query?** Eliminates boilerplate; handles caching, deduplication, stale-while-revalidate; optimistic
+updates.
 
 **Implementation:**
 
@@ -188,6 +196,7 @@ function TranscriptHistory({ sessionId }: { sessionId: string }) {
 ```
 
 **Considerations:**
+
 - Set `staleTime` to reduce refetches (default: 0, always stale)
 - Use `gcTime` (formerly `cacheTime`) to keep unused data in memory
 - Implement `onMutate` for instant UI feedback (optimistic updates)
@@ -282,7 +291,7 @@ export function TranscriptTable({ data }: { data: Transcript[] }) {
                         header.column.columnDef.header,
                         header.getContext()
                       )}
-                      {{ asc: ' ‘', desc: ' “' }[header.column.getIsSorted() as string] ?? null}
+                      {{ asc: ' '', desc: ' "' }[header.column.getIsSorted() as string] ?? null}
                     </div>
                   )}
                 </th>
@@ -362,6 +371,7 @@ export function useDataTable<TData>({
 ```
 
 **Considerations:**
+
 - Use `columnHelper` for type-safe column definitions
 - Implement custom `sortingFn` for complex data types
 - Use `flexRender` to render dynamic cell content
@@ -503,6 +513,7 @@ async function MetricsSection({ sessionId }: { sessionId: string }) {
 ```
 
 **Considerations:**
+
 - Server Components run only on server (smaller bundle)
 - Use `'use client'` directive for interactive components
 - Server Actions replace API routes for mutations
@@ -590,6 +601,7 @@ export function VoiceSettingsForm({ defaults }: { defaults: VoiceSettings }) {
 ```
 
 **Considerations:**
+
 - Use `validators.onChange` for real-time validation
 - Access field state via render props
 - `form.handleSubmit()` runs all validators before submission
@@ -666,6 +678,7 @@ export function Select({ label, items }: SelectProps) {
 ```
 
 **Considerations:**
+
 - React Aria handles ARIA attributes, keyboard nav, focus management
 - Use `react-stately` for state management
 - Full styling control via className or CSS-in-JS
@@ -673,17 +686,18 @@ export function Select({ label, items }: SelectProps) {
 ## Best Practices
 
 1. **Use TanStack Query for server state** - Eliminates boilerplate, handles caching automatically
-2. **Implement optimistic updates** - Instant UI feedback on mutations
-3. **Server Components by default (Next.js)** - Use `'use client'` only when needed
-4. **Headless UI for accessibility** - React Aria, Radix, or Ark UI for a11y compliance
-5. **Type-safe routing** - TanStack Router or Next.js App Router with TypeScript
-6. **Streaming with Suspense** - Progressive loading for better UX
-7. **Server Actions for mutations** - Simplifies data updates in Next.js
-8. **Extract reusable hooks** - `useDataTable`, `useVoiceSession` for DRY code
+1. **Implement optimistic updates** - Instant UI feedback on mutations
+1. **Server Components by default (Next.js)** - Use `'use client'` only when needed
+1. **Headless UI for accessibility** - React Aria, Radix, or Ark UI for a11y compliance
+1. **Type-safe routing** - TanStack Router or Next.js App Router with TypeScript
+1. **Streaming with Suspense** - Progressive loading for better UX
+1. **Server Actions for mutations** - Simplifies data updates in Next.js
+1. **Extract reusable hooks** - `useDataTable`, `useVoiceSession` for DRY code
 
 ## Related Agents
 
-- **react-tanstack-developer** (`plugins/mycelium-core/agents/02-language-react-tanstack-developer.md`) - TanStack ecosystem specialist
+- **react-tanstack-developer** (`plugins/mycelium-core/agents/02-language-react-tanstack-developer.md`) - TanStack
+  ecosystem specialist
 - **nextjs-developer** (`plugins/mycelium-core/agents/02-language-nextjs-developer.md`) - Next.js App Router expert
 - **frontend-developer** - General React patterns and component architecture
 - **typescript-pro** - Type-safe patterns across the stack

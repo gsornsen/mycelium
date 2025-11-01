@@ -4,7 +4,7 @@
 
 **Prerequisites:** M01 completed, MCP server running, Mycelium environment configured
 
----
+______________________________________________________________________
 
 ## Step 1: Verify Setup (2 minutes)
 
@@ -48,7 +48,7 @@ print('\\n'.join([f'✓ {t.name}' for t in discovery_tools]))
 # ✓ get_coordination_events
 ```
 
----
+______________________________________________________________________
 
 ## Step 2: Agent Discovery Basics (3 minutes)
 
@@ -103,7 +103,7 @@ print(f"Success Rate: {details['agent']['success_rate']*100}%")
 # Success Rate: 95%
 ```
 
----
+______________________________________________________________________
 
 ## Step 3: Simple Handoff (3 minutes)
 
@@ -141,7 +141,7 @@ print(f"Duration: {result['duration_ms']}ms")
 # Duration: 2300ms
 ```
 
----
+______________________________________________________________________
 
 ## Step 4: Multi-Agent Workflow (4 minutes)
 
@@ -232,7 +232,7 @@ while True:
         time.sleep(2)
 ```
 
----
+______________________________________________________________________
 
 ## Step 5: Real-World Example (3 minutes)
 
@@ -304,7 +304,7 @@ for step in workflow["results"]:
     print(f"✓ {step['agent']}: {step['output']}")
 ```
 
----
+______________________________________________________________________
 
 ## Common Patterns Cheat Sheet
 
@@ -357,7 +357,7 @@ status = get_workflow_status(workflow_id)
 events = get_coordination_events(workflow_id=workflow_id)
 ```
 
----
+______________________________________________________________________
 
 ## Troubleshooting
 
@@ -419,16 +419,16 @@ result = handoff_to_agent(
 )
 ```
 
----
+______________________________________________________________________
 
 ## Next Steps
 
 ### Explore Advanced Features
 
 1. **Conditional Workflows**: Dynamic branching based on results
-2. **Failure Recovery**: Fallback strategies and retry policies
-3. **Event Analysis**: Use coordination events for optimization
-4. **Performance Tuning**: Monitor and optimize workflow efficiency
+1. **Failure Recovery**: Fallback strategies and retry policies
+1. **Event Analysis**: Use coordination events for optimization
+1. **Performance Tuning**: Monitor and optimize workflow efficiency
 
 ### Read More Documentation
 
@@ -442,11 +442,11 @@ result = handoff_to_agent(
 Try these scenarios to build proficiency:
 
 1. **Exercise 1**: Find and coordinate agents to review a codebase
-2. **Exercise 2**: Build a parallel data processing workflow
-3. **Exercise 3**: Create a deployment pipeline with failure recovery
-4. **Exercise 4**: Analyze coordination events to optimize a workflow
+1. **Exercise 2**: Build a parallel data processing workflow
+1. **Exercise 3**: Create a deployment pipeline with failure recovery
+1. **Exercise 4**: Analyze coordination events to optimize a workflow
 
----
+______________________________________________________________________
 
 ## Quick Reference Card
 
@@ -492,9 +492,8 @@ from plugins.mycelium_core.mcp.tools.coordination_tools import (
 )
 ```
 
----
+______________________________________________________________________
 
 **Congratulations!** You're now ready to leverage agent discovery and multi-agent coordination in your workflows.
 
-**Time to Proficiency:** ≤ 15 minutes
-**Last Updated:** 2025-10-21
+**Time to Proficiency:** ≤ 15 minutes **Last Updated:** 2025-10-21

@@ -3,16 +3,18 @@
 from __future__ import annotations
 
 import socket
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 
 import pytest
-
 import pytest_mock
+
 from mycelium_onboarding.detection.redis_detector import (
     RedisDetectionResult,
     detect_redis,
     scan_common_redis_ports,
 )
+
+pytestmark = pytest.mark.integration  # Mark entire file as integration
 
 
 class TestDetectRedis:
@@ -74,7 +76,7 @@ class TestDetectRedis:
     def test_detect_redis_timeout(self, mocker: pytest_mock.MockerFixture) -> None:
         """Test Redis connection timeout."""
         mock_socket = Mock()
-        mock_socket.connect.side_effect = socket.timeout()
+        mock_socket.connect.side_effect = TimeoutError()
 
         mock_socket_class = mocker.patch("socket.socket")
         mock_socket_class.return_value = mock_socket
@@ -114,9 +116,7 @@ class TestDetectRedis:
         assert result.error_message is not None
         assert "Unexpected response" in result.error_message
 
-    def test_detect_redis_hostname_resolution_error(
-        self, mocker: pytest_mock.MockerFixture
-    ) -> None:
+    def test_detect_redis_hostname_resolution_error(self, mocker: pytest_mock.MockerFixture) -> None:
         """Test Redis hostname resolution error."""
         mock_socket = Mock()
         mock_socket.connect.side_effect = socket.gaierror("Name resolution failed")
@@ -203,19 +203,11 @@ class TestScanCommonRedisPorts:
     def test_scan_common_ports_all_available(self, mocker: pytest_mock.MockerFixture) -> None:
         """Test scanning when all common ports have Redis."""
         # Mock detect_redis to return success for all ports
-        mock_detect = mocker.patch(
-            "mycelium_onboarding.detection.redis_detector.detect_redis"
-        )
+        mock_detect = mocker.patch("mycelium_onboarding.detection.redis_detector.detect_redis")
         mock_detect.side_effect = [
-            RedisDetectionResult(
-                available=True, host="localhost", port=6379, version="7.2.3"
-            ),
-            RedisDetectionResult(
-                available=True, host="localhost", port=6380, version="7.2.3"
-            ),
-            RedisDetectionResult(
-                available=True, host="localhost", port=6381, version="7.2.3"
-            ),
+            RedisDetectionResult(available=True, host="localhost", port=6379, version="7.2.3"),
+            RedisDetectionResult(available=True, host="localhost", port=6380, version="7.2.3"),
+            RedisDetectionResult(available=True, host="localhost", port=6381, version="7.2.3"),
         ]
 
         results = scan_common_redis_ports()
@@ -226,13 +218,9 @@ class TestScanCommonRedisPorts:
 
     def test_scan_common_ports_some_available(self, mocker: pytest_mock.MockerFixture) -> None:
         """Test scanning when only some ports have Redis."""
-        mock_detect = mocker.patch(
-            "mycelium_onboarding.detection.redis_detector.detect_redis"
-        )
+        mock_detect = mocker.patch("mycelium_onboarding.detection.redis_detector.detect_redis")
         mock_detect.side_effect = [
-            RedisDetectionResult(
-                available=True, host="localhost", port=6379, version="7.2.3"
-            ),
+            RedisDetectionResult(available=True, host="localhost", port=6379, version="7.2.3"),
             RedisDetectionResult(
                 available=False,
                 host="localhost",
@@ -254,9 +242,7 @@ class TestScanCommonRedisPorts:
 
     def test_scan_common_ports_none_available(self, mocker: pytest_mock.MockerFixture) -> None:
         """Test scanning when no ports have Redis."""
-        mock_detect = mocker.patch(
-            "mycelium_onboarding.detection.redis_detector.detect_redis"
-        )
+        mock_detect = mocker.patch("mycelium_onboarding.detection.redis_detector.detect_redis")
         mock_detect.side_effect = [
             RedisDetectionResult(
                 available=False,
@@ -284,13 +270,9 @@ class TestScanCommonRedisPorts:
 
     def test_scan_common_ports_custom_host(self, mocker: pytest_mock.MockerFixture) -> None:
         """Test scanning with custom host."""
-        mock_detect = mocker.patch(
-            "mycelium_onboarding.detection.redis_detector.detect_redis"
-        )
+        mock_detect = mocker.patch("mycelium_onboarding.detection.redis_detector.detect_redis")
         mock_detect.side_effect = [
-            RedisDetectionResult(
-                available=True, host="redis.example.com", port=6379, version="7.2.3"
-            ),
+            RedisDetectionResult(available=True, host="redis.example.com", port=6379, version="7.2.3"),
             RedisDetectionResult(
                 available=False,
                 host="redis.example.com",
@@ -346,7 +328,10 @@ class TestRedisDetectionResult:
     def test_detection_result_error(self) -> None:
         """Test detection result with error."""
         result = RedisDetectionResult(
-            available=False, host="localhost", port=6379, error_message="Redis not found"
+            available=False,
+            host="localhost",
+            port=6379,
+            error_message="Redis not found",
         )
 
         assert result.available is False

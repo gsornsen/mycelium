@@ -1,34 +1,34 @@
 # Option C: Smart Agent Suggestions
 
-**Status**: Draft Backlog
-**Author**: @claude-code-developer + @project-manager
-**Created**: 2025-10-18
-**Estimated Effort**: 4-5 days (2-person team)
-**Complexity**: Medium
-**Dependencies**: Phase 1 (Lazy Loading), Optional: Option A (Usage Analytics)
+**Status**: Draft Backlog **Author**: @claude-code-developer + @project-manager **Created**: 2025-10-18 **Estimated
+Effort**: 4-5 days (2-person team) **Complexity**: Medium **Dependencies**: Phase 1 (Lazy Loading), Optional: Option A
+(Usage Analytics)
 
----
+______________________________________________________________________
 
 ## Executive Summary
 
 Intelligent **context-aware agent recommendation system** that automatically suggests the most relevant agents based on:
+
 - Open files and their extensions
 - Git branch names and recent commits
 - User query semantics (TF-IDF similarity)
 - Historical usage patterns (if Option A complete)
 
 **Value Proposition**:
+
 - **Discovery**: Users find relevant agents without manual search
 - **Productivity**: Reduce time spent finding the right specialist
 - **Onboarding**: New users discover agent capabilities organically
 - **Data-Driven**: Recommendations improve over time with usage data
 
 **Expected Impact**:
+
 - 40-60% reduction in agent discovery time
 - 30-50% increase in agent usage diversity
 - 90%+ recommendation accuracy (top-5 includes relevant agent)
 
----
+______________________________________________________________________
 
 ## Technical Architecture
 
@@ -101,7 +101,7 @@ User Query: "help with react components"
     3. frontend-specialist (78% match)
 ```
 
----
+______________________________________________________________________
 
 ## Core Components
 
@@ -374,7 +374,7 @@ class ContextExtractor:
         return " ".join(unique_keywords)
 ```
 
----
+______________________________________________________________________
 
 ### 2. Recommendation Engine
 
@@ -772,7 +772,7 @@ class AgentRecommender:
             pass  # Cache write failure - not critical
 ```
 
----
+______________________________________________________________________
 
 ### 3. CLI Integration
 
@@ -944,7 +944,7 @@ if __name__ == "__main__":
     main()
 ```
 
----
+______________________________________________________________________
 
 ## Testing Strategy
 
@@ -1033,35 +1033,40 @@ def test_min_similarity_threshold():
     assert all(score >= 0.5 for _, score, _ in suggestions)
 ```
 
----
+______________________________________________________________________
 
 ## Implementation Timeline
 
 ### Day 1: Context Extraction
+
 - Build `ContextExtractor` class
 - File type → keyword mapping
 - Git branch/commit parsing
 - Unit tests (100% coverage)
 
 ### Day 2: TF-IDF Recommender
+
 - Build `AgentRecommender` class
 - Corpus vectorization
 - Cosine similarity scoring
 - Unit tests
 
 ### Day 3: CLI Integration
+
 - Build `mycelium suggest` CLI
 - Auto-detection logic
 - Category filtering
 - Integration tests
 
 ### Day 4: Caching + Optimization
+
 - Redis caching layer
 - Performance optimization
 - Usage boost integration (Option A)
 - Benchmark performance
 
 ### Day 5: Polish + Documentation
+
 - Explanation feature
 - Edge case handling
 - Documentation
@@ -1069,17 +1074,19 @@ def test_min_similarity_threshold():
 
 **Total**: 4-5 days for 2-person team
 
----
+______________________________________________________________________
 
 ## Effort Estimate
 
 **Complexity**: Medium (NLP + ML)
 
 **Team Composition**:
+
 - 1x @python-pro (lead developer)
 - 1x @ml-engineer (TF-IDF, scikit-learn)
 
 **Breakdown**:
+
 - Context extraction: 1 day
 - TF-IDF recommender: 1.5 days
 - CLI integration: 1 day
@@ -1088,83 +1095,94 @@ def test_min_similarity_threshold():
 
 **Total**: 4-5 days
 
----
+______________________________________________________________________
 
 ## Dependencies
 
 **Required**:
+
 - Phase 1 (Lazy Loading + AgentDiscovery) (✅ Complete)
 - scikit-learn (TF-IDF vectorization)
 - Redis (for caching)
 
 **Optional**:
+
 - Option A (Usage Analytics) for usage boost
 - spaCy (for advanced NLP - can add later)
 
 **Installation**:
+
 ```bash
 uv pip install scikit-learn redis
 ```
 
----
+______________________________________________________________________
 
 ## Success Metrics
 
 **Acceptance Criteria**:
+
 1. ✅ Context extraction from files, git, and queries
-2. ✅ TF-IDF recommendation with top-K ranking
-3. ✅ CLI tool with auto-detection
-4. ✅ Redis caching (5min TTL)
-5. ✅ Category filtering support
-6. ✅ Explanation feature (matched keywords)
-7. ✅ 100% test coverage (unit + integration)
+1. ✅ TF-IDF recommendation with top-K ranking
+1. ✅ CLI tool with auto-detection
+1. ✅ Redis caching (5min TTL)
+1. ✅ Category filtering support
+1. ✅ Explanation feature (matched keywords)
+1. ✅ 100% test coverage (unit + integration)
 
 **Performance Targets**:
-- Recommendation latency: p95 < 100ms (cached)
-- Recommendation latency: p95 < 500ms (uncached)
+
+- Recommendation latency: p95 \< 100ms (cached)
+- Recommendation latency: p95 \< 500ms (uncached)
 - Accuracy: 90%+ (top-5 includes relevant agent)
 - Cache hit rate: >70% for repeat queries
 
----
+______________________________________________________________________
 
 ## Risk Assessment
 
 **Technical Risks**: MEDIUM
+
 - TF-IDF accuracy depends on corpus quality
 - Context extraction may miss implicit intent
 - Requires Redis for optimal performance
 
 **Blockers**: NONE
+
 - All dependencies available
 
 **Mitigation**:
+
 - Test with diverse queries during development
 - Provide manual query override
 - Graceful degradation without Redis
 
----
+______________________________________________________________________
 
 ## Future Enhancements
 
 **Phase 2 (Advanced ML)**:
+
 - Replace TF-IDF with BERT embeddings (semantic similarity)
 - Add user feedback loop (thumbs up/down on suggestions)
 - Personalization based on user's historical agent usage
 - Multi-modal context (include code snippets, not just filenames)
 
----
+______________________________________________________________________
 
 ## Conclusion
 
-Option C provides **intelligent agent discovery** using proven NLP techniques (TF-IDF + cosine similarity). Low complexity, high value, and sets foundation for future ML enhancements.
+Option C provides **intelligent agent discovery** using proven NLP techniques (TF-IDF + cosine similarity). Low
+complexity, high value, and sets foundation for future ML enhancements.
 
 **Recommendation**: **APPROVED for Sprint Planning** (implement after Phase 1 complete)
 
----
+______________________________________________________________________
 
 **Next Steps**:
+
 1. Approve backlog item
-2. Install dependencies (`scikit-learn`, `redis`)
-3. Assign to @python-pro + @ml-engineer
-4. Build MVP with file context + TF-IDF
-5. Iterate based on user feedback
+1. Install dependencies (`scikit-learn`, `redis`)
+1. Assign to @python-pro + @ml-engineer
+1. Build MVP with file context + TF-IDF
+1. Iterate based on user feedback

@@ -2,16 +2,17 @@
 
 from __future__ import annotations
 
-import socket
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 
 import pytest
-
 import pytest_mock
+
 from mycelium_onboarding.detection.temporal_detector import (
     TemporalDetectionResult,
     detect_temporal,
 )
+
+pytestmark = pytest.mark.integration  # Mark entire file as integration
 
 
 class TestDetectTemporal:
@@ -58,9 +59,7 @@ class TestDetectTemporal:
         assert result.frontend_port == 7234
         assert result.ui_port == 8081
 
-    def test_detect_temporal_frontend_not_available(
-        self, mocker: pytest_mock.MockerFixture
-    ) -> None:
+    def test_detect_temporal_frontend_not_available(self, mocker: pytest_mock.MockerFixture) -> None:
         """Test Temporal frontend not available."""
         mocker.patch(
             "mycelium_onboarding.detection.temporal_detector._check_port_open",
@@ -179,8 +178,7 @@ class TestAttemptVersionFromUI:
 
         mock_socket = Mock()
         mock_socket.recv.return_value = (
-            b"HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n"
-            b"<html><body>Temporal v1.22.3</body></html>"
+            b"HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<html><body>Temporal v1.22.3</body></html>"
         )
 
         mock_socket_class = mocker.patch("socket.socket")
@@ -199,8 +197,7 @@ class TestAttemptVersionFromUI:
 
         mock_socket = Mock()
         mock_socket.recv.return_value = (
-            b"HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n"
-            b"<html><body>Temporal UI</body></html>"
+            b"HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<html><body>Temporal UI</body></html>"
         )
 
         mock_socket_class = mocker.patch("socket.socket")
@@ -234,7 +231,7 @@ class TestAttemptVersionFromUI:
         )
 
         mock_socket = Mock()
-        mock_socket.recv.side_effect = socket.timeout()
+        mock_socket.recv.side_effect = TimeoutError()
 
         mock_socket_class = mocker.patch("socket.socket")
         mock_socket_class.return_value = mock_socket
@@ -288,11 +285,7 @@ class TestParseTemporalVersion:
             _parse_temporal_version,
         )
 
-        response = (
-            "HTTP/1.1 200 OK\r\n"
-            "X-Temporal-Server-Version: 1.22.3\r\n"
-            "Content-Type: text/html\r\n"
-        )
+        response = "HTTP/1.1 200 OK\r\nX-Temporal-Server-Version: 1.22.3\r\nContent-Type: text/html\r\n"
 
         # This might not match if the regex doesn't catch the header format
         # but it tests the general parsing capability

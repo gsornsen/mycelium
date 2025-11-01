@@ -2,7 +2,8 @@
 
 **Last Updated**: 2025-10-18
 
-This guide explains how to use `mycelium-switch` to seamlessly switch between development (source) and production (git) versions of the Mycelium plugin.
+This guide explains how to use `mycelium-switch` to seamlessly switch between development (source) and production (git)
+versions of the Mycelium plugin.
 
 ## Table of Contents
 
@@ -19,7 +20,7 @@ This guide explains how to use `mycelium-switch` to seamlessly switch between de
 - [Troubleshooting](#troubleshooting)
 - [Safety & Backups](#safety--backups)
 
----
+______________________________________________________________________
 
 ## Overview
 
@@ -28,12 +29,14 @@ This guide explains how to use `mycelium-switch` to seamlessly switch between de
 When working with Mycelium as both a developer and user, you often need to switch between:
 
 1. **Development Mode (Source)**: Plugin symlinked to your local source code
+
    - Live code changes reflected immediately
    - No restart needed for most changes
    - Full control over the codebase
    - Use when: Developing features, debugging, contributing
 
-2. **Production Mode (Git)**: Plugin cloned from GitHub repository
+1. **Production Mode (Git)**: Plugin cloned from GitHub repository
+
    - Stable, published version
    - Consistent behavior across sessions
    - Easy updates via `git pull`
@@ -42,6 +45,7 @@ When working with Mycelium as both a developer and user, you often need to switc
 ### Problem This Solves
 
 Without `mycelium-switch`, you would need to:
+
 - Manually remove the plugin directory
 - Remember the correct paths and URLs
 - Recreate symlinks or clone repositories
@@ -50,7 +54,7 @@ Without `mycelium-switch`, you would need to:
 
 `mycelium-switch` automates all of this with safety checks and backups.
 
----
+______________________________________________________________________
 
 ## Quick Start
 
@@ -70,7 +74,7 @@ mycelium-switch source --dry-run
 
 That's it! The tool handles backups, validation, and state tracking automatically.
 
----
+______________________________________________________________________
 
 ## Installation
 
@@ -97,7 +101,7 @@ echo 'alias mycelium-switch="~/git/mycelium/bin/mycelium-switch"' >> ~/.bashrc
 source ~/.bashrc
 ```
 
----
+______________________________________________________________________
 
 ## Usage
 
@@ -110,6 +114,7 @@ mycelium-switch status
 ```
 
 **Example Output (Source Mode)**:
+
 ```
 Mycelium Plugin Status
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -131,6 +136,7 @@ Available backups:
 ```
 
 **Example Output (Git Mode)**:
+
 ```
 Mycelium Plugin Status
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -145,7 +151,7 @@ Mycelium Plugin Status
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
----
+______________________________________________________________________
 
 ### Switch to Source Mode
 
@@ -156,14 +162,16 @@ mycelium-switch source
 ```
 
 **What Happens**:
+
 1. Validates local source exists at `~/git/mycelium`
-2. Checks for valid plugin structure and `plugin.json`
-3. Creates backup of existing plugin (if not a symlink)
-4. Removes existing plugin directory
-5. Creates symlink: `~/.claude/plugins/mycelium-core` → `~/git/mycelium/plugins/mycelium-core`
-6. Updates state tracking file
+1. Checks for valid plugin structure and `plugin.json`
+1. Creates backup of existing plugin (if not a symlink)
+1. Removes existing plugin directory
+1. Creates symlink: `~/.claude/plugins/mycelium-core` → `~/git/mycelium/plugins/mycelium-core`
+1. Updates state tracking file
 
 **Output**:
+
 ```
 ℹ Switching to source mode...
 ℹ Creating backup: /home/gerald/.claude/plugins/.backups/mycelium-core-20251018-123000
@@ -179,12 +187,13 @@ mycelium-switch source
 ```
 
 **Verification**:
+
 ```bash
 ls -la ~/.claude/plugins/mycelium-core
 # Output: lrwxrwxrwx ... mycelium-core -> /home/gerald/git/mycelium/plugins/mycelium-core
 ```
 
----
+______________________________________________________________________
 
 ### Switch to Git Mode
 
@@ -199,14 +208,16 @@ mycelium-switch git https://github.com/username/mycelium-fork
 ```
 
 **What Happens**:
+
 1. Validates git repository is accessible
-2. Creates backup of existing plugin (if exists)
-3. Clones repository to temporary directory
-4. Moves `plugins/mycelium-core` to `~/.claude/plugins/mycelium-core`
-5. Cleans up temporary clone
-6. Updates state tracking file
+1. Creates backup of existing plugin (if exists)
+1. Clones repository to temporary directory
+1. Moves `plugins/mycelium-core` to `~/.claude/plugins/mycelium-core`
+1. Cleans up temporary clone
+1. Updates state tracking file
 
 **Output**:
+
 ```
 ℹ Switching to git mode...
 ℹ Creating backup: /home/gerald/.claude/plugins/.backups/mycelium-core-20251018-123500
@@ -222,7 +233,7 @@ mycelium-switch git https://github.com/username/mycelium-fork
 ℹ Plugin installed from published version
 ```
 
----
+______________________________________________________________________
 
 ### Options
 
@@ -235,6 +246,7 @@ mycelium-switch source --dry-run
 ```
 
 **Output**:
+
 ```
 ℹ [DRY RUN] Would perform:
   1. Remove: /home/gerald/.claude/plugins/mycelium-core
@@ -254,6 +266,7 @@ mycelium-switch source --verbose
 ```
 
 **Additional Output**:
+
 ```
 [VERBOSE] Source path: /home/gerald/git/mycelium
 [VERBOSE] Removing existing plugin: /home/gerald/.claude/plugins/mycelium-core
@@ -270,6 +283,7 @@ mycelium-switch source --source-path /custom/path/to/mycelium
 ```
 
 Useful when:
+
 - Testing alternate branches in different directories
 - Working with multiple forks
 - Non-standard development setups
@@ -283,11 +297,12 @@ mycelium-switch source --no-backup
 ```
 
 **Warning**: Only use if:
+
 - You're certain no important data will be lost
 - The existing plugin is already backed up
 - You're switching from source mode (symlink) to git mode
 
----
+______________________________________________________________________
 
 ## How It Works
 
@@ -321,11 +336,11 @@ mycelium-switch
 
 ### File Locations
 
-| File/Directory | Purpose |
-|---------------|---------|
-| `~/.claude/plugins/mycelium-core` | Active plugin location |
-| `~/.claude/plugins/.mycelium-mode` | State tracking (JSON) |
-| `~/.claude/plugins/.backups/` | Automatic backups |
+| File/Directory                         | Purpose                 |
+| -------------------------------------- | ----------------------- |
+| `~/.claude/plugins/mycelium-core`      | Active plugin location  |
+| `~/.claude/plugins/.mycelium-mode`     | State tracking (JSON)   |
+| `~/.claude/plugins/.backups/`          | Automatic backups       |
 | `~/git/mycelium/plugins/mycelium-core` | Default source location |
 
 ### State Tracking Format
@@ -342,11 +357,12 @@ The tool stores state in `~/.claude/plugins/.mycelium-mode` as JSON:
 ```
 
 This enables:
+
 - Status command to show last switch details
 - Idempotent operations (don't re-switch if already in desired mode)
 - Audit trail for debugging
 
----
+______________________________________________________________________
 
 ## Advanced Usage
 
@@ -423,7 +439,7 @@ mycelium-switch source --verbose
 mycelium-switch git https://github.com/gsornsen/mycelium
 ```
 
----
+______________________________________________________________________
 
 ## Troubleshooting
 
@@ -432,11 +448,13 @@ mycelium-switch git https://github.com/gsornsen/mycelium
 #### Issue: "Local source not found"
 
 **Symptom**:
+
 ```
 ❌ Local source not found at: /home/gerald/git/mycelium
 ```
 
 **Solution**:
+
 ```bash
 # Verify source exists
 ls -la ~/git/mycelium
@@ -449,17 +467,19 @@ cd ~/git
 git clone https://github.com/gsornsen/mycelium
 ```
 
----
+______________________________________________________________________
 
 #### Issue: "Invalid plugin structure"
 
 **Symptom**:
+
 ```
 ❌ Invalid plugin structure in source
 ℹ Missing or invalid: /home/gerald/git/mycelium/plugins/mycelium-core/.claude-plugin/plugin.json
 ```
 
 **Solution**:
+
 ```bash
 # Verify plugin.json exists
 ls -la ~/git/mycelium/plugins/mycelium-core/.claude-plugin/plugin.json
@@ -472,17 +492,19 @@ cd ~/git/mycelium
 git checkout -- plugins/mycelium-core/.claude-plugin/plugin.json
 ```
 
----
+______________________________________________________________________
 
 #### Issue: "Cannot access git repository"
 
 **Symptom**:
+
 ```
 ❌ Cannot access git repository: https://github.com/username/mycelium
 ℹ Check URL and network connection
 ```
 
 **Solutions**:
+
 ```bash
 # Test git access manually
 git ls-remote https://github.com/gsornsen/mycelium
@@ -497,36 +519,41 @@ mycelium-switch git https://github.com/gsornsen/mycelium
 mycelium-switch git git@github.com:gsornsen/mycelium
 ```
 
----
+______________________________________________________________________
 
-#### Issue: "Already in [mode] with same [path/URL]"
+#### Issue: "Already in \[mode\] with same \[path/URL\]"
 
 **Symptom**:
+
 ```
 ✅ Already in source mode with same path
 ℹ Target: /home/gerald/git/mycelium/plugins/mycelium-core
 ```
 
-**Explanation**: This is not an error! The tool detected you're already in the desired mode and skipped redundant operations (idempotent behavior).
+**Explanation**: This is not an error! The tool detected you're already in the desired mode and skipped redundant
+operations (idempotent behavior).
 
 **If you want to force re-switch**:
+
 ```bash
 # Switch to other mode first, then back
 mycelium-switch git
 mycelium-switch source
 ```
 
----
+______________________________________________________________________
 
 #### Issue: Symlink Broken After Moving Source
 
 **Symptom**:
+
 ```bash
 ls -la ~/.claude/plugins/mycelium-core
 # lrwxrwxrwx ... mycelium-core -> /old/path/mycelium/plugins/mycelium-core (red/broken)
 ```
 
 **Solution**:
+
 ```bash
 # Update to new source location
 mycelium-switch source --source-path /new/path/mycelium
@@ -535,13 +562,14 @@ mycelium-switch source --source-path /new/path/mycelium
 mycelium-switch git
 ```
 
----
+______________________________________________________________________
 
 ### Debugging Tips
 
 #### Enable Verbose Mode
 
 See detailed operations:
+
 ```bash
 mycelium-switch source --verbose
 ```
@@ -549,6 +577,7 @@ mycelium-switch source --verbose
 #### Check State File
 
 Inspect current state:
+
 ```bash
 cat ~/.claude/plugins/.mycelium-mode | jq .
 ```
@@ -556,6 +585,7 @@ cat ~/.claude/plugins/.mycelium-mode | jq .
 #### List Backups
 
 See available backups:
+
 ```bash
 ls -lah ~/.claude/plugins/.backups/
 ```
@@ -563,6 +593,7 @@ ls -lah ~/.claude/plugins/.backups/
 #### Manual Verification
 
 Check plugin is properly installed:
+
 ```bash
 # Check exists
 ls -la ~/.claude/plugins/mycelium-core
@@ -574,28 +605,32 @@ cat ~/.claude/plugins/mycelium-core/.claude-plugin/plugin.json | jq .
 readlink ~/.claude/plugins/mycelium-core
 ```
 
----
+______________________________________________________________________
 
 ## Safety & Backups
 
 ### Automatic Backups
 
 **When backups are created**:
+
 - Before switching from git mode to source mode
 - Before switching from source mode to git mode (if source modified)
 - Before switching from one git URL to another
 
 **When backups are NOT created**:
+
 - Plugin is already a symlink (source mode)
 - `--no-backup` flag is used
 - Plugin doesn't exist yet (fresh install)
 
 **Backup location**:
+
 ```
 ~/.claude/plugins/.backups/mycelium-core-YYYYMMDD-HHMMSS/
 ```
 
 **Backup naming**:
+
 ```
 mycelium-core-20251018-123000  # 2025-10-18 at 12:30:00
 ```
@@ -624,18 +659,21 @@ rm -rf ~/.claude/plugins/.backups/*
 If something goes wrong:
 
 1. **Check backups**:
+
    ```bash
    ls -lah ~/.claude/plugins/.backups/
    ```
 
-2. **Restore latest backup**:
+1. **Restore latest backup**:
+
    ```bash
    LATEST=$(ls -t ~/.claude/plugins/.backups/ | head -n1)
    rm -rf ~/.claude/plugins/mycelium-core
    cp -r ~/.claude/plugins/.backups/$LATEST ~/.claude/plugins/mycelium-core
    ```
 
-3. **Or start fresh**:
+1. **Or start fresh**:
+
    ```bash
    rm -rf ~/.claude/plugins/mycelium-core
    mycelium-switch git  # Known good state
@@ -644,31 +682,36 @@ If something goes wrong:
 ### Best Practices
 
 1. **Always check status first**:
+
    ```bash
    mycelium-switch status
    ```
 
-2. **Use dry-run for unfamiliar operations**:
+1. **Use dry-run for unfamiliar operations**:
+
    ```bash
    mycelium-switch source --dry-run
    ```
 
-3. **Keep source and git in sync**:
+1. **Keep source and git in sync**:
+
    - Update source: `cd ~/git/mycelium && git pull`
    - Update git mode: `cd ~/.claude/plugins/mycelium-core && git pull`
 
-4. **Don't modify git mode plugin directly**:
+1. **Don't modify git mode plugin directly**:
+
    - Changes will be lost on next switch
    - Make changes in source, then test with source mode
 
-5. **Clean up backups periodically**:
+1. **Clean up backups periodically**:
+
    ```bash
    # Keep last 10 backups
    cd ~/.claude/plugins/.backups
    ls -t | tail -n +11 | xargs rm -rf
    ```
 
----
+______________________________________________________________________
 
 ## Workflow Examples
 
@@ -720,7 +763,7 @@ mycelium-switch status
 mycelium-switch git
 ```
 
----
+______________________________________________________________________
 
 ## Exit Codes
 
@@ -730,6 +773,7 @@ The tool uses standard exit codes for scripting:
 - `1`: Error (validation failed, operation failed, or invalid arguments)
 
 **Example**:
+
 ```bash
 if mycelium-switch source; then
     echo "Now in source mode"
@@ -738,7 +782,7 @@ else
 fi
 ```
 
----
+______________________________________________________________________
 
 ## Additional Resources
 
@@ -747,7 +791,7 @@ fi
 - **Claude Code Plugins**: https://docs.anthropic.com/claude/docs/plugins
 - **Issue Tracker**: https://github.com/gsornsen/mycelium/issues
 
----
+______________________________________________________________________
 
 ## Summary
 
@@ -760,6 +804,7 @@ fi
 - **Transparent**: Dry-run and verbose modes
 
 **Quick Reference**:
+
 ```bash
 mycelium-switch status                    # Check current mode
 mycelium-switch source                    # Development mode

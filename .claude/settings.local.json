@@ -42,7 +42,15 @@
       "Bash(pytest:*)",
       "Bash(ruff check:*)",
       "Bash(ruff format:*)",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(gh run view:*)",
+      "Bash(gh run list:*)",
+      "Read(//tmp/**)",
+      "Bash(gh pr checks:*)",
+      "Bash(jq:*)",
+      "Bash(git config:*)",
+      "Bash(gh pr view:*)",
+      "Bash(uv --version:*)"
     ],
     "deny": [],
     "ask": []

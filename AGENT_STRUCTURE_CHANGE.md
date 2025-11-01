@@ -5,6 +5,7 @@
 The Mycelium agent directory structure has been flattened to ensure compatibility with Claude Code's plugin system.
 
 ### Before (Nested Structure)
+
 ```
 plugins/mycelium-core/agents/
 ├── 01-core-development/
@@ -19,6 +20,7 @@ plugins/mycelium-core/agents/
 ```
 
 ### After (Flat Structure)
+
 ```
 plugins/mycelium-core/agents/
 ├── 01-core-api-designer.md
@@ -30,7 +32,8 @@ plugins/mycelium-core/agents/
 
 ## Why This Change?
 
-Claude Code's plugin system loads agents only from the top-level `agents/` directory and does not recursively scan subdirectories. The nested structure prevented Claude Code from discovering the 130+ Mycelium agents.
+Claude Code's plugin system loads agents only from the top-level `agents/` directory and does not recursively scan
+subdirectories. The nested structure prevented Claude Code from discovering the 130+ Mycelium agents.
 
 ## Category Prefixes
 
@@ -54,6 +57,7 @@ Agents now include category prefixes in their filenames to preserve organization
 ## Backup
 
 The original nested structure has been preserved at:
+
 ```
 plugins/mycelium-core/agents.backup/
 ```
@@ -61,6 +65,7 @@ plugins/mycelium-core/agents.backup/
 ## Reverting
 
 To revert to the nested structure:
+
 ```bash
 cd /home/gerald/git/mycelium/plugins/mycelium-core
 rm -rf agents/
@@ -72,6 +77,7 @@ mv agents.backup/ agents/
 ## Applying to Fresh Installs
 
 The flattening script is available at:
+
 ```bash
 /home/gerald/git/mycelium/scripts/flatten-agents.sh
 ```
@@ -83,13 +89,14 @@ Run it if you clone the repository with the nested structure.
 After this change, you **must restart Claude Code** for it to discover the agents:
 
 1. Exit Claude Code completely
-2. Restart Claude Code
-3. Run `/agents` to verify all Mycelium agents are loaded
-4. Agents should appear under "Plugin agents" in the agents menu
+1. Restart Claude Code
+1. Run `/agents` to verify all Mycelium agents are loaded
+1. Agents should appear under "Plugin agents" in the agents menu
 
 ## Agent Discovery
 
 You can verify agent discovery by:
+
 1. Opening Claude Code agents menu (type `/agents`)
-2. Looking for agents with the `mycelium-core:` prefix
-3. All 119 agents should be listed under "Plugin agents"
+1. Looking for agents with the `mycelium-core:` prefix
+1. All 119 agents should be listed under "Plugin agents"

@@ -2,9 +2,12 @@
 
 ## Overview
 
-Redis provides high-performance, in-memory data structures for distributed coordination, real-time event broadcasting, and shared state management across multi-agent systems. This pattern guide covers production-ready implementations of context storage, error tracking, pub/sub messaging, and circuit breaker coordination.
+Redis provides high-performance, in-memory data structures for distributed coordination, real-time event broadcasting,
+and shared state management across multi-agent systems. This pattern guide covers production-ready implementations of
+context storage, error tracking, pub/sub messaging, and circuit breaker coordination.
 
 **Use Cases:**
+
 - Distributed error tracking and correlation
 - Real-time event broadcasting (task completion, training metrics, alerts)
 - Shared context and state synchronization
@@ -15,10 +18,12 @@ Redis provides high-performance, in-memory data structures for distributed coord
 ## Prerequisites
 
 ### Required Tools
+
 - **RedisMCPServer MCP server** - Redis client with hash, pub/sub, list, set, and vector operations
 - **Redis server** - Redis 7.0+ for production workloads
 
 ### Dependencies
+
 ```bash
 # Install Redis
 sudo apt install redis-server  # Ubuntu/Debian
@@ -29,6 +34,7 @@ redis-server
 ```
 
 ### Environment Setup
+
 ```bash
 # Redis connection (default localhost:6379)
 export REDIS_HOST=localhost
@@ -39,11 +45,13 @@ export REDIS_PASSWORD=  # If authentication enabled
 ## Available Redis MCP Tools
 
 **Key-Value Operations:**
+
 - `mcp__RedisMCPServer__set` - Store string values with optional expiration
 - `mcp__RedisMCPServer__get` - Retrieve string values
 - `mcp__RedisMCPServer__delete` - Remove keys
 
 **Hash Operations (Recommended for structured data):**
+
 - `mcp__RedisMCPServer__hset` - Set hash field with optional expiration
 - `mcp__RedisMCPServer__hget` - Get hash field value
 - `mcp__RedisMCPServer__hgetall` - Get all hash fields
@@ -51,26 +59,31 @@ export REDIS_PASSWORD=  # If authentication enabled
 - `mcp__RedisMCPServer__hexists` - Check if hash field exists
 
 **Pub/Sub Operations:**
+
 - `mcp__RedisMCPServer__publish` - Broadcast message to channel
 - `mcp__RedisMCPServer__subscribe` - Listen to channel
 
 **List Operations:**
+
 - `mcp__RedisMCPServer__lpush` / `rpush` - Add to list (left/right)
 - `mcp__RedisMCPServer__lpop` / `rpop` - Remove from list
 - `mcp__RedisMCPServer__lrange` - Get list range
 - `mcp__RedisMCPServer__llen` - Get list length
 
 **Set Operations:**
+
 - `mcp__RedisMCPServer__sadd` - Add to set
 - `mcp__RedisMCPServer__srem` - Remove from set
 - `mcp__RedisMCPServer__smembers` - Get all set members
 
 **Sorted Set Operations:**
+
 - `mcp__RedisMCPServer__zadd` - Add member with score
 - `mcp__RedisMCPServer__zrange` - Get members by rank
 - `mcp__RedisMCPServer__zrem` - Remove member
 
 **Utility Operations:**
+
 - `mcp__RedisMCPServer__scan_keys` / `scan_all_keys` - Find keys by pattern
 - `mcp__RedisMCPServer__type` - Get key type
 - `mcp__RedisMCPServer__expire` - Set key expiration
@@ -198,6 +211,7 @@ async function getAvailableAgents() {
 ```
 
 **Considerations:**
+
 - Use `hgetall` for reading entire context (fewer round trips than multiple `hget`)
 - Set expiration on temporary context using `expire_seconds` parameter
 - Namespace keys consistently: `type:entity:id` (e.g., `context:project:proj-1`)
@@ -288,6 +302,7 @@ await mcp__RedisMCPServer__subscribe({
 ```
 
 **Considerations:**
+
 - Pub/sub is fire-and-forget; no delivery guarantees
 - Use lists for durable message queues (pattern 4)
 - Wildcard subscriptions: `events:errors:*` matches all error channels
@@ -430,6 +445,7 @@ async function correlateErrors(newError) {
 ```
 
 **Considerations:**
+
 - Set TTL on error logs to prevent memory bloat (7 days for tasks, 30 days for training)
 - Use `lrange` with reasonable limits (last 100 errors, not all)
 - Store error details in hashes for structured querying
@@ -570,8 +586,9 @@ async function executeWithCircuitBreaker(component, taskFn) {
 ```
 
 **Considerations:**
+
 - Use hash for circuit breaker state (allows atomic multi-field updates)
-- Auto-reset with `expire` to transition from open ’ closed
+- Auto-reset with `expire` to transition from open ' closed
 - Broadcast state changes via pub/sub for observability
 - Implement half-open state for gradual recovery
 
@@ -711,6 +728,7 @@ async function processRetryQueue() {
 ```
 
 **Considerations:**
+
 - Use `rpush` + `lpop` for FIFO queue processing
 - Store delay in metadata, not Redis TTL (allows re-queuing)
 - Implement jitter to prevent thundering herd
@@ -775,6 +793,7 @@ async function calculateMovingAverage(projectId, windowSize = 10) {
 ```
 
 **Considerations:**
+
 - Use `lpush` for newest-first ordering
 - Trim lists periodically to prevent unbounded growth
 - Set TTL on entire list for automatic cleanup
@@ -783,20 +802,22 @@ async function calculateMovingAverage(projectId, windowSize = 10) {
 ## Best Practices
 
 1. **Namespace keys consistently** - Use `type:entity:id` pattern (e.g., `context:project:proj-1`)
-2. **Use hashes for structured data** - More efficient than JSON strings in key-value pairs
-3. **Set expiration on temporary data** - Prevent memory leaks with `expire_seconds`
-4. **Batch reads when possible** - `hgetall` instead of multiple `hget` calls
-5. **Use pub/sub for real-time events** - Async, non-blocking, multiple subscribers
-6. **Scan with patterns, not KEYS** - `scan_all_keys` is production-safe, `KEYS *` blocks server
-7. **Implement TTL on error logs** - 7 days for tasks, 30 days for training, 90 days for correlations
-8. **Monitor memory usage** - Redis is in-memory; plan capacity and eviction policies
-9. **Serialize complex objects as JSON** - Before storing in strings or publishing
-10. **Use lists for queues, not pub/sub** - Pub/sub has no delivery guarantees; lists are durable
+1. **Use hashes for structured data** - More efficient than JSON strings in key-value pairs
+1. **Set expiration on temporary data** - Prevent memory leaks with `expire_seconds`
+1. **Batch reads when possible** - `hgetall` instead of multiple `hget` calls
+1. **Use pub/sub for real-time events** - Async, non-blocking, multiple subscribers
+1. **Scan with patterns, not KEYS** - `scan_all_keys` is production-safe, `KEYS *` blocks server
+1. **Implement TTL on error logs** - 7 days for tasks, 30 days for training, 90 days for correlations
+1. **Monitor memory usage** - Redis is in-memory; plan capacity and eviction policies
+1. **Serialize complex objects as JSON** - Before storing in strings or publishing
+1. **Use lists for queues, not pub/sub** - Pub/sub has no delivery guarantees; lists are durable
 
 ## Related Agents
 
-- **error-coordinator** (`plugins/mycelium-core/agents/09-meta-error-coordinator.md`) - Error tracking, correlation, circuit breakers
-- **context-manager** (`plugins/mycelium-core/agents/09-meta-context-manager.md`) - Shared state, context storage, synchronization
+- **error-coordinator** (`plugins/mycelium-core/agents/09-meta-error-coordinator.md`) - Error tracking, correlation,
+  circuit breakers
+- **context-manager** (`plugins/mycelium-core/agents/09-meta-context-manager.md`) - Shared state, context storage,
+  synchronization
 - **performance-monitor** - Metrics storage and time-series analysis
 - **multi-agent-coordinator** - Agent workload distribution and task routing
 

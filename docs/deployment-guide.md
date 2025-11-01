@@ -10,7 +10,8 @@ The Mycelium deployment system generates production-ready configurations for mul
 - **Kubernetes** - Cloud-native deployments with horizontal scalability
 - **systemd** - Native Linux service management for traditional infrastructure
 
-All deployment configurations are generated from your `mycelium.yaml` configuration file using Jinja2 templates, ensuring consistency and reproducibility across environments.
+All deployment configurations are generated from your `mycelium.yaml` configuration file using Jinja2 templates,
+ensuring consistency and reproducibility across environments.
 
 ## Quick Start
 
@@ -23,6 +24,7 @@ mycelium init
 ```
 
 This will guide you through:
+
 - Service detection
 - Service selection and configuration
 - Deployment method selection
@@ -98,27 +100,32 @@ services:
 #### Deployment Steps
 
 1. **Review credentials** in `.env` file:
+
    ```bash
    cd ~/.local/share/mycelium/deployments/my-project
    vim .env
    ```
 
-2. **Start services**:
+1. **Start services**:
+
    ```bash
    docker-compose up -d
    ```
 
-3. **Verify services are running**:
+1. **Verify services are running**:
+
    ```bash
    docker-compose ps
    ```
 
-4. **View logs**:
+1. **View logs**:
+
    ```bash
    docker-compose logs -f
    ```
 
-5. **Stop services**:
+1. **Stop services**:
+
    ```bash
    docker-compose down
    ```
@@ -126,6 +133,7 @@ services:
 #### Service Configuration
 
 **Redis Configuration:**
+
 ```yaml
 services:
   redis:
@@ -137,6 +145,7 @@ services:
 ```
 
 **PostgreSQL Configuration:**
+
 ```yaml
 services:
   postgres:
@@ -148,6 +157,7 @@ services:
 ```
 
 **Temporal Configuration:**
+
 ```yaml
 services:
   temporal:
@@ -166,23 +176,27 @@ Docker Compose automatically creates named volumes for data persistence:
 - `{project}-temporal-data` - Temporal server data
 
 To remove all data (destructive):
+
 ```bash
 docker-compose down -v
 ```
 
 #### Networking
 
-All services are connected via a dedicated bridge network named `{project}-network`, allowing inter-service communication using service names as hostnames.
+All services are connected via a dedicated bridge network named `{project}-network`, allowing inter-service
+communication using service names as hostnames.
 
 #### Common Issues
 
 **Port conflicts:**
+
 ```bash
 # Error: port is already allocated
 # Solution: Change port in config and regenerate
 ```
 
 **Permission errors:**
+
 ```bash
 # Error: permission denied
 # Solution: Add user to docker group
@@ -191,6 +205,7 @@ newgrp docker
 ```
 
 **Container won't start:**
+
 ```bash
 # Check logs for specific error
 docker-compose logs redis
@@ -229,34 +244,40 @@ services:
 #### Deployment Steps
 
 1. **Review manifests**:
+
    ```bash
    cd ~/.local/share/mycelium/deployments/my-k8s-app/kubernetes
    ```
 
-2. **Apply using Kustomize** (recommended):
+1. **Apply using Kustomize** (recommended):
+
    ```bash
    kubectl apply -k .
    ```
 
    Or **apply manually**:
+
    ```bash
    kubectl apply -f 00-namespace.yaml
    kubectl apply -f 10-redis.yaml
    kubectl apply -f 20-postgres.yaml
    ```
 
-3. **Wait for pods to be ready**:
+1. **Wait for pods to be ready**:
+
    ```bash
    kubectl wait --for=condition=ready pod --all \
        -n my-k8s-app --timeout=300s
    ```
 
-4. **Check deployment status**:
+1. **Check deployment status**:
+
    ```bash
    kubectl get all -n my-k8s-app
    ```
 
-5. **View pod logs**:
+1. **View pod logs**:
+
    ```bash
    kubectl logs -f deployment/redis -n my-k8s-app
    ```
@@ -266,6 +287,7 @@ services:
 Generated manifests include sensible resource requests and limits:
 
 **Redis:**
+
 ```yaml
 resources:
   requests:
@@ -277,6 +299,7 @@ resources:
 ```
 
 **PostgreSQL:**
+
 ```yaml
 resources:
   requests:
@@ -294,11 +317,13 @@ Adjust these based on your workload and cluster capacity.
 PostgreSQL uses PersistentVolumeClaims (PVC) for data persistence. Ensure your cluster has:
 
 1. **StorageClass configured**:
+
    ```bash
    kubectl get storageclass
    ```
 
-2. **Sufficient storage quota**:
+1. **Sufficient storage quota**:
+
    ```bash
    kubectl describe namespace my-k8s-app
    ```
@@ -308,6 +333,7 @@ PostgreSQL uses PersistentVolumeClaims (PVC) for data persistence. Ensure your c
 Services are exposed within the cluster by default:
 
 **Internal access:**
+
 ```bash
 # From another pod in the same namespace
 redis://redis:6379
@@ -315,12 +341,14 @@ postgresql://postgres:5432/mydb
 ```
 
 **External access via port-forward:**
+
 ```bash
 kubectl port-forward svc/redis 6379:6379 -n my-k8s-app
 kubectl port-forward svc/postgres 5432:5432 -n my-k8s-app
 ```
 
 **External access via LoadBalancer** (edit service type):
+
 ```yaml
 apiVersion: v1
 kind: Service
@@ -348,17 +376,20 @@ kubectl autoscale deployment redis \
 #### Updates and Rollbacks
 
 **Rolling update:**
+
 ```bash
 kubectl set image deployment/redis \
     redis=redis:7.2-alpine -n my-k8s-app
 ```
 
 **Rollback:**
+
 ```bash
 kubectl rollout undo deployment/redis -n my-k8s-app
 ```
 
 **Check rollout status:**
+
 ```bash
 kubectl rollout status deployment/redis -n my-k8s-app
 ```
@@ -366,6 +397,7 @@ kubectl rollout status deployment/redis -n my-k8s-app
 #### Cleanup
 
 **Delete all resources:**
+
 ```bash
 kubectl delete -k .
 # Or
@@ -375,12 +407,14 @@ kubectl delete namespace my-k8s-app
 #### Common Issues
 
 **ImagePullBackOff:**
+
 ```bash
 # Check image name and registry access
 kubectl describe pod <pod-name> -n my-k8s-app
 ```
 
 **Pending pods:**
+
 ```bash
 # Check resource availability
 kubectl describe pod <pod-name> -n my-k8s-app
@@ -388,6 +422,7 @@ kubectl describe pod <pod-name> -n my-k8s-app
 ```
 
 **PVC not binding:**
+
 ```bash
 # Check storage class and PVC status
 kubectl get pvc -n my-k8s-app
@@ -411,6 +446,7 @@ systemd deployment provides native Linux service management, ideal for tradition
 Ensure required services are installed on the host:
 
 **For Redis:**
+
 ```bash
 # Debian/Ubuntu
 sudo apt-get install redis-server
@@ -423,6 +459,7 @@ sudo pacman -S redis
 ```
 
 **For PostgreSQL:**
+
 ```bash
 # Debian/Ubuntu
 sudo apt-get install postgresql
@@ -437,28 +474,33 @@ sudo pacman -S postgresql
 #### Installation
 
 1. **Review service files**:
+
    ```bash
    cd ~/.local/share/mycelium/deployments/my-project/systemd
    cat my-project-redis.service
    ```
 
-2. **Run installation script**:
+1. **Run installation script**:
+
    ```bash
    sudo ./install.sh
    ```
 
    This will:
+
    - Copy service files to `/etc/systemd/system/`
    - Reload systemd daemon
    - Display enable/start instructions
 
-3. **Enable services** (start on boot):
+1. **Enable services** (start on boot):
+
    ```bash
    sudo systemctl enable my-project-redis
    sudo systemctl enable my-project-postgres
    ```
 
-4. **Start services**:
+1. **Start services**:
+
    ```bash
    sudo systemctl start my-project-redis
    sudo systemctl start my-project-postgres
@@ -467,26 +509,31 @@ sudo pacman -S postgresql
 #### Service Management
 
 **Check status:**
+
 ```bash
 systemctl status my-project-redis
 ```
 
 **View logs:**
+
 ```bash
 journalctl -u my-project-redis -f
 ```
 
 **Restart service:**
+
 ```bash
 sudo systemctl restart my-project-redis
 ```
 
 **Stop service:**
+
 ```bash
 sudo systemctl stop my-project-redis
 ```
 
 **Disable service:**
+
 ```bash
 sudo systemctl disable my-project-redis
 ```
@@ -494,10 +541,12 @@ sudo systemctl disable my-project-redis
 #### Configuration
 
 Service configuration files are typically located at:
+
 - Redis: `/etc/redis/redis.conf`
 - PostgreSQL: `/etc/postgresql/*/main/postgresql.conf`
 
 After modifying configuration:
+
 ```bash
 sudo systemctl restart my-project-redis
 ```
@@ -505,18 +554,21 @@ sudo systemctl restart my-project-redis
 #### Uninstallation
 
 1. **Stop and disable services**:
+
    ```bash
    sudo systemctl stop my-project-*
    sudo systemctl disable my-project-*
    ```
 
-2. **Remove service files**:
+1. **Remove service files**:
+
    ```bash
    sudo rm /etc/systemd/system/my-project-*.service
    sudo systemctl daemon-reload
    ```
 
-3. **Clean up data** (optional):
+1. **Clean up data** (optional):
+
    ```bash
    sudo rm -rf /var/lib/redis/my-project
    sudo rm -rf /var/lib/postgresql/my-project
@@ -525,6 +577,7 @@ sudo systemctl restart my-project-redis
 #### Common Issues
 
 **Service fails to start:**
+
 ```bash
 # Check detailed logs
 journalctl -u my-project-redis -n 50 --no-pager
@@ -534,12 +587,14 @@ systemctl status my-project-redis -l
 ```
 
 **Permission denied:**
+
 ```bash
 # Ensure service user has permissions
 sudo chown -R redis:redis /var/lib/redis/my-project
 ```
 
 **Port already in use:**
+
 ```bash
 # Find process using port
 sudo lsof -i :6379
@@ -560,6 +615,7 @@ mycelium deploy generate
 ```
 
 To skip secrets generation:
+
 ```bash
 mycelium deploy generate --no-secrets
 ```
@@ -573,6 +629,7 @@ mycelium deploy secrets
 ```
 
 Output:
+
 ```
 ┏━━━━━━━━━━━━┳━━━━━━━━┓
 ┃ Service    ┃ Status ┃
@@ -593,6 +650,7 @@ mycelium deploy secrets temporal --rotate
 ```
 
 After rotation, regenerate deployment files to apply changes:
+
 ```bash
 mycelium deploy generate
 ```
@@ -600,6 +658,7 @@ mycelium deploy generate
 ### Secret Storage
 
 Secrets are stored securely at:
+
 ```
 ~/.local/state/mycelium/secrets/{project-name}.json
 ```
@@ -609,18 +668,21 @@ File permissions are automatically set to `0600` (owner read/write only).
 ### Security Best Practices
 
 1. **Never commit secrets to version control**
+
    ```bash
    echo ".env" >> .gitignore
    echo "secrets/" >> .gitignore
    ```
 
-2. **Rotate secrets regularly**
+1. **Rotate secrets regularly**
+
    ```bash
    # Quarterly rotation recommended
    mycelium deploy secrets postgres --rotate
    ```
 
-3. **Use different secrets per environment**
+1. **Use different secrets per environment**
+
    ```bash
    # Development
    mycelium deploy generate --output dev/
@@ -630,7 +692,8 @@ File permissions are automatically set to `0600` (owner read/write only).
    mycelium deploy generate --output prod/
    ```
 
-4. **Backup secrets securely**
+1. **Backup secrets securely**
+
    ```bash
    # Encrypt before storing
    tar -czf secrets.tar.gz ~/.local/state/mycelium/secrets/
@@ -643,6 +706,7 @@ File permissions are automatically set to `0600` (owner read/write only).
 ### General Issues
 
 **Configuration not found:**
+
 ```bash
 Error: No configuration file found
 
@@ -651,6 +715,7 @@ mycelium init
 ```
 
 **Invalid configuration:**
+
 ```bash
 # Validate configuration
 mycelium config validate
@@ -662,6 +727,7 @@ mycelium deploy generate
 ### Docker Compose Issues
 
 **Services won't start:**
+
 ```bash
 # Check logs
 docker-compose logs
@@ -674,6 +740,7 @@ df -h
 ```
 
 **Network issues:**
+
 ```bash
 # Recreate network
 docker-compose down
@@ -684,6 +751,7 @@ docker-compose up -d
 ### Kubernetes Issues
 
 **Pods stuck in Pending:**
+
 ```bash
 # Check events
 kubectl describe pod <pod-name> -n <namespace>
@@ -696,6 +764,7 @@ kubectl get pvc -n <namespace>
 ```
 
 **Services not accessible:**
+
 ```bash
 # Verify service endpoints
 kubectl get endpoints -n <namespace>
@@ -707,6 +776,7 @@ kubectl get networkpolicies -n <namespace>
 ### systemd Issues
 
 **Service won't start:**
+
 ```bash
 # Check syntax
 systemd-analyze verify /etc/systemd/system/my-service.service
@@ -725,6 +795,7 @@ journalctl -u my-service -o verbose
 **Q: Can I use multiple deployment methods?**
 
 A: Yes! Generate different deployment methods to the same project:
+
 ```bash
 mycelium deploy generate --method docker-compose --output compose/
 mycelium deploy generate --method kubernetes --output k8s/
@@ -734,6 +805,7 @@ mycelium deploy generate --method systemd --output systemd/
 **Q: How do I update my deployment after config changes?**
 
 A: Regenerate the deployment files:
+
 ```bash
 mycelium config set services.redis.port 6380
 mycelium deploy generate
@@ -741,13 +813,16 @@ mycelium deploy generate
 
 **Q: Can I customize the generated files?**
 
-A: Yes, but they'll be overwritten on regeneration. For permanent changes, modify your configuration or extend the templates.
+A: Yes, but they'll be overwritten on regeneration. For permanent changes, modify your configuration or extend the
+templates.
 
 ### Docker Compose Questions
 
 **Q: How do I expose services to the network?**
 
-A: Services are exposed on localhost by default. To expose on all interfaces, modify the port mapping in `docker-compose.yml`:
+A: Services are exposed on localhost by default. To expose on all interfaces, modify the port mapping in
+`docker-compose.yml`:
+
 ```yaml
 ports:
   - "0.0.0.0:6379:6379"  # Expose on all interfaces
@@ -756,6 +831,7 @@ ports:
 **Q: How do I use a specific Docker image version?**
 
 A: Specify version in your configuration:
+
 ```yaml
 services:
   redis:
@@ -767,6 +843,7 @@ services:
 **Q: How do I use my own container registry?**
 
 A: Modify the image references in the generated manifests:
+
 ```yaml
 spec:
   containers:
@@ -777,6 +854,7 @@ spec:
 **Q: How do I add resource limits?**
 
 A: Edit the Deployment manifests to add or modify resources:
+
 ```yaml
 resources:
   requests:
@@ -792,6 +870,7 @@ resources:
 **Q: Can I run services as a different user?**
 
 A: Yes, edit the service file:
+
 ```ini
 [Service]
 User=myuser
@@ -801,6 +880,7 @@ Group=mygroup
 **Q: How do I add environment variables?**
 
 A: Add them to the service file:
+
 ```ini
 [Service]
 Environment="MY_VAR=value"
@@ -810,10 +890,10 @@ EnvironmentFile=/etc/myproject/env
 ## Next Steps
 
 1. **Explore Advanced Configuration**: See [Deployment API Reference](deployment-reference.md)
-2. **Integrate Programmatically**: See [Deployment Integration Guide](deployment-integration.md)
-3. **Customize Templates**: See the templates directory in your installation
-4. **Set up Monitoring**: Add observability to your deployments
-5. **Automate Deployments**: Create CI/CD pipelines using the CLI
+1. **Integrate Programmatically**: See [Deployment Integration Guide](deployment-integration.md)
+1. **Customize Templates**: See the templates directory in your installation
+1. **Set up Monitoring**: Add observability to your deployments
+1. **Automate Deployments**: Create CI/CD pipelines using the CLI
 
 ## Support
 
@@ -821,6 +901,6 @@ EnvironmentFile=/etc/myproject/env
 - **Issues**: https://github.com/gsornsen/mycelium/issues
 - **Community**: Join our community discussions
 
----
+______________________________________________________________________
 
 *Generated with Mycelium Onboarding System*

@@ -4,7 +4,8 @@ Guide for integrating Mycelium deployment generation into your applications and 
 
 ## Overview
 
-The Mycelium deployment system can be integrated into your applications, CI/CD pipelines, and automation workflows. This guide covers:
+The Mycelium deployment system can be integrated into your applications, CI/CD pipelines, and automation workflows. This
+guide covers:
 
 - Programmatic usage patterns
 - Custom template development
@@ -637,7 +638,7 @@ from datetime import datetime
 
 def version_deployment(config: MyceliumConfig):
     """Version control generated deployments."""
-    timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    timestamp = datetime.now(UTC).strftime("%Y%m%d-%H%M%S")
     output_dir = Path(f"./deployments/{timestamp}")
 
     # Generate deployment
@@ -905,6 +906,6 @@ def generate_with_monitoring(config: MyceliumConfig):
 - [API Reference](deployment-reference.md) - Complete API documentation
 - [Configuration Schema](../mycelium_onboarding/config/schema.py) - Config structure
 
----
+______________________________________________________________________
 
 *Integration Guide for Mycelium Deployment System*

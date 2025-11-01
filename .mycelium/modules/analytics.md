@@ -1,24 +1,23 @@
 # Performance Analytics
 
-**Module**: `mycelium_analytics`
-**Status**: Production Ready
-**Coverage**: 94.77%
-**Privacy**: Local-only, no PII
+**Module**: `mycelium_analytics` **Status**: Production Ready **Coverage**: 94.77% **Privacy**: Local-only, no PII
 
----
+______________________________________________________________________
 
 ## Overview
 
-Mycelium's Performance Analytics provides privacy-first telemetry for tracking agent discovery performance, cache efficiency, and token consumption in production use. All data is stored locally and never transmitted.
+Mycelium's Performance Analytics provides privacy-first telemetry for tracking agent discovery performance, cache
+efficiency, and token consumption in production use. All data is stored locally and never transmitted.
 
 **Key Features:**
+
 - Real-time performance metrics
 - Cache performance tracking
 - Token savings measurement (Phase 1 impact)
 - Performance trend analysis
 - Privacy-first design (local-only storage)
 
----
+______________________________________________________________________
 
 ## Quick Start
 
@@ -63,7 +62,7 @@ token_savings = analyzer.get_token_savings(days=7)
 cache_performance = analyzer.get_cache_performance(days=7)
 ```
 
----
+______________________________________________________________________
 
 ## Architecture
 
@@ -76,11 +75,13 @@ Thread-safe JSONL storage backend with automatic log rotation.
 **Storage Location**: `~/.mycelium/analytics/events.jsonl`
 
 **Key Methods:**
+
 - `append_event(event)`: Thread-safe event append
 - `read_events(start_date, limit)`: Read events with filtering
 - `get_storage_stats()`: File counts, event counts, data freshness
 
 **Features:**
+
 - Automatic rotation at 10MB threshold
 - Thread-safe with `threading.Lock()`
 - Graceful error handling
@@ -91,12 +92,14 @@ Thread-safe JSONL storage backend with automatic log rotation.
 Lightweight event collection with privacy guarantees.
 
 **Key Methods:**
+
 - `record_agent_discovery(operation, duration_ms, cache_hit, agent_count)`
 - `record_agent_load(agent_id, load_time_ms, content_size_bytes, estimated_tokens)`
 - `record_session_start(session_type, initial_tokens)`
 - `record_session_end(session_type, duration_seconds, operations_count)`
 
 **Privacy Guarantees:**
+
 - Agent IDs hashed (SHA256, 8-char prefix)
 - No file paths (beyond project root)
 - No command content
@@ -110,6 +113,7 @@ Lightweight event collection with privacy guarantees.
 Statistical analysis engine for computing performance metrics.
 
 **Key Methods:**
+
 - `get_discovery_stats(days)`: p50/p95/p99 latencies, cache hit rate
 - `get_token_savings(days)`: Phase 1 lazy loading impact
 - `get_cache_performance(days)`: Hit rate, latency comparison
@@ -117,11 +121,12 @@ Statistical analysis engine for computing performance metrics.
 - `get_summary_report(days)`: Complete analytics dashboard
 
 **Statistical Methods:**
+
 - Percentile calculation (linear interpolation)
 - Trend detection (improving/stable/degrading)
 - Daily grouping with time-series analysis
 
----
+______________________________________________________________________
 
 ## Event Schema
 
@@ -139,6 +144,7 @@ Statistical analysis engine for computing performance metrics.
 ```
 
 **Fields:**
+
 - `timestamp`: ISO 8601 UTC timestamp
 - `event_type`: Always "agent_discovery"
 - `operation`: "list_agents" | "get_agent" | "search"
@@ -160,6 +166,7 @@ Statistical analysis engine for computing performance metrics.
 ```
 
 **Fields:**
+
 - `timestamp`: ISO 8601 UTC timestamp
 - `event_type`: Always "agent_load"
 - `agent_id_hash`: SHA256 hash (8-char prefix) for privacy
@@ -167,24 +174,27 @@ Statistical analysis engine for computing performance metrics.
 - `content_size_bytes`: File size in bytes
 - `estimated_tokens`: Rough token estimate (~4 chars/token)
 
----
+______________________________________________________________________
 
 ## Metrics Reference
 
 ### Discovery Performance
 
 **Metrics:**
+
 - **Total Operations**: Count of all discovery operations
 - **By Operation**: Stats grouped by operation type (list_agents, get_agent, search)
 - **Percentiles**: p50, p95, p99 latencies in milliseconds
 - **Cache Hit Rate**: Percentage of get_agent operations served from cache
 
 **Performance Targets:**
-- `list_agents`: p95 < 20ms
-- `get_agent`: p95 < 5ms
-- `search`: p95 < 10ms
+
+- `list_agents`: p95 \< 20ms
+- `get_agent`: p95 \< 5ms
+- `search`: p95 \< 10ms
 
 **Example Output:**
+
 ```json
 {
   "total_operations": 5370,
@@ -211,6 +221,7 @@ Statistical analysis engine for computing performance metrics.
 ### Token Savings
 
 **Metrics:**
+
 - **Total Agents Loaded**: Actual number loaded (vs 119 total)
 - **Total Tokens Loaded**: Actual token consumption
 - **Baseline Tokens**: Pre-Phase 1 estimate (119 × 450 = 53,550)
@@ -218,11 +229,13 @@ Statistical analysis engine for computing performance metrics.
 - **Savings Percentage**: (Savings / Baseline) × 100
 
 **Phase 1 Impact:**
+
 - Lazy loading only loads agents on-demand
 - Typical usage: 10-30 agents loaded per session
 - Expected savings: 60-90% token reduction
 
 **Example Output:**
+
 ```json
 {
   "total_agents_loaded": 47,
@@ -237,17 +250,20 @@ Statistical analysis engine for computing performance metrics.
 ### Cache Performance
 
 **Metrics:**
+
 - **Hit Rate**: Percentage of cache hits (target: >80%)
 - **Hit Latency**: Average latency for cache hits
 - **Miss Latency**: Average latency for cache misses
 - **Speedup**: Miss latency / Hit latency ratio
 
 **LRU Cache Configuration:**
+
 - Max size: 50 agents
 - Eviction policy: Least Recently Used (LRU)
 - Thread-safe: OrderedDict with move_to_end()
 
 **Example Output:**
+
 ```json
 {
   "total_lookups": 3891,
@@ -263,16 +279,19 @@ Statistical analysis engine for computing performance metrics.
 ### Performance Trends
 
 **Metrics:**
+
 - **Daily Stats**: Operations, avg latency, cache hit rate per day
 - **Trend**: "improving" | "stable" | "degrading"
 
 **Trend Detection Logic:**
+
 - Compare first half vs second half of time period
-- Improving: Second half avg < First half avg × 0.9 (>10% improvement)
+- Improving: Second half avg \< First half avg × 0.9 (>10% improvement)
 - Degrading: Second half avg > First half avg × 1.1 (>10% degradation)
 - Stable: Otherwise
 
 **Example Output:**
+
 ```json
 {
   "daily_stats": [
@@ -287,7 +306,7 @@ Statistical analysis engine for computing performance metrics.
 }
 ```
 
----
+______________________________________________________________________
 
 ## Integration Points
 
@@ -296,17 +315,20 @@ Statistical analysis engine for computing performance metrics.
 Telemetry hooks are integrated into `scripts/agent_discovery.py`:
 
 **Instrumented Operations:**
+
 1. `list_agents()`: Records operation time and agent count
-2. `get_agent()`: Records cache hits/misses and load time
-3. `search()`: Records search latency and result count
+1. `get_agent()`: Records cache hits/misses and load time
+1. `search()`: Records search latency and result count
 
 **Agent Load Tracking:**
+
 - Content size (bytes)
 - Load time (ms)
 - Estimated tokens (~4 chars/token)
 - Agent ID (hashed for privacy)
 
 **Code Example:**
+
 ```python
 # In scripts/agent_discovery.py
 def get_agent(self, agent_id: str) -> Optional[Dict[str, Any]]:
@@ -325,7 +347,7 @@ def get_agent(self, agent_id: str) -> Optional[Dict[str, Any]]:
         )
 ```
 
----
+______________________________________________________________________
 
 ## CLI Tools
 
@@ -334,10 +356,12 @@ def get_agent(self, agent_id: str) -> Optional[Dict[str, Any]]:
 **Command**: `uv run python -m mycelium_analytics report`
 
 **Options:**
+
 - `--days N`: Number of days to analyze (default: 7)
 - `--format {text,json}`: Output format (default: text)
 
 **Text Format Output:**
+
 ```
 === Mycelium Performance Analytics (7 days) ===
 
@@ -360,6 +384,7 @@ def get_agent(self, agent_id: str) -> Optional[Dict[str, Any]]:
 ```
 
 **JSON Format Output:**
+
 ```json
 {
   "report_period_days": 7,
@@ -376,28 +401,27 @@ def get_agent(self, agent_id: str) -> Optional[Dict[str, Any]]:
 **Command**: `uv run python scripts/health_check.py`
 
 **Options:**
+
 - `--days N`: Number of days to analyze (default: 7)
 
 **Features:**
+
 - Beautiful ASCII dashboard with box-drawing characters
 - Status icons (✅/⚠️/❌)
 - Performance vs targets comparison
 - Actionable tips based on metrics
 - Storage health monitoring
 
----
+______________________________________________________________________
 
 ## Privacy & Security
 
 ### Privacy Guarantees
 
-✅ **Local-only storage** (`~/.mycelium/analytics/`)
-✅ **No PII collection** (no usernames, emails, paths)
-✅ **Agent ID hashing** (SHA256, 8-char prefix)
-✅ **UTC timestamps only** (no timezone PII)
-✅ **Performance metrics only** (durations, counts, booleans)
-✅ **Opt-out support** (`MYCELIUM_TELEMETRY=0`)
-✅ **Graceful degradation** (failures don't break operations)
+✅ **Local-only storage** (`~/.mycelium/analytics/`) ✅ **No PII collection** (no usernames, emails, paths) ✅ **Agent ID
+hashing** (SHA256, 8-char prefix) ✅ **UTC timestamps only** (no timezone PII) ✅ **Performance metrics only** (durations,
+counts, booleans) ✅ **Opt-out support** (`MYCELIUM_TELEMETRY=0`) ✅ **Graceful degradation** (failures don't break
+operations)
 
 ### Data Retention
 
@@ -415,12 +439,13 @@ export MYCELIUM_TELEMETRY=0
 ```
 
 Telemetry will gracefully degrade:
+
 - No events recorded
 - No storage writes
 - No performance impact
 - Agent discovery continues normally
 
----
+______________________________________________________________________
 
 ## Testing
 
@@ -429,11 +454,13 @@ Telemetry will gracefully degrade:
 **Coverage**: 94.77% (63 tests)
 
 **Test Suites:**
+
 1. `test_storage.py`: JSONL append, rotation, thread safety (26 tests)
-2. `test_telemetry.py`: Event collection, privacy, degradation (10 tests)
-3. `test_metrics.py`: Statistical analysis, percentiles, trends (27 tests)
+1. `test_telemetry.py`: Event collection, privacy, degradation (10 tests)
+1. `test_metrics.py`: Statistical analysis, percentiles, trends (27 tests)
 
 **Run Tests:**
+
 ```bash
 # All analytics tests
 uv run pytest tests/unit/analytics/ -v
@@ -445,6 +472,7 @@ uv run pytest tests/unit/analytics/ --cov=mycelium_analytics --cov-report=term-m
 ### Integration Testing
 
 **Verify telemetry collection:**
+
 ```bash
 # Run benchmark (generates telemetry events)
 uv run python scripts/agent_discovery.py --benchmark
@@ -456,24 +484,25 @@ ls -lh ~/.mycelium/analytics/events.jsonl
 cat ~/.mycelium/analytics/events.jsonl | head -5 | jq
 ```
 
----
+______________________________________________________________________
 
 ## Performance Impact
 
 ### Overhead Measurement
 
-**Telemetry Overhead**: <0.1ms per operation
+**Telemetry Overhead**: \<0.1ms per operation
 
 **Benchmark Results** (with telemetry enabled):
+
 - `list_agents`: 0.08ms (vs 0.08ms without telemetry) - 0% overhead
 - `get_agent` (cached): 0.03ms (vs 0.03ms) - 0% overhead
-- `get_agent` (miss): 1.16ms (vs 1.15ms) - <1% overhead
+- `get_agent` (miss): 1.16ms (vs 1.15ms) - \<1% overhead
 
 **Memory Impact**: Minimal (immediate disk flush)
 
 **Storage Growth**: ~150 bytes per event
 
----
+______________________________________________________________________
 
 ## Troubleshooting
 
@@ -482,60 +511,69 @@ cat ~/.mycelium/analytics/events.jsonl | head -5 | jq
 **Symptom**: `uv run python -m mycelium_analytics report` shows "No discovery data available"
 
 **Solutions:**
+
 1. Check `MYCELIUM_TELEMETRY` environment variable (should not be `0`)
-2. Verify storage directory exists: `ls -la ~/.mycelium/analytics/`
-3. Run benchmark to generate events: `uv run python scripts/agent_discovery.py --benchmark`
-4. Check file permissions on `~/.mycelium/analytics/`
+1. Verify storage directory exists: `ls -la ~/.mycelium/analytics/`
+1. Run benchmark to generate events: `uv run python scripts/agent_discovery.py --benchmark`
+1. Check file permissions on `~/.mycelium/analytics/`
 
 ### Permission denied errors
 
 **Symptom**: `PermissionError: [Errno 13] Permission denied: '/home/user/.mycelium/analytics/events.jsonl'`
 
 **Solutions:**
+
 1. Check directory permissions: `ls -ld ~/.mycelium/analytics/`
-2. Fix permissions: `chmod 755 ~/.mycelium/analytics/`
-3. Check file ownership: `ls -l ~/.mycelium/analytics/events.jsonl`
+1. Fix permissions: `chmod 755 ~/.mycelium/analytics/`
+1. Check file ownership: `ls -l ~/.mycelium/analytics/events.jsonl`
 
 ### Storage files too large
 
 **Symptom**: Multiple `events-*.jsonl` files consuming significant disk space
 
 **Solutions:**
-1. Check storage stats: `uv run python -c "from mycelium_analytics import EventStorage; print(EventStorage().get_storage_stats())"`
-2. Delete old events: `rm ~/.mycelium/analytics/events-*.jsonl` (keep `events.jsonl`)
-3. Clear all events: `rm -rf ~/.mycelium/analytics/`
 
----
+1. Check storage stats:
+   `uv run python -c "from mycelium_analytics import EventStorage; print(EventStorage().get_storage_stats())"`
+1. Delete old events: `rm ~/.mycelium/analytics/events-*.jsonl` (keep `events.jsonl`)
+1. Clear all events: `rm -rf ~/.mycelium/analytics/`
+
+______________________________________________________________________
 
 ## Future Enhancements
 
 ### Phase 2 Roadmap (Post-Initial Release)
 
 1. **Web Dashboard** (optional)
+
    - Real-time metrics visualization
    - Interactive charts (Chart.js)
    - Historical trend graphs
 
-2. **Alerting** (optional)
+1. **Alerting** (optional)
+
    - Performance degradation alerts
    - Cache hit rate thresholds
    - Email/Slack notifications
 
-3. **Export Formats** (optional)
+1. **Export Formats** (optional)
+
    - CSV export for Excel analysis
    - Prometheus metrics endpoint
    - Grafana dashboard templates
 
-4. **Advanced Analytics** (optional)
+1. **Advanced Analytics** (optional)
+
    - Agent usage heatmaps
    - Session clustering
    - Predictive performance modeling
 
----
+______________________________________________________________________
 
 ## References
 
 ### Source Code
+
 - `mycelium_analytics/storage.py` - JSONL storage backend
 - `mycelium_analytics/telemetry.py` - Event collection
 - `mycelium_analytics/metrics.py` - Statistical analysis
@@ -544,17 +582,18 @@ cat ~/.mycelium/analytics/events.jsonl | head -5 | jq
 - `scripts/agent_discovery.py` - Integration hooks
 
 ### Documentation
+
 - `.mycelium/modules/analytics.md` - This document
 - `.claude/commands/health-check.md` - Slash command reference
 - `tests/unit/analytics/` - Test suite documentation
 
 ### Related Modules
+
 - [Agent Discovery](./agents.md) - Agent metadata and lazy loading
 - [Coordination](./coordination.md) - Multi-agent orchestration
 - [Deployment](./deployment.md) - Production deployment guide
 
----
+______________________________________________________________________
 
-**Last Updated**: 2025-10-19
-**Authors**: @python-pro, @cli-developer, @documentation-engineer
-**Phase**: Phase 2 - Performance Analytics
+**Last Updated**: 2025-10-19 **Authors**: @python-pro, @cli-developer, @documentation-engineer **Phase**: Phase 2 -
+Performance Analytics

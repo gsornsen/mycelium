@@ -179,15 +179,13 @@ class Migration(ABC):
         # Ensure version field exists and matches
         if "version" not in config_dict:
             raise MigrationValidationError(
-                f"Configuration missing 'version' field for migration "
-                f"{self.from_version} -> {self.to_version}"
+                f"Configuration missing 'version' field for migration {self.from_version} -> {self.to_version}"
             )
 
         config_version = str(config_dict["version"])
         if config_version != self.from_version:
             raise MigrationValidationError(
-                f"Configuration version mismatch: expected {self.from_version}, "
-                f"got {config_version}"
+                f"Configuration version mismatch: expected {self.from_version}, got {config_version}"
             )
 
     def validate_after(self, config_dict: dict[str, Any]) -> None:
@@ -202,15 +200,13 @@ class Migration(ABC):
         # Ensure version was updated
         if "version" not in config_dict:
             raise MigrationValidationError(
-                f"Configuration missing 'version' field after migration "
-                f"{self.from_version} -> {self.to_version}"
+                f"Configuration missing 'version' field after migration {self.from_version} -> {self.to_version}"
             )
 
         config_version = str(config_dict["version"])
         if config_version != self.to_version:
             raise MigrationValidationError(
-                f"Configuration version not updated: expected {self.to_version}, "
-                f"got {config_version}"
+                f"Configuration version not updated: expected {self.to_version}, got {config_version}"
             )
 
     def __repr__(self) -> str:
@@ -265,17 +261,14 @@ class MigrationRegistry:
         """
         # Validate migration
         if not migration.from_version or not migration.to_version:
-            raise ValueError(
-                f"Migration must have both from_version and to_version: {migration}"
-            )
+            raise ValueError(f"Migration must have both from_version and to_version: {migration}")
 
         # Check for duplicate
         existing = self._migrations.get(migration.from_version, [])
         for existing_migration in existing:
             if existing_migration.to_version == migration.to_version:
                 raise ValueError(
-                    f"Duplicate migration already registered: "
-                    f"{migration.from_version} -> {migration.to_version}"
+                    f"Duplicate migration already registered: {migration.from_version} -> {migration.to_version}"
                 )
 
         # Register migration
@@ -305,9 +298,7 @@ class MigrationRegistry:
             all_migrations.extend(migrations)
         return all_migrations
 
-    def get_migration_path(
-        self, from_version: str, to_version: str
-    ) -> list[Migration]:
+    def get_migration_path(self, from_version: str, to_version: str) -> list[Migration]:
         """Get ordered list of migrations to apply.
 
         Uses breadth-first search to find the shortest migration path
@@ -345,10 +336,7 @@ class MigrationRegistry:
 
         # Check if downgrade requested (not supported)
         if from_ver > to_ver:
-            raise MigrationPathError(
-                f"Downgrade not supported: {from_version} -> {to_version}. "
-                "Use rollback instead."
-            )
+            raise MigrationPathError(f"Downgrade not supported: {from_version} -> {to_version}. Use rollback instead.")
 
         # Breadth-first search for shortest path
         from collections import deque
@@ -382,8 +370,7 @@ class MigrationRegistry:
 
         # No path found
         raise MigrationPathError(
-            f"No migration path found from {from_version} to {to_version}. "
-            f"Available versions: {sorted(visited)}"
+            f"No migration path found from {from_version} to {to_version}. Available versions: {sorted(visited)}"
         )
 
     def migrate(
@@ -418,16 +405,11 @@ class MigrationRegistry:
             >>> # Actually migrate
             >>> migrated = registry.migrate(config, "1.2")
         """
-        logger.info(
-            "Starting migration to version %s (dry_run=%s)", target_version, dry_run
-        )
+        logger.info("Starting migration to version %s (dry_run=%s)", target_version, dry_run)
 
         # Get current version
         if "version" not in config_dict:
-            raise MigrationValidationError(
-                "Configuration missing 'version' field. "
-                "Cannot determine current version."
-            )
+            raise MigrationValidationError("Configuration missing 'version' field. Cannot determine current version.")
 
         current_version = str(config_dict["version"])
         logger.debug("Current version: %s", current_version)
@@ -523,9 +505,7 @@ class MigrationRegistry:
 
         return working_config
 
-    def needs_migration(
-        self, config_dict: dict[str, Any], target_version: str
-    ) -> bool:
+    def needs_migration(self, config_dict: dict[str, Any], target_version: str) -> bool:
         """Check if configuration needs migration to target version.
 
         Args:
@@ -584,9 +564,7 @@ class MigrationRegistry:
         self._history.clear()
         logger.debug("Migration history cleared")
 
-    def _compute_diff(
-        self, before: dict[str, Any], after: dict[str, Any]
-    ) -> dict[str, Any]:
+    def _compute_diff(self, before: dict[str, Any], after: dict[str, Any]) -> dict[str, Any]:
         """Compute differences between two configurations.
 
         Args:
@@ -612,9 +590,7 @@ class MigrationRegistry:
 
         return changes
 
-    def preview_migration(
-        self, config_dict: dict[str, Any], target_version: str
-    ) -> str:
+    def preview_migration(self, config_dict: dict[str, Any], target_version: str) -> str:
         """Preview migration changes in human-readable format.
 
         Args:
@@ -748,9 +724,7 @@ class Migration_1_1_to_1_2(Migration):  # noqa: N801
 
         # Rename deployment.log_level to deployment.logging_level
         if "deployment" in config_dict and "log_level" in config_dict["deployment"]:
-            config_dict["deployment"]["logging_level"] = config_dict["deployment"].pop(
-                "log_level"
-            )
+            config_dict["deployment"]["logging_level"] = config_dict["deployment"].pop("log_level")
 
         # Update version
         config_dict["version"] = self.to_version

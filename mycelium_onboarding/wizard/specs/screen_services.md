@@ -1,9 +1,11 @@
 # Services Screen Specification
 
 ## Purpose
+
 Allow user to enable/disable services and configure basic service settings.
 
 ## Layout
+
 ```
 ╔══════════════════════════════════════════════════════════════╗
 ║                   Service Configuration                      ║
@@ -35,6 +37,7 @@ Allow user to enable/disable services and configure basic service settings.
 ## User Inputs
 
 ### Service Selection
+
 - **Field**: `services_enabled`
 - **Type**: Multiple selection (checkbox)
 - **Options**:
@@ -45,6 +48,7 @@ Allow user to enable/disable services and configure basic service settings.
 - **Required**: At least one service must be selected
 
 ### Project Name
+
 - **Field**: `project_name`
 - **Type**: Text input
 - **Default**: `mycelium`
@@ -58,11 +62,13 @@ Allow user to enable/disable services and configure basic service settings.
 ### Service-Specific Settings
 
 #### Redis (if enabled)
+
 - **Port**: Integer (1-65535)
   - Default: 6379 or detected port
   - Pre-filled if detected
 
 #### PostgreSQL (if enabled)
+
 - **Port**: Integer (1-65535)
   - Default: 5432 or detected port
   - Pre-filled if detected
@@ -72,6 +78,7 @@ Allow user to enable/disable services and configure basic service settings.
   - Auto-generated from project_name
 
 #### Temporal (if enabled)
+
 - **Frontend Port**: Integer (1-65535)
   - Default: 7233 or detected port
 - **UI Port**: Integer (1-65535)
@@ -80,12 +87,14 @@ Allow user to enable/disable services and configure basic service settings.
 ## Validation
 
 ### Service Selection
+
 ```python
 if not any(services_enabled.values()):
     raise ValueError("At least one service must be enabled")
 ```
 
 ### Project Name
+
 ```python
 import re
 
@@ -103,12 +112,14 @@ if not re.match(r'^[a-zA-Z0-9_-]+$', project_name):
 ```
 
 ### Port Numbers
+
 ```python
 if not (1 <= port <= 65535):
     raise ValueError(f"Port must be between 1 and 65535, got {port}")
 ```
 
 ### Database Name
+
 ```python
 import re
 
@@ -124,6 +135,7 @@ if not re.match(r'^[a-zA-Z][a-zA-Z0-9_]*$', database_name):
 ### Service Descriptions
 
 **Redis**
+
 ```
 Redis is an in-memory data store used for:
 • Caching and session management
@@ -135,6 +147,7 @@ Recommended: Yes (required for most Mycelium features)
 ```
 
 **PostgreSQL**
+
 ```
 PostgreSQL is a relational database used for:
 • Persistent data storage
@@ -146,6 +159,7 @@ Recommended: Yes (required for Temporal workflows)
 ```
 
 **Temporal**
+
 ```
 Temporal is a workflow orchestration engine used for:
 • Durable workflow execution
@@ -158,6 +172,7 @@ Note: Requires PostgreSQL
 ```
 
 ### Project Name Help
+
 ```
 Project name is used to:
 • Name your configuration file (mycelium-<project>.yaml)
@@ -171,12 +186,14 @@ Examples: mycelium, my-agent-system, prod-workflow
 ## Error Messages
 
 ### No Services Selected
+
 ```
 ⚠️  At least one service must be enabled.
 Please select at least one service to continue.
 ```
 
 ### Invalid Project Name
+
 ```
 ⚠️  Invalid project name: "{project_name}"
 Project name must contain only alphanumeric characters, hyphens, and underscores.
@@ -184,12 +201,14 @@ Examples: mycelium, my-project, agent_system
 ```
 
 ### Port Conflict
+
 ```
 ⚠️  Port {port} is already in use by another service.
 Please choose a different port or stop the conflicting service.
 ```
 
 ### Invalid Database Name
+
 ```
 ⚠️  Invalid database name: "{database_name}"
 Database name must start with a letter and contain only alphanumeric
@@ -200,6 +219,7 @@ Examples: mycelium, agent_db, workflow_state
 ## State Updates
 
 On completion of this screen, update `WizardState`:
+
 - `project_name`: User-specified project name
 - `services_enabled`: Dict of enabled services
 - `redis_port`: Redis port if enabled
@@ -407,8 +427,8 @@ def services_screen(state: WizardState) -> bool:
 This screen balances simplicity with configurability:
 
 1. **Smart Defaults**: Pre-populate from detection results
-2. **Guided Choices**: Clear descriptions for each service
-3. **Validation**: Prevent invalid configurations
-4. **Flexibility**: Allow customization while maintaining safety
-5. **Progressive Disclosure**: Only show relevant settings per service
-6. **Auto-generation**: Database name from project name reduces cognitive load
+1. **Guided Choices**: Clear descriptions for each service
+1. **Validation**: Prevent invalid configurations
+1. **Flexibility**: Allow customization while maintaining safety
+1. **Progressive Disclosure**: Only show relevant settings per service
+1. **Auto-generation**: Database name from project name reduces cognitive load

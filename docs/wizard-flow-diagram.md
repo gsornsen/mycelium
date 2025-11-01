@@ -137,6 +137,7 @@ Steps: 7 screens (includes ADVANCED)
 ## Navigation Map
 
 ### Forward Navigation
+
 ```
 WELCOME ──────────────▶ DETECTION
 DETECTION ────────────▶ SERVICES
@@ -148,6 +149,7 @@ REVIEW ───────────────▶ COMPLETE
 ```
 
 ### Backward Navigation
+
 ```
 DETECTION ────────────▶ WELCOME
 SERVICES ─────────────▶ DETECTION
@@ -158,6 +160,7 @@ REVIEW ───────────────▶ DEPLOYMENT (Quick)
 ```
 
 ### Jump Navigation (from Review)
+
 ```
 REVIEW ───┬───────────▶ SERVICES (Edit)
           ├───────────▶ DEPLOYMENT (Edit)
@@ -209,12 +212,14 @@ COMPLETE:
 ```
 
 Legend:
+
 - ✎ = Write (field is set/modified)
 - ✓ = Read (field is displayed)
 
 ## Decision Points
 
 ### Setup Mode Decision (Welcome)
+
 ```
 ? How would you like to proceed?
 
@@ -228,6 +233,7 @@ Custom Setup ───────▶ Show ADVANCED screen
 ```
 
 ### Service Selection (Services)
+
 ```
 ? Select services to enable:
 
@@ -240,6 +246,7 @@ None selected ──────────▶ Validation fails
 ```
 
 ### Deployment Prerequisites (Deployment)
+
 ```
 Docker Compose:
   Docker detected? ──────▶ Recommended (green)
@@ -287,6 +294,7 @@ Manual:
 ## Time Estimates
 
 ### Per Screen
+
 - **WELCOME**: 15-30 seconds (read + choose)
 - **DETECTION**: 2-5 seconds (automatic)
 - **SERVICES**: 60-120 seconds (input + configure)
@@ -296,6 +304,7 @@ Manual:
 - **COMPLETE**: Read-only (exit when ready)
 
 ### Complete Flows
+
 - **Quick Setup**: 2-3 minutes total
 - **Custom Setup**: 4-5 minutes total
 - **Edit from Review**: +1-2 minutes per edit
@@ -356,6 +365,7 @@ Manual:
 ## Implementation Notes
 
 ### State Machine Class
+
 ```python
 class WizardFlow:
     def __init__(self, state: WizardState = None):
@@ -383,6 +393,7 @@ class WizardFlow:
 ```
 
 ### Step Validation
+
 Each step validates prerequisites before allowing advancement:
 
 ```python
@@ -403,6 +414,7 @@ def can_proceed_to(self, step: WizardStep) -> bool:
 ```
 
 ### Skip Logic
+
 Quick Setup mode skips ADVANCED:
 
 ```python
@@ -420,7 +432,9 @@ def get_next_step(self) -> Optional[WizardStep]:
 ## Testing the Flow
 
 ### Unit Tests
+
 Test individual transitions:
+
 ```python
 def test_advance_from_welcome():
     flow = WizardFlow()
@@ -439,7 +453,9 @@ def test_quick_mode_skips_advanced():
 ```
 
 ### Integration Tests
+
 Test complete flows:
+
 ```python
 def test_quick_setup_flow():
     flow = WizardFlow()

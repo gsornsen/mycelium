@@ -7,7 +7,6 @@ and never collects sensitive information.
 import json
 import sys
 from pathlib import Path
-from typing import Any, Dict
 
 import pytest
 
@@ -15,9 +14,9 @@ import pytest
 plugins_dir = Path(__file__).parent.parent.parent / "plugins" / "mycelium-core"
 sys.path.insert(0, str(plugins_dir))
 
-from telemetry.anonymization import DataAnonymizer
-from telemetry.client import TelemetryClient
-from telemetry.config import TelemetryConfig
+from telemetry.anonymization import DataAnonymizer  # noqa: E402
+from telemetry.client import TelemetryClient  # noqa: E402
+from telemetry.config import TelemetryConfig  # noqa: E402
 
 
 class TestPrivacyCompliance:
@@ -143,12 +142,12 @@ class TestPrivacyCompliance:
 
     def test_stack_traces_sanitized(self, anonymizer: DataAnonymizer) -> None:
         """Verify stack traces are properly sanitized."""
-        sensitive_trace = '''Traceback (most recent call last):
+        sensitive_trace = """Traceback (most recent call last):
   File "/home/alice/project/myapp/main.py", line 42, in run
     process_file("/home/alice/Documents/secret.txt")
   File "/home/alice/project/myapp/processor.py", line 15, in process_file
     with open(filename) as f:
-FileNotFoundError: No such file: /home/alice/Documents/secret.txt'''
+FileNotFoundError: No such file: /home/alice/Documents/secret.txt"""
 
         anonymized = anonymizer.anonymize_stack_trace(sensitive_trace)
 
@@ -168,14 +167,13 @@ FileNotFoundError: No such file: /home/alice/Documents/secret.txt'''
     def test_error_messages_sanitized(self, client: TelemetryClient) -> None:
         """Verify error messages are sanitized."""
         sensitive_error_msg = (
-            "Failed to connect to database at postgresql://user:password@host/db "
-            "for user john@example.com"
+            "Failed to connect to database at postgresql://user:password@host/db for user john@example.com"
         )
 
         client.track_error(
             "ConnectionError",
             sensitive_error_msg,
-            stack_trace='File "/home/john/app.py", line 10'
+            stack_trace='File "/home/john/app.py", line 10',
         )
 
         event = client._event_queue.get(timeout=1.0)
@@ -299,7 +297,7 @@ FileNotFoundError: No such file: /home/alice/Documents/secret.txt'''
                 "agent_id": "agent-abc",  # Should be hashed
                 "operation": "search",  # Should NOT be hashed
                 "region": "us-east",  # Should NOT be hashed
-            }
+            },
         )
 
         # Identifier tags should be hashed
@@ -381,9 +379,9 @@ FileNotFoundError: No such file: /home/alice/Documents/secret.txt'''
             "for user john@example.com. API key xyz123 invalid."
         )
 
-        stack_trace = '''File "/home/john/Documents/project/app.py", line 100
+        stack_trace = """File "/home/john/Documents/project/app.py", line 100
   File "/home/john/.local/lib/python3.10/module.py", line 50
-ValueError: Invalid API key xyz123 for user john@example.com'''
+ValueError: Invalid API key xyz123 for user john@example.com"""
 
         anonymized = anonymizer.anonymize_error("ValueError", error_msg, stack_trace)
 

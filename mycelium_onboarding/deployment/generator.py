@@ -87,9 +87,7 @@ class DeploymentGenerator:
             >>> gen = DeploymentGenerator(config, output_dir=Path("/tmp/deploy"))
         """
         self.config = config
-        self.output_dir = output_dir or (
-            get_data_dir() / "deployments" / config.project_name
-        )
+        self.output_dir = output_dir or (get_data_dir() / "deployments" / config.project_name)
         self.renderer = TemplateRenderer()
 
     def generate(self, method: DeploymentMethod) -> GenerationResult:
@@ -177,8 +175,7 @@ class DeploymentGenerator:
             project_name = self.config.project_name.lower()
             if not project_name.replace("-", "").isalnum():
                 errors.append(
-                    "Project name for Kubernetes must be alphanumeric with hyphens "
-                    f"(got: {self.config.project_name})"
+                    f"Project name for Kubernetes must be alphanumeric with hyphens (got: {self.config.project_name})"
                 )
 
         # systemd validation
@@ -221,8 +218,7 @@ class DeploymentGenerator:
             # Add warning about default credentials
             if self.config.services.postgres.enabled:
                 warnings.append(
-                    "Default PostgreSQL credentials are set in .env - "
-                    "please change them for production use"
+                    "Default PostgreSQL credentials are set in .env - please change them for production use"
                 )
 
             # Generate README
@@ -289,8 +285,7 @@ class DeploymentGenerator:
             # Add warning about secrets
             if self.config.services.postgres.enabled:
                 warnings.append(
-                    "PostgreSQL credentials are in ConfigMap - "
-                    "consider using Kubernetes Secrets for production"
+                    "PostgreSQL credentials are in ConfigMap - consider using Kubernetes Secrets for production"
                 )
 
             # Generate README
@@ -349,12 +344,8 @@ class DeploymentGenerator:
             files_generated.append(install_script)
 
             # Add warnings about systemd requirements
-            warnings.append(
-                "systemd deployment requires root access to install services"
-            )
-            warnings.append(
-                "Ensure service binaries (redis-server, postgres, etc.) are installed"
-            )
+            warnings.append("systemd deployment requires root access to install services")
+            warnings.append("Ensure service binaries (redis-server, postgres, etc.) are installed")
 
             # Generate README
             readme_file = systemd_dir / "README.md"
@@ -442,9 +433,7 @@ class DeploymentGenerator:
         if self.config.services.redis.enabled:
             enabled_services.append(f"- Redis (port {self.config.services.redis.port})")
         if self.config.services.postgres.enabled:
-            enabled_services.append(
-                f"- PostgreSQL (port {self.config.services.postgres.port})"
-            )
+            enabled_services.append(f"- PostgreSQL (port {self.config.services.postgres.port})")
         if self.config.services.temporal.enabled:
             enabled_services.append(
                 f"- Temporal (UI: {self.config.services.temporal.ui_port}, "
@@ -710,11 +699,7 @@ Edit service configuration files to change ports
         Returns:
             kustomization.yaml content
         """
-        resources = [
-            f.name
-            for f in manifest_files
-            if f.suffix == ".yaml" and f.name != "kustomization.yaml"
-        ]
+        resources = [f.name for f in manifest_files if f.suffix == ".yaml" and f.name != "kustomization.yaml"]
 
         return f"""apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization

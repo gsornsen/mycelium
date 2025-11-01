@@ -108,10 +108,7 @@ def validate_environment(require_project_dir: bool = False) -> None:
         required_vars.append("MYCELIUM_PROJECT_DIR")
 
     # Check for missing or empty environment variables
-    missing_vars = [
-        var for var in required_vars
-        if var not in os.environ or not os.environ[var].strip()
-    ]
+    missing_vars = [var for var in required_vars if var not in os.environ or not os.environ[var].strip()]
 
     if missing_vars:
         logger.error("Missing or empty environment variables: %s", missing_vars)

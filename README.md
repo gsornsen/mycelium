@@ -4,7 +4,9 @@
 ![Claude Code Plugin](https://img.shields.io/badge/claude--code-plugin-blue)
 ![Version](https://img.shields.io/badge/version-1.0.0-brightgreen)
 
-> **Mycelium**: Like nature's mycelial networks that communicate through chemical signals, distribute resources efficiently, and exhibit emergent intelligence - this Claude Code plugin creates an ecosystem of expert subagents that collaborate in real-time.
+> **Mycelium**: Like nature's mycelial networks that communicate through chemical signals, distribute resources
+> efficiently, and exhibit emergent intelligence - this Claude Code plugin creates an ecosystem of expert subagents that
+> collaborate in real-time.
 
 ## What is Mycelium?
 
@@ -53,9 +55,9 @@ ln -s /path/to/mycelium ~/.claude/plugins/mycelium
 ### First Steps
 
 1. **Choose coordination mode** - Redis (production), TaskQueue (task-centric), or Markdown (zero-setup)
-2. **Set up infrastructure** - Start Redis/Temporal if using those modes
-3. **Invoke agents** - Use `@agent-name` to activate specialists
-4. **Monitor status** - Use `/team-status` and `/infra-check` commands
+1. **Set up infrastructure** - Start Redis/Temporal if using those modes
+1. **Invoke agents** - Use `@agent-name` to activate specialists
+1. **Monitor status** - Use `/team-status` and `/infra-check` commands
 
 📖 **New User?** See [.mycelium/modules/onboarding.md](.mycelium/modules/onboarding.md) for complete setup guide.
 
@@ -77,6 +79,7 @@ ln -s /path/to/mycelium ~/.claude/plugins/mycelium
 ```
 
 **Key Terms**:
+
 - **Spores** - Individual specialized agents (130+ available)
 - **Fruiting Bodies** - Meta-orchestrators that coordinate multi-agent workflows
 - **Hyphae** - Durable workflow threads connecting agents
@@ -84,15 +87,15 @@ ln -s /path/to/mycelium ~/.claude/plugins/mycelium
 
 ### Agent Categories
 
-| Category | Agents | Description |
-|----------|--------|-------------|
-| Core Development | python-pro, ai-engineer, javascript-expert, typescript-specialist, rust-developer | Primary language specialists |
-| Infrastructure | devops-engineer, kubernetes-specialist, docker-expert, security-auditor | DevOps and deployment |
-| Data & AI | data-engineer, ml-engineer, nlp-specialist, computer-vision-expert | ML and data science |
-| Quality & Security | qa-engineer, test-automation-specialist, performance-engineer | Testing and optimization |
-| Developer Experience | cli-developer, documentation-engineer, mcp-specialist | Tools and documentation |
-| Meta-Orchestration | multi-agent-coordinator, workflow-orchestrator, task-distributor | Workflow coordination |
-| + 5 more categories | | See [.mycelium/modules/agents.md](.mycelium/modules/agents.md) |
+| Category             | Agents                                                                            | Description                                                    |
+| -------------------- | --------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| Core Development     | python-pro, ai-engineer, javascript-expert, typescript-specialist, rust-developer | Primary language specialists                                   |
+| Infrastructure       | devops-engineer, kubernetes-specialist, docker-expert, security-auditor           | DevOps and deployment                                          |
+| Data & AI            | data-engineer, ml-engineer, nlp-specialist, computer-vision-expert                | ML and data science                                            |
+| Quality & Security   | qa-engineer, test-automation-specialist, performance-engineer                     | Testing and optimization                                       |
+| Developer Experience | cli-developer, documentation-engineer, mcp-specialist                             | Tools and documentation                                        |
+| Meta-Orchestration   | multi-agent-coordinator, workflow-orchestrator, task-distributor                  | Workflow coordination                                          |
+| + 5 more categories  |                                                                                   | See [.mycelium/modules/agents.md](.mycelium/modules/agents.md) |
 
 📖 **Learn More**: See [.mycelium/modules/agents.md](.mycelium/modules/agents.md) for complete agent catalog.
 
@@ -125,6 +128,7 @@ print(f"{len(core_agents)} core development agents")
 ```
 
 **Performance**:
+
 - List agents: ~14ms (vs 1500ms traditional)
 - Get agent (cached): ~0.08ms (vs 17ms traditional)
 - Memory usage: 820KB (vs 2.5MB traditional, 67% reduction)
@@ -134,7 +138,8 @@ print(f"{len(core_agents)} core development agents")
 
 ### Performance Analytics
 
-Mycelium includes privacy-first performance telemetry for tracking agent discovery performance, cache efficiency, and token consumption.
+Mycelium includes privacy-first performance telemetry for tracking agent discovery performance, cache efficiency, and
+token consumption.
 
 #### Quick Start
 
@@ -184,33 +189,38 @@ uv run python scripts/health_check.py
 
 #### Privacy Guarantees
 
-All telemetry data is stored locally (`~/.mycelium/analytics/`) and never transmitted. Agent IDs are hashed, and no personal information is collected.
+All telemetry data is stored locally (`~/.mycelium/analytics/`) and never transmitted. Agent IDs are hashed, and no
+personal information is collected.
 
 **Opt-out**: `export MYCELIUM_TELEMETRY=0`
 
-📖 **Complete Documentation**: See [.mycelium/modules/analytics.md](.mycelium/modules/analytics.md) for full analytics guide.
-📖 **Privacy Policy**: See [.mycelium/PRIVACY.md](.mycelium/PRIVACY.md) for detailed privacy information.
+📖 **Complete Documentation**: See [.mycelium/modules/analytics.md](.mycelium/modules/analytics.md) for full analytics
+guide. 📖 **Privacy Policy**: See [.mycelium/PRIVACY.md](.mycelium/PRIVACY.md) for detailed privacy information.
 
 ### Coordination Modes
 
 Mycelium auto-detects the best available coordination mode:
 
 **Redis Mode** (Production - Real-time)
+
 - ⚡ 0.8ms latency, 234K messages/min
 - 🔄 Real-time pub/sub events
 - 📈 Scales to 100+ agents
 
 **TaskQueue Mode** (Task-centric)
+
 - 📋 Structured task management
 - 🔗 MCP ecosystem integration
 - 📊 Built-in status tracking
 
 **Markdown Mode** (Zero-setup - Offline)
+
 - 📝 Human-readable files
 - 🔒 Git-trackable state
 - 🚀 No dependencies
 
-📖 **Learn More**: See [.mycelium/modules/coordination.md](.mycelium/modules/coordination.md) for coordination patterns and API.
+📖 **Learn More**: See [.mycelium/modules/coordination.md](.mycelium/modules/coordination.md) for coordination patterns
+and API.
 
 ## Slash Commands
 
@@ -359,13 +369,14 @@ Real-time   Structured   Offline
 
 ### Performance Benchmarks
 
-| Mode | Latency | Throughput | Agents | Overhead |
-|------|---------|------------|--------|----------|
-| Redis | 0.8ms | 234K msg/min | 100+ | <5% |
-| TaskQueue | 100ms | 3K tasks/min | 50+ | ~10% |
-| Markdown | 500ms | 6K ops/min | 20 | ~20% |
+| Mode      | Latency | Throughput   | Agents | Overhead |
+| --------- | ------- | ------------ | ------ | -------- |
+| Redis     | 0.8ms   | 234K msg/min | 100+   | \<5%     |
+| TaskQueue | 100ms   | 3K tasks/min | 50+    | ~10%     |
+| Markdown  | 500ms   | 6K ops/min   | 20     | ~20%     |
 
 **Agent Discovery Performance**:
+
 - List all agents: 14ms (105x faster)
 - Get agent (cached): 0.08ms (212x faster)
 - Search: 6ms (24x faster)
@@ -505,28 +516,31 @@ uv run python scripts/health_check.py
 We welcome contributions in these areas:
 
 1. **New Agents** - Domain-specific specialists
-2. **Slash Commands** - Productivity commands
-3. **Event Hooks** - Automation patterns
-4. **Documentation** - Examples and patterns
-5. **Coordination Modes** - New substrate integrations
+1. **Slash Commands** - Productivity commands
+1. **Event Hooks** - Automation patterns
+1. **Documentation** - Examples and patterns
+1. **Coordination Modes** - New substrate integrations
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ## Roadmap
 
 ### v1.1 (Next)
+
 - Plugin marketplace submission
 - Web dashboard for monitoring
 - Advanced workflow patterns library
 - Agent performance analytics dashboard
 
 ### v1.2 (Future)
+
 - Multi-machine coordination
 - Agent learning system
 - Auto-scaling allocation
 - Cost optimization
 
 ### v2.0 (Vision)
+
 - Self-organizing agent networks
 - Adaptive coordination strategies
 - Emergent workflow discovery
@@ -536,7 +550,8 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ### Core Inspiration
 
-**[VoltAgent Community](https://github.com/VoltAgent/awesome-claude-code-subagents)** - The foundational agents and architectural patterns that seeded this mycelial network.
+**[VoltAgent Community](https://github.com/VoltAgent/awesome-claude-code-subagents)** - The foundational agents and
+architectural patterns that seeded this mycelial network.
 
 ### What VoltAgent Provided
 
@@ -554,7 +569,8 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 - Fast agent discovery with lazy loading (105x speedup)
 - Privacy-first performance analytics
 
-**Thank you** to the VoltAgent community for fostering the Claude Code agent ecosystem. If you're exploring subagents, visit: **https://github.com/VoltAgent/awesome-claude-code-subagents**
+**Thank you** to the VoltAgent community for fostering the Claude Code agent ecosystem. If you're exploring subagents,
+visit: **https://github.com/VoltAgent/awesome-claude-code-subagents**
 
 ## Support
 
@@ -566,6 +582,6 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 MIT License - see [LICENSE](LICENSE) file
 
----
+______________________________________________________________________
 
 **Mycelium** - Growing distributed intelligence, one agent at a time 🍄

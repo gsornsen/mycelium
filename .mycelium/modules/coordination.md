@@ -1,25 +1,27 @@
 # Mycelium Coordination Deep Dive
 
-Comprehensive guide to dual-mode coordination, event-driven patterns, and workflow orchestration in the Mycelial network.
+Comprehensive guide to dual-mode coordination, event-driven patterns, and workflow orchestration in the Mycelial
+network.
 
 ## Table of Contents
 
 1. [Coordination Architecture](#coordination-architecture)
-2. [Dual-Mode Coordination](#dual-mode-coordination)
-3. [Redis MCP Mode](#redis-mcp-mode)
-4. [TaskQueue MCP Mode](#taskqueue-mcp-mode)
-5. [Markdown Mode](#markdown-mode)
-6. [Coordination Library API](#coordination-library-api)
-7. [Event-Driven Patterns](#event-driven-patterns)
-8. [Workflow Orchestration](#workflow-orchestration)
-9. [Performance Benchmarks](#performance-benchmarks)
-10. [Best Practices](#best-practices)
+1. [Dual-Mode Coordination](#dual-mode-coordination)
+1. [Redis MCP Mode](#redis-mcp-mode)
+1. [TaskQueue MCP Mode](#taskqueue-mcp-mode)
+1. [Markdown Mode](#markdown-mode)
+1. [Coordination Library API](#coordination-library-api)
+1. [Event-Driven Patterns](#event-driven-patterns)
+1. [Workflow Orchestration](#workflow-orchestration)
+1. [Performance Benchmarks](#performance-benchmarks)
+1. [Best Practices](#best-practices)
 
 ## Coordination Architecture
 
 ### The Substrate Metaphor
 
-Just as mycelium in nature communicates through chemical signals and distributes resources through interconnected threads, Mycelium's coordination substrate enables agent communication and task distribution.
+Just as mycelium in nature communicates through chemical signals and distributes resources through interconnected
+threads, Mycelium's coordination substrate enables agent communication and task distribution.
 
 ```
 ┌─────────────────────────────────────────────────┐
@@ -63,28 +65,30 @@ console.log(`Coordination mode: ${client.mode}`);
 
 ### Mode Comparison
 
-| Feature | Redis | TaskQueue | Markdown |
-|---------|-------|-----------|----------|
-| **Latency** | 0.8ms | 100ms | 500ms |
-| **Throughput** | 234K msg/min | 3K tasks/min | 6K ops/min |
-| **Real-time Events** | ✅ Yes | ❌ No | ❌ No |
-| **Persistence** | ⚠️ Optional | ✅ Yes | ✅ Yes |
-| **Offline Support** | ❌ No | ❌ No | ✅ Yes |
-| **Setup Complexity** | Medium | Low | None |
-| **Agent Scalability** | 100+ | 50+ | 20 |
-| **Network Required** | Yes | Yes (npx) | No |
-| **Git Trackable** | ❌ No | ❌ No | ✅ Yes |
+| Feature               | Redis        | TaskQueue    | Markdown   |
+| --------------------- | ------------ | ------------ | ---------- |
+| **Latency**           | 0.8ms        | 100ms        | 500ms      |
+| **Throughput**        | 234K msg/min | 3K tasks/min | 6K ops/min |
+| **Real-time Events**  | ✅ Yes       | ❌ No        | ❌ No      |
+| **Persistence**       | ⚠️ Optional  | ✅ Yes       | ✅ Yes     |
+| **Offline Support**   | ❌ No        | ❌ No        | ✅ Yes     |
+| **Setup Complexity**  | Medium       | Low          | None       |
+| **Agent Scalability** | 100+         | 50+          | 20         |
+| **Network Required**  | Yes          | Yes (npx)    | No         |
+| **Git Trackable**     | ❌ No        | ❌ No        | ✅ Yes     |
 
 ### Mode Selection Strategy
 
 **Use Redis when**:
+
 - Real-time agent collaboration required
 - High message throughput needed (>10K/min)
 - Multiple agents working in parallel
 - Production deployment
-- Network latency is low (<10ms)
+- Network latency is low (\<10ms)
 
 **Use TaskQueue when**:
+
 - Task-oriented workflows
 - Integration with MCP ecosystem
 - Structured task management needed
@@ -92,6 +96,7 @@ console.log(`Coordination mode: ${client.mode}`);
 - Occasional agent collaboration
 
 **Use Markdown when**:
+
 - Offline development
 - Git-tracked coordination state desired
 - Minimal infrastructure dependencies
@@ -179,6 +184,7 @@ export REDIS_DB="0"
 ### Key Patterns
 
 **Agent Status**:
+
 ```
 Key: agents:status:<agent-name>
 Type: Hash
@@ -191,6 +197,7 @@ Fields:
 ```
 
 **Task Queues**:
+
 ```
 Key: tasks:queue:<priority>
 Type: List
@@ -201,6 +208,7 @@ Operations:
 ```
 
 **Pub/Sub Channels**:
+
 ```
 Channel: agents:events
 Channel: tasks:events
@@ -209,6 +217,7 @@ Channel: training:events (custom)
 ```
 
 **Workflow State**:
+
 ```
 Key: workflows:<workflow-id>
 Type: Hash
@@ -224,7 +233,7 @@ Fields:
 
 - **Latency**: 0.5-1.5ms avg (local), 5-10ms (LAN)
 - **Throughput**: 234K messages/min (measured)
-- **Agent coordination overhead**: <5%
+- **Agent coordination overhead**: \<5%
 - **Memory usage**: ~256MB for 100 active agents
 - **Network bandwidth**: ~1 Mbps for 50K msg/min
 
@@ -333,6 +342,7 @@ mkdir -p .claude/coordination/
 ### File Formats
 
 **Agent Status** (`.claude/coordination/agent-<name>.md`):
+
 ```markdown
 ---
 agent: ai-engineer
@@ -361,6 +371,7 @@ last_updated: 2025-10-17T00:00:00Z
 ```
 
 **Task Definition** (`.claude/coordination/task-<id>.md`):
+
 ```markdown
 ---
 id: task-123
@@ -406,7 +417,7 @@ _In progress..._
 - **Latency**: 100-1000ms avg (file I/O)
 - **Throughput**: 100 writes/sec, 500 reads/sec
 - **Agent coordination overhead**: ~20%
-- **Memory usage**: <100MB
+- **Memory usage**: \<100MB
 - **Disk usage**: ~1KB per agent, ~5KB per task
 
 ## Coordination Library API
@@ -658,6 +669,7 @@ console.log(result);
 ### Workflow Patterns
 
 **Sequential Workflow**:
+
 ```javascript
 // Task A → Task B → Task C
 const a = await client.createTask({ type: 'A' });
@@ -666,6 +678,7 @@ const c = await client.createTask({ type: 'C', depends_on: [b] });
 ```
 
 **Parallel Workflow**:
+
 ```javascript
 // Task A → [Task B1, Task B2, Task B3] → Task C
 const a = await client.createTask({ type: 'A' });
@@ -678,6 +691,7 @@ const c = await client.createTask({ type: 'C', depends_on: [b1, b2, b3] });
 ```
 
 **Conditional Workflow**:
+
 ```javascript
 // Task A → (if success) Task B → (if failure) Task C
 const a = await client.createTask({ type: 'A' });
@@ -697,11 +711,13 @@ client.subscribeEvents('tasks:completed', async (event) => {
 ### Redis Mode Benchmarks
 
 **Test Setup**:
+
 - Local Redis instance
 - 100 concurrent agents
 - Mixed read/write operations
 
 **Results**:
+
 ```
 Operation               p50     p95     p99     Throughput
 ─────────────────────────────────────────────────────────
@@ -713,6 +729,7 @@ Subscribe (latency)     <0.1ms  <0.1ms  0.2ms   -
 ```
 
 **Memory Usage**:
+
 - 1 agent: ~2.5KB
 - 100 agents: ~256MB (including Redis)
 - 1000 tasks: ~5MB
@@ -720,11 +737,13 @@ Subscribe (latency)     <0.1ms  <0.1ms  0.2ms   -
 ### TaskQueue Mode Benchmarks
 
 **Test Setup**:
+
 - TaskQueue MCP via npx
 - 50 concurrent agents
 - Poll interval: 1 second
 
 **Results**:
+
 ```
 Operation               p50     p95     p99     Throughput
 ─────────────────────────────────────────────────────────
@@ -734,6 +753,7 @@ Update Task Status      80ms    150ms   300ms   30/sec
 ```
 
 **Latency Breakdown**:
+
 - npx overhead: ~50ms
 - SQLite write: ~20ms
 - SQLite read: ~10ms
@@ -742,11 +762,13 @@ Update Task Status      80ms    150ms   300ms   30/sec
 ### Markdown Mode Benchmarks
 
 **Test Setup**:
+
 - Local SSD filesystem
 - 20 concurrent agents
 - File-based coordination
 
 **Results**:
+
 ```
 Operation               p50     p95     p99     Throughput
 ─────────────────────────────────────────────────────────
@@ -756,6 +778,7 @@ Create Task             150ms   300ms   600ms   60/sec
 ```
 
 **Filesystem Operations**:
+
 - Write markdown file: ~50ms
 - Read markdown file: ~20ms
 - Parse YAML frontmatter: ~10ms
@@ -766,8 +789,8 @@ Create Task             150ms   300ms   600ms   60/sec
 ### Mode Selection
 
 1. **Development**: Start with Markdown (zero setup)
-2. **Testing**: Use TaskQueue (structured, MCP-native)
-3. **Production**: Use Redis (real-time, high-performance)
+1. **Testing**: Use TaskQueue (structured, MCP-native)
+1. **Production**: Use Redis (real-time, high-performance)
 
 ### Error Handling
 

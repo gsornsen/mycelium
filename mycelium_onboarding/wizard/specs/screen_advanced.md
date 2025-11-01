@@ -1,9 +1,11 @@
 # Advanced Screen Specification
 
 ## Purpose
+
 Configure advanced service-specific settings. Only shown in Custom Setup mode.
 
 ## Layout
+
 ```
 ╔══════════════════════════════════════════════════════════════╗
 ║                  Advanced Configuration                      ║
@@ -51,12 +53,14 @@ Temporal Configuration
 ### Redis Settings (if enabled)
 
 #### Persistence
+
 - **Field**: `enable_persistence`
 - **Type**: Boolean (yes/no)
 - **Default**: `true`
 - **Description**: Enable RDB snapshots for data persistence
 
 #### Max Memory
+
 - **Field**: `redis_max_memory`
 - **Type**: Text (memory size)
 - **Default**: `256mb`
@@ -66,6 +70,7 @@ Temporal Configuration
 ### PostgreSQL Settings (if enabled)
 
 #### Max Connections
+
 - **Field**: `postgres_max_connections`
 - **Type**: Integer
 - **Default**: `100`
@@ -75,6 +80,7 @@ Temporal Configuration
 ### Temporal Settings (if enabled)
 
 #### Namespace
+
 - **Field**: `temporal_namespace`
 - **Type**: Text
 - **Default**: `default`
@@ -82,6 +88,7 @@ Temporal Configuration
 - **Description**: Workflow namespace for isolation
 
 #### History Retention
+
 - **Field**: `temporal_history_retention_days`
 - **Type**: Integer
 - **Default**: `7`
@@ -91,6 +98,7 @@ Temporal Configuration
 ## Validation
 
 ### Redis Max Memory
+
 ```python
 import re
 
@@ -102,6 +110,7 @@ if not re.match(r'^\d+[kmgtKMGT][bB]$', max_memory):
 ```
 
 ### PostgreSQL Max Connections
+
 ```python
 if not (1 <= max_connections <= 10000):
     raise ValueError(
@@ -110,6 +119,7 @@ if not (1 <= max_connections <= 10000):
 ```
 
 ### Temporal Namespace
+
 ```python
 import re
 
@@ -121,6 +131,7 @@ if not re.match(r'^[a-zA-Z0-9_-]+$', namespace):
 ```
 
 ### History Retention
+
 ```python
 if not (1 <= retention_days <= 365):
     raise ValueError(
@@ -131,6 +142,7 @@ if not (1 <= retention_days <= 365):
 ## Help Text
 
 ### Redis Persistence
+
 ```
 Redis Persistence (RDB Snapshots)
 ═══════════════════════════════════════════════════════════
@@ -151,6 +163,7 @@ Default: Enabled
 ```
 
 ### Redis Max Memory
+
 ```
 Redis Maximum Memory
 ═══════════════════════════════════════════════════════════
@@ -172,6 +185,7 @@ Default: 256mb
 ```
 
 ### PostgreSQL Max Connections
+
 ```
 PostgreSQL Maximum Connections
 ═══════════════════════════════════════════════════════════
@@ -191,6 +205,7 @@ Default: 100
 ```
 
 ### Temporal Namespace
+
 ```
 Temporal Namespace
 ═══════════════════════════════════════════════════════════
@@ -211,6 +226,7 @@ Default: "default"
 ```
 
 ### Temporal History Retention
+
 ```
 Temporal Workflow History Retention
 ═══════════════════════════════════════════════════════════
@@ -233,6 +249,7 @@ Default: 7 days
 ## Error Messages
 
 ### Invalid Memory Format
+
 ```
 ⚠️  Invalid memory format: "{value}"
 
@@ -253,6 +270,7 @@ Invalid examples:
 ```
 
 ### Connections Out of Range
+
 ```
 ⚠️  Max connections out of range: {value}
 
@@ -267,6 +285,7 @@ Recommended: 100-200 for most applications
 ```
 
 ### Invalid Namespace
+
 ```
 ⚠️  Invalid namespace: "{namespace}"
 
@@ -287,6 +306,7 @@ Invalid examples:
 ```
 
 ### Retention Out of Range
+
 ```
 ⚠️  History retention out of range: {value} days
 
@@ -306,6 +326,7 @@ Adjust based on:
 ## State Updates
 
 On completion of this screen, update `WizardState`:
+
 - `enable_persistence`: Redis persistence setting
 - `redis_max_memory`: Redis memory limit (stored in RedisConfig.max_memory)
 - `postgres_max_connections`: PostgreSQL connection limit (stored in PostgresConfig.max_connections)
@@ -471,9 +492,9 @@ def advanced_screen(state: WizardState) -> str:
 This screen provides power-user features without overwhelming beginners:
 
 1. **Optional**: Only shown in Custom Setup mode
-2. **Defaults Work**: All settings have sensible defaults
-3. **Educational**: Help text explains tradeoffs
-4. **Contextual**: Only shows settings for enabled services
-5. **Validation**: Prevents invalid configurations
-6. **Progressive Disclosure**: Each service in its own section
-7. **Examples**: Concrete examples for each setting
+1. **Defaults Work**: All settings have sensible defaults
+1. **Educational**: Help text explains tradeoffs
+1. **Contextual**: Only shows settings for enabled services
+1. **Validation**: Prevents invalid configurations
+1. **Progressive Disclosure**: Each service in its own section
+1. **Examples**: Concrete examples for each setting

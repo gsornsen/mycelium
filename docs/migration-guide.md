@@ -14,16 +14,17 @@
 
 ## Overview
 
-Mycelium's configuration schema evolves over time to support new features and improvements. The migration framework ensures smooth upgrades while preserving your customizations.
+Mycelium's configuration schema evolves over time to support new features and improvements. The migration framework
+ensures smooth upgrades while preserving your customizations.
 
 ### How Migrations Work
 
 1. **Automatic Detection**: System detects configuration version when loading
-2. **Migration Path Discovery**: Finds optimal path from current to target version
-3. **Sequential Application**: Applies migrations in order (e.g., 1.0 → 1.1 → 1.2)
-4. **Validation**: Validates before and after each migration step
-5. **Backup**: Creates automatic backup before migration
-6. **Persistence**: Saves migrated configuration to file
+1. **Migration Path Discovery**: Finds optimal path from current to target version
+1. **Sequential Application**: Applies migrations in order (e.g., 1.0 → 1.1 → 1.2)
+1. **Validation**: Validates before and after each migration step
+1. **Backup**: Creates automatic backup before migration
+1. **Persistence**: Saves migrated configuration to file
 
 ### Key Features
 
@@ -158,8 +159,8 @@ Target schema version to migrate to.
 mycelium config migrate --target 1.2
 ```
 
-**Default**: Latest supported version (current default schema version)
-**Format**: `"<major>.<minor>"` (e.g., "1.0", "1.1", "1.2")
+**Default**: Latest supported version (current default schema version) **Format**: `"<major>.<minor>"` (e.g., "1.0",
+"1.1", "1.2")
 
 #### `--dry-run`
 
@@ -172,6 +173,7 @@ mycelium config migrate --dry-run
 **Output**: Shows what would change without modifying files.
 
 **Example output**:
+
 ```
 Migration Preview: 1.0 -> 1.1
 
@@ -248,6 +250,7 @@ mycelium status
 - Project naming and versioning
 
 **Schema**:
+
 ```yaml
 version: "1.0"
 project_name: mycelium
@@ -269,11 +272,13 @@ services:
 - Enhanced observability features
 
 **Migration from 1.0**:
+
 - Adds `monitoring` section with defaults
 - Adds `deployment.log_level` set to "INFO"
 - All existing fields preserved
 
 **Example migrated config**:
+
 ```yaml
 version: "1.1"
 project_name: mycelium
@@ -306,11 +311,13 @@ services:
 - Enhanced backup and recovery features
 
 **Migration from 1.1**:
+
 - Adds `backup` section with defaults
 - Renames `deployment.log_level` to `deployment.logging_level`
 - Preserves custom logging level value
 
 **Example migrated config**:
+
 ```yaml
 version: "1.2"
 project_name: mycelium
@@ -543,6 +550,7 @@ Every migration creates a backup:
 **Backup location**: `<config_path>.backup`
 
 **Example**:
+
 ```bash
 # Original config
 ~/.config/mycelium/config.yaml
@@ -596,10 +604,11 @@ cp config.yaml.v1.0 config.yaml
 **Alternatives**:
 
 1. **Manual restoration**: Restore from backup created before upgrade
-2. **Manual editing**: Manually edit config to match older schema
-3. **Fresh start**: Create new config with `mycelium config init`
+1. **Manual editing**: Manually edit config to match older schema
+1. **Fresh start**: Create new config with `mycelium config init`
 
 **Example limitation**:
+
 ```yaml
 # Version 1.2 config
 version: "1.2"
@@ -614,24 +623,28 @@ backup:  # This field doesn't exist in 1.1
 ### Backup Best Practices
 
 1. **Manual backups before upgrades**:
+
    ```bash
    cp config.yaml config.yaml.backup-$(date +%Y%m%d-%H%M%S)
    ```
 
-2. **Version control**:
+1. **Version control**:
+
    ```bash
    git add .mycelium/config.yaml
    git commit -m "Backup config before 1.2 migration"
    ```
 
-3. **Test migrations**:
+1. **Test migrations**:
+
    ```bash
    # Test on copy first
    cp config.yaml config-test.yaml
    mycelium config migrate --path config-test.yaml
    ```
 
-4. **Keep multiple backups**:
+1. **Keep multiple backups**:
+
    ```bash
    # Rotate backups
    cp config.yaml.backup config.yaml.backup.1
@@ -645,8 +658,8 @@ backup:  # This field doesn't exist in 1.1
 Table shows which versions can directly migrate:
 
 | From → To | 1.0 | 1.1 | 1.2 |
-|-----------|-----|-----|-----|
-| **1.0**   | -   | ✓   | ✓*  |
+| --------- | --- | --- | --- |
+| **1.0**   | -   | ✓   | ✓\* |
 | **1.1**   | ✗   | -   | ✓   |
 | **1.2**   | ✗   | ✗   | -   |
 
@@ -661,10 +674,12 @@ Table shows which versions can directly migrate:
 Single migration step.
 
 **Changes**:
+
 - Adds monitoring configuration
 - Adds deployment.log_level
 
 **Command**:
+
 ```bash
 mycelium config migrate --target 1.1
 ```
@@ -674,10 +689,12 @@ mycelium config migrate --target 1.1
 Two migration steps: 1.0 → 1.1 → 1.2
 
 **Changes**:
+
 - 1.0 → 1.1: Adds monitoring, log_level
 - 1.1 → 1.2: Adds backup, renames log_level
 
 **Command**:
+
 ```bash
 mycelium config migrate --target 1.2
 ```
@@ -689,10 +706,12 @@ mycelium config migrate --target 1.2
 Single migration step.
 
 **Changes**:
+
 - Adds backup configuration
 - Renames deployment.log_level to logging_level
 
 **Command**:
+
 ```bash
 mycelium config migrate --target 1.2
 ```
@@ -700,7 +719,7 @@ mycelium config migrate --target 1.2
 ### Software Version Compatibility
 
 | Mycelium Version | Config Versions Supported | Default Config Version |
-|------------------|---------------------------|------------------------|
+| ---------------- | ------------------------- | ---------------------- |
 | v1.0.0           | 1.0                       | 1.0                    |
 | v1.1.0           | 1.0, 1.1                  | 1.1                    |
 | v1.2.0           | 1.0, 1.1, 1.2             | 1.2                    |
@@ -725,9 +744,9 @@ mycelium config validate
 **Before upgrading Mycelium**:
 
 1. Backup your configuration
-2. Review release notes for schema changes
-3. Test migration on development environment
-4. Apply migration to production
+1. Review release notes for schema changes
+1. Test migration on development environment
+1. Apply migration to production
 
 **Upgrade process**:
 
@@ -755,10 +774,11 @@ mycelium config validate
 **Problem**: Migration fails with validation error
 
 **Solution**:
+
 1. Check error message for specific field
-2. Restore from backup
-3. Fix validation errors in original config
-4. Retry migration
+1. Restore from backup
+1. Fix validation errors in original config
+1. Retry migration
 
 ```bash
 # Restore backup
@@ -776,6 +796,7 @@ mycelium config migrate
 **Problem**: Automatic backup not found
 
 **Solution**: Backup only created if file exists before migration
+
 ```bash
 # Create config first
 mycelium config init
@@ -789,6 +810,7 @@ mycelium config migrate
 **Problem**: No migration path from version X to Y
 
 **Solution**: Upgrade Mycelium software to version supporting target schema
+
 ```bash
 pip install --upgrade mycelium-onboarding
 mycelium config migrate
@@ -799,6 +821,7 @@ mycelium config migrate
 **Problem**: Custom fields disappear after migration
 
 **Solution**: Custom fields in `custom_config` sections are preserved. Fields outside schema are removed.
+
 ```bash
 # PRESERVED (in custom_config)
 services:

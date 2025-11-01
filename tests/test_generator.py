@@ -6,6 +6,7 @@ covering all deployment methods, validation logic, and error handling.
 
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 
 import pytest
@@ -38,9 +39,7 @@ class TestDeploymentGeneratorInitialization:
         assert "deployments" in str(gen.output_dir)
         assert gen.renderer is not None
 
-    def test_generator_initialization_custom_output_dir(
-        self, tmp_path: Path
-    ) -> None:
+    def test_generator_initialization_custom_output_dir(self, tmp_path: Path) -> None:
         """Test DeploymentGenerator initialization with custom output dir."""
         config = MyceliumConfig(project_name="test")
         output_dir = tmp_path / "custom"
@@ -102,9 +101,7 @@ class TestDockerComposeGeneration:
         """Test that .env file is created."""
         config = MyceliumConfig(
             project_name="test",
-            services=ServicesConfig(
-                postgres=PostgresConfig(enabled=True, database="testdb")
-            ),
+            services=ServicesConfig(postgres=PostgresConfig(enabled=True, database="testdb")),
         )
         gen = DeploymentGenerator(config, output_dir=tmp_path)
         result = gen.generate(DeploymentMethod.DOCKER_COMPOSE)
@@ -213,7 +210,7 @@ class TestKubernetesGeneration:
             services=ServicesConfig(redis=RedisConfig(enabled=True)),
         )
         gen = DeploymentGenerator(config, output_dir=tmp_path)
-        result = gen.generate(DeploymentMethod.KUBERNETES)
+        gen.generate(DeploymentMethod.KUBERNETES)
 
         k8s_dir = tmp_path / "kubernetes"
         namespace_file = k8s_dir / "00-namespace.yaml"
@@ -233,7 +230,7 @@ class TestKubernetesGeneration:
             ),
         )
         gen = DeploymentGenerator(config, output_dir=tmp_path)
-        result = gen.generate(DeploymentMethod.KUBERNETES)
+        gen.generate(DeploymentMethod.KUBERNETES)
 
         k8s_dir = tmp_path / "kubernetes"
         assert (k8s_dir / "10-redis.yaml").exists()
@@ -246,7 +243,7 @@ class TestKubernetesGeneration:
             services=ServicesConfig(redis=RedisConfig(enabled=True)),
         )
         gen = DeploymentGenerator(config, output_dir=tmp_path)
-        result = gen.generate(DeploymentMethod.KUBERNETES)
+        gen.generate(DeploymentMethod.KUBERNETES)
 
         k8s_dir = tmp_path / "kubernetes"
         kustomize_file = k8s_dir / "kustomization.yaml"
@@ -264,7 +261,7 @@ class TestKubernetesGeneration:
             services=ServicesConfig(redis=RedisConfig(enabled=True)),
         )
         gen = DeploymentGenerator(config, output_dir=tmp_path)
-        result = gen.generate(DeploymentMethod.KUBERNETES)
+        gen.generate(DeploymentMethod.KUBERNETES)
 
         k8s_dir = tmp_path / "kubernetes"
         readme_file = k8s_dir / "README.md"
@@ -285,7 +282,7 @@ class TestKubernetesGeneration:
             ),
         )
         gen = DeploymentGenerator(config, output_dir=tmp_path)
-        result = gen.generate(DeploymentMethod.KUBERNETES)
+        gen.generate(DeploymentMethod.KUBERNETES)
 
         k8s_dir = tmp_path / "kubernetes"
         assert (k8s_dir / "10-redis.yaml").exists()
@@ -303,7 +300,7 @@ class TestKubernetesGeneration:
             ),
         )
         gen = DeploymentGenerator(config, output_dir=tmp_path)
-        result = gen.generate(DeploymentMethod.KUBERNETES)
+        gen.generate(DeploymentMethod.KUBERNETES)
 
         k8s_dir = tmp_path / "kubernetes"
         manifests = sorted([f.name for f in k8s_dir.glob("*.yaml")])
@@ -351,7 +348,7 @@ class TestSystemdGeneration:
             ),
         )
         gen = DeploymentGenerator(config, output_dir=tmp_path)
-        result = gen.generate(DeploymentMethod.SYSTEMD)
+        gen.generate(DeploymentMethod.SYSTEMD)
 
         systemd_dir = tmp_path / "systemd"
         assert (systemd_dir / "myapp-redis.service").exists()
@@ -368,7 +365,7 @@ class TestSystemdGeneration:
             services=ServicesConfig(redis=RedisConfig(enabled=True)),
         )
         gen = DeploymentGenerator(config, output_dir=tmp_path)
-        result = gen.generate(DeploymentMethod.SYSTEMD)
+        gen.generate(DeploymentMethod.SYSTEMD)
 
         systemd_dir = tmp_path / "systemd"
         install_script = systemd_dir / "install.sh"
@@ -379,6 +376,7 @@ class TestSystemdGeneration:
         assert "systemctl daemon-reload" in content
         assert "cp" in content
 
+    @pytest.mark.skipif(sys.platform == "win32", reason="Unix file permissions not supported on Windows")
     def test_systemd_install_script_executable(self, tmp_path: Path) -> None:
         """Test that install script is executable."""
         config = MyceliumConfig(
@@ -386,13 +384,14 @@ class TestSystemdGeneration:
             services=ServicesConfig(redis=RedisConfig(enabled=True)),
         )
         gen = DeploymentGenerator(config, output_dir=tmp_path)
-        result = gen.generate(DeploymentMethod.SYSTEMD)
+        gen.generate(DeploymentMethod.SYSTEMD)
 
         systemd_dir = tmp_path / "systemd"
         install_script = systemd_dir / "install.sh"
 
         # Check that file is executable
         import stat
+
         mode = install_script.stat().st_mode
         assert mode & stat.S_IXUSR
 
@@ -403,7 +402,7 @@ class TestSystemdGeneration:
             services=ServicesConfig(redis=RedisConfig(enabled=True)),
         )
         gen = DeploymentGenerator(config, output_dir=tmp_path)
-        result = gen.generate(DeploymentMethod.SYSTEMD)
+        gen.generate(DeploymentMethod.SYSTEMD)
 
         systemd_dir = tmp_path / "systemd"
         readme_file = systemd_dir / "README.md"
@@ -423,7 +422,7 @@ class TestSystemdGeneration:
             ),
         )
         gen = DeploymentGenerator(config, output_dir=tmp_path)
-        result = gen.generate(DeploymentMethod.SYSTEMD)
+        gen.generate(DeploymentMethod.SYSTEMD)
 
         systemd_dir = tmp_path / "systemd"
         assert (systemd_dir / "myapp-redis.service").exists()
@@ -581,9 +580,7 @@ class TestHelperMethods:
         """Test _generate_env_file with PostgreSQL."""
         config = MyceliumConfig(
             project_name="test",
-            services=ServicesConfig(
-                postgres=PostgresConfig(enabled=True, database="mydb")
-            ),
+            services=ServicesConfig(postgres=PostgresConfig(enabled=True, database="mydb")),
         )
         gen = DeploymentGenerator(config, output_dir=tmp_path)
         env_content = gen._generate_env_file()
@@ -597,9 +594,7 @@ class TestHelperMethods:
         """Test _generate_env_file with Redis."""
         config = MyceliumConfig(
             project_name="test",
-            services=ServicesConfig(
-                redis=RedisConfig(enabled=True, max_memory="512mb")
-            ),
+            services=ServicesConfig(redis=RedisConfig(enabled=True, max_memory="512mb")),
         )
         gen = DeploymentGenerator(config, output_dir=tmp_path)
         env_content = gen._generate_env_file()
@@ -610,9 +605,7 @@ class TestHelperMethods:
         """Test _generate_env_file with Temporal."""
         config = MyceliumConfig(
             project_name="test",
-            services=ServicesConfig(
-                temporal=TemporalConfig(enabled=True, namespace="production")
-            ),
+            services=ServicesConfig(temporal=TemporalConfig(enabled=True, namespace="production")),
         )
         gen = DeploymentGenerator(config, output_dir=tmp_path)
         env_content = gen._generate_env_file()
@@ -729,7 +722,7 @@ class TestEdgeCases:
 
     def test_empty_project_name_handled_by_schema(self) -> None:
         """Test that empty project name is caught by schema validation."""
-        with pytest.raises(Exception):  # Pydantic ValidationError
+        with pytest.raises(ValidationError):
             MyceliumConfig(project_name="")
 
     def test_output_dir_already_exists(self, tmp_path: Path) -> None:

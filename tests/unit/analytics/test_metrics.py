@@ -390,9 +390,7 @@ class TestCachePerformance:
         stats = analyzer.get_cache_performance(days=7)
         assert stats["hit_rate_percentage"] == 100.0
 
-    def test_get_cache_performance_ignores_other_operations(
-        self, analyzer, storage
-    ):
+    def test_get_cache_performance_ignores_other_operations(self, analyzer, storage):
         """Test that cache performance only considers get_agent operations."""
         now = datetime.now(timezone.utc)
 

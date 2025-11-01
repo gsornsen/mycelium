@@ -10,7 +10,7 @@ from __future__ import annotations
 import json
 import logging
 import shutil
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
@@ -84,11 +84,11 @@ class WizardStatePersistence:
 
             # Write atomically using temp file
             temp_file = self.state_file.with_suffix(".tmp")
-            with open(temp_file, "w") as f:
+            with temp_file.open("w") as f:
                 json.dump(state_dict, f, indent=2)
 
-            # Atomic rename
-            temp_file.rename(self.state_file)
+            # Atomic replace (works on Windows too, unlike rename)
+            temp_file.replace(self.state_file)
             logger.info("Wizard state saved to %s", self.state_file)
 
         except (OSError, TypeError, ValueError) as e:
@@ -113,7 +113,7 @@ class WizardStatePersistence:
             return None
 
         try:
-            with open(self.state_file) as f:
+            with self.state_file.open() as f:
                 state_dict: dict[str, Any] = json.load(f)
 
             # Deserialize dict to WizardState
@@ -216,33 +216,26 @@ class WizardStatePersistence:
             services_enabled = cast(dict[str, bool], services_raw)
 
             # Build WizardState with type-safe conversions
-            state = WizardState(
+            return WizardState(
                 current_step=WizardStep(str(state_dict["current_step"])),
                 started_at=datetime.fromisoformat(
-                    str(state_dict.get("started_at", datetime.now().isoformat()))
+                    str(state_dict.get("started_at", datetime.now(timezone.utc).isoformat()))
                 ),
                 project_name=str(state_dict.get("project_name", "")),
                 services_enabled=services_enabled,
-                deployment_method=str(
-                    state_dict.get("deployment_method", "docker-compose")
-                ),
+                deployment_method=str(state_dict.get("deployment_method", "docker-compose")),
                 redis_port=int(state_dict.get("redis_port", 6379) or 6379),
                 postgres_port=int(state_dict.get("postgres_port", 5432) or 5432),
                 postgres_database=str(state_dict.get("postgres_database", "")),
-                temporal_namespace=str(
-                    state_dict.get("temporal_namespace", "default")
-                ),
+                temporal_namespace=str(state_dict.get("temporal_namespace", "default")),
                 temporal_ui_port=int(state_dict.get("temporal_ui_port", 8080) or 8080),
-                temporal_frontend_port=int(
-                    state_dict.get("temporal_frontend_port", 7233) or 7233
-                ),
+                temporal_frontend_port=int(state_dict.get("temporal_frontend_port", 7233) or 7233),
                 auto_start=bool(state_dict.get("auto_start", True)),
                 enable_persistence=bool(state_dict.get("enable_persistence", True)),
                 setup_mode=str(state_dict.get("setup_mode", "quick")),
                 completed=bool(state_dict.get("completed", False)),
                 resumed=True,  # Mark as resumed
             )
-            return state
 
         except (ValueError, TypeError, KeyError) as e:
             raise ValueError(f"Invalid state data: {e}") from e
@@ -260,7 +253,7 @@ class WizardStatePersistence:
             return None
 
         try:
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
             backup_file = self.state_dir / f"wizard_state_backup_{timestamp}.json"
 
             # Copy current state to backup

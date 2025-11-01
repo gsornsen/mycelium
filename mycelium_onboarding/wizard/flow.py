@@ -147,10 +147,7 @@ class WizardState:
 
         # REVIEW requires project name and at least one service
         if step == WizardStep.REVIEW:
-            return (
-                bool(self.project_name)
-                and any(self.services_enabled.values())
-            )
+            return bool(self.project_name) and any(self.services_enabled.values())
 
         # COMPLETE requires everything
         if step == WizardStep.COMPLETE:
@@ -175,10 +172,7 @@ class WizardState:
         next_index = current_index + 1
 
         # Skip ADVANCED step if in quick setup mode
-        if (
-            self.setup_mode == "quick"
-            and self.current_step == WizardStep.DEPLOYMENT
-        ):
+        if self.setup_mode == "quick" and self.current_step == WizardStep.DEPLOYMENT:
             # Jump from DEPLOYMENT to REVIEW
             return WizardStep.REVIEW
 
@@ -201,10 +195,7 @@ class WizardState:
         current_index = step_order.index(self.current_step)
 
         # Handle quick mode - skip ADVANCED when going back from REVIEW
-        if (
-            self.setup_mode == "quick"
-            and self.current_step == WizardStep.REVIEW
-        ):
+        if self.setup_mode == "quick" and self.current_step == WizardStep.REVIEW:
             # Jump from REVIEW to DEPLOYMENT
             return WizardStep.DEPLOYMENT
 

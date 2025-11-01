@@ -1,10 +1,11 @@
 # Linear Import Instructions for Claude Code Skills Project
 
-**Purpose:** This document provides everything needed to create Linear issues from the Claude Code Skills project plan in a new session with Linear MCP server.
+**Purpose:** This document provides everything needed to create Linear issues from the Claude Code Skills project plan
+in a new session with Linear MCP server.
 
 **Last Updated:** 2025-10-20
 
----
+______________________________________________________________________
 
 ## Quick Start
 
@@ -14,22 +15,19 @@ In your new Linear MCP session, say:
 "Create Linear issues for the Claude Code Skills project using the plan in /home/gerald/git/mycelium/docs/projects/claude-code-skills/. Follow the instructions in LINEAR_IMPORT_INSTRUCTIONS.md."
 ```
 
----
+______________________________________________________________________
 
 ## Project Overview
 
 ### Project Details
 
-**Project Name:** Claude Code Skills
-**Team:** Mycelium Engineering
-**Owner:** Gerald Sornsen
-**Priority:** High
-**Target Start:** Q1 2025
-**Duration:** 24 weeks (596 hours)
+**Project Name:** Claude Code Skills **Team:** Mycelium Engineering **Owner:** Gerald Sornsen **Priority:** High
+**Target Start:** Q1 2025 **Duration:** 24 weeks (596 hours)
 
 ### Project Description
 
 Implement Claude Code Skills framework for Mycelium, enabling:
+
 - Agent discovery and coordination
 - Dynamic skill loading with hot-reload
 - Token budget optimization with warnings
@@ -37,6 +35,7 @@ Implement Claude Code Skills framework for Mycelium, enabling:
 - Privacy-first analytics and telemetry
 
 **Key Technologies:**
+
 - PostgreSQL 15+ with pgvector and TimescaleDB extensions
 - TanStack (React Query, Router, Table, Virtual)
 - Radix UI + Tailwind CSS + Storybook
@@ -44,12 +43,13 @@ Implement Claude Code Skills framework for Mycelium, enabling:
 - Filesystem-based skill repository
 
 **Expected Impact:**
+
 - 40-60% token reduction
 - 80% workflow overhead reduction
 - Modern web UI and TUI interfaces
 - Privacy-first telemetry (opt-in)
 
----
+______________________________________________________________________
 
 ## Linear Structure
 
@@ -58,37 +58,43 @@ Implement Claude Code Skills framework for Mycelium, enabling:
 Create 5 Linear milestones matching these project phases:
 
 1. **MLP - Agent Discovery & Coordination**
+
    - Target: Weeks 1-7
    - Description: Foundation for multi-agent workflows with PostgreSQL + pgvector + telemetry
    - Issues: 11 tasks from M01
 
-2. **Dogfooding - Skill Infrastructure**
+1. **Dogfooding - Skill Infrastructure**
+
    - Target: Weeks 5-10
    - Description: Filesystem-based skills with dynamic loading, web UI, and design system
    - Issues: 8+ tasks from M02
 
-3. **Beta - Token Optimization**
+1. **Beta - Token Optimization**
+
    - Target: Weeks 9-14
    - Description: Budget warnings, TimescaleDB analytics, and compression
    - Issues: 11 tasks from M03
 
-4. **Beta Feedback - Orchestration**
+1. **Beta Feedback - Orchestration**
+
    - Target: Weeks 13-18
    - Description: Web workflow builder with visual DAG editor
    - Issues: 10 tasks from M04
 
-5. **GA - Analytics & Self-Optimization**
+1. **GA - Analytics & Self-Optimization**
+
    - Target: Weeks 17-24
    - Description: Privacy-first analytics dashboards and self-optimization
    - Issues: 10 tasks from M05
 
----
+______________________________________________________________________
 
 ## Issue Creation Instructions
 
 ### For Each Milestone
 
 Read the corresponding milestone file:
+
 - M01: `/home/gerald/git/mycelium/docs/projects/claude-code-skills/milestones/M01_AGENT_DISCOVERY_SKILLS.md`
 - M02: `/home/gerald/git/mycelium/docs/projects/claude-code-skills/milestones/M02_SKILL_INFRASTRUCTURE.md`
 - M03: `/home/gerald/git/mycelium/docs/projects/claude-code-skills/milestones/M03_TOKEN_OPTIMIZATION.md`
@@ -100,9 +106,11 @@ Read the corresponding milestone file:
 For each task in the milestone (e.g., Task 1.1, Task 1.2, etc.), create a Linear issue with:
 
 **Title Format:** `[M0X] Task X.Y: Task Name`
+
 - Example: `[M01] Task 1.1: Agent Registry Infrastructure`
 
 **Description Format:**
+
 ```markdown
 ## Overview
 [Copy the "Description" section from the task]
@@ -139,18 +147,18 @@ Phase: [M01 | M02 | M03 | M04 | M05]
 ```
 
 **Labels to Add:**
+
 - Milestone label: `M01`, `M02`, `M03`, `M04`, or `M05`
 - Phase label: `MLP`, `Dogfooding`, `Beta`, `Beta Feedback`, or `GA`
 - Priority from task: `P0` (Critical), `P1` (High), `P2` (Medium)
 - Agent label: e.g., `backend-developer`, `ai-engineer`, `platform-engineer`
 
-**Effort Estimate:**
-Use the "Effort" hours from the task (e.g., 16 hours, 20 hours)
+**Effort Estimate:** Use the "Effort" hours from the task (e.g., 16 hours, 20 hours)
 
-**Milestone Assignment:**
-Assign to the corresponding Linear milestone
+**Milestone Assignment:** Assign to the corresponding Linear milestone
 
 **Dependencies (Blocking Relationships):**
+
 - If Task 1.2 depends on Task 1.1, mark the M01-Task-1.2 issue as "blocked by" M01-Task-1.1 issue
 - Cross-milestone dependencies:
   - M02 tasks can depend on M01 tasks
@@ -158,7 +166,7 @@ Assign to the corresponding Linear milestone
   - M04 tasks can depend on M01, M02, M03
   - M05 tasks can depend on M03
 
----
+______________________________________________________________________
 
 ## Example Issue Creation
 
@@ -260,84 +268,87 @@ Milestone: MLP - Agent Discovery & Coordination
 Blocked by: [M01] Task 1.1: Agent Registry Infrastructure
 ```
 
----
+______________________________________________________________________
 
 ## Complete Task List
 
 ### M01: Agent Discovery & Coordination (11 tasks, 135 hours)
 
 1. Task 1.1: Agent Registry Infrastructure (16h) - backend-developer, P0
-2. Task 1.2: Discovery API Endpoints (12h) - backend-developer, P0, depends on 1.1
-3. Task 1.3: NLP Capability Matching Engine (20h) - ai-engineer, P0, depends on 1.1
-4. Task 1.4: Agent Discovery MCP Tool (12h) - python-pro, P1, depends on 1.2, 1.3
-5. Task 1.5: Handoff Protocol Implementation (16h) - ai-engineer, P0, depends on 1.1
-6. Task 1.6: Workflow Orchestration Engine (20h) - backend-developer, P1, depends on 1.5
-7. Task 1.7: Coordination Tracking System (12h) - backend-developer, P2, depends on 1.6
-8. Task 1.8: Coordination MCP Tool (12h) - python-pro, P1, depends on 1.6, 1.7
-9. Task 1.9: Integration Testing Framework (12h) - qa-expert, P1, depends on 1.4, 1.8
-10. Task 1.10: Documentation & Examples (8h) - multi-agent-coordinator, P2, depends on 1.4, 1.8
-11. Task 1.11: Telemetry Infrastructure (12h) - backend-developer, P2
+1. Task 1.2: Discovery API Endpoints (12h) - backend-developer, P0, depends on 1.1
+1. Task 1.3: NLP Capability Matching Engine (20h) - ai-engineer, P0, depends on 1.1
+1. Task 1.4: Agent Discovery MCP Tool (12h) - python-pro, P1, depends on 1.2, 1.3
+1. Task 1.5: Handoff Protocol Implementation (16h) - ai-engineer, P0, depends on 1.1
+1. Task 1.6: Workflow Orchestration Engine (20h) - backend-developer, P1, depends on 1.5
+1. Task 1.7: Coordination Tracking System (12h) - backend-developer, P2, depends on 1.6
+1. Task 1.8: Coordination MCP Tool (12h) - python-pro, P1, depends on 1.6, 1.7
+1. Task 1.9: Integration Testing Framework (12h) - qa-expert, P1, depends on 1.4, 1.8
+1. Task 1.10: Documentation & Examples (8h) - multi-agent-coordinator, P2, depends on 1.4, 1.8
+1. Task 1.11: Telemetry Infrastructure (12h) - backend-developer, P2
 
 ### M02: Skill Infrastructure (8 tasks, 120 hours)
 
 1. Task 2.1: Skill Module Format Specification (15h) - backend-developer, P0, depends on M01-1.1
-2. Task 2.2: Dynamic Skill Loader Implementation (25h) - backend-developer, P0, depends on 2.1
-3. Task 2.3: Skill Repository and Version Control (20h) - platform-engineer, P1, depends on 2.1, 2.2
-4. Task 2.4: Dependency Resolution System (20h) - python-pro, P0, depends on 2.3
-5. Task 2.5: Initial Skill Library (20+ Skills) (20h) - backend-developer, P1, depends on 2.1, 2.2
-6. Task 2.6: Web UI Components (20h) - frontend-developer, P1, depends on 2.2
-7. Task 2.7: TUI Implementation (12h) - cli-developer, P2, depends on 2.2
-8. Task 2.8: CLI Integration (8h) - cli-developer, P2, depends on 2.2
+1. Task 2.2: Dynamic Skill Loader Implementation (25h) - backend-developer, P0, depends on 2.1
+1. Task 2.3: Skill Repository and Version Control (20h) - platform-engineer, P1, depends on 2.1, 2.2
+1. Task 2.4: Dependency Resolution System (20h) - python-pro, P0, depends on 2.3
+1. Task 2.5: Initial Skill Library (20+ Skills) (20h) - backend-developer, P1, depends on 2.1, 2.2
+1. Task 2.6: Web UI Components (20h) - frontend-developer, P1, depends on 2.2
+1. Task 2.7: TUI Implementation (12h) - cli-developer, P2, depends on 2.2
+1. Task 2.8: CLI Integration (8h) - cli-developer, P2, depends on 2.2
 
 ### M03: Token Optimization (11 tasks, 140 hours)
 
 1. Task 3.1: Compression Engine Architecture (15h) - performance-engineer, P0, depends on M02-2.2
-2. Task 3.2: Token Budget Optimizer (20h) - ai-engineer, P0, depends on M01-1.6
-3. Task 3.3: Context Diff Generator (15h) - backend-developer, P0, depends on M01-1.5
-4. Task 3.4: Lazy Loading Enhancement (15h) - python-pro, P1, depends on M02-2.2
-5. Task 3.5: Compression Validation Framework (12h) - qa-expert, P1, depends on 3.1
-6. Task 3.6: Budget Optimization Integration (15h) - backend-developer, P1, depends on 3.2, M01-1.6
-7. Task 3.7: Context Diff Integration (12h) - python-pro, P1, depends on 3.3, M01-1.8
-8. Task 3.8: Compression MCP Tools (10h) - python-pro, P2, depends on 3.1
-9. Task 3.9: Performance Optimization (10h) - performance-engineer, P1, depends on 3.1-3.4
-10. Task 3.10: Documentation & Examples (6h) - multi-agent-coordinator, P2, depends on 3.1-3.8
-11. Task 3.11: Budget UI Components (16h) - frontend-developer, P1, depends on 3.2
+1. Task 3.2: Token Budget Optimizer (20h) - ai-engineer, P0, depends on M01-1.6
+1. Task 3.3: Context Diff Generator (15h) - backend-developer, P0, depends on M01-1.5
+1. Task 3.4: Lazy Loading Enhancement (15h) - python-pro, P1, depends on M02-2.2
+1. Task 3.5: Compression Validation Framework (12h) - qa-expert, P1, depends on 3.1
+1. Task 3.6: Budget Optimization Integration (15h) - backend-developer, P1, depends on 3.2, M01-1.6
+1. Task 3.7: Context Diff Integration (12h) - python-pro, P1, depends on 3.3, M01-1.8
+1. Task 3.8: Compression MCP Tools (10h) - python-pro, P2, depends on 3.1
+1. Task 3.9: Performance Optimization (10h) - performance-engineer, P1, depends on 3.1-3.4
+1. Task 3.10: Documentation & Examples (6h) - multi-agent-coordinator, P2, depends on 3.1-3.8
+1. Task 3.11: Budget UI Components (16h) - frontend-developer, P1, depends on 3.2
 
 ### M04: Orchestration Meta-Skill (10 tasks, 100 hours)
 
 1. Task 4.1: Task Decomposition Engine (15h) - ai-engineer, P0, depends on M01-1.3
-2. Task 4.2: Intelligent Agent Selector (15h) - multi-agent-coordinator, P0, depends on M01-1.4, 4.1
-3. Task 4.3: Workflow DAG Executor (15h) - backend-developer, P0, depends on 4.2, M01-1.6
-4. Task 4.4: Failure Recovery System (12h) - workflow-orchestrator, P1, depends on 4.3
-5. Task 4.5: Resource Allocation Manager (10h) - backend-developer, P1, depends on 4.3, M03-3.2
-6. Task 4.6: Orchestration MCP Tool (8h) - python-pro, P1, depends on 4.1-4.5
-7. Task 4.7: Workflow Visualization (Web UI) (12h) - frontend-developer, P0, depends on 4.3
-8. Task 4.8: Integration Testing (10h) - qa-expert, P1, depends on 4.6
-9. Task 4.9: Performance Optimization (5h) - performance-engineer, P2, depends on 4.8
-10. Task 4.10: Documentation (2h) - multi-agent-coordinator, P2, depends on 4.6
+1. Task 4.2: Intelligent Agent Selector (15h) - multi-agent-coordinator, P0, depends on M01-1.4, 4.1
+1. Task 4.3: Workflow DAG Executor (15h) - backend-developer, P0, depends on 4.2, M01-1.6
+1. Task 4.4: Failure Recovery System (12h) - workflow-orchestrator, P1, depends on 4.3
+1. Task 4.5: Resource Allocation Manager (10h) - backend-developer, P1, depends on 4.3, M03-3.2
+1. Task 4.6: Orchestration MCP Tool (8h) - python-pro, P1, depends on 4.1-4.5
+1. Task 4.7: Workflow Visualization (Web UI) (12h) - frontend-developer, P0, depends on 4.3
+1. Task 4.8: Integration Testing (10h) - qa-expert, P1, depends on 4.6
+1. Task 4.9: Performance Optimization (5h) - performance-engineer, P2, depends on 4.8
+1. Task 4.10: Documentation (2h) - multi-agent-coordinator, P2, depends on 4.6
 
 ### M05: Analytics & Self-Optimization (10 tasks, 100 hours)
 
 1. Task 5.1: Telemetry Infrastructure (15h) - backend-developer, P0, depends on M03-3.1
-2. Task 5.2: Analytics Data Store (TimescaleDB) (12h) - data-analyst, P0, depends on 5.1
-3. Task 5.3: S7 - Analytics Query Skills (18h) - data-analyst, P1, depends on 5.2
-4. Task 5.4: S3 - Compression Pipeline Skill (15h) - performance-engineer, P1, depends on M03-3.1, 5.2
-5. Task 5.5: S8 - Self-Optimization Skill (20h) - ai-engineer, P1, depends on 5.3, M03-3.2
-6. Task 5.6: Analytics MCP Tools (10h) - python-pro, P2, depends on 5.3
-7. Task 5.7: Dashboard Implementation (Web UI) (12h) - frontend-developer, P0, depends on 5.3
-8. Task 5.8: Integration Testing (8h) - qa-expert, P1, depends on 5.3-5.7
-9. Task 5.9: Performance Tuning (6h) - performance-engineer, P2, depends on 5.8
-10. Task 5.10: Documentation (4h) - data-analyst, P2, depends on 5.6
+1. Task 5.2: Analytics Data Store (TimescaleDB) (12h) - data-analyst, P0, depends on 5.1
+1. Task 5.3: S7 - Analytics Query Skills (18h) - data-analyst, P1, depends on 5.2
+1. Task 5.4: S3 - Compression Pipeline Skill (15h) - performance-engineer, P1, depends on M03-3.1, 5.2
+1. Task 5.5: S8 - Self-Optimization Skill (20h) - ai-engineer, P1, depends on 5.3, M03-3.2
+1. Task 5.6: Analytics MCP Tools (10h) - python-pro, P2, depends on 5.3
+1. Task 5.7: Dashboard Implementation (Web UI) (12h) - frontend-developer, P0, depends on 5.3
+1. Task 5.8: Integration Testing (8h) - qa-expert, P1, depends on 5.3-5.7
+1. Task 5.9: Performance Tuning (6h) - performance-engineer, P2, depends on 5.8
+1. Task 5.10: Documentation (4h) - data-analyst, P2, depends on 5.6
 
----
+______________________________________________________________________
 
 ## Issue Fields Mapping
 
 ### Title
+
 Format: `[M0X] Task X.Y: Task Name`
 
 ### Description
+
 Copy from milestone document with this structure:
+
 ```markdown
 ## Overview
 [Task description]
@@ -362,15 +373,19 @@ Copy from milestone document with this structure:
 ```
 
 ### Priority
+
 - P0 → High priority in Linear
 - P1 → Medium priority in Linear
 - P2 → Low priority in Linear
 
 ### Estimate
+
 Use the effort hours (e.g., 16 hours = 2 points if using 8-hour point system, or just use hours)
 
 ### Labels
+
 Add these labels to each issue:
+
 - Milestone: `M01`, `M02`, `M03`, `M04`, or `M05`
 - Phase: `MLP`, `Dogfooding`, `Beta`, `Beta Feedback`, or `GA`
 - Priority: `P0`, `P1`, or `P2`
@@ -378,15 +393,18 @@ Add these labels to each issue:
 - Technology tags: `postgresql`, `pgvector`, `react`, `tanstack`, `telemetry`, etc.
 
 ### Assignee
+
 Map the "Agent" field to actual team members or leave as label for later assignment
 
 ### Milestone
+
 Assign to the appropriate Linear milestone (MLP, Dogfooding, Beta, Beta Feedback, GA)
 
 ### Project
+
 Assign to "Claude Code Skills" or "mycelium" project
 
----
+______________________________________________________________________
 
 ## Dependency Mapping
 
@@ -395,23 +413,26 @@ Assign to "Claude Code Skills" or "mycelium" project
 When creating issues, note the dependencies and create Linear blocking relationships:
 
 **Example:**
+
 - Task 1.2 says "Dependencies: Task 1.1"
-- After creating both issues, mark [M01] Task 1.2 as "blocked by" [M01] Task 1.1
+- After creating both issues, mark \[M01\] Task 1.2 as "blocked by" \[M01\] Task 1.1
 
 **Cross-Milestone Dependencies:**
+
 - M02 Task 2.1 depends on M01 Task 1.1
-  - Mark [M02] Task 2.1 as "blocked by" [M01] Task 1.1
+  - Mark \[M02\] Task 2.1 as "blocked by" \[M01\] Task 1.1
 - M03 Task 3.2 depends on M01 Task 1.6
-  - Mark [M03] Task 3.2 as "blocked by" [M01] Task 1.6
+  - Mark \[M03\] Task 3.2 as "blocked by" \[M01\] Task 1.6
 
 **Priority Order for Dependencies:**
-1. Create all M01 issues first
-2. Create all M02 issues and link M01 dependencies
-3. Create all M03 issues and link M01/M02 dependencies
-4. Create all M04 issues and link M01/M02/M03 dependencies
-5. Create all M05 issues and link M03 dependencies
 
----
+1. Create all M01 issues first
+1. Create all M02 issues and link M01 dependencies
+1. Create all M03 issues and link M01/M02 dependencies
+1. Create all M04 issues and link M01/M02/M03 dependencies
+1. Create all M05 issues and link M03 dependencies
+
+______________________________________________________________________
 
 ## Automation Tips
 
@@ -439,6 +460,7 @@ await linear.createBlockingRelationship(
 ### Validation Checklist
 
 After creating all issues, verify:
+
 - [ ] Total issue count matches: 50+ issues created
 - [ ] All blocking relationships created
 - [ ] All milestones assigned correctly
@@ -447,92 +469,93 @@ After creating all issues, verify:
 - [ ] No orphaned tasks (all have proper milestone)
 - [ ] Critical path visible (M01-1.1 → ... → M05-5.10)
 
----
+______________________________________________________________________
 
 ## Quick Reference Tables
 
 ### M01 Task Summary
 
-| Task | Title | Hours | Agent | Priority | Depends On |
-|------|-------|-------|-------|----------|------------|
-| 1.1 | Agent Registry Infrastructure | 16 | backend-developer | P0 | None |
-| 1.2 | Discovery API Endpoints | 12 | backend-developer | P0 | 1.1 |
-| 1.3 | NLP Capability Matching Engine | 20 | ai-engineer | P0 | 1.1 |
-| 1.4 | Agent Discovery MCP Tool | 12 | python-pro | P1 | 1.2, 1.3 |
-| 1.5 | Handoff Protocol Implementation | 16 | ai-engineer | P0 | 1.1 |
-| 1.6 | Workflow Orchestration Engine | 20 | backend-developer | P1 | 1.5 |
-| 1.7 | Coordination Tracking System | 12 | backend-developer | P2 | 1.6 |
-| 1.8 | Coordination MCP Tool | 12 | python-pro | P1 | 1.6, 1.7 |
-| 1.9 | Integration Testing Framework | 12 | qa-expert | P1 | 1.4, 1.8 |
-| 1.10 | Documentation & Examples | 8 | multi-agent-coordinator | P2 | 1.4, 1.8 |
-| 1.11 | Telemetry Infrastructure | 12 | backend-developer | P2 | None |
+| Task | Title                           | Hours | Agent                   | Priority | Depends On |
+| ---- | ------------------------------- | ----- | ----------------------- | -------- | ---------- |
+| 1.1  | Agent Registry Infrastructure   | 16    | backend-developer       | P0       | None       |
+| 1.2  | Discovery API Endpoints         | 12    | backend-developer       | P0       | 1.1        |
+| 1.3  | NLP Capability Matching Engine  | 20    | ai-engineer             | P0       | 1.1        |
+| 1.4  | Agent Discovery MCP Tool        | 12    | python-pro              | P1       | 1.2, 1.3   |
+| 1.5  | Handoff Protocol Implementation | 16    | ai-engineer             | P0       | 1.1        |
+| 1.6  | Workflow Orchestration Engine   | 20    | backend-developer       | P1       | 1.5        |
+| 1.7  | Coordination Tracking System    | 12    | backend-developer       | P2       | 1.6        |
+| 1.8  | Coordination MCP Tool           | 12    | python-pro              | P1       | 1.6, 1.7   |
+| 1.9  | Integration Testing Framework   | 12    | qa-expert               | P1       | 1.4, 1.8   |
+| 1.10 | Documentation & Examples        | 8     | multi-agent-coordinator | P2       | 1.4, 1.8   |
+| 1.11 | Telemetry Infrastructure        | 12    | backend-developer       | P2       | None       |
 
 ### M02 Task Summary
 
-| Task | Title | Hours | Agent | Priority | Depends On |
-|------|-------|-------|-------|----------|------------|
-| 2.1 | Skill Module Format Specification | 15 | backend-developer | P0 | M01-1.1 |
-| 2.2 | Dynamic Skill Loader Implementation | 25 | backend-developer | P0 | 2.1 |
-| 2.3 | Skill Repository and Version Control | 20 | platform-engineer | P1 | 2.1, 2.2 |
-| 2.4 | Dependency Resolution System | 20 | python-pro | P0 | 2.3 |
-| 2.5 | Initial Skill Library (20+ Skills) | 20 | backend-developer | P1 | 2.1, 2.2 |
-| 2.6 | Web UI Components (Storybook) | 20 | frontend-developer | P1 | 2.2 |
-| 2.7 | TUI Implementation (Textual) | 12 | cli-developer | P2 | 2.2 |
-| 2.8 | CLI Integration | 8 | cli-developer | P2 | 2.2 |
+| Task | Title                                | Hours | Agent              | Priority | Depends On |
+| ---- | ------------------------------------ | ----- | ------------------ | -------- | ---------- |
+| 2.1  | Skill Module Format Specification    | 15    | backend-developer  | P0       | M01-1.1    |
+| 2.2  | Dynamic Skill Loader Implementation  | 25    | backend-developer  | P0       | 2.1        |
+| 2.3  | Skill Repository and Version Control | 20    | platform-engineer  | P1       | 2.1, 2.2   |
+| 2.4  | Dependency Resolution System         | 20    | python-pro         | P0       | 2.3        |
+| 2.5  | Initial Skill Library (20+ Skills)   | 20    | backend-developer  | P1       | 2.1, 2.2   |
+| 2.6  | Web UI Components (Storybook)        | 20    | frontend-developer | P1       | 2.2        |
+| 2.7  | TUI Implementation (Textual)         | 12    | cli-developer      | P2       | 2.2        |
+| 2.8  | CLI Integration                      | 8     | cli-developer      | P2       | 2.2        |
 
 ### M03 Task Summary
 
-| Task | Title | Hours | Agent | Priority | Depends On |
-|------|-------|-------|-------|----------|------------|
-| 3.1 | Compression Engine Architecture | 15 | performance-engineer | P0 | M02-2.2 |
-| 3.2 | Token Budget Optimizer | 20 | ai-engineer | P0 | M01-1.6 |
-| 3.3 | Context Diff Generator | 15 | backend-developer | P0 | M01-1.5 |
-| 3.4 | Lazy Loading Enhancement | 15 | python-pro | P1 | M02-2.2 |
-| 3.5 | Compression Validation Framework | 12 | qa-expert | P1 | 3.1 |
-| 3.6 | Budget Optimization Integration | 15 | backend-developer | P1 | 3.2, M01-1.6 |
-| 3.7 | Context Diff Integration | 12 | python-pro | P1 | 3.3, M01-1.8 |
-| 3.8 | Compression MCP Tools | 10 | python-pro | P2 | 3.1 |
-| 3.9 | Performance Optimization | 10 | performance-engineer | P1 | 3.1-3.4 |
-| 3.10 | Documentation & Examples | 6 | multi-agent-coordinator | P2 | 3.1-3.8 |
-| 3.11 | Budget UI Components | 16 | frontend-developer | P1 | 3.2 |
+| Task | Title                            | Hours | Agent                   | Priority | Depends On   |
+| ---- | -------------------------------- | ----- | ----------------------- | -------- | ------------ |
+| 3.1  | Compression Engine Architecture  | 15    | performance-engineer    | P0       | M02-2.2      |
+| 3.2  | Token Budget Optimizer           | 20    | ai-engineer             | P0       | M01-1.6      |
+| 3.3  | Context Diff Generator           | 15    | backend-developer       | P0       | M01-1.5      |
+| 3.4  | Lazy Loading Enhancement         | 15    | python-pro              | P1       | M02-2.2      |
+| 3.5  | Compression Validation Framework | 12    | qa-expert               | P1       | 3.1          |
+| 3.6  | Budget Optimization Integration  | 15    | backend-developer       | P1       | 3.2, M01-1.6 |
+| 3.7  | Context Diff Integration         | 12    | python-pro              | P1       | 3.3, M01-1.8 |
+| 3.8  | Compression MCP Tools            | 10    | python-pro              | P2       | 3.1          |
+| 3.9  | Performance Optimization         | 10    | performance-engineer    | P1       | 3.1-3.4      |
+| 3.10 | Documentation & Examples         | 6     | multi-agent-coordinator | P2       | 3.1-3.8      |
+| 3.11 | Budget UI Components             | 16    | frontend-developer      | P1       | 3.2          |
 
 ### M04 Task Summary
 
-| Task | Title | Hours | Agent | Priority | Depends On |
-|------|-------|-------|-------|----------|------------|
-| 4.1 | Task Decomposition Engine | 15 | ai-engineer | P0 | M01-1.3 |
-| 4.2 | Intelligent Agent Selector | 15 | multi-agent-coordinator | P0 | M01-1.4, 4.1 |
-| 4.3 | Workflow DAG Executor | 15 | backend-developer | P0 | 4.2, M01-1.6 |
-| 4.4 | Failure Recovery System | 12 | workflow-orchestrator | P1 | 4.3 |
-| 4.5 | Resource Allocation Manager | 10 | backend-developer | P1 | 4.3, M03-3.2 |
-| 4.6 | Orchestration MCP Tool | 8 | python-pro | P1 | 4.1-4.5 |
-| 4.7 | Workflow Visualization (Web UI) | 12 | frontend-developer | P0 | 4.3, M02-2.6 |
-| 4.8 | Integration Testing | 10 | qa-expert | P1 | 4.6 |
-| 4.9 | Performance Optimization | 5 | performance-engineer | P2 | 4.8 |
-| 4.10 | Documentation | 2 | multi-agent-coordinator | P2 | 4.6 |
+| Task | Title                           | Hours | Agent                   | Priority | Depends On   |
+| ---- | ------------------------------- | ----- | ----------------------- | -------- | ------------ |
+| 4.1  | Task Decomposition Engine       | 15    | ai-engineer             | P0       | M01-1.3      |
+| 4.2  | Intelligent Agent Selector      | 15    | multi-agent-coordinator | P0       | M01-1.4, 4.1 |
+| 4.3  | Workflow DAG Executor           | 15    | backend-developer       | P0       | 4.2, M01-1.6 |
+| 4.4  | Failure Recovery System         | 12    | workflow-orchestrator   | P1       | 4.3          |
+| 4.5  | Resource Allocation Manager     | 10    | backend-developer       | P1       | 4.3, M03-3.2 |
+| 4.6  | Orchestration MCP Tool          | 8     | python-pro              | P1       | 4.1-4.5      |
+| 4.7  | Workflow Visualization (Web UI) | 12    | frontend-developer      | P0       | 4.3, M02-2.6 |
+| 4.8  | Integration Testing             | 10    | qa-expert               | P1       | 4.6          |
+| 4.9  | Performance Optimization        | 5     | performance-engineer    | P2       | 4.8          |
+| 4.10 | Documentation                   | 2     | multi-agent-coordinator | P2       | 4.6          |
 
 ### M05 Task Summary
 
-| Task | Title | Hours | Agent | Priority | Depends On |
-|------|-------|-------|-------|----------|------------|
-| 5.1 | Telemetry Infrastructure | 15 | backend-developer | P0 | M03-3.1 |
-| 5.2 | Analytics Data Store (TimescaleDB) | 12 | data-analyst | P0 | 5.1 |
-| 5.3 | S7 - Analytics Query Skills | 18 | data-analyst | P1 | 5.2 |
-| 5.4 | S3 - Compression Pipeline Skill | 15 | performance-engineer | P1 | M03-3.1, 5.2 |
-| 5.5 | S8 - Self-Optimization Skill | 20 | ai-engineer | P1 | 5.3, M03-3.2 |
-| 5.6 | Analytics MCP Tools | 10 | python-pro | P2 | 5.3 |
-| 5.7 | Dashboard Implementation (Web UI) | 12 | frontend-developer | P0 | 5.3, M02-2.6, M04-4.7 |
-| 5.8 | Integration Testing | 8 | qa-expert | P1 | 5.3-5.7 |
-| 5.9 | Performance Tuning | 6 | performance-engineer | P2 | 5.8 |
-| 5.10 | Documentation | 4 | data-analyst | P2 | 5.6 |
+| Task | Title                              | Hours | Agent                | Priority | Depends On            |
+| ---- | ---------------------------------- | ----- | -------------------- | -------- | --------------------- |
+| 5.1  | Telemetry Infrastructure           | 15    | backend-developer    | P0       | M03-3.1               |
+| 5.2  | Analytics Data Store (TimescaleDB) | 12    | data-analyst         | P0       | 5.1                   |
+| 5.3  | S7 - Analytics Query Skills        | 18    | data-analyst         | P1       | 5.2                   |
+| 5.4  | S3 - Compression Pipeline Skill    | 15    | performance-engineer | P1       | M03-3.1, 5.2          |
+| 5.5  | S8 - Self-Optimization Skill       | 20    | ai-engineer          | P1       | 5.3, M03-3.2          |
+| 5.6  | Analytics MCP Tools                | 10    | python-pro           | P2       | 5.3                   |
+| 5.7  | Dashboard Implementation (Web UI)  | 12    | frontend-developer   | P0       | 5.3, M02-2.6, M04-4.7 |
+| 5.8  | Integration Testing                | 8     | qa-expert            | P1       | 5.3-5.7               |
+| 5.9  | Performance Tuning                 | 6     | performance-engineer | P2       | 5.8                   |
+| 5.10 | Documentation                      | 4     | data-analyst         | P2       | 5.6                   |
 
----
+______________________________________________________________________
 
 ## Special Notes for Linear Import
 
 ### Epic Structure (Optional)
 
 Consider creating epics for major features:
+
 - Epic 1: "Agent Discovery System" (M01 Tasks 1.1-1.4)
 - Epic 2: "Coordination Infrastructure" (M01 Tasks 1.5-1.8, 1.11)
 - Epic 3: "Skill Loading Framework" (M02 Tasks 2.1-2.5)
@@ -544,87 +567,103 @@ Consider creating epics for major features:
 ### Views to Create
 
 **Critical Path View:**
+
 - Filter: Priority = P0
 - Sort: By dependencies (blockers first)
 - Purpose: Focus on must-have tasks
 
 **By Agent View:**
+
 - Group by: Agent label
 - Purpose: Workload distribution
 
 **Timeline View:**
+
 - Sort by: Milestone → Dependencies
 - Purpose: Gantt chart visualization
 
 **UI Components View:**
+
 - Filter: Labels contain "frontend" or "ui"
 - Purpose: Track UI development progress
 
----
+______________________________________________________________________
 
 ## Import Process
 
 ### Step-by-Step
 
 1. **Create Project** (if doesn't exist):
+
    - Name: "Claude Code Skills" or add to existing "mycelium" project
    - Description: Copy from README.md
 
-2. **Create Milestones**:
+1. **Create Milestones**:
+
    - Create 5 milestones (MLP, Dogfooding, Beta, Beta Feedback, GA)
    - Set target dates if known
 
-3. **Create Labels**:
+1. **Create Labels**:
+
    - Milestone labels: M01, M02, M03, M04, M05
    - Phase labels: MLP, Dogfooding, Beta, Beta Feedback, GA
    - Priority labels: P0, P1, P2
    - Agent labels: backend-developer, ai-engineer, frontend-developer, etc.
    - Tech labels: postgresql, pgvector, timescaledb, react, tanstack, etc.
 
-4. **Create M01 Issues** (11 tasks):
+1. **Create M01 Issues** (11 tasks):
+
    - Use M01 task summary table above
    - Copy description format from milestone file
    - Apply labels and estimates
 
-5. **Create M02 Issues** (8 tasks):
+1. **Create M02 Issues** (8 tasks):
+
    - Link dependencies to M01 issues as needed
    - Apply labels and estimates
 
-6. **Create M03 Issues** (11 tasks):
+1. **Create M03 Issues** (11 tasks):
+
    - Link dependencies to M01/M02 issues
    - Apply labels and estimates
 
-7. **Create M04 Issues** (10 tasks):
+1. **Create M04 Issues** (10 tasks):
+
    - Link dependencies to M01/M02/M03 issues
    - Apply labels and estimates
 
-8. **Create M05 Issues** (10 tasks):
+1. **Create M05 Issues** (10 tasks):
+
    - Link dependencies to M03 issues
    - Apply labels and estimates
 
-9. **Verify Dependencies**:
+1. **Verify Dependencies**:
+
    - Check critical path is visible
    - Ensure no circular dependencies
    - Validate all cross-milestone links
 
-10. **Create Views**:
-    - Critical Path view
-    - By Agent view
-    - Timeline view
-    - Current Sprint view
+1. **Create Views**:
 
----
+   - Critical Path view
+   - By Agent view
+   - Timeline view
+   - Current Sprint view
+
+______________________________________________________________________
 
 ## Verification Checklist
 
 After import, verify in Linear:
 
 **Project Structure:**
+
 - [ ] Project created with correct name
 - [ ] 5 milestones exist with target dates
 - [ ] All labels created and ready to use
 
 **Issue Count:**
+
 - [ ] M01: 11 issues
 - [ ] M02: 8 issues
 - [ ] M03: 11 issues
@@ -633,12 +672,14 @@ After import, verify in Linear:
 - [ ] Total: 50 issues
 
 **Dependencies:**
+
 - [ ] All task dependencies converted to blocking relationships
 - [ ] Critical path visible (no orphaned tasks)
 - [ ] Cross-milestone dependencies linked
 - [ ] No circular dependencies
 
 **Metadata:**
+
 - [ ] All issues have estimates
 - [ ] All issues have priority
 - [ ] All issues have labels
@@ -646,24 +687,27 @@ After import, verify in Linear:
 - [ ] Acceptance criteria as checklists
 
 **Views:**
+
 - [ ] Can filter by milestone (M01-M05)
 - [ ] Can filter by priority (P0, P1, P2)
 - [ ] Can group by agent
 - [ ] Timeline shows proper sequence
 
----
+______________________________________________________________________
 
 ## Key Technology Tags to Add
 
 Use these technology tags for filtering and tracking:
 
 **Infrastructure:**
+
 - `postgresql` - Database work
 - `pgvector` - Vector similarity search
 - `timescaledb` - Time-series analytics
 - `redis` - Caching layer
 
 **Frontend:**
+
 - `react` - React components
 - `tanstack` - TanStack ecosystem
 - `radix-ui` - Design primitives
@@ -671,12 +715,14 @@ Use these technology tags for filtering and tracking:
 - `storybook` - Component development
 
 **Backend:**
+
 - `python` - Python backend work
 - `typescript` - TypeScript backend
 - `api` - REST API development
 - `mcp` - MCP tool integration
 
 **Features:**
+
 - `agent-discovery` - Discovery features
 - `orchestration` - Workflow features
 - `token-optimization` - Budget/compression
@@ -687,77 +733,88 @@ Use these technology tags for filtering and tracking:
 - `cli` - Command-line tools
 
 **Quality:**
+
 - `testing` - Test tasks
 - `documentation` - Docs tasks
 - `performance` - Performance work
 - `security` - Security reviews
 
----
+______________________________________________________________________
 
 ## Demo Scenario References
 
 Each milestone has a demo scenario. Reference these for validation criteria:
 
 - **M01 Demo:** Multi-Agent Code Review Workflow (15 min)
+
   - Located in M01_AGENT_DISCOVERY_SKILLS.md, "Demo Scenario" section
 
 - **M02 Demo:** Live Skill Development Cycle (15 min)
+
   - Located in M02_SKILL_INFRASTRUCTURE.md, "Demo Scenario" section
 
 - **M03 Demo:** Multi-Turn Conversation with Dynamic Optimization (12 min)
+
   - Located in M03_TOKEN_OPTIMIZATION.md, "Demo Scenario" section
 
 - **M04 Demo:** Autonomous Multi-Agent Code Review (10 min)
+
   - Located in M04_ORCHESTRATION.md, "Demo Scenario" section
 
 - **M05 Demo:** Data-Driven System Optimization (12 min)
+
   - Located in M05_ANALYTICS_COMPRESSION.md, "Demo Scenario" section
 
----
+______________________________________________________________________
 
 ## Additional Context Files
 
 If you need more context while creating issues:
 
 **Technical Details:**
+
 - `/home/gerald/git/mycelium/docs/TECHNICAL_ARCHITECTURE_SKILLS.md` (79KB)
 - `/home/gerald/git/mycelium/docs/SKILLS_TECHNICAL_ROADMAP.md` (23KB)
 - `/home/gerald/git/mycelium/docs/SKILLS_IMPLEMENTATION_QUICKSTART.md` (32KB)
 
 **Analysis:**
+
 - `/home/gerald/git/mycelium/docs/CLAUDE_CODE_SKILLS_SYNTHESIS.md` (75KB)
 - `/home/gerald/git/mycelium/docs/SKILLS_EXECUTIVE_SUMMARY.md` (9.5KB)
 
----
+______________________________________________________________________
 
 ## Final Notes
 
 ### Important Reminders
 
 1. **Dependencies are Critical**: Proper blocking relationships ensure correct task sequencing
-2. **Effort Estimates**: Use for capacity planning (596 hours ÷ team size = weeks needed)
-3. **Labels Enable Filtering**: Comprehensive labels make project management easier
-4. **Acceptance Criteria**: These become sub-tasks/checklists in Linear
-5. **Demo Scenarios**: Use for sprint review planning
+1. **Effort Estimates**: Use for capacity planning (596 hours ÷ team size = weeks needed)
+1. **Labels Enable Filtering**: Comprehensive labels make project management easier
+1. **Acceptance Criteria**: These become sub-tasks/checklists in Linear
+1. **Demo Scenarios**: Use for sprint review planning
 
 ### Success Criteria
 
 You'll know the import was successful when:
+
 - All 50+ issues created
 - Dependencies visualize critical path
 - Can filter by milestone and see logical progression
 - Effort totals match (M01: 135h, M02: 120h, M03: 140h, M04: 100h, M05: 100h)
 - Each issue has complete description with acceptance criteria
 
----
+______________________________________________________________________
 
 ## Questions?
 
 If anything is unclear during import:
+
 - Refer to milestone documents for complete task details
 - Check FEEDBACK_INCORPORATION_PLAN.md for technology decisions
 - Review PROJECT_SUMMARY.md for high-level context
 
----
+______________________________________________________________________
 
-**Ready to import!** This document contains everything needed to create a complete Linear project from the Claude Code Skills plan.
+**Ready to import!** This document contains everything needed to create a complete Linear project from the Claude Code
+Skills plan.

@@ -156,9 +156,7 @@ def test_detect_services_save_config(runner, mock_detection_summary, tmp_path):
         mock_manager.save.assert_called()
 
 
-def test_detect_services_save_config_no_existing(
-    runner, mock_detection_summary, tmp_path
-):
+def test_detect_services_save_config_no_existing(runner, mock_detection_summary, tmp_path):
     """Test --save-config when no existing config exists."""
     config_file = tmp_path / "mycelium.yaml"
 
@@ -189,9 +187,7 @@ def test_detect_docker(runner):
         socket_path="/var/run/docker.sock",
     )
 
-    with patch(
-        "mycelium_onboarding.detection.docker_detector.detect_docker"
-    ) as mock_detect:
+    with patch("mycelium_onboarding.detection.docker_detector.detect_docker") as mock_detect:
         mock_detect.return_value = mock_result
 
         result = runner.invoke(cli, ["detect", "docker"])
@@ -209,9 +205,7 @@ def test_detect_docker_not_available(runner):
         error_message="Docker not installed",
     )
 
-    with patch(
-        "mycelium_onboarding.detection.docker_detector.detect_docker"
-    ) as mock_detect:
+    with patch("mycelium_onboarding.detection.docker_detector.detect_docker") as mock_detect:
         mock_detect.return_value = mock_result
 
         result = runner.invoke(cli, ["detect", "docker"])
@@ -240,9 +234,7 @@ def test_detect_redis(runner):
         ),
     ]
 
-    with patch(
-        "mycelium_onboarding.detection.redis_detector.scan_common_redis_ports"
-    ) as mock_scan:
+    with patch("mycelium_onboarding.detection.redis_detector.scan_common_redis_ports") as mock_scan:
         mock_scan.return_value = mock_results
 
         result = runner.invoke(cli, ["detect", "redis"])
@@ -257,9 +249,7 @@ def test_detect_redis(runner):
 
 def test_detect_redis_none_found(runner):
     """Test 'detect redis' when no instances are found."""
-    with patch(
-        "mycelium_onboarding.detection.redis_detector.scan_common_redis_ports"
-    ) as mock_scan:
+    with patch("mycelium_onboarding.detection.redis_detector.scan_common_redis_ports") as mock_scan:
         mock_scan.return_value = []
 
         result = runner.invoke(cli, ["detect", "redis"])
@@ -281,9 +271,7 @@ def test_detect_postgres(runner):
         )
     ]
 
-    with patch(
-        "mycelium_onboarding.detection.postgres_detector.scan_common_postgres_ports"
-    ) as mock_scan:
+    with patch("mycelium_onboarding.detection.postgres_detector.scan_common_postgres_ports") as mock_scan:
         mock_scan.return_value = mock_results
 
         result = runner.invoke(cli, ["detect", "postgres"])
@@ -297,9 +285,7 @@ def test_detect_postgres(runner):
 
 def test_detect_postgres_none_found(runner):
     """Test 'detect postgres' when no instances are found."""
-    with patch(
-        "mycelium_onboarding.detection.postgres_detector.scan_common_postgres_ports"
-    ) as mock_scan:
+    with patch("mycelium_onboarding.detection.postgres_detector.scan_common_postgres_ports") as mock_scan:
         mock_scan.return_value = []
 
         result = runner.invoke(cli, ["detect", "postgres"])
@@ -318,9 +304,7 @@ def test_detect_temporal(runner):
         version="1.22.0",
     )
 
-    with patch(
-        "mycelium_onboarding.detection.temporal_detector.detect_temporal"
-    ) as mock_detect:
+    with patch("mycelium_onboarding.detection.temporal_detector.detect_temporal") as mock_detect:
         mock_detect.return_value = mock_result
 
         result = runner.invoke(cli, ["detect", "temporal"])
@@ -339,9 +323,7 @@ def test_detect_temporal_not_available(runner):
         error_message="Temporal not running",
     )
 
-    with patch(
-        "mycelium_onboarding.detection.temporal_detector.detect_temporal"
-    ) as mock_detect:
+    with patch("mycelium_onboarding.detection.temporal_detector.detect_temporal") as mock_detect:
         mock_detect.return_value = mock_result
 
         result = runner.invoke(cli, ["detect", "temporal"])
@@ -418,9 +400,7 @@ def test_detect_services_error_handling(runner):
 
 def test_detect_docker_error_handling(runner):
     """Test error handling in 'detect docker' command."""
-    with patch(
-        "mycelium_onboarding.detection.docker_detector.detect_docker"
-    ) as mock_detect:
+    with patch("mycelium_onboarding.detection.docker_detector.detect_docker") as mock_detect:
         mock_detect.side_effect = RuntimeError("Docker detection failed")
 
         result = runner.invoke(cli, ["detect", "docker"])
@@ -512,9 +492,7 @@ def test_detect_redis_with_password(runner):
         )
     ]
 
-    with patch(
-        "mycelium_onboarding.detection.redis_detector.scan_common_redis_ports"
-    ) as mock_scan:
+    with patch("mycelium_onboarding.detection.redis_detector.scan_common_redis_ports") as mock_scan:
         mock_scan.return_value = mock_results
 
         result = runner.invoke(cli, ["detect", "redis"])

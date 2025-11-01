@@ -1,9 +1,11 @@
 # Review Screen Specification
 
 ## Purpose
+
 Display summary of all configuration choices, allow confirmation or editing.
 
 ## Layout
+
 ```
 ╔══════════════════════════════════════════════════════════════╗
 ║                  Configuration Review                        ║
@@ -62,6 +64,7 @@ Generated Files
 ## User Inputs
 
 ### Action Selection
+
 - **Field**: `action`
 - **Type**: Single selection (radio)
 - **Options**:
@@ -76,12 +79,15 @@ Generated Files
 ## Display Sections
 
 ### Project Configuration
+
 - Project name
 - Setup mode (Quick/Custom)
 - Started timestamp
 
 ### Enabled Services
+
 For each service (Redis, PostgreSQL, Temporal):
+
 - Status icon (✓ enabled, ✗ disabled)
 - Service name
 - Key configuration values (only if enabled):
@@ -93,11 +99,13 @@ For each service (Redis, PostgreSQL, Temporal):
   - Max connections
 
 ### Deployment Configuration
+
 - Deployment method
 - Auto-start setting
 - Prerequisites status
 
 ### Generated Files
+
 - List of files that will be created
 - Full paths where available
 - Brief description of each file
@@ -109,6 +117,7 @@ No user input validation required (summary display).
 ## Help Text
 
 ### Review Help
+
 ```
 Configuration Review
 ═══════════════════════════════════════════════════════════
@@ -129,6 +138,7 @@ All changes can be modified later by:
 ## Confirmation Dialog
 
 When user selects "Confirm and generate configuration":
+
 ```
 ? Are you ready to generate configuration?
   This will create the following files:
@@ -146,6 +156,7 @@ When user selects "Confirm and generate configuration":
 ## Cancel Confirmation
 
 When user selects "Cancel and exit":
+
 ```
 ? Are you sure you want to cancel?
 
@@ -162,6 +173,7 @@ When user selects "Cancel and exit":
 ## State Updates
 
 On completion of this screen:
+
 - If `confirm`: Mark wizard as ready for completion
 - If `edit_*`: Jump to specified screen
 - If `cancel`: Exit wizard
@@ -364,16 +376,17 @@ def display_review_summary(state: WizardState) -> None:
 This screen serves as a final checkpoint:
 
 1. **Transparency**: Show complete configuration before committing
-2. **Safety**: Multiple edit options prevent mistakes
-3. **Clarity**: Organized sections for easy scanning
-4. **Flexibility**: Jump back to any section for edits
-5. **Confirmation**: Explicit confirmation before generation
-6. **Recovery**: Save and exit option preserves progress
-7. **Visibility**: Shows generated file paths upfront
+1. **Safety**: Multiple edit options prevent mistakes
+1. **Clarity**: Organized sections for easy scanning
+1. **Flexibility**: Jump back to any section for edits
+1. **Confirmation**: Explicit confirmation before generation
+1. **Recovery**: Save and exit option preserves progress
+1. **Visibility**: Shows generated file paths upfront
 
 ## Example Output
 
 ### Quick Setup with Redis + PostgreSQL
+
 ```
 Project Configuration
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -405,6 +418,7 @@ Deployment Configuration
 ```
 
 ### Custom Setup with All Services
+
 ```
 Project Configuration
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

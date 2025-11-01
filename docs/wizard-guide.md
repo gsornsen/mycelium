@@ -42,8 +42,8 @@ The `mycelium init` wizard provides an interactive, step-by-step onboarding expe
 Before running the wizard, ensure:
 
 1. You have Mycelium installed: `pip install mycelium-onboarding`
-2. You have appropriate permissions to detect services
-3. (Optional) Docker is installed if you want container-based deployment
+1. You have appropriate permissions to detect services
+1. (Optional) Docker is installed if you want container-based deployment
 
 ### First-Time Setup
 
@@ -54,10 +54,11 @@ mycelium init
 ```
 
 This will:
+
 1. Welcome you to Mycelium
-2. Auto-detect available services
-3. Guide you through configuration
-4. Save your settings
+1. Auto-detect available services
+1. Guide you through configuration
+1. Save your settings
 
 ### Quick Start Example
 
@@ -84,15 +85,18 @@ The wizard consists of 7 screens that guide you through setup:
 **Purpose**: Choose your setup mode and understand what the wizard does.
 
 **Options**:
+
 - **Quick Setup**: Recommended for first-time users, uses smart defaults
 - **Custom Setup**: Advanced configuration with all options
 - **Exit**: Cancel wizard
 
 **What to Choose**:
+
 - First time? → **Quick Setup**
 - Need custom ports or advanced settings? → **Custom Setup**
 
 **Example**:
+
 ```
 ╭─────────────────────────────────────────────────────────╮
 │                 Mycelium Setup Wizard                   │
@@ -116,6 +120,7 @@ The wizard consists of 7 screens that guide you through setup:
 **Purpose**: Automatically detect available services on your system.
 
 **What It Detects**:
+
 - Docker daemon and version
 - Redis instances and ports
 - PostgreSQL instances
@@ -123,10 +128,12 @@ The wizard consists of 7 screens that guide you through setup:
 - GPU availability (NVIDIA/AMD)
 
 **Actions**:
+
 - View detection results in a formatted table
 - Option to re-run detection if needed
 
 **Example Output**:
+
 ```
 Detecting Services...
 
@@ -152,20 +159,24 @@ Detection completed in 2.35s
 **Purpose**: Select which services to enable and configure service-specific settings.
 
 **Available Services**:
+
 - **Redis**: Message broker and caching
 - **PostgreSQL**: Primary database
 - **Temporal**: Workflow orchestration
 
 **Configuration Prompts**:
+
 - PostgreSQL database name (if enabled)
 - Temporal namespace (if enabled)
 
 **Tips**:
+
 - Services detected on your system are pre-selected
 - At least one service must be enabled
 - Database names cannot contain hyphens
 
 **Example**:
+
 ```
 Select Services to Enable
 
@@ -184,24 +195,29 @@ Select Services to Enable
 **Deployment Methods**:
 
 1. **Docker Compose** (Recommended)
+
    - Best for development and small deployments
    - Requires Docker installed
    - Easy to manage with `docker-compose` commands
 
-2. **Kubernetes**
+1. **Kubernetes**
+
    - Best for production and scalability
    - Requires Kubernetes cluster
    - Advanced orchestration features
 
-3. **systemd**
+1. **systemd**
+
    - Native Linux services
    - No Docker required
    - System-level integration
 
 **Additional Options**:
+
 - **Auto-start**: Start services on system boot
 
 **Example**:
+
 ```
 Deployment Configuration
 
@@ -220,6 +236,7 @@ Deployment Configuration
 **Skipped In**: Quick Setup mode
 
 **Available Options**:
+
 - Data persistence enable/disable
 - Custom port configuration:
   - Redis port (default: 6379)
@@ -228,11 +245,13 @@ Deployment Configuration
   - Temporal frontend port (default: 7233)
 
 **When to Use**:
+
 - Need non-standard ports
 - Port conflicts with existing services
 - Disable persistence for testing
 
 **Example**:
+
 ```
 Advanced Configuration
 
@@ -247,11 +266,13 @@ Advanced Configuration
 **Purpose**: Review all settings before finalizing configuration.
 
 **Actions Available**:
+
 1. **Confirm**: Save configuration and complete wizard
-2. **Edit**: Jump back to specific screen to change settings
-3. **Cancel**: Exit without saving
+1. **Edit**: Jump back to specific screen to change settings
+1. **Cancel**: Exit without saving
 
 **Review Table Example**:
+
 ```
 Review Your Configuration
 
@@ -279,11 +300,13 @@ Review Your Configuration
 **Purpose**: Confirm successful setup and show next steps.
 
 **Information Provided**:
+
 - Path to saved configuration file
 - Next steps to start using Mycelium
 - Helpful commands
 
 **Example**:
+
 ```
 ╭─────────────────────────────────────────────────╮
 │          ✓ Configuration Complete!             │
@@ -307,12 +330,14 @@ Review Your Configuration
 **Best For**: First-time users, standard deployments
 
 **Features**:
+
 - Smart defaults based on detection
 - Skips advanced configuration
 - Fastest path to running system
 - Uses standard ports
 
 **Flow**:
+
 1. Welcome → 2. Detection → 3. Services → 4. Deployment → 6. Review → 7. Complete
 
 **Time**: 2-3 minutes
@@ -322,12 +347,14 @@ Review Your Configuration
 **Best For**: Advanced users, custom configurations, production deployments
 
 **Features**:
+
 - Full control over all settings
 - Custom port configuration
 - Advanced options (persistence, etc.)
 - All deployment methods available
 
 **Flow**:
+
 1. Welcome → 2. Detection → 3. Services → 4. Deployment → 5. Advanced → 6. Review → 7. Complete
 
 **Time**: 5-10 minutes
@@ -339,17 +366,18 @@ Review Your Configuration
 **Goal**: Get started with Mycelium quickly.
 
 **Steps**:
+
 ```bash
 mycelium init
 ```
 
 1. Select "Quick Setup"
-2. Review detected services (auto-selected)
-3. Enter project name: `my-first-project`
-4. Keep default services or adjust selection
-5. Choose "Docker Compose" deployment
-6. Enable auto-start: Yes
-7. Review and confirm
+1. Review detected services (auto-selected)
+1. Enter project name: `my-first-project`
+1. Keep default services or adjust selection
+1. Choose "Docker Compose" deployment
+1. Enable auto-start: Yes
+1. Review and confirm
 
 **Result**: Ready-to-use configuration in ~2 minutes
 
@@ -358,23 +386,24 @@ mycelium init
 **Goal**: Configure Mycelium for production with custom ports.
 
 **Steps**:
+
 ```bash
 mycelium init
 ```
 
 1. Select "Custom Setup"
-2. Review detection results
-3. Enter project name: `production-app`
-4. Select all needed services
-5. Configure PostgreSQL database: `prod_db`
-6. Configure Temporal namespace: `production`
-7. Choose "Kubernetes" deployment
-8. Enable auto-start: Yes
-9. **Advanced Configuration**:
+1. Review detection results
+1. Enter project name: `production-app`
+1. Select all needed services
+1. Configure PostgreSQL database: `prod_db`
+1. Configure Temporal namespace: `production`
+1. Choose "Kubernetes" deployment
+1. Enable auto-start: Yes
+1. **Advanced Configuration**:
    - Enable persistence: Yes
    - Redis port: 6380 (avoid conflict)
    - PostgreSQL port: 5433 (avoid conflict)
-10. Review and confirm
+1. Review and confirm
 
 **Result**: Production-ready configuration with custom ports
 
@@ -383,6 +412,7 @@ mycelium init
 **Goal**: Continue wizard after interruption (Ctrl+C, error, or closed terminal).
 
 **Steps**:
+
 ```bash
 mycelium init
 ```
@@ -393,6 +423,7 @@ mycelium init
 - Continues from last completed step
 
 **Alternative**:
+
 ```bash
 # Force resume
 mycelium init --resume
@@ -406,16 +437,17 @@ mycelium init --no-resume
 **Goal**: Set up only Redis for testing.
 
 **Steps**:
+
 ```bash
 mycelium init
 ```
 
 1. Select "Quick Setup"
-2. Wait for detection
-3. Enter project name: `redis-test`
-4. **Deselect** all services except Redis (use spacebar)
-5. Choose "Docker Compose"
-6. Review and confirm
+1. Wait for detection
+1. Enter project name: `redis-test`
+1. **Deselect** all services except Redis (use spacebar)
+1. Choose "Docker Compose"
+1. Review and confirm
 
 **Result**: Minimal configuration with only Redis enabled
 
@@ -424,19 +456,21 @@ mycelium init
 **Goal**: Change service selection after reviewing.
 
 **Steps**:
+
 ```bash
 mycelium init
 # ... complete wizard until Review screen
 ```
 
 At Review screen:
+
 1. Select "Edit a setting"
-2. Choose "Services"
-3. Update service selection
-4. Wizard jumps back to Services screen
-5. Make changes
-6. Flow continues to Review again
-7. Confirm
+1. Choose "Services"
+1. Update service selection
+1. Wizard jumps back to Services screen
+1. Make changes
+1. Flow continues to Review again
+1. Confirm
 
 **Result**: Updated configuration with edited settings
 
@@ -445,6 +479,7 @@ At Review screen:
 **Goal**: Start fresh if wizard state is corrupted.
 
 **Steps**:
+
 ```bash
 # Clear state and start fresh
 mycelium init --reset
@@ -454,6 +489,7 @@ mycelium init --reset
 ```
 
 **When to Use**:
+
 - Wizard won't resume properly
 - Saved state is corrupted
 - Want to start completely fresh
@@ -463,89 +499,103 @@ mycelium init --reset
 ### Problem: Wizard Won't Start
 
 **Symptoms**:
+
 - Command hangs
 - No output displayed
 - Immediate exit
 
 **Solutions**:
+
 1. Check Python version: `python --version` (requires 3.10+)
-2. Verify installation: `pip show mycelium-onboarding`
-3. Check permissions: Ensure you can write to config directory
-4. Clear corrupted state: `mycelium init --reset`
+1. Verify installation: `pip show mycelium-onboarding`
+1. Check permissions: Ensure you can write to config directory
+1. Clear corrupted state: `mycelium init --reset`
 
 ### Problem: Detection Takes Too Long
 
 **Symptoms**:
+
 - Detection screen hangs for >30 seconds
 - No progress indicator movement
 
 **Solutions**:
+
 1. Check network connectivity (some services need network)
-2. Verify Docker is running: `docker ps`
-3. Interrupt and start fresh: Ctrl+C, then `mycelium init --reset`
-4. Skip detection issues: Detection failures are non-fatal
+1. Verify Docker is running: `docker ps`
+1. Interrupt and start fresh: Ctrl+C, then `mycelium init --reset`
+1. Skip detection issues: Detection failures are non-fatal
 
 ### Problem: Port Conflicts
 
 **Symptoms**:
+
 - Validation error: "Port conflicts with..."
 - Cannot complete wizard
 
 **Solutions**:
+
 1. Use Custom Setup mode for port configuration
-2. Change conflicting ports in Advanced Configuration
-3. Check running services: `netstat -tulpn | grep <port>`
-4. Stop conflicting services before setup
+1. Change conflicting ports in Advanced Configuration
+1. Check running services: `netstat -tulpn | grep <port>`
+1. Stop conflicting services before setup
 
 ### Problem: Database Name Invalid
 
 **Symptoms**:
+
 - Validation error: "Database name must start with a letter"
 - Error: "Database name cannot contain hyphens"
 
 **Solutions**:
+
 1. Use underscores instead of hyphens: `my_database`
-2. Start with a letter: `db_123` not `123_db`
-3. Use only alphanumeric and underscores
-4. Keep under 63 characters (PostgreSQL limit)
+1. Start with a letter: `db_123` not `123_db`
+1. Use only alphanumeric and underscores
+1. Keep under 63 characters (PostgreSQL limit)
 
 ### Problem: Resume Not Working
 
 **Symptoms**:
+
 - Resume prompt doesn't appear
 - Saved state not loaded
 
 **Solutions**:
+
 1. Check state file exists: `~/.local/state/mycelium/wizard_state.json`
-2. Force resume: `mycelium init --resume`
-3. Clear and restart: `mycelium init --reset`
-4. Check file permissions on state directory
+1. Force resume: `mycelium init --resume`
+1. Clear and restart: `mycelium init --reset`
+1. Check file permissions on state directory
 
 ### Problem: Configuration Not Saved
 
 **Symptoms**:
+
 - Wizard completes but config missing
 - Commands don't find configuration
 
 **Solutions**:
+
 1. Check config location: `mycelium config show`
-2. Verify directory exists: `~/.config/mycelium/`
-3. Check write permissions on config directory
-4. Re-run wizard: `mycelium init --no-resume`
+1. Verify directory exists: `~/.config/mycelium/`
+1. Check write permissions on config directory
+1. Re-run wizard: `mycelium init --no-resume`
 
 ### Problem: Services Not Detected
 
 **Symptoms**:
+
 - Detection shows "Not Found" for running services
 - All services appear unavailable
 
 **Solutions**:
+
 1. **Docker**: Ensure daemon is running: `docker ps`
-2. **Redis**: Check it's listening: `redis-cli ping`
-3. **PostgreSQL**: Verify it's running: `pg_isready`
-4. **Permissions**: May need elevated permissions for detection
-5. **Network**: Some detection requires network access
-6. **Re-run**: Use "Would you like to re-run detection?" option
+1. **Redis**: Check it's listening: `redis-cli ping`
+1. **PostgreSQL**: Verify it's running: `pg_isready`
+1. **Permissions**: May need elevated permissions for detection
+1. **Network**: Some detection requires network access
+1. **Re-run**: Use "Would you like to re-run detection?" option
 
 ## FAQ
 
@@ -644,26 +694,31 @@ A: The wizard is interactive. For CI/CD, create config files programmatically or
 After completing the wizard:
 
 1. **Review Configuration**:
+
    ```bash
    mycelium config show
    ```
 
-2. **Validate Setup**:
+1. **Validate Setup**:
+
    ```bash
    mycelium config validate
    ```
 
-3. **Start Services**:
+1. **Start Services**:
+
    ```bash
    mycelium deploy start
    ```
 
-4. **Check Status**:
+1. **Check Status**:
+
    ```bash
    mycelium status
    ```
 
-5. **Explore Documentation**:
+1. **Explore Documentation**:
+
    - [API Reference](./wizard-reference.md)
    - [Integration Guide](./wizard-integration.md)
    - [Configuration Schema](./config-schema.md)
@@ -673,9 +728,8 @@ After completing the wizard:
 - **Documentation**: `mycelium --help`
 - **Command Help**: `mycelium <command> --help`
 - **Report Issues**: [GitHub Issues](https://github.com/gsornsen/mycelium/issues)
-- **Community**: [Discord/Slack Channel Link]
+- **Community**: \[Discord/Slack Channel Link\]
 
----
+______________________________________________________________________
 
-**Last Updated**: 2025-10-14
-**Version**: M04 (Interactive Onboarding)
+**Last Updated**: 2025-10-14 **Version**: M04 (Interactive Onboarding)

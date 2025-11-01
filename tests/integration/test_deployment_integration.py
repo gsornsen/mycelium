@@ -18,21 +18,16 @@ Test Coverage:
 
 from __future__ import annotations
 
-import json
-import subprocess
 from pathlib import Path
-from unittest.mock import MagicMock, patch
 
 import pytest
 import yaml
 from click.testing import CliRunner
 
 from mycelium_onboarding.cli import cli
-from mycelium_onboarding.config.manager import ConfigManager
 from mycelium_onboarding.config.schema import DeploymentMethod, MyceliumConfig
 from mycelium_onboarding.deployment.generator import DeploymentGenerator
 from mycelium_onboarding.deployment.secrets import SecretsManager
-
 
 # ============================================================================
 # Docker Compose Integration Tests
@@ -64,7 +59,7 @@ class TestDeploymentE2EDockerCompose:
         assert (tmp_path / "README.md").exists()
 
         # Validate docker-compose.yml is valid YAML
-        with open(tmp_path / "docker-compose.yml") as f:
+        with (tmp_path / "docker-compose.yml").open() as f:
             compose_config = yaml.safe_load(f)
 
         assert "services" in compose_config
@@ -124,7 +119,7 @@ class TestDeploymentE2EDockerCompose:
 
         assert result.success
 
-        with open(tmp_path / "docker-compose.yml") as f:
+        with (tmp_path / "docker-compose.yml").open() as f:
             compose_config = yaml.safe_load(f)
 
         assert "redis" in compose_config["services"]
@@ -147,7 +142,7 @@ class TestDeploymentE2EDockerCompose:
 
         assert result.success
 
-        with open(tmp_path / "docker-compose.yml") as f:
+        with (tmp_path / "docker-compose.yml").open() as f:
             compose_config = yaml.safe_load(f)
 
         assert "redis" in compose_config["services"]
@@ -169,7 +164,7 @@ class TestDeploymentE2EDockerCompose:
 
         assert result.success
 
-        with open(tmp_path / "docker-compose.yml") as f:
+        with (tmp_path / "docker-compose.yml").open() as f:
             compose_config = yaml.safe_load(f)
 
         # Verify custom ports
@@ -250,7 +245,7 @@ class TestDeploymentE2EKubernetes:
         assert result.success
 
         namespace_file = tmp_path / "kubernetes" / "00-namespace.yaml"
-        with open(namespace_file) as f:
+        with namespace_file.open() as f:
             namespace_manifest = yaml.safe_load(f)
 
         assert namespace_manifest["kind"] == "Namespace"
@@ -269,7 +264,7 @@ class TestDeploymentE2EKubernetes:
         assert result.success
 
         redis_file = tmp_path / "kubernetes" / "10-redis.yaml"
-        with open(redis_file) as f:
+        with redis_file.open() as f:
             # YAML file contains multiple documents
             docs = list(yaml.safe_load_all(f))
 
@@ -291,7 +286,7 @@ class TestDeploymentE2EKubernetes:
         assert result.success
 
         postgres_file = tmp_path / "kubernetes" / "20-postgres.yaml"
-        with open(postgres_file) as f:
+        with postgres_file.open() as f:
             docs = list(yaml.safe_load_all(f))
 
         kinds = [doc["kind"] for doc in docs if doc]
@@ -314,7 +309,7 @@ class TestDeploymentE2EKubernetes:
         assert result.success
 
         kustomize_file = tmp_path / "kubernetes" / "kustomization.yaml"
-        with open(kustomize_file) as f:
+        with kustomize_file.open() as f:
             kustomize_config = yaml.safe_load(f)
 
         assert kustomize_config["kind"] == "Kustomization"
@@ -524,14 +519,10 @@ class TestCLIIntegration:
         config_path.write_text(config.to_yaml())
 
         # Mock ConfigManager to use our test config
-        mocker.patch(
-            "mycelium_onboarding.cli.ConfigManager.load", return_value=config
-        )
+        mocker.patch("mycelium_onboarding.cli.ConfigManager.load", return_value=config)
 
         runner = CliRunner()
-        result = runner.invoke(
-            cli, ["deploy", "generate", "--output", str(tmp_path / "output")]
-        )
+        result = runner.invoke(cli, ["deploy", "generate", "--output", str(tmp_path / "output")])
 
         assert result.exit_code == 0
         assert "Deployment generated successfully" in result.output
@@ -544,9 +535,7 @@ class TestCLIIntegration:
             deployment={"method": "docker-compose"},
         )
 
-        mocker.patch(
-            "mycelium_onboarding.cli.ConfigManager.load", return_value=config
-        )
+        mocker.patch("mycelium_onboarding.cli.ConfigManager.load", return_value=config)
 
         runner = CliRunner()
         result = runner.invoke(
@@ -585,9 +574,7 @@ class TestCLIIntegration:
         )
 
         # Mock ConfigManager
-        mocker.patch(
-            "mycelium_onboarding.cli.ConfigManager.load", return_value=config
-        )
+        mocker.patch("mycelium_onboarding.cli.ConfigManager.load", return_value=config)
 
         runner = CliRunner()
         result = runner.invoke(cli, ["deploy", "secrets"])
@@ -604,9 +591,7 @@ class TestCLIIntegration:
             services={"redis": {"enabled": True}},
         )
 
-        mocker.patch(
-            "mycelium_onboarding.cli.ConfigManager.load", return_value=config
-        )
+        mocker.patch("mycelium_onboarding.cli.ConfigManager.load", return_value=config)
 
         runner = CliRunner()
         result = runner.invoke(
@@ -644,9 +629,7 @@ class TestSecretsIntegration:
         )
 
         # Generate secrets
-        secrets_mgr = SecretsManager(
-            config.project_name, secrets_dir=tmp_path / "secrets"
-        )
+        secrets_mgr = SecretsManager(config.project_name, secrets_dir=tmp_path / "secrets")
         secrets_obj = secrets_mgr.generate_secrets(postgres=True, redis=True)
         secrets_mgr.save_secrets(secrets_obj)
 
@@ -723,7 +706,7 @@ class TestTemplateValidation:
         assert result.success
 
         # Parse YAML to ensure it's valid
-        with open(tmp_path / "docker-compose.yml") as f:
+        with (tmp_path / "docker-compose.yml").open() as f:
             compose_config = yaml.safe_load(f)
 
         assert compose_config is not None
@@ -749,7 +732,7 @@ class TestTemplateValidation:
 
         # Validate each YAML file
         for yaml_file in yaml_files:
-            with open(yaml_file) as f:
+            with yaml_file.open() as f:
                 # Handle multi-document YAML
                 docs = list(yaml.safe_load_all(f))
                 assert len(docs) > 0
@@ -807,7 +790,7 @@ class TestErrorScenarios:
             services={"redis": {"enabled": True}},
         )
 
-        generator = DeploymentGenerator(config, output_dir=tmp_path)
+        DeploymentGenerator(config, output_dir=tmp_path)
 
         # Try to generate with invalid method (cast from string)
         with pytest.raises(ValueError):

@@ -1,19 +1,18 @@
 """Unit tests for handoff protocol implementation."""
 
 import json
-import pytest
-from datetime import datetime
 
-from plugins.mycelium_core.coordination.protocol import (
-    HandoffProtocol,
-    HandoffMessage,
+import pytest
+from coordination.protocol import (
     AgentInfo,
     HandoffContext,
-    HandoffState,
+    HandoffMessage,
     HandoffMetadata,
-    WorkflowProgress,
-    HandoffValidationError,
+    HandoffProtocol,
     HandoffProtocolError,
+    HandoffState,
+    HandoffValidationError,
+    WorkflowProgress,
 )
 
 
@@ -209,9 +208,7 @@ def test_handoff_protocol_validation_failure():
     context = HandoffContext()
     metadata = HandoffMetadata(priority="invalid_priority")  # Invalid value
 
-    message = HandoffMessage(
-        source=source, target=target, context=context, metadata=metadata
-    )
+    message = HandoffMessage(source=source, target=target, context=context, metadata=metadata)
 
     # Should raise validation error
     with pytest.raises(HandoffValidationError):

@@ -58,6 +58,7 @@ print(f"Workflow {result.status}: {result.workflow_id}")
 Main orchestration engine that manages workflow execution.
 
 **Key Features:**
+
 - Sequential and parallel task execution
 - Dependency resolution with cycle detection
 - Retry policies with exponential backoff
@@ -66,6 +67,7 @@ Main orchestration engine that manages workflow execution.
 - Pause/resume/cancel operations
 
 **Usage:**
+
 ```python
 orchestrator = WorkflowOrchestrator(
     state_manager=state_manager,
@@ -86,12 +88,14 @@ result = await orchestrator.execute_workflow(workflow_id)
 Manages workflow state persistence with PostgreSQL backend.
 
 **Key Features:**
+
 - Workflow and task state persistence
 - Version tracking for rollback
 - Atomic updates with transactions
 - Query capabilities
 
 **Usage:**
+
 ```python
 state_manager = StateManager(
     connection_string="postgresql://localhost/mycelium_registry"
@@ -118,12 +122,14 @@ await state_manager.rollback_workflow(workflow_id, version=1)
 Structured protocol for agent-to-agent communication.
 
 **Key Features:**
+
 - JSON schema validation
 - Context preservation
 - Progress tracking
 - Metadata support
 
 **Usage:**
+
 ```python
 from plugins.mycelium_core.coordination import HandoffProtocol
 
@@ -304,7 +310,7 @@ except OrchestrationError as e:
 
 ### Memory Overhead
 
-- Target: <50MB per workflow
+- Target: \<50MB per workflow
 - Achieved: ~1MB per 100 tasks
 - State stored in database, not memory
 
@@ -312,7 +318,7 @@ except OrchestrationError as e:
 
 - Sequential: Sum of task execution times
 - Parallel: ≈ Longest task execution time
-- State updates: <10ms per update
+- State updates: \<10ms per update
 
 ### Scalability
 

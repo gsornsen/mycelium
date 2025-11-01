@@ -10,9 +10,7 @@ from __future__ import annotations
 import subprocess
 from pathlib import Path
 from typing import Any
-from unittest.mock import MagicMock, Mock, patch
-
-import pytest
+from unittest.mock import MagicMock, patch
 
 from mycelium_onboarding.detection.gpu_detector import (
     GPUDetectionResult,
@@ -51,10 +49,7 @@ class TestNvidiaGPUDetection:
 
     def test_detect_nvidia_gpus_multiple_gpus(self) -> None:
         """Test detection of multiple NVIDIA GPUs."""
-        mock_output = (
-            "0, NVIDIA GeForce RTX 3080, 10240, 470.57.02\n"
-            "1, NVIDIA GeForce RTX 3090, 24576, 470.57.02\n"
-        )
+        mock_output = "0, NVIDIA GeForce RTX 3080, 10240, 470.57.02\n1, NVIDIA GeForce RTX 3090, 24576, 470.57.02\n"
         with patch("subprocess.run") as mock_run:
             mock_run.return_value = MagicMock(
                 returncode=0,
@@ -141,8 +136,13 @@ class TestNvidiaGPUDetection:
     def test_detect_nvidia_gpus_with_cuda_version(self) -> None:
         """Test NVIDIA detection includes CUDA version."""
         mock_output = "0, NVIDIA GeForce RTX 3080, 10240, 470.57.02\n"
-        with patch("subprocess.run") as mock_run, \
-             patch("mycelium_onboarding.detection.gpu_detector.get_cuda_version", return_value="11.8"):
+        with (
+            patch("subprocess.run") as mock_run,
+            patch(
+                "mycelium_onboarding.detection.gpu_detector.get_cuda_version",
+                return_value="11.8",
+            ),
+        ):
             mock_run.return_value = MagicMock(
                 returncode=0,
                 stdout=mock_output,
@@ -177,10 +177,7 @@ class TestAMDGPUDetection:
 
     def test_detect_amd_gpus_multiple_gpus(self) -> None:
         """Test detection of multiple AMD GPUs."""
-        mock_output = (
-            "GPU[0]: AMD Radeon RX 6900 XT\n"
-            "GPU[1]: AMD Radeon RX 6800\n"
-        )
+        mock_output = "GPU[0]: AMD Radeon RX 6900 XT\nGPU[1]: AMD Radeon RX 6800\n"
         with patch("subprocess.run") as mock_run:
             mock_run.return_value = MagicMock(
                 returncode=0,
@@ -217,8 +214,13 @@ class TestAMDGPUDetection:
     def test_detect_amd_gpus_with_rocm_version(self) -> None:
         """Test AMD detection includes ROCm version."""
         mock_output = "GPU[0]: AMD Radeon RX 6900 XT\n"
-        with patch("subprocess.run") as mock_run, \
-             patch("mycelium_onboarding.detection.gpu_detector.get_rocm_version", return_value="5.4.0"):
+        with (
+            patch("subprocess.run") as mock_run,
+            patch(
+                "mycelium_onboarding.detection.gpu_detector.get_rocm_version",
+                return_value="5.4.0",
+            ),
+        ):
             mock_run.return_value = MagicMock(
                 returncode=0,
                 stdout=mock_output,
@@ -242,12 +244,11 @@ class TestIntelGPUDetection:
 
     def test_detect_intel_gpus_linux(self) -> None:
         """Test Intel GPU detection on Linux."""
-        mock_output = (
-            "00:02.0 VGA compatible controller: Intel Corporation "
-            "UHD Graphics 630 (rev 04)\n"
-        )
-        with patch("platform.system", return_value="Linux"), \
-             patch("subprocess.run") as mock_run:
+        mock_output = "00:02.0 VGA compatible controller: Intel Corporation UHD Graphics 630 (rev 04)\n"
+        with (
+            patch("platform.system", return_value="Linux"),
+            patch("subprocess.run") as mock_run,
+        ):
             mock_run.return_value = MagicMock(
                 returncode=0,
                 stdout=mock_output,
@@ -268,8 +269,10 @@ class TestIntelGPUDetection:
             "UHD Graphics 630 (rev 04)\n"
             "01:00.0 3D controller: Intel Corporation DG1 [Iris Xe MAX]\n"
         )
-        with patch("platform.system", return_value="Linux"), \
-             patch("subprocess.run") as mock_run:
+        with (
+            patch("platform.system", return_value="Linux"),
+            patch("subprocess.run") as mock_run,
+        ):
             mock_run.return_value = MagicMock(
                 returncode=0,
                 stdout=mock_output,
@@ -284,12 +287,11 @@ class TestIntelGPUDetection:
 
     def test_detect_intel_gpus_linux_no_intel(self) -> None:
         """Test Intel GPU detection on Linux with no Intel GPUs."""
-        mock_output = (
-            "01:00.0 VGA compatible controller: NVIDIA Corporation "
-            "GA102 [GeForce RTX 3080]\n"
-        )
-        with patch("platform.system", return_value="Linux"), \
-             patch("subprocess.run") as mock_run:
+        mock_output = "01:00.0 VGA compatible controller: NVIDIA Corporation GA102 [GeForce RTX 3080]\n"
+        with (
+            patch("platform.system", return_value="Linux"),
+            patch("subprocess.run") as mock_run,
+        ):
             mock_run.return_value = MagicMock(
                 returncode=0,
                 stdout=mock_output,
@@ -301,8 +303,10 @@ class TestIntelGPUDetection:
 
     def test_detect_intel_gpus_linux_lspci_not_found(self) -> None:
         """Test Intel GPU detection when lspci not available."""
-        with patch("platform.system", return_value="Linux"), \
-             patch("subprocess.run", side_effect=FileNotFoundError):
+        with (
+            patch("platform.system", return_value="Linux"),
+            patch("subprocess.run", side_effect=FileNotFoundError),
+        ):
             gpus = detect_intel_gpus()
             assert len(gpus) == 0
 
@@ -319,8 +323,10 @@ class TestIntelGPUDetection:
       Vendor: Intel
       Device ID: 0x3e9b
 """
-        with patch("platform.system", return_value="Darwin"), \
-             patch("subprocess.run") as mock_run:
+        with (
+            patch("platform.system", return_value="Darwin"),
+            patch("subprocess.run") as mock_run,
+        ):
             mock_run.return_value = MagicMock(
                 returncode=0,
                 stdout=mock_output,
@@ -343,8 +349,10 @@ class TestIntelGPUDetection:
       Chipset Model: Intel Iris Plus Graphics
       VRAM (Dynamic, Max): 2 GB
 """
-        with patch("platform.system", return_value="Darwin"), \
-             patch("subprocess.run") as mock_run:
+        with (
+            patch("platform.system", return_value="Darwin"),
+            patch("subprocess.run") as mock_run,
+        ):
             mock_run.return_value = MagicMock(
                 returncode=0,
                 stdout=mock_output,
@@ -366,8 +374,10 @@ class TestIntelGPUDetection:
       Type: GPU
       VRAM (Dynamic, Max): 8192 MB
 """
-        with patch("platform.system", return_value="Darwin"), \
-             patch("subprocess.run") as mock_run:
+        with (
+            patch("platform.system", return_value="Darwin"),
+            patch("subprocess.run") as mock_run,
+        ):
             mock_run.return_value = MagicMock(
                 returncode=0,
                 stdout=mock_output,
@@ -382,8 +392,10 @@ class TestIntelGPUDetection:
         mock_output = """Name
 Intel(R) UHD Graphics 630
 """
-        with patch("platform.system", return_value="Windows"), \
-             patch("subprocess.run") as mock_run:
+        with (
+            patch("platform.system", return_value="Windows"),
+            patch("subprocess.run") as mock_run,
+        ):
             mock_run.return_value = MagicMock(
                 returncode=0,
                 stdout=mock_output,
@@ -465,16 +477,20 @@ class TestROCmVersion:
         version_file.parent.mkdir(parents=True)
         version_file.write_text("5.4.0\n")
 
-        with patch("pathlib.Path.exists", return_value=True), \
-             patch("pathlib.Path.read_text", return_value="5.4.0\n"):
+        with (
+            patch("pathlib.Path.exists", return_value=True),
+            patch("pathlib.Path.read_text", return_value="5.4.0\n"),
+        ):
             version = get_rocm_version()
             assert version == "5.4.0"
 
     def test_get_rocm_version_from_rocm_smi(self) -> None:
         """Test ROCm version detection from rocm-smi."""
         mock_output = "ROCm System Management Interface version: 5.4.0\n"
-        with patch("pathlib.Path.exists", return_value=False), \
-             patch("subprocess.run") as mock_run:
+        with (
+            patch("pathlib.Path.exists", return_value=False),
+            patch("subprocess.run") as mock_run,
+        ):
             mock_run.return_value = MagicMock(
                 returncode=0,
                 stdout=mock_output,
@@ -486,8 +502,10 @@ class TestROCmVersion:
 
     def test_get_rocm_version_not_found(self) -> None:
         """Test ROCm version when ROCm not installed."""
-        with patch("pathlib.Path.exists", return_value=False), \
-             patch("subprocess.run", side_effect=FileNotFoundError):
+        with (
+            patch("pathlib.Path.exists", return_value=False),
+            patch("subprocess.run", side_effect=FileNotFoundError),
+        ):
             version = get_rocm_version()
             assert version is None
 
@@ -524,12 +542,12 @@ class TestGPUDetectionIntegration:
             call_count += 1
             if call_count == 1:  # nvidia-smi
                 return MagicMock(returncode=1, stdout="", stderr="")
-            else:  # rocm-smi
-                return MagicMock(
-                    returncode=0,
-                    stdout="GPU[0]: AMD Radeon RX 6900 XT\n",
-                    stderr="",
-                )
+            # rocm-smi
+            return MagicMock(
+                returncode=0,
+                stdout="GPU[0]: AMD Radeon RX 6900 XT\n",
+                stderr="",
+            )
 
         with patch("subprocess.run", side_effect=mock_run):
             result = detect_gpus()
@@ -551,12 +569,12 @@ class TestGPUDetectionIntegration:
                     stdout="0, NVIDIA GeForce RTX 3080, 10240, 470.57.02\n",
                     stderr="",
                 )
-            else:  # rocm-smi
-                return MagicMock(
-                    returncode=0,
-                    stdout="GPU[0]: AMD Radeon RX 6900 XT\n",
-                    stderr="",
-                )
+            # rocm-smi
+            return MagicMock(
+                returncode=0,
+                stdout="GPU[0]: AMD Radeon RX 6900 XT\n",
+                stderr="",
+            )
 
         with patch("subprocess.run", side_effect=mock_run):
             result = detect_gpus()
@@ -569,8 +587,10 @@ class TestGPUDetectionIntegration:
 
     def test_detect_gpus_no_gpus(self) -> None:
         """Test detection when no GPUs available."""
-        with patch("subprocess.run") as mock_run, \
-             patch("platform.system", return_value="Linux"):
+        with (
+            patch("subprocess.run") as mock_run,
+            patch("platform.system", return_value="Linux"),
+        ):
             mock_run.return_value = MagicMock(
                 returncode=1,
                 stdout="",
@@ -593,15 +613,17 @@ class TestGPUDetectionIntegration:
             call_count += 1
             if call_count <= 2:  # nvidia-smi and rocm-smi fail
                 return MagicMock(returncode=1, stdout="", stderr="")
-            else:  # lspci succeeds
-                return MagicMock(
-                    returncode=0,
-                    stdout="00:02.0 VGA compatible controller: Intel Corporation UHD Graphics 630\n",
-                    stderr="",
-                )
+            # lspci succeeds
+            return MagicMock(
+                returncode=0,
+                stdout="00:02.0 VGA compatible controller: Intel Corporation UHD Graphics 630\n",
+                stderr="",
+            )
 
-        with patch("subprocess.run", side_effect=mock_run), \
-             patch("platform.system", return_value="Linux"):
+        with (
+            patch("subprocess.run", side_effect=mock_run),
+            patch("platform.system", return_value="Linux"),
+        ):
             result = detect_gpus()
 
             assert result.available is True
@@ -610,10 +632,7 @@ class TestGPUDetectionIntegration:
 
     def test_detect_gpus_total_memory_calculation(self) -> None:
         """Test total memory calculation across multiple GPUs."""
-        mock_output = (
-            "0, NVIDIA GeForce RTX 3080, 10240, 470.57.02\n"
-            "1, NVIDIA GeForce RTX 3090, 24576, 470.57.02\n"
-        )
+        mock_output = "0, NVIDIA GeForce RTX 3080, 10240, 470.57.02\n1, NVIDIA GeForce RTX 3090, 24576, 470.57.02\n"
         with patch("subprocess.run") as mock_run:
             mock_run.return_value = MagicMock(
                 returncode=0,
@@ -629,8 +648,10 @@ class TestGPUDetectionIntegration:
 
     def test_detect_gpus_permission_error(self) -> None:
         """Test GPU detection with permission errors."""
-        with patch("subprocess.run", side_effect=PermissionError("Permission denied")), \
-             patch("platform.system", return_value="Linux"):
+        with (
+            patch("subprocess.run", side_effect=PermissionError("Permission denied")),
+            patch("platform.system", return_value="Linux"),
+        ):
             result = detect_gpus()
 
             assert result.available is False

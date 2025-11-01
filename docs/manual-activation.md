@@ -1,30 +1,30 @@
 # Mycelium Manual Activation Guide
 
-**Version**: 1.0
-**Last Updated**: 2025-10-13
-**Status**: Production Ready
+**Version**: 1.0 **Last Updated**: 2025-10-13 **Status**: Production Ready
 
----
+______________________________________________________________________
 
 ## Table of Contents
 
 1. [Overview](#overview)
-2. [Prerequisites](#prerequisites)
-3. [Quick Start](#quick-start)
-4. [Activation Methods](#activation-methods)
-5. [Troubleshooting](#troubleshooting)
-6. [FAQ](#faq)
-7. [Advanced Usage](#advanced-usage)
+1. [Prerequisites](#prerequisites)
+1. [Quick Start](#quick-start)
+1. [Activation Methods](#activation-methods)
+1. [Troubleshooting](#troubleshooting)
+1. [FAQ](#faq)
+1. [Advanced Usage](#advanced-usage)
 
----
+______________________________________________________________________
 
 ## Overview
 
-This guide covers manual activation of the Mycelium environment for users who don't use direnv or prefer explicit control over their development environment.
+This guide covers manual activation of the Mycelium environment for users who don't use direnv or prefer explicit
+control over their development environment.
 
 ### What is Environment Activation?
 
 Environment activation sets up your shell with the correct:
+
 - Environment variables (paths to config, data, cache directories)
 - Python virtual environment
 - PATH modifications (adds `bin/` to your PATH)
@@ -33,12 +33,13 @@ Environment activation sets up your shell with the correct:
 ### Why Manual Activation?
 
 Manual activation is useful when:
+
 - You don't have direnv installed
 - You're running in CI/CD environments
 - You prefer explicit control
 - You're running automated scripts
 
----
+______________________________________________________________________
 
 ## Prerequisites
 
@@ -59,7 +60,7 @@ Before activating, ensure you have all required dependencies:
 - **uv**: Fast Python package manager ([install](https://github.com/astral-sh/uv))
 - **direnv**: Automatic environment activation ([install](https://direnv.net/))
 
----
+______________________________________________________________________
 
 ## Quick Start
 
@@ -81,6 +82,7 @@ source bin/activate.sh
 ```
 
 You should see:
+
 ```
 Mycelium environment activated (shell: bash)
   MYCELIUM_ROOT: /path/to/mycelium
@@ -88,6 +90,7 @@ Mycelium environment activated (shell: bash)
 ```
 
 Your shell prompt will change to show `(mycelium)`:
+
 ```bash
 (mycelium) user@host:~/mycelium$
 ```
@@ -108,7 +111,7 @@ mycelium-diagnose
 deactivate
 ```
 
----
+______________________________________________________________________
 
 ## Activation Methods
 
@@ -131,11 +134,13 @@ deactivate
 ```
 
 **Advantages**:
+
 - Explicit control
 - Works everywhere (no dependencies)
 - Good for scripting
 
 **Disadvantages**:
+
 - Must remember to activate/deactivate
 - No automatic activation on `cd`
 
@@ -154,17 +159,19 @@ cd /path/to/mycelium
 ```
 
 **Advantages**:
+
 - Automatic activation/deactivation
 - Seamless workflow
 - No manual steps
 
 **Disadvantages**:
+
 - Requires direnv installation
 - Requires shell hook configuration
 
 See [direnv Integration Guide](./direnv-setup.md) for full setup instructions.
 
----
+______________________________________________________________________
 
 ## Troubleshooting
 
@@ -173,6 +180,7 @@ See [direnv Integration Guide](./direnv-setup.md) for full setup instructions.
 **Problem**: You tried to activate while already activated.
 
 **Solution**:
+
 ```bash
 # Deactivate first
 deactivate
@@ -186,11 +194,13 @@ source bin/activate.sh
 **Problem**: The activation script couldn't determine its location.
 
 **Possible causes**:
+
 - Script not sourced (ran directly with `./bin/activate.sh`)
 - Corrupted script
 - Unsupported shell
 
 **Solution**:
+
 ```bash
 # Make sure to SOURCE the script (note the 'source' command)
 source bin/activate.sh
@@ -204,6 +214,7 @@ source bin/activate.sh
 **Problem**: You're not in the Mycelium project directory.
 
 **Solution**:
+
 ```bash
 # Navigate to the project root
 cd /path/to/mycelium
@@ -220,6 +231,7 @@ source bin/activate.sh
 **Problem**: Python virtual environment hasn't been created yet.
 
 **Solution**:
+
 ```bash
 # Create virtual environment and install dependencies
 uv sync
@@ -233,11 +245,13 @@ source bin/activate.sh
 **Problem**: Your shell is not bash or zsh.
 
 **Supported shells**:
+
 - Bash 4.0+
 - Zsh 5.0+
 - Fish 3.0+ (use `source bin/activate.fish` - coming soon)
 
 **Solution**:
+
 ```bash
 # Check your shell
 echo $SHELL
@@ -251,6 +265,7 @@ echo $SHELL
 **Problem**: Can't create directories or write files.
 
 **Solution**:
+
 ```bash
 # Check permissions on your home directory
 ls -ld ~/.config ~/.local ~/.cache
@@ -267,6 +282,7 @@ mycelium-diagnose
 **Problem**: Running in Windows filesystem (/mnt/c/).
 
 **Solution**:
+
 ```bash
 # Move your project to WSL filesystem for better performance
 cp -r /mnt/c/Users/YourName/mycelium ~/mycelium
@@ -274,23 +290,26 @@ cd ~/mycelium
 source bin/activate.sh
 ```
 
----
+______________________________________________________________________
 
 ## FAQ
 
 ### Q: Do I need to activate every time I open a new terminal?
 
-**A**: Yes, with manual activation. Each terminal session needs its own activation. This is by design to keep your environment clean.
+**A**: Yes, with manual activation. Each terminal session needs its own activation. This is by design to keep your
+environment clean.
 
 **Alternative**: Use direnv for automatic activation.
 
 ### Q: Can I have multiple terminal windows with different activations?
 
-**A**: Yes! Each terminal session has its own environment. You can even activate different projects in different terminals.
+**A**: Yes! Each terminal session has its own environment. You can even activate different projects in different
+terminals.
 
 ### Q: What if I activate in directory A and then cd to directory B?
 
-**A**: The activation stays with your shell session, not the directory. You'll still have mycelium environment active in directory B.
+**A**: The activation stays with your shell session, not the directory. You'll still have mycelium environment active in
+directory B.
 
 **To deactivate**: Run `deactivate` before changing to other projects.
 
@@ -307,6 +326,7 @@ Change `"(mycelium)"` to whatever you prefer.
 ### Q: Will activation modify my shell configuration files?
 
 **A**: No! Activation only affects the current shell session. It never modifies:
+
 - ~/.bashrc
 - ~/.zshrc
 - ~/.profile
@@ -317,6 +337,7 @@ Everything is temporary and session-specific.
 ### Q: How do I completely uninstall mycelium environment?
 
 **A**:
+
 ```bash
 # 1. Deactivate if active
 deactivate
@@ -357,9 +378,10 @@ steps:
 
 ### Q: What's the difference between MYCELIUM_ROOT and project root?
 
-**A**: They're the same! MYCELIUM_ROOT is an environment variable that points to the absolute path of your mycelium project directory.
+**A**: They're the same! MYCELIUM_ROOT is an environment variable that points to the absolute path of your mycelium
+project directory.
 
----
+______________________________________________________________________
 
 ## Advanced Usage
 
@@ -377,6 +399,7 @@ source bin/activate.sh --verbose
 ```
 
 This will show:
+
 - Script execution steps (set -x)
 - Timestamps
 - Working directory
@@ -455,30 +478,30 @@ source bin/activate.sh
 # Use .mycelium/config.yaml for dev-specific settings
 ```
 
----
+______________________________________________________________________
 
 ## Environment Variables Reference
 
 After activation, these environment variables are set:
 
-| Variable | Value | Purpose |
-|----------|-------|---------|
-| `MYCELIUM_ROOT` | `/path/to/mycelium` | Project root directory |
-| `MYCELIUM_CONFIG_DIR` | `~/.config/mycelium` | User configuration |
-| `MYCELIUM_DATA_DIR` | `~/.local/share/mycelium` | User data (templates, history) |
-| `MYCELIUM_CACHE_DIR` | `~/.cache/mycelium` | Temporary cache |
-| `MYCELIUM_STATE_DIR` | `~/.local/state/mycelium` | Application state |
-| `MYCELIUM_PROJECT_DIR` | `$MYCELIUM_ROOT/.mycelium` | Project-local config |
-| `MYCELIUM_ENV_ACTIVE` | `1` | Activation flag |
+| Variable               | Value                      | Purpose                        |
+| ---------------------- | -------------------------- | ------------------------------ |
+| `MYCELIUM_ROOT`        | `/path/to/mycelium`        | Project root directory         |
+| `MYCELIUM_CONFIG_DIR`  | `~/.config/mycelium`       | User configuration             |
+| `MYCELIUM_DATA_DIR`    | `~/.local/share/mycelium`  | User data (templates, history) |
+| `MYCELIUM_CACHE_DIR`   | `~/.cache/mycelium`        | Temporary cache                |
+| `MYCELIUM_STATE_DIR`   | `~/.local/state/mycelium`  | Application state              |
+| `MYCELIUM_PROJECT_DIR` | `$MYCELIUM_ROOT/.mycelium` | Project-local config           |
+| `MYCELIUM_ENV_ACTIVE`  | `1`                        | Activation flag                |
 
 ### Internal Variables (Don't Modify)
 
-| Variable | Purpose |
-|----------|---------|
-| `MYCELIUM_OLD_PATH` | Backup of original PATH (for deactivation) |
-| `MYCELIUM_OLD_PS1` | Backup of original prompt (for deactivation) |
+| Variable            | Purpose                                      |
+| ------------------- | -------------------------------------------- |
+| `MYCELIUM_OLD_PATH` | Backup of original PATH (for deactivation)   |
+| `MYCELIUM_OLD_PS1`  | Backup of original prompt (for deactivation) |
 
----
+______________________________________________________________________
 
 ## Scripts Reference
 
@@ -540,7 +563,7 @@ Checks:
   - Conflicting environment variables
 ```
 
----
+______________________________________________________________________
 
 ## Getting Help
 
@@ -569,11 +592,11 @@ See [Environment Isolation Strategy](./design/environment-isolation-strategy.md)
 If you're still having issues:
 
 1. Run diagnostics and save output: `./bin/mycelium-diagnose > diagnostics.txt`
-2. Include your OS and shell version
-3. Describe what you tried and what error you got
-4. Open an issue with this information
+1. Include your OS and shell version
+1. Describe what you tried and what error you got
+1. Open an issue with this information
 
----
+______________________________________________________________________
 
 ## See Also
 
@@ -581,7 +604,6 @@ If you're still having issues:
 - [direnv Setup Guide](./direnv-setup.md) - Automatic activation setup
 - [Contributing Guide](../CONTRIBUTING.md) - Development setup
 
----
+______________________________________________________________________
 
-**Last Updated**: 2025-10-13
-**Maintained By**: DevOps Engineering Team
+**Last Updated**: 2025-10-13 **Maintained By**: DevOps Engineering Team

@@ -31,9 +31,7 @@ class TemporalDetectionResult:
     error_message: str | None = None
 
 
-def detect_temporal(
-    frontend_port: int = 7233, ui_port: int = 8080, timeout: float = 2.0
-) -> TemporalDetectionResult:
+def detect_temporal(frontend_port: int = 7233, ui_port: int = 8080, timeout: float = 2.0) -> TemporalDetectionResult:
     """Detect Temporal server availability.
 
     Args:
@@ -58,7 +56,9 @@ def detect_temporal(
             available=False,
             frontend_port=frontend_port,
             ui_port=ui_port,
-            error_message=f"Temporal frontend not responding on port {frontend_port}. Start Temporal: temporal server start-dev",
+            error_message=(
+                f"Temporal frontend not responding on port {frontend_port}. Start Temporal: temporal server start-dev"
+            ),
         )
 
     # If frontend is available, consider Temporal as available
@@ -127,8 +127,7 @@ def _attempt_version_from_ui(ui_port: int, timeout: float) -> str | None:
         response = sock.recv(4096).decode("utf-8", errors="ignore")
 
         # Look for version information in headers or response
-        version = _parse_temporal_version(response)
-        return version
+        return _parse_temporal_version(response)
 
     except Exception:
         # Version detection is optional

@@ -9,7 +9,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from jinja2 import Environment, FileSystemLoader, Template, select_autoescape
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 from mycelium_onboarding.config.schema import DeploymentMethod, MyceliumConfig
 
@@ -48,9 +48,7 @@ class TemplateRenderer:
             self.template_dir = Path(template_dir)
 
         if not self.template_dir.exists():
-            raise FileNotFoundError(
-                f"Template directory not found: {self.template_dir}"
-            )
+            raise FileNotFoundError(f"Template directory not found: {self.template_dir}")
 
         # Create Jinja2 environment with autoescape for security
         self.env = Environment(
@@ -149,21 +147,15 @@ class TemplateRenderer:
         # Render service-specific systemd units
         if config.services.redis.enabled:
             template = self.env.get_template("systemd/redis.service.j2")
-            services[f"{config.project_name}-redis.service"] = template.render(
-                config=config
-            )
+            services[f"{config.project_name}-redis.service"] = template.render(config=config)
 
         if config.services.postgres.enabled:
             template = self.env.get_template("systemd/postgres.service.j2")
-            services[f"{config.project_name}-postgres.service"] = template.render(
-                config=config
-            )
+            services[f"{config.project_name}-postgres.service"] = template.render(config=config)
 
         if config.services.temporal.enabled:
             template = self.env.get_template("systemd/temporal.service.j2")
-            services[f"{config.project_name}-temporal.service"] = template.render(
-                config=config
-            )
+            services[f"{config.project_name}-temporal.service"] = template.render(config=config)
 
         return services
 
@@ -190,9 +182,7 @@ class TemplateRenderer:
             "systemd": self.render_systemd(config),
         }
 
-    def render_for_method(
-        self, config: MyceliumConfig, method: DeploymentMethod | None = None
-    ) -> str | dict[str, str]:
+    def render_for_method(self, config: MyceliumConfig, method: DeploymentMethod | None = None) -> str | dict[str, str]:
         """Render configuration for specified deployment method.
 
         Args:
@@ -215,12 +205,11 @@ class TemplateRenderer:
 
         if method == DeploymentMethod.DOCKER_COMPOSE:
             return self.render_docker_compose(config)
-        elif method == DeploymentMethod.KUBERNETES:
+        if method == DeploymentMethod.KUBERNETES:
             return self.render_kubernetes(config)
-        elif method == DeploymentMethod.SYSTEMD:
+        if method == DeploymentMethod.SYSTEMD:
             return self.render_systemd(config)
-        elif method == DeploymentMethod.MANUAL:
+        if method == DeploymentMethod.MANUAL:
             # For manual deployment, return empty dict
             return {}
-        else:
-            raise ValueError(f"Invalid deployment method: {method}")
+        raise ValueError(f"Invalid deployment method: {method}")

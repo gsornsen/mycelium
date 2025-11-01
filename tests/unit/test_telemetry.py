@@ -1,14 +1,11 @@
 """Unit tests for telemetry infrastructure."""
 
 import json
-import os
-import queue
 import sys
 import time
 from pathlib import Path
-from typing import Any, Dict
 from unittest.mock import MagicMock, patch
-from urllib.error import HTTPError, URLError
+from urllib.error import URLError
 
 import pytest
 
@@ -16,9 +13,9 @@ import pytest
 plugins_dir = Path(__file__).parent.parent.parent / "plugins" / "mycelium-core"
 sys.path.insert(0, str(plugins_dir))
 
-from telemetry.anonymization import DataAnonymizer
-from telemetry.client import TelemetryClient
-from telemetry.config import TelemetryConfig
+from telemetry.anonymization import DataAnonymizer  # noqa: E402
+from telemetry.client import TelemetryClient  # noqa: E402
+from telemetry.config import TelemetryConfig  # noqa: E402
 
 
 class TestTelemetryConfig:
@@ -68,14 +65,14 @@ class TestTelemetryConfig:
         # Should add https:// if missing
         config = TelemetryConfig(
             enabled=True,
-            endpoint="test.example.com"  # type: ignore
+            endpoint="test.example.com",  # type: ignore
         )
         assert str(config.endpoint).startswith("https://")
 
         # Should accept http://
         config = TelemetryConfig(
             enabled=True,
-            endpoint="http://localhost:8080"  # type: ignore
+            endpoint="http://localhost:8080",  # type: ignore
         )
         assert str(config.endpoint).startswith("http://")
 
@@ -156,9 +153,9 @@ class TestDataAnonymizer:
 
     def test_anonymize_stack_trace(self, anonymizer: DataAnonymizer) -> None:
         """Test anonymizing stack traces."""
-        trace = '''File "/home/user/project/file.py", line 42, in function
+        trace = """File "/home/user/project/file.py", line 42, in function
     raise ValueError("error")
-ValueError: error'''
+ValueError: error"""
         anonymized = anonymizer.anonymize_stack_trace(trace)
 
         # Should not contain full path
@@ -174,7 +171,7 @@ ValueError: error'''
         error_data = anonymizer.anonymize_error(
             error_type="ValueError",
             error_message="Invalid value in /home/user/file.py",
-            stack_trace='File "/home/user/file.py", line 10'
+            stack_trace='File "/home/user/file.py", line 10',
         )
 
         assert error_data["error_type"] == "ValueError"
@@ -186,7 +183,7 @@ ValueError: error'''
         usage_data = anonymizer.anonymize_agent_usage(
             agent_id="agent-123",
             operation="discover",
-            metadata={"duration_ms": 150, "success": True}
+            metadata={"duration_ms": 150, "success": True},
         )
 
         assert "agent_id_hash" in usage_data
@@ -218,7 +215,7 @@ ValueError: error'''
             metric_name="discovery_latency",
             value=123.45,
             unit="ms",
-            tags={"agent_id": "agent-123", "operation": "search"}
+            tags={"agent_id": "agent-123", "operation": "search"},
         )
 
         assert metric["metric_name"] == "discovery_latency"
@@ -271,9 +268,7 @@ class TestTelemetryClient:
         # Queue should be empty
         assert client._event_queue.empty()
 
-    def test_client_enabled_starts_worker(
-        self, enabled_config: TelemetryConfig
-    ) -> None:
+    def test_client_enabled_starts_worker(self, enabled_config: TelemetryConfig) -> None:
         """Test that enabled client starts worker thread."""
         client = TelemetryClient(config=enabled_config)
 
@@ -286,11 +281,7 @@ class TestTelemetryClient:
         """Test tracking agent usage."""
         client = TelemetryClient(config=enabled_config)
 
-        client.track_agent_usage(
-            agent_id="test-agent",
-            operation="discover",
-            metadata={"duration_ms": 150}
-        )
+        client.track_agent_usage(agent_id="test-agent", operation="discover", metadata={"duration_ms": 150})
 
         # Event should be queued
         assert not client._event_queue.empty()
@@ -312,7 +303,7 @@ class TestTelemetryClient:
             metric_name="test_latency",
             value=123.45,
             unit="ms",
-            tags={"operation": "test"}
+            tags={"operation": "test"},
         )
 
         event = client._event_queue.get(timeout=1.0)
@@ -330,7 +321,7 @@ class TestTelemetryClient:
             error_type="ValueError",
             error_message="Test error",
             stack_trace="File test.py, line 1",
-            context={"retry_count": 3}
+            context={"retry_count": 3},
         )
 
         event = client._event_queue.get(timeout=1.0)
@@ -341,9 +332,7 @@ class TestTelemetryClient:
         client.shutdown()
 
     @patch("telemetry.client.urlopen")
-    def test_batch_sending(
-        self, mock_urlopen: MagicMock, enabled_config: TelemetryConfig
-    ) -> None:
+    def test_batch_sending(self, mock_urlopen: MagicMock, enabled_config: TelemetryConfig) -> None:
         """Test that events are batched before sending."""
         mock_response = MagicMock()
         mock_response.status = 200
@@ -366,9 +355,7 @@ class TestTelemetryClient:
         client.shutdown()
 
     @patch("telemetry.client.urlopen")
-    def test_graceful_failure_handling(
-        self, mock_urlopen: MagicMock, enabled_config: TelemetryConfig
-    ) -> None:
+    def test_graceful_failure_handling(self, mock_urlopen: MagicMock, enabled_config: TelemetryConfig) -> None:
         """Test that network failures are handled gracefully."""
         mock_urlopen.side_effect = URLError("Network error")
 
@@ -428,11 +415,7 @@ class TestPrivacyGuarantees:
     def test_no_user_prompts_collected(self, client: TelemetryClient) -> None:
         """Verify that user prompts are never collected."""
         # Try to track with user prompt in metadata
-        client.track_agent_usage(
-            "agent-1",
-            "test",
-            metadata={"user_prompt": "secret user input"}
-        )
+        client.track_agent_usage("agent-1", "test", metadata={"user_prompt": "secret user input"})
 
         event = client._event_queue.get(timeout=1.0)
 
@@ -444,11 +427,7 @@ class TestPrivacyGuarantees:
 
     def test_no_code_content_collected(self, client: TelemetryClient) -> None:
         """Verify that code content is never collected."""
-        client.track_agent_usage(
-            "agent-1",
-            "test",
-            metadata={"code": "def secret(): pass"}
-        )
+        client.track_agent_usage("agent-1", "test", metadata={"code": "def secret(): pass"})
 
         event = client._event_queue.get(timeout=1.0)
 
@@ -476,7 +455,7 @@ class TestPrivacyGuarantees:
         client.track_error(
             "IOError",
             "Cannot read /home/username/secret/file.txt",
-            stack_trace='File "/home/username/project/code.py", line 1'
+            stack_trace='File "/home/username/project/code.py", line 1',
         )
 
         event = client._event_queue.get(timeout=1.0)

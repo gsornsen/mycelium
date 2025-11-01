@@ -13,6 +13,7 @@ Run comprehensive health checks on all configured infrastructure components.
 **Command arguments**: $ARGS
 
 First, check for configuration files and load the appropriate one:
+
 - Project config: `.infra-check.json`
 - User config: `~/.infra-check.json`
 - If neither exists, use default checks
@@ -20,11 +21,13 @@ First, check for configuration files and load the appropriate one:
 ## Your Task
 
 1. **Load Configuration**:
+
    - Check for `.infra-check.json` in current directory
    - Fallback to `~/.infra-check.json` if not found
    - Use sensible defaults if no config exists
 
-2. **Parse Configuration Schema**:
+1. **Parse Configuration Schema**:
+
    ```json
    {
      "checks": {
@@ -69,44 +72,50 @@ First, check for configuration files and load the appropriate one:
    }
    ```
 
-3. **Execute Health Checks**:
+1. **Execute Health Checks**:
 
    **Redis/Valkey Check**:
+
    ```bash
    redis-cli -u $REDIS_URL ping
    ```
 
    **Temporal Check**:
+
    ```bash
    temporal workflow list --namespace $NAMESPACE --limit 1
    ```
 
    **TaskQueue Check**:
+
    ```bash
    npx --version && npm list taskqueue-mcp --depth=0
    ```
 
    **PostgreSQL Check**:
+
    ```bash
    psql $CONNECTION_STRING -c "SELECT 1;" || pg_isready -d $CONNECTION_STRING
    ```
 
    **MongoDB Check**:
+
    ```bash
    mongosh $MONGODB_URL --eval "db.runCommand({ ping: 1 })" --quiet
    ```
 
    **GPU Check**:
+
    ```bash
    nvidia-smi --query-gpu=name,temperature.gpu,memory.used,memory.total --format=csv,noheader
    ```
 
-   **Custom Checks**:
-   Run each custom check command and capture exit code.
+   **Custom Checks**: Run each custom check command and capture exit code.
 
-4. **Output Format**:
+1. **Output Format**:
 
    **Standard (non-verbose)**:
+
    ```
    === Infrastructure Health Check ===
 
@@ -128,14 +137,15 @@ First, check for configuration files and load the appropriate one:
       └─ Fix: Start MongoDB with 'mongod' or 'docker run -d -p 27017:27017 mongo:latest'
    ```
 
-   **Verbose**:
-   Include detailed metrics for each service (connection time, memory usage, version, uptime, etc.)
+   **Verbose**: Include detailed metrics for each service (connection time, memory usage, version, uptime, etc.)
 
-5. **Exit Codes**:
+1. **Exit Codes**:
+
    - 0: All enabled checks passed (HEALTHY)
    - 1: One or more checks failed (UNHEALTHY or DEGRADED)
 
-6. **Integration Notes**:
+1. **Integration Notes**:
+
    - This command can be used in pre-test hooks
    - Can be called from CI/CD pipelines
    - Results can be published to coordination channels if MCP servers available
@@ -143,6 +153,7 @@ First, check for configuration files and load the appropriate one:
 ## Example Configuration Files
 
 Create `.infra-check.json.example` in project root:
+
 ```json
 {
   "checks": {
@@ -163,6 +174,7 @@ Create `.infra-check.json.example` in project root:
 ## Coordination Integration (Optional)
 
 If Redis MCP is available, publish health metrics:
+
 ```javascript
 // Check if mcp__RedisMCPServer tools are available
 // If yes, publish metrics:

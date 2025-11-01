@@ -2,7 +2,8 @@
 
 ## Overview
 
-The Workflow Orchestration Engine is a core component of the Mycelium multi-agent coordination system, providing robust workflow execution capabilities with dependency resolution, state management, and failure recovery mechanisms.
+The Workflow Orchestration Engine is a core component of the Mycelium multi-agent coordination system, providing robust
+workflow execution capabilities with dependency resolution, state management, and failure recovery mechanisms.
 
 ## Architecture
 
@@ -37,26 +38,31 @@ The Workflow Orchestration Engine is a core component of the Mycelium multi-agen
 ### Key Features
 
 1. **DAG-Based Execution**
+
    - Tasks organized as Directed Acyclic Graph
    - Automatic topological sorting
    - Cycle detection at creation time
 
-2. **Dependency Resolution**
+1. **Dependency Resolution**
+
    - Prerequisite validation
    - Ordering constraints enforcement
    - Dynamic ready-task detection
 
-3. **Parallel Coordination**
+1. **Parallel Coordination**
+
    - Independent tasks execute concurrently
    - Configurable parallelism limits
    - Resource-aware scheduling
 
-4. **State Management**
+1. **State Management**
+
    - Persistent state storage
    - Version tracking for rollback
    - Atomic updates with transactions
 
-5. **Failure Recovery**
+1. **Failure Recovery**
+
    - Configurable retry policies
    - Exponential backoff
    - Graceful degradation with allow_failure
@@ -449,7 +455,7 @@ restored = HandoffProtocol.deserialize(json_str)
 
 ### Memory Overhead
 
-- **Target:** <50MB per workflow
+- **Target:** \<50MB per workflow
 - **Achieved:** ~1MB per 100 tasks
 - State stored in PostgreSQL, not memory
 - Only active task data kept in memory
@@ -459,7 +465,7 @@ restored = HandoffProtocol.deserialize(json_str)
 - **Sequential tasks:** Latency = sum of task execution times
 - **Parallel tasks:** Latency ≈ longest task execution time
 - **Dependency resolution:** O(V + E) where V = tasks, E = dependencies
-- **State updates:** <10ms per update (PostgreSQL)
+- **State updates:** \<10ms per update (PostgreSQL)
 
 ### Scalability
 
@@ -486,26 +492,31 @@ OrchestrationError (base)
 ### Failure Scenarios
 
 1. **Task Execution Failure**
+
    - Retry with exponential backoff
    - Mark as FAILED after max attempts
    - Abort workflow if allow_failure=False
 
-2. **Task Timeout**
+1. **Task Timeout**
+
    - Cancel execution
    - Count as failed attempt
    - Retry if attempts remaining
 
-3. **Dependency Cycle**
+1. **Dependency Cycle**
+
    - Detected at workflow creation
    - DependencyError raised
    - Workflow not created
 
-4. **Missing Executor**
+1. **Missing Executor**
+
    - ExecutionError when task starts
    - Workflow marked as FAILED
    - Clear error message with agent_type
 
-5. **Database Error**
+1. **Database Error**
+
    - StateManagerError raised
    - Automatic retry with connection pool
    - Graceful degradation
@@ -564,6 +575,7 @@ for version in range(1, state.version):
 ### 1. Task Granularity
 
 **Good:** Fine-grained tasks with clear responsibilities
+
 ```python
 tasks = [
     TaskDefinition(task_id="parse", agent_id="parser", agent_type="parser"),
@@ -573,6 +585,7 @@ tasks = [
 ```
 
 **Bad:** Monolithic tasks
+
 ```python
 # Avoid single task doing everything
 tasks = [
@@ -583,6 +596,7 @@ tasks = [
 ### 2. Dependency Design
 
 **Good:** Clear dependency chain
+
 ```python
 # Linear dependencies
 tasks = [
@@ -593,6 +607,7 @@ tasks = [
 ```
 
 **Bad:** Unnecessary dependencies
+
 ```python
 # C doesn't actually need A's output
 tasks = [
@@ -605,6 +620,7 @@ tasks = [
 ### 3. Error Handling
 
 **Good:** Appropriate allow_failure usage
+
 ```python
 tasks = [
     TaskDefinition(task_id="critical", allow_failure=False, ...),  # Must succeed
@@ -615,6 +631,7 @@ tasks = [
 ### 4. Retry Configuration
 
 **Good:** Tuned retry policies
+
 ```python
 # Quick operations - fail fast
 fast_task = TaskDefinition(
@@ -630,6 +647,7 @@ network_task = TaskDefinition(
 ### 5. Resource Management
 
 **Good:** Cleanup in finally block
+
 ```python
 state_manager = StateManager()
 try:
@@ -646,11 +664,13 @@ finally:
 **Symptom:** Workflow status remains RUNNING indefinitely
 
 **Causes:**
+
 1. Task executor hung
-2. Database connection lost
-3. Uncaught exception in executor
+1. Database connection lost
+1. Uncaught exception in executor
 
 **Solutions:**
+
 - Check task timeouts are configured
 - Review executor logs for errors
 - Cancel and restart workflow
@@ -660,11 +680,13 @@ finally:
 **Symptom:** Memory usage exceeds 50MB per workflow
 
 **Causes:**
+
 1. Large task results stored in state
-2. Too many parallel tasks
-3. Memory leak in executor
+1. Too many parallel tasks
+1. Memory leak in executor
 
 **Solutions:**
+
 - Store large results externally (S3, filesystem)
 - Reduce max_parallel_tasks
 - Profile executor for memory leaks
@@ -674,11 +696,13 @@ finally:
 **Symptom:** Workflows taking longer than expected
 
 **Causes:**
+
 1. Tasks executing sequentially instead of parallel
-2. Inefficient dependency graph
-3. Database performance issues
+1. Inefficient dependency graph
+1. Database performance issues
 
 **Solutions:**
+
 - Review task dependencies
 - Optimize dependency graph for parallelism
 - Add database indexes
@@ -773,22 +797,27 @@ class StateManager:
 ## Future Enhancements
 
 1. **Conditional Execution**
+
    - Execute tasks based on runtime conditions
    - Skip branches based on results
 
-2. **Sub-workflows**
+1. **Sub-workflows**
+
    - Nest workflows for modularity
    - Reusable workflow templates
 
-3. **Event-Driven Triggers**
+1. **Event-Driven Triggers**
+
    - Start workflows on external events
    - Webhook integration
 
-4. **Distributed Execution**
+1. **Distributed Execution**
+
    - Execute tasks across multiple nodes
    - Task affinity and placement
 
-5. **Advanced Monitoring**
+1. **Advanced Monitoring**
+
    - Real-time progress tracking
    - Performance metrics collection
    - Alerting on failures

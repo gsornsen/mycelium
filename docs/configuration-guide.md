@@ -56,7 +56,8 @@ The simplest valid configuration:
 version: "1.0"
 ```
 
-This uses defaults for everything: Docker Compose deployment with Redis, PostgreSQL, and Temporal all enabled on standard ports.
+This uses defaults for everything: Docker Compose deployment with Redis, PostgreSQL, and Temporal all enabled on
+standard ports.
 
 ### Full Configuration Structure
 
@@ -117,8 +118,7 @@ Schema version for migration support. Current version: `"1.0"`
 version: "1.0"
 ```
 
-**Format**: `"<major>.<minor>"` (e.g., "1.0", "1.1")
-**Validation**: Must match pattern `^\d+\.\d+$`
+**Format**: `"<major>.<minor>"` (e.g., "1.0", "1.1") **Validation**: Must match pattern `^\d+\.\d+$`
 
 #### `project_name`
 
@@ -128,9 +128,7 @@ Project identifier used in service names, network names, and resource labels.
 project_name: my-awesome-project
 ```
 
-**Default**: `"mycelium"`
-**Format**: Alphanumeric characters, hyphens, underscores only
-**Length**: 1-100 characters
+**Default**: `"mycelium"` **Format**: Alphanumeric characters, hyphens, underscores only **Length**: 1-100 characters
 **Examples**: `"mycelium"`, `"my-project"`, `"prod_deployment"`
 
 #### `created_at`
@@ -155,6 +153,7 @@ deployment:
 ```
 
 **Options**:
+
 - `docker-compose`: Docker Compose (default, recommended for development)
 - `kubernetes`: Kubernetes cluster
 - `systemd`: systemd services (Linux)
@@ -171,9 +170,7 @@ deployment:
   auto_start: true
 ```
 
-**Default**: `true`
-**Type**: Boolean
-**Use case**: Set to `false` for manual control over service startup
+**Default**: `true` **Type**: Boolean **Use case**: Set to `false` for manual control over service startup
 
 #### `deployment.healthcheck_timeout`
 
@@ -184,9 +181,7 @@ deployment:
   healthcheck_timeout: 60
 ```
 
-**Default**: `60`
-**Range**: 10-300 seconds
-**Use case**: Increase for slower systems, decrease for faster feedback
+**Default**: `60` **Range**: 10-300 seconds **Use case**: Increase for slower systems, decrease for faster feedback
 
 ### Services Configuration
 
@@ -207,6 +202,7 @@ services:
 ```
 
 **Fields**:
+
 - `enabled`: Enable Redis service (default: `true`)
 - `version`: Redis version (e.g., "7", "7.0", "latest")
 - `port`: Port number (default: `6379`, range: 1-65535)
@@ -215,6 +211,7 @@ services:
 - `custom_config`: Additional Redis configuration options
 
 **Common custom_config options**:
+
 - `maxmemory-policy`: Eviction policy ("allkeys-lru", "volatile-lru", "noeviction")
 - `save`: RDB save intervals (e.g., "900 1 300 10 60 10000")
 - `appendonly`: Enable AOF persistence ("yes"/"no")
@@ -236,6 +233,7 @@ services:
 ```
 
 **Fields**:
+
 - `enabled`: Enable PostgreSQL service (default: `true`)
 - `version`: PostgreSQL version (e.g., "15", "14", "latest")
 - `port`: Port number (default: `5432`, range: 1-65535)
@@ -247,6 +245,7 @@ services:
 - `custom_config`: Additional PostgreSQL configuration options
 
 **Common custom_config options**:
+
 - `shared_buffers`: Shared memory buffer size
 - `work_mem`: Memory per query operation
 - `maintenance_work_mem`: Memory for maintenance operations
@@ -266,6 +265,7 @@ services:
 ```
 
 **Fields**:
+
 - `enabled`: Enable Temporal service (default: `true`)
 - `ui_port`: Web UI port (default: `8080`, range: 1-65535)
 - `frontend_port`: gRPC frontend port (default: `7233`, range: 1-65535)
@@ -283,14 +283,15 @@ Mycelium follows the XDG Base Directory specification with hierarchical configur
 Configurations are searched in order of precedence:
 
 1. **Project-local**: `.mycelium/config.yaml` (current directory)
-2. **User-global**: `~/.config/mycelium/config.yaml`
-3. **Defaults**: Built-in default configuration
+1. **User-global**: `~/.config/mycelium/config.yaml`
+1. **Defaults**: Built-in default configuration
 
 The first configuration found is used. If none exist, defaults are used.
 
 ### When to Use Each Location
 
 **Project-local (`.mycelium/config.yaml`)**:
+
 - Project-specific service configurations
 - Different ports per project
 - Team-shared configurations (commit to version control)
@@ -302,6 +303,7 @@ mycelium config init --project-local
 ```
 
 **User-global (`~/.config/mycelium/config.yaml`)**:
+
 - Personal preferences across all projects
 - Default service versions
 - Common port configurations
@@ -314,7 +316,8 @@ mycelium config init
 
 ### Configuration Merging
 
-Currently, configurations do NOT merge - the first found config is used entirely. Future versions may support configuration merging with precedence rules.
+Currently, configurations do NOT merge - the first found config is used entirely. Future versions may support
+configuration merging with precedence rules.
 
 ### Environment Variable Overrides
 
@@ -351,6 +354,7 @@ mycelium config show --project-local
 ```
 
 **Options**:
+
 - `--format`: Output format (`yaml` or `json`, default: `yaml`)
 - `--project-local`: Show project-local configuration only
 
@@ -367,6 +371,7 @@ mycelium config validate path/to/config.yaml
 ```
 
 **Validation checks**:
+
 - YAML syntax correctness
 - Schema version compatibility
 - Field type validation
@@ -376,6 +381,7 @@ mycelium config validate path/to/config.yaml
 - Custom field validators
 
 **Output**:
+
 ```
 ✓ Configuration valid
 
@@ -396,11 +402,13 @@ mycelium config location --project-local
 ```
 
 **Output**:
+
 ```
 ✓ /home/user/.config/mycelium/config.yaml
 ```
 
 or if file doesn't exist:
+
 ```
 ✗ /home/user/.config/mycelium/config.yaml
   (file does not exist)
@@ -422,6 +430,7 @@ mycelium config init --force
 ```
 
 **Options**:
+
 - `--project-local`: Create project-local configuration
 - `--force`: Overwrite existing configuration
 
@@ -570,13 +579,15 @@ services:
     enabled: false
 ```
 
-**Note**: When using external services, you'll need to configure connection details separately (planned for future releases).
+**Note**: When using external services, you'll need to configure connection details separately (planned for future
+releases).
 
 ### Pattern: Multi-Project Setup
 
 Different configurations for multiple projects on same machine:
 
 **Project A** (`.mycelium/config.yaml`):
+
 ```yaml
 version: "1.0"
 project_name: project-a
@@ -591,6 +602,7 @@ services:
 ```
 
 **Project B** (`.mycelium/config.yaml`):
+
 ```yaml
 version: "1.0"
 project_name: project-b
@@ -611,6 +623,7 @@ services:
 **Problem**: `Configuration file not found`
 
 **Solution**: Initialize configuration:
+
 ```bash
 mycelium config init
 ```
@@ -624,6 +637,7 @@ mycelium config init
 **Problem**: `Port must be between 1 and 65535`
 
 **Solution**: Use valid port number:
+
 ```yaml
 services:
   redis:
@@ -635,6 +649,7 @@ services:
 **Problem**: `Project name must contain only alphanumeric characters, hyphens, and underscores`
 
 **Solution**: Use valid characters:
+
 ```yaml
 project_name: my-project-123  # Valid
 # project_name: my.project    # Invalid: contains dot
@@ -645,6 +660,7 @@ project_name: my-project-123  # Valid
 **Problem**: `Database name must start with a letter`
 
 **Solution**: Start with letter:
+
 ```yaml
 services:
   postgres:
@@ -657,6 +673,7 @@ services:
 **Problem**: `Memory must be in format '<number><unit>'`
 
 **Solution**: Use correct format:
+
 ```yaml
 services:
   redis:
@@ -669,6 +686,7 @@ services:
 **Problem**: `At least one service must be enabled`
 
 **Solution**: Enable at least one service:
+
 ```yaml
 services:
   redis:
@@ -680,12 +698,14 @@ services:
 **Problem**: `Invalid YAML in config.yaml: ...`
 
 **Solution**: Check YAML syntax:
+
 ```bash
 # Validate YAML syntax
 python3 -c "import yaml; yaml.safe_load(open('config.yaml'))"
 ```
 
 **Common YAML mistakes**:
+
 - Inconsistent indentation (use 2 spaces)
 - Missing colons after keys
 - Incorrect boolean values (use `true`/`false`, not `yes`/`no`)
@@ -696,6 +716,7 @@ python3 -c "import yaml; yaml.safe_load(open('config.yaml'))"
 **Problem**: `Configuration already exists`
 
 **Solution**: Use `--force` to overwrite:
+
 ```bash
 mycelium config init --force
 ```
@@ -705,6 +726,7 @@ mycelium config init --force
 **Problem**: `Permission denied` when saving configuration
 
 **Solution**: Check directory permissions:
+
 ```bash
 # Check permissions
 ls -la ~/.config/mycelium/
@@ -719,6 +741,7 @@ chmod 600 ~/.config/mycelium/config.yaml
 **Problem**: Services fail to start due to port conflicts
 
 **Solution**: Change ports in configuration:
+
 ```yaml
 services:
   redis:
@@ -731,6 +754,7 @@ services:
 ```
 
 **Find ports in use**:
+
 ```bash
 # Linux/macOS
 lsof -i :6379
@@ -750,9 +774,9 @@ netstat -tuln | grep 6379
 If you encounter issues not covered here:
 
 1. **Check validation output**: `mycelium config validate` provides detailed error messages
-2. **Review logs**: Enable debug logging with `MYCELIUM_LOG_LEVEL=DEBUG`
-3. **Check examples**: See `examples/configs/` for working configurations
-4. **File an issue**: Report bugs at [GitHub Issues](https://github.com/gsornsen/mycelium/issues)
+1. **Review logs**: Enable debug logging with `MYCELIUM_LOG_LEVEL=DEBUG`
+1. **Check examples**: See `examples/configs/` for working configurations
+1. **File an issue**: Report bugs at [GitHub Issues](https://github.com/gsornsen/mycelium/issues)
 
 ## Next Steps
 

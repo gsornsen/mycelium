@@ -2,28 +2,28 @@
 
 ## Overview
 
-**Duration**: 3 days
-**Dependencies**: M01 (Environment Isolation)
-**Blocks**: M04 (Interactive Onboarding), M05 (Deployment Generation)
-**Lead Agent**: devops-engineer
-**Support Agents**: platform-engineer, python-pro
+**Duration**: 3 days **Dependencies**: M01 (Environment Isolation) **Blocks**: M04 (Interactive Onboarding), M05
+(Deployment Generation) **Lead Agent**: devops-engineer **Support Agents**: platform-engineer, python-pro
 
 ## Why This Milestone
 
 Service detection enables intelligent onboarding by automatically discovering what infrastructure is already available:
+
 - Avoids deploying duplicate services (e.g., user already has Redis running)
 - Detects Docker availability for containerized deployment
 - Identifies GPU presence for potential acceleration
 - Provides health status for existing services
 - Enables graceful fallback when services unavailable
 
-This milestone transforms onboarding from "configure everything" to "configure what's missing", dramatically improving user experience.
+This milestone transforms onboarding from "configure everything" to "configure what's missing", dramatically improving
+user experience.
 
 ## Requirements
 
 ### Functional Requirements (FR)
 
 **FR-1**: Auto-detect service availability
+
 - Docker Engine (version, running status)
 - Redis (host, port, reachable)
 - PostgreSQL (host, port, reachable, version)
@@ -31,12 +31,14 @@ This milestone transforms onboarding from "configure everything" to "configure w
 - GPU (NVIDIA CUDA, AMD ROCm)
 
 **FR-2**: Non-interactive detection mode
+
 - Run completely without user input
 - Output structured data (JSON)
 - Exit codes indicate detection success/failure
 - Timeout protection (don't hang indefinitely)
 
 **FR-3**: Health check utilities
+
 - Verify service is not just running, but responding
 - Check service version compatibility
 - Report degraded states (running but unreachable)
@@ -44,16 +46,19 @@ This milestone transforms onboarding from "configure everything" to "configure w
 ### Technical Requirements (TR)
 
 **TR-1**: Platform-agnostic detection
+
 - Work on Linux, macOS, Windows (WSL2)
 - Use cross-platform libraries where possible
 - Fallback to shell commands when necessary
 
 **TR-2**: Caching for performance
+
 - Cache detection results (configurable TTL)
 - Use XDG cache directory
 - Invalidate cache on explicit re-detection
 
 **TR-3**: Graceful failure handling
+
 - Service not found: return "not available" (not error)
 - Timeout: return "timeout" status
 - Permission denied: return "permission denied" with fix instructions
@@ -61,10 +66,12 @@ This milestone transforms onboarding from "configure everything" to "configure w
 ### Integration Requirements (IR)
 
 **IR-1**: Integration with M01 environment isolation
+
 - Use XDG cache directory for caching results
 - Respect environment validation
 
 **IR-2**: Integration with M04 interactive onboarding
+
 - Provide detected services as wizard defaults
 - Allow user to override detection results
 - Show detection status in wizard
@@ -72,11 +79,13 @@ This milestone transforms onboarding from "configure everything" to "configure w
 ### Constraints (CR)
 
 **CR-1**: No service installation or configuration
+
 - Detection only, no modifications
 - Read-only operations
 - No admin/sudo required
 
-**CR-2**: Fast detection (<5 seconds total)
+**CR-2**: Fast detection (\<5 seconds total)
+
 - Parallel detection where possible
 - Aggressive timeouts (1-2s per service)
 - Early exit on definitive results
@@ -85,9 +94,7 @@ This milestone transforms onboarding from "configure everything" to "configure w
 
 ### Task 3.1: Docker Detection
 
-**Agent**: devops-engineer
-**Effort**: 6 hours
-**Dependencies**: M01 complete
+**Agent**: devops-engineer **Effort**: 6 hours **Dependencies**: M01 complete
 
 **Description**: Implement Docker Engine detection with version and status check.
 
@@ -298,6 +305,7 @@ def test_detect_docker_not_installed(monkeypatch):
 ```
 
 **Acceptance Criteria**:
+
 - [ ] Detects Docker CLI presence
 - [ ] Gets Docker version correctly
 - [ ] Checks if Docker daemon is running
@@ -307,16 +315,15 @@ def test_detect_docker_not_installed(monkeypatch):
 - [ ] Works on Linux, macOS, Windows (WSL2)
 
 **Deliverables**:
+
 - `mycelium_onboarding/detection/docker.py`
 - `tests/test_docker_detection.py`
 
----
+______________________________________________________________________
 
 ### Task 3.2: Redis Detection
 
-**Agent**: devops-engineer
-**Effort**: 4 hours
-**Dependencies**: Task 3.1 (pattern established)
+**Agent**: devops-engineer **Effort**: 4 hours **Dependencies**: Task 3.1 (pattern established)
 
 **Description**: Detect Redis server availability and health.
 
@@ -417,6 +424,7 @@ def scan_redis_ports(
 ```
 
 **Acceptance Criteria**:
+
 - [ ] Detects Redis on standard port (6379)
 - [ ] Supports custom host and port
 - [ ] Gets Redis version via INFO command
@@ -426,16 +434,15 @@ def scan_redis_ports(
 - [ ] No dependency on redis-py library
 
 **Deliverables**:
+
 - `mycelium_onboarding/detection/redis.py`
 - `tests/test_redis_detection.py`
 
----
+______________________________________________________________________
 
 ### Task 3.3: PostgreSQL & Temporal Detection
 
-**Agent**: devops-engineer
-**Effort**: 6 hours
-**Dependencies**: Task 3.2 (pattern established)
+**Agent**: devops-engineer **Effort**: 6 hours **Dependencies**: Task 3.2 (pattern established)
 
 **Description**: Detect PostgreSQL and Temporal servers.
 
@@ -533,6 +540,7 @@ def detect_temporal(
 ```
 
 **Acceptance Criteria**:
+
 - [ ] PostgreSQL detection via socket connection
 - [ ] Temporal frontend (gRPC) and UI (HTTP) detection
 - [ ] Version detection where possible
@@ -540,17 +548,16 @@ def detect_temporal(
 - [ ] Clear error messages
 
 **Deliverables**:
+
 - `mycelium_onboarding/detection/postgres.py`
 - `mycelium_onboarding/detection/temporal.py`
 - Tests for both
 
----
+______________________________________________________________________
 
 ### Task 3.4: GPU Detection
 
-**Agent**: platform-engineer
-**Effort**: 6 hours
-**Dependencies**: None (parallel with Tasks 3.1-3.3)
+**Agent**: platform-engineer **Effort**: 6 hours **Dependencies**: None (parallel with Tasks 3.1-3.3)
 
 **Description**: Detect GPU presence and type (NVIDIA CUDA, AMD ROCm).
 
@@ -711,24 +718,24 @@ def _detect_amd_gpu(timeout: float) -> GPUInfo:
 ```
 
 **Acceptance Criteria**:
+
 - [ ] Detects NVIDIA GPUs via nvidia-smi
 - [ ] Detects AMD GPUs via rocm-smi
 - [ ] Counts multiple GPUs
 - [ ] Gets driver and CUDA/ROCm versions
 - [ ] Handles missing drivers gracefully
-- [ ] Fast detection (< 2s)
+- [ ] Fast detection (\< 2s)
 
 **Deliverables**:
+
 - `mycelium_onboarding/detection/gpu.py`
 - `tests/test_gpu_detection.py`
 
----
+______________________________________________________________________
 
 ### Task 3.5: Detection Orchestrator & Caching
 
-**Agent**: python-pro
-**Effort**: 6 hours
-**Dependencies**: Tasks 3.1-3.4
+**Agent**: python-pro **Effort**: 6 hours **Dependencies**: Tasks 3.1-3.4
 
 **Description**: Create orchestrator that runs all detectors in parallel and caches results.
 
@@ -773,7 +780,7 @@ class DetectionResults:
         self.postgres = postgres
         self.temporal = temporal
         self.gpu = gpu
-        self.timestamp = timestamp or datetime.now()
+        self.timestamp = timestamp or datetime.now(UTC)
 
     def to_dict(self) -> dict:
         """Convert to dictionary for serialization."""
@@ -870,7 +877,7 @@ def _load_from_cache(ttl: int) -> Optional[DetectionResults]:
         results = DetectionResults.from_dict(data)
 
         # Check if cache is fresh
-        age = datetime.now() - results.timestamp
+        age = datetime.now(UTC) - results.timestamp
         if age > timedelta(seconds=ttl):
             logger.debug("Cache expired")
             return None
@@ -965,22 +972,25 @@ def _print_text_results(results):
 ```
 
 **Acceptance Criteria**:
-- [ ] Runs all detections in parallel (<5s total)
+
+- [ ] Runs all detections in parallel (\<5s total)
 - [ ] Caches results to avoid repeated detection
 - [ ] Respects cache TTL
 - [ ] CLI command outputs text and JSON formats
 - [ ] --no-cache flag forces fresh detection
 
 **Deliverables**:
+
 - `mycelium_onboarding/detection/orchestrator.py`
 - `mycelium_onboarding/cli/detect_commands.py`
 - `tests/test_detection_orchestrator.py`
 
----
+______________________________________________________________________
 
 ## Exit Criteria
 
 - [ ] **Service Detection**
+
   - [ ] Docker detection working (CLI, version, Compose)
   - [ ] Redis detection working (socket connection, version)
   - [ ] PostgreSQL detection working
@@ -988,21 +998,25 @@ def _print_text_results(results):
   - [ ] GPU detection working (NVIDIA + AMD)
 
 - [ ] **Detection Orchestrator**
-  - [ ] Parallel execution (<5s total)
+
+  - [ ] Parallel execution (\<5s total)
   - [ ] Caching implemented with configurable TTL
   - [ ] Cache invalidation working
 
 - [ ] **CLI Integration**
+
   - [ ] `mycelium detect` command working
   - [ ] Text and JSON output formats
   - [ ] --no-cache flag working
 
 - [ ] **Testing**
+
   - [ ] Unit tests for each detector (≥80% coverage)
   - [ ] Integration tests with mock services
   - [ ] Platform compatibility tests
 
 - [ ] **Documentation**
+
   - [ ] Detection logic documented
   - [ ] Cache behavior explained
   - [ ] Troubleshooting guide for detection failures
@@ -1038,26 +1052,31 @@ def _print_text_results(results):
 ### High Risk
 
 **Docker daemon not running**: Most common failure case
+
 - **Mitigation**: Clear error message, instructions to start Docker
 - **Contingency**: Offer Justfile deployment as fallback
 
 **Firewall blocks service connections**: Detection may report services as unavailable when they're just firewalled
+
 - **Mitigation**: Document common firewall issues
 - **Contingency**: Allow manual override in wizard
 
 ### Medium Risk
 
 **GPU detection inconsistent across platforms**: NVIDIA/AMD tools may not be installed even with GPU present
+
 - **Mitigation**: Document GPU detection requirements
 - **Contingency**: GPU is optional, gracefully handle absence
 
 **Service version incompatibility**: Detected service may be too old
+
 - **Mitigation**: Implement version checking where possible
 - **Contingency**: Warn user, allow proceeding
 
 ### Low Risk
 
 **Cache corruption**: Cached JSON may become corrupted
+
 - **Mitigation**: Validate cache on load, discard if invalid
 - **Contingency**: Fall back to fresh detection
 
@@ -1066,10 +1085,12 @@ def _print_text_results(results):
 ### M04: Interactive Onboarding
 
 **Depends on**:
+
 - Detection results to pre-fill wizard defaults
 - Service availability to guide user choices
 
 **Will use**:
+
 - `detect_all_services()` to populate wizard
 - Detection results to enable/disable service options
 - Error messages to help users fix issues
@@ -1077,15 +1098,15 @@ def _print_text_results(results):
 ### M05: Deployment Generation
 
 **Depends on**:
+
 - Detection results to decide what to deploy
 
 **Will use**:
+
 - Docker availability to choose Docker Compose vs Justfile
 - Service availability to skip deploying already-running services
 - Port numbers from detection to avoid conflicts
 
----
+______________________________________________________________________
 
-**Milestone Version**: 1.0
-**Last Updated**: 2025-10-13
-**Status**: Ready for Implementation
+**Milestone Version**: 1.0 **Last Updated**: 2025-10-13 **Status**: Ready for Implementation

@@ -5,6 +5,7 @@ This module provides Jinja2 templates for generating deployment configurations f
 ## Overview
 
 The deployment system supports three deployment methods:
+
 - **Docker Compose**: Single-file YAML for local development
 - **Kubernetes**: Complete K8s manifests for production deployment
 - **systemd**: Service files for bare-metal installations
@@ -173,9 +174,9 @@ volumes:
 ### Generated Manifests
 
 1. **namespace.yaml**: Kubernetes namespace with labels
-2. **redis.yaml**: Redis Deployment, Service, and PVC
-3. **postgres.yaml**: PostgreSQL StatefulSet, Service, Secret, ConfigMap
-4. **temporal.yaml**: Temporal Deployment, ConfigMap, Services (frontend + UI)
+1. **redis.yaml**: Redis Deployment, Service, and PVC
+1. **postgres.yaml**: PostgreSQL StatefulSet, Service, Secret, ConfigMap
+1. **temporal.yaml**: Temporal Deployment, ConfigMap, Services (frontend + UI)
 
 ### Security
 
@@ -212,8 +213,8 @@ kubectl apply -f kubernetes/
 ### Generated Files
 
 1. **{project}-redis.service**: Redis server
-2. **{project}-postgres.service**: PostgreSQL database
-3. **{project}-temporal.service**: Temporal server
+1. **{project}-postgres.service**: PostgreSQL database
+1. **{project}-temporal.service**: Temporal server
 
 ### Security Hardening
 
@@ -279,6 +280,7 @@ uv run pytest tests/test_templates.py --cov=mycelium_onboarding.deployment
 ```
 
 Tests verify:
+
 - Valid YAML/INI generation
 - Correct service configuration
 - Conditional rendering
@@ -293,36 +295,37 @@ Tests verify:
 ### Docker Compose
 
 1. Always use environment variables for secrets
-2. Enable health checks for all services
-3. Use named volumes for production
-4. Configure restart policies appropriately
-5. Use custom networks for isolation
+1. Enable health checks for all services
+1. Use named volumes for production
+1. Configure restart policies appropriately
+1. Use custom networks for isolation
 
 ### Kubernetes
 
 1. Update default passwords in secrets
-2. Configure resource limits
-3. Use PersistentVolumeClaims for data
-4. Implement network policies
-5. Use namespaces for isolation
-6. Configure RBAC appropriately
-7. Use ConfigMaps for configuration
+1. Configure resource limits
+1. Use PersistentVolumeClaims for data
+1. Implement network policies
+1. Use namespaces for isolation
+1. Configure RBAC appropriately
+1. Use ConfigMaps for configuration
 
 ### systemd
 
 1. Run services as dedicated users
-2. Enable security hardening options
-3. Configure resource limits
-4. Use EnvironmentFile for secrets
-5. Enable logging to journal
-6. Set up log rotation
-7. Configure monitoring
+1. Enable security hardening options
+1. Configure resource limits
+1. Use EnvironmentFile for secrets
+1. Enable logging to journal
+1. Set up log rotation
+1. Configure monitoring
 
 ## Examples
 
 See `examples/sample_deployment_outputs.py` for complete examples.
 
 Generated samples are in `examples/rendered_configs/`:
+
 - `docker-compose.yml`: Full Docker Compose configuration
 - `kubernetes/`: Complete K8s manifests
 - `systemd/`: systemd service files
@@ -345,11 +348,11 @@ Generated samples are in `examples/rendered_configs/`:
 When adding new templates:
 
 1. Create template in appropriate directory
-2. Update `renderer.py` if needed
-3. Add comprehensive tests
-4. Update this README
-5. Generate sample outputs
-6. Update documentation
+1. Update `renderer.py` if needed
+1. Add comprehensive tests
+1. Update this README
+1. Generate sample outputs
+1. Update documentation
 
 ## License
 

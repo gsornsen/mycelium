@@ -4,14 +4,17 @@
 
 **RECOMMENDATION: YES - Single repository for both marketplace and plugin**
 
-After analyzing the reference repository ([ananddtyagi/claude-code-marketplace](https://github.com/ananddtyagi/claude-code-marketplace)), Mycelium can and should serve as both:
+After analyzing the reference repository
+([ananddtyagi/claude-code-marketplace](https://github.com/ananddtyagi/claude-code-marketplace)), Mycelium can and should
+serve as both:
 
 1. **A Claude Code Plugin** - The Mycelium distributed intelligence system with 130+ agents
-2. **A Plugin Marketplace** - A discovery system for Mycelium and potentially other plugins
+1. **A Plugin Marketplace** - A discovery system for Mycelium and potentially other plugins
 
-This dual-purpose approach is not only feasible but architecturally elegant and follows established patterns in the Claude Code ecosystem.
+This dual-purpose approach is not only feasible but architecturally elegant and follows established patterns in the
+Claude Code ecosystem.
 
----
+______________________________________________________________________
 
 ## Analysis of Reference Repository
 
@@ -37,11 +40,13 @@ claude-code-marketplace/
 ### Key Insights
 
 1. **The repository IS both a marketplace AND contains plugins**
+
    - Root `.claude-plugin/marketplace.json` defines the marketplace
    - Each plugin in `plugins/` has its own `.claude-plugin/plugin.json`
    - Plugins are embedded directly in the repository
 
-2. **Installation Model**
+1. **Installation Model**
+
    ```bash
    # Install the marketplace itself
    /plugin marketplace add ananddtyagi/claude-code-marketplace
@@ -50,7 +55,8 @@ claude-code-marketplace/
    /plugin install lyra@claude-code-marketplace
    ```
 
-3. **Marketplace.json Structure**
+1. **Marketplace.json Structure**
+
    ```json
    {
      "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
@@ -75,7 +81,8 @@ claude-code-marketplace/
    }
    ```
 
-4. **Plugin.json Structure** (for individual plugins)
+1. **Plugin.json Structure** (for individual plugins)
+
    ```json
    {
      "name": "plugin-name",
@@ -92,7 +99,7 @@ claude-code-marketplace/
    }
    ```
 
----
+______________________________________________________________________
 
 ## Feasibility Assessment: Mycelium as Dual-Purpose
 
@@ -176,27 +183,31 @@ mycelium/
 The structure is clean because:
 
 1. **Separation of Concerns**
+
    - Marketplace metadata: `.claude-plugin/marketplace.json`
    - Plugin metadata: `plugins/*/\.claude-plugin/plugin.json`
    - Plugin content: `plugins/*/`
 
-2. **Installation Paths**
+1. **Installation Paths**
+
    - As marketplace: `/plugin marketplace add gsornsen/mycelium`
    - As plugin: `/plugin install mycelium-core@mycelium`
    - Direct install: `claude plugin install git+https://github.com/gsornsen/mycelium.git#plugins/mycelium-core`
 
-3. **User Clarity**
+1. **User Clarity**
+
    - README.md explains both use cases
    - Clear installation instructions for each mode
    - No ambiguity in functionality
 
----
+______________________________________________________________________
 
 ## Recommended Architecture
 
 ### Option A: Single Repo for Both (RECOMMENDED)
 
 **Pros:**
+
 - Single source of truth
 - Easier maintenance
 - Community can contribute plugins
@@ -205,6 +216,7 @@ The structure is clean because:
 - Can host community-developed Mycelium extensions
 
 **Cons:**
+
 - Slightly more complex directory structure
 - Need to educate users on dual purpose
 
@@ -213,10 +225,12 @@ The structure is clean because:
 ### Option B: Separate Repos (NOT RECOMMENDED)
 
 **Pros:**
+
 - Clearer separation
 - Simpler individual repos
 
 **Cons:**
+
 - Maintenance overhead (2 repos)
 - Potential version sync issues
 - Doesn't leverage Mycelium's ecosystem philosophy
@@ -226,18 +240,20 @@ The structure is clean because:
 
 This is essentially what we're doing with Option A, just without proper structure.
 
----
+______________________________________________________________________
 
 ## Implementation Plan
 
 ### Phase 1: Create Marketplace Structure
 
 1. **Create marketplace metadata**
+
    ```bash
    mkdir -p .claude-plugin
    ```
 
-2. **Create marketplace.json**
+1. **Create marketplace.json**
+
    ```json
    {
      "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
@@ -274,11 +290,13 @@ This is essentially what we're doing with Option A, just without proper structur
 ### Phase 2: Restructure as Plugin
 
 1. **Create plugin directory structure**
+
    ```bash
    mkdir -p plugins/mycelium-core/.claude-plugin
    ```
 
-2. **Move existing content**
+1. **Move existing content**
+
    ```bash
    # Move core components into plugin structure
    mv agents/ plugins/mycelium-core/
@@ -287,7 +305,8 @@ This is essentially what we're doing with Option A, just without proper structur
    mv lib/ plugins/mycelium-core/
    ```
 
-3. **Create plugin.json**
+1. **Create plugin.json**
+
    ```json
    {
      "name": "mycelium-core",
@@ -321,21 +340,25 @@ This is essentially what we're doing with Option A, just without proper structur
 ### Phase 3: Update Documentation
 
 1. **Update README.md** (root level)
+
    - Explain dual-purpose nature
    - Installation for both use cases
    - Link to marketplace and plugin docs
 
-2. **Create MARKETPLACE_README.md**
+1. **Create MARKETPLACE_README.md**
+
    - Focus on marketplace functionality
    - Plugin submission guidelines
    - Discovery and installation
 
-3. **Update INSTALL.md**
+1. **Update INSTALL.md**
+
    - Add marketplace installation instructions
    - Add plugin installation instructions
    - Clarify the difference
 
-4. **Create docs/marketplace/**
+1. **Create docs/marketplace/**
+
    - SUBMISSION_GUIDE.md
    - PLUGIN_DEVELOPMENT.md
    - QUALITY_STANDARDS.md
@@ -343,22 +366,26 @@ This is essentially what we're doing with Option A, just without proper structur
 ### Phase 4: Testing & Validation
 
 1. **Test marketplace installation**
+
    ```bash
    /plugin marketplace add gsornsen/mycelium
    /plugin
    ```
 
-2. **Test plugin installation**
+1. **Test plugin installation**
+
    ```bash
    /plugin install mycelium-core@mycelium
    ```
 
-3. **Test direct git installation**
+1. **Test direct git installation**
+
    ```bash
    claude plugin install git+https://github.com/gsornsen/mycelium.git#plugins/mycelium-core
    ```
 
-4. **Verify functionality**
+1. **Verify functionality**
+
    - Test slash commands: `/infra-check`, `/team-status`
    - Test agent invocation
    - Test hooks execution
@@ -367,23 +394,26 @@ This is essentially what we're doing with Option A, just without proper structur
 ### Phase 5: Community Enablement
 
 1. **Create submission process**
+
    - GitHub issue template for plugin submissions
    - PR template for plugin additions
    - Automated validation (GitHub Actions)
 
-2. **Quality standards**
+1. **Quality standards**
+
    - Plugin must include `.claude-plugin/plugin.json`
    - Must follow Mycelium conventions
    - Should integrate with coordination system
    - Documentation requirements
 
-3. **Marketing & Discovery**
+1. **Marketing & Discovery**
+
    - Submit to Claude Code marketplace registry
    - Create showcase page
    - Document example plugins
    - Community contribution guide
 
----
+______________________________________________________________________
 
 ## Installation & Usage Examples
 
@@ -429,25 +459,28 @@ ln -s $(pwd)/plugins/mycelium-core ~/.claude/plugins/mycelium-core
 /team-status
 ```
 
----
+______________________________________________________________________
 
 ## User Perspective
 
 ### How Users Interact
 
 1. **Marketplace Users**
+
    - Discover plugins via marketplace
    - Install multiple plugins from Mycelium ecosystem
    - Get updates via marketplace sync
    - **Use Case:** Users who want the full Mycelium experience + community plugins
 
-2. **Plugin Users**
+1. **Plugin Users**
+
    - Install just mycelium-core
    - Get core functionality (130+ agents, commands, hooks)
    - Don't need marketplace overhead
    - **Use Case:** Users who just want the core Mycelium plugin
 
-3. **Developers**
+1. **Developers**
+
    - Clone repository
    - Develop custom plugins
    - Submit to marketplace
@@ -456,7 +489,8 @@ ln -s $(pwd)/plugins/mycelium-core ~/.claude/plugins/mycelium-core
 ### Clarity Through Documentation
 
 **Root README.md** (First 100 lines):
-```markdown
+
+````markdown
 # Mycelium - Distributed Intelligence for Claude Code
 
 > **Dual Purpose Repository:**
@@ -469,14 +503,16 @@ ln -s $(pwd)/plugins/mycelium-core ~/.claude/plugins/mycelium-core
 ```bash
 /plugin marketplace add gsornsen/mycelium
 /plugin install mycelium-core@mycelium
-```
+````
 
 ### Option 2: Just the Core Plugin
+
 ```bash
 claude plugin install git+https://github.com/gsornsen/mycelium.git#plugins/mycelium-core
 ```
 
 ...
+
 ```
 
 This makes it IMMEDIATELY clear to users.
@@ -528,15 +564,13 @@ Mycelium is about **distributed intelligence**. A marketplace of plugins is the 
 Once the structure is in place, these could be community-contributed plugins:
 
 ```
-plugins/
-├── mycelium-core/              # Core 130+ agents + infrastructure
-├── mycelium-voice-kit/         # Voice cloning & TTS specialists
-├── mycelium-web3/              # Blockchain development agents
-├── mycelium-data-science/      # Advanced ML/DS workflows
-├── mycelium-homelab/           # Home lab infrastructure agents
-├── mycelium-game-dev/          # Game development specialists
-└── ... (community contributions)
-```
+
+plugins/ ├── mycelium-core/ # Core 130+ agents + infrastructure ├── mycelium-voice-kit/ # Voice cloning & TTS
+specialists ├── mycelium-web3/ # Blockchain development agents ├── mycelium-data-science/ # Advanced ML/DS workflows ├──
+mycelium-homelab/ # Home lab infrastructure agents ├── mycelium-game-dev/ # Game development specialists └── ...
+(community contributions)
+
+````
 
 Each plugin:
 - Integrates with coordination substrate
@@ -561,7 +595,7 @@ No breaking changes:
    ```bash
    rm ~/.claude/plugins/mycelium
    ln -s /path/to/mycelium/plugins/mycelium-core ~/.claude/plugins/mycelium-core
-   ```
+````
 
 3. **Or use marketplace install**:
    ```bash
@@ -574,73 +608,77 @@ No breaking changes:
 Maintain backwards compatibility:
 
 1. **Keep root-level symlinks working** (transition period)
+
    - Create symlinks at root pointing to `plugins/mycelium-core/`
    - Deprecate over time with clear messaging
 
-2. **Version the change**
+1. **Version the change**
+
    - v1.0.x: Current structure
    - v1.1.0: Dual-purpose structure (with compatibility layer)
    - v2.0.0: Pure dual-purpose (remove compatibility layer)
 
----
+______________________________________________________________________
 
 ## Comparison to Reference Repository
 
-| Aspect | claude-code-marketplace | Proposed Mycelium |
-|--------|------------------------|-------------------|
-| **Primary Purpose** | Marketplace for community plugins | Plugin + Marketplace |
-| **Core Plugin** | None (pure marketplace) | mycelium-core (130+ agents) |
-| **Structure** | `.claude-plugin/marketplace.json` + `plugins/` | Same structure |
-| **Installation** | Add marketplace, install plugins | Add marketplace OR install core directly |
-| **Community** | External plugins only | Core + community plugins |
-| **Integration** | Independent plugins | Plugins integrate via coordination substrate |
-| **Philosophy** | Plugin discovery | Distributed intelligence ecosystem |
+| Aspect              | claude-code-marketplace                        | Proposed Mycelium                            |
+| ------------------- | ---------------------------------------------- | -------------------------------------------- |
+| **Primary Purpose** | Marketplace for community plugins              | Plugin + Marketplace                         |
+| **Core Plugin**     | None (pure marketplace)                        | mycelium-core (130+ agents)                  |
+| **Structure**       | `.claude-plugin/marketplace.json` + `plugins/` | Same structure                               |
+| **Installation**    | Add marketplace, install plugins               | Add marketplace OR install core directly     |
+| **Community**       | External plugins only                          | Core + community plugins                     |
+| **Integration**     | Independent plugins                            | Plugins integrate via coordination substrate |
+| **Philosophy**      | Plugin discovery                               | Distributed intelligence ecosystem           |
 
-Key Difference: Mycelium isn't JUST a marketplace - it's a marketplace that also includes a flagship plugin (mycelium-core) that provides the substrate for other plugins to build upon.
+Key Difference: Mycelium isn't JUST a marketplace - it's a marketplace that also includes a flagship plugin
+(mycelium-core) that provides the substrate for other plugins to build upon.
 
----
+______________________________________________________________________
 
 ## Decision Matrix
 
-| Factor | Single Repo (Recommended) | Separate Repos |
-|--------|---------------------------|----------------|
-| **Maintenance Effort** | Low (one repo) | High (two repos) |
-| **User Confusion** | Low (clear docs) | Medium (which repo?) |
-| **Community Growth** | High (one destination) | Medium (fragmented) |
-| **Modularity** | High (plugin structure) | High (separate repos) |
-| **Discovery** | High (one main repo) | Medium (two repos) |
-| **Version Sync** | Easy (monorepo) | Complex (coordination) |
-| **Ecosystem Fit** | Perfect (mycelial network) | Okay (separate entities) |
-| **Flexibility** | High (add plugins easily) | Medium (repo management) |
+| Factor                 | Single Repo (Recommended)  | Separate Repos           |
+| ---------------------- | -------------------------- | ------------------------ |
+| **Maintenance Effort** | Low (one repo)             | High (two repos)         |
+| **User Confusion**     | Low (clear docs)           | Medium (which repo?)     |
+| **Community Growth**   | High (one destination)     | Medium (fragmented)      |
+| **Modularity**         | High (plugin structure)    | High (separate repos)    |
+| **Discovery**          | High (one main repo)       | Medium (two repos)       |
+| **Version Sync**       | Easy (monorepo)            | Complex (coordination)   |
+| **Ecosystem Fit**      | Perfect (mycelial network) | Okay (separate entities) |
+| **Flexibility**        | High (add plugins easily)  | Medium (repo management) |
 
 **Score: Single Repo wins decisively**
 
----
+______________________________________________________________________
 
 ## Final Recommendation
 
 **IMPLEMENT DUAL-PURPOSE REPOSITORY**
 
 1. **Why:** Aligns with Mycelium philosophy, follows established patterns, enables community growth
-2. **How:** Restructure as outlined in implementation plan
-3. **When:** Can be done incrementally without breaking existing users
-4. **Risk:** Low - structure is proven, migration is straightforward
+1. **How:** Restructure as outlined in implementation plan
+1. **When:** Can be done incrementally without breaking existing users
+1. **Risk:** Low - structure is proven, migration is straightforward
 
 ### Next Steps
 
 1. Create `.claude-plugin/marketplace.json`
-2. Create `plugins/mycelium-core/` structure
-3. Move existing content into plugin structure
-4. Update documentation for dual purpose
-5. Test both installation methods
-6. Announce to community
-7. Enable plugin submissions
+1. Create `plugins/mycelium-core/` structure
+1. Move existing content into plugin structure
+1. Update documentation for dual purpose
+1. Test both installation methods
+1. Announce to community
+1. Enable plugin submissions
 
----
+______________________________________________________________________
 
 ## Conclusion
 
-The reference repository demonstrates that a dual-purpose repository (marketplace + plugins) is not only feasible but is a standard pattern in the Claude Code ecosystem.
+The reference repository demonstrates that a dual-purpose repository (marketplace + plugins) is not only feasible but is
+a standard pattern in the Claude Code ecosystem.
 
 For Mycelium, this approach is even more compelling because:
 

@@ -1,10 +1,9 @@
 # Environment Troubleshooting Guide
 
-**Version**: 1.0
-**Last Updated**: 2025-10-13
-**Purpose**: Comprehensive troubleshooting for Mycelium environment activation issues
+**Version**: 1.0 **Last Updated**: 2025-10-13 **Purpose**: Comprehensive troubleshooting for Mycelium environment
+activation issues
 
----
+______________________________________________________________________
 
 ## Quick Diagnosis
 
@@ -23,21 +22,21 @@ echo $MYCELIUM_ENV_ACTIVE
 
 Save this output if you need to ask for help!
 
----
+______________________________________________________________________
 
 ## Table of Contents
 
 1. [Environment Not Active Errors](#environment-not-active-errors)
-2. [direnv Issues](#direnv-issues)
-3. [Permission Errors](#permission-errors)
-4. [Path Issues](#path-issues)
-5. [Platform-Specific Issues](#platform-specific-issues)
-6. [Virtual Environment Issues](#virtual-environment-issues)
-7. [Shell Compatibility](#shell-compatibility)
-8. [Using mycelium-diagnose](#using-mycelium-diagnose)
-9. [Common Error Messages](#common-error-messages)
+1. [direnv Issues](#direnv-issues)
+1. [Permission Errors](#permission-errors)
+1. [Path Issues](#path-issues)
+1. [Platform-Specific Issues](#platform-specific-issues)
+1. [Virtual Environment Issues](#virtual-environment-issues)
+1. [Shell Compatibility](#shell-compatibility)
+1. [Using mycelium-diagnose](#using-mycelium-diagnose)
+1. [Common Error Messages](#common-error-messages)
 
----
+______________________________________________________________________
 
 ## Environment Not Active Errors
 
@@ -51,6 +50,7 @@ Error: Mycelium environment not active
 ```
 
 **Diagnosis**:
+
 ```bash
 # Check activation status
 echo $MYCELIUM_ENV_ACTIVE
@@ -60,16 +60,19 @@ echo $MYCELIUM_ENV_ACTIVE
 **Solutions**:
 
 #### Solution 1: Manual Activation
+
 ```bash
 source bin/activate.sh
 ```
 
 #### Solution 2: direnv Activation
+
 ```bash
 direnv allow
 ```
 
 #### Solution 3: Check for Sourcing Issues
+
 ```bash
 # WRONG - will not work (runs in subshell)
 ./bin/activate.sh
@@ -82,7 +85,7 @@ source bin/activate.sh
 
 **Prevention**: Use direnv for automatic activation
 
----
+______________________________________________________________________
 
 ### Error: "Missing or empty environment variables"
 
@@ -93,12 +96,14 @@ EnvironmentValidationError: Missing or empty environment variables: MYCELIUM_ROO
 ```
 
 **Diagnosis**:
+
 ```bash
 # Check which variables are missing
 env | grep MYCELIUM
 ```
 
 **Solution**:
+
 ```bash
 # Activate the environment
 source bin/activate.sh
@@ -108,11 +113,12 @@ env | grep MYCELIUM | sort
 ```
 
 **Root Causes**:
-1. Environment never activated
-2. Activation failed partway through
-3. Variables were accidentally unset
 
----
+1. Environment never activated
+1. Activation failed partway through
+1. Variables were accidentally unset
+
+______________________________________________________________________
 
 ### Error: "Already active" warning
 
@@ -125,6 +131,7 @@ Warning: Mycelium environment already active
 ```
 
 **Diagnosis**:
+
 ```bash
 # Check if active
 echo $MYCELIUM_ENV_ACTIVE
@@ -134,9 +141,11 @@ echo $MYCELIUM_ENV_ACTIVE
 **Solutions**:
 
 #### Solution 1: Use Current Activation
+
 Environment is already active - continue working!
 
 #### Solution 2: Re-activate
+
 ```bash
 # Deactivate first
 deactivate
@@ -146,10 +155,11 @@ source bin/activate.sh
 ```
 
 **Note**: Re-activation is rarely needed. Usually happens when:
+
 - Sourcing activate.sh multiple times by mistake
 - Trying to switch between different project clones
 
----
+______________________________________________________________________
 
 ## direnv Issues
 
@@ -163,6 +173,7 @@ cd ~/mycelium
 ```
 
 **Diagnosis**:
+
 ```bash
 # Check if direnv is installed
 which direnv
@@ -177,6 +188,7 @@ direnv status
 **Solutions**:
 
 #### Solution 1: Install direnv
+
 ```bash
 # Ubuntu/Debian
 sudo apt install direnv
@@ -192,6 +204,7 @@ curl -sfL https://direnv.net/install.sh | bash
 ```
 
 #### Solution 2: Add Shell Hook
+
 ```bash
 # For bash
 echo 'eval "$(direnv hook bash)"' >> ~/.bashrc
@@ -206,12 +219,13 @@ echo 'direnv hook fish | source' >> ~/.config/fish/config.fish
 ```
 
 #### Solution 3: Allow .envrc
+
 ```bash
 cd /path/to/mycelium
 direnv allow
 ```
 
----
+______________________________________________________________________
 
 ### Issue: direnv blocked / .envrc not allowed
 
@@ -222,12 +236,14 @@ direnv: error /path/to/mycelium/.envrc is blocked. Run `direnv allow` to approve
 ```
 
 **Diagnosis**:
+
 ```bash
 direnv status
 # Look for "Found RC allowed false"
 ```
 
 **Solution**:
+
 ```bash
 # Review .envrc contents first (security check)
 cat .envrc
@@ -241,17 +257,19 @@ direnv allow
 ```
 
 **Security Note**: Always review .envrc before allowing, especially after:
+
 - Cloning a new repository
 - Pulling changes that modified .envrc
 - Switching branches
 
----
+______________________________________________________________________
 
 ### Issue: direnv works but environment incomplete
 
 **Symptom**: Some variables set but not all
 
 **Diagnosis**:
+
 ```bash
 # Check what's set
 env | grep MYCELIUM | sort
@@ -261,6 +279,7 @@ direnv status
 ```
 
 **Solution**:
+
 ```bash
 # Force reload
 cd ..
@@ -274,10 +293,11 @@ direnv allow
 ```
 
 **Root Cause**: Usually happens when:
+
 - .envrc was modified while direnv was active
 - Shell state became inconsistent
 
----
+______________________________________________________________________
 
 ## Permission Errors
 
@@ -291,6 +311,7 @@ Permission denied
 ```
 
 **Diagnosis**:
+
 ```bash
 # Check permissions on parent directories
 ls -ld ~/.config
@@ -304,6 +325,7 @@ test -w ~/.config && echo "writable" || echo "NOT writable"
 **Solutions**:
 
 #### Solution 1: Fix Parent Directory Permissions
+
 ```bash
 # Make directories writable
 chmod u+w ~/.config
@@ -315,6 +337,7 @@ source bin/activate.sh
 ```
 
 #### Solution 2: Create Directories Manually
+
 ```bash
 # Create XDG directories manually
 mkdir -p ~/.config/mycelium
@@ -333,6 +356,7 @@ source bin/activate.sh
 ```
 
 #### Solution 3: Use Custom XDG Directories
+
 ```bash
 # Set custom locations (with write access)
 export XDG_CONFIG_HOME=~/my-config
@@ -347,7 +371,7 @@ mkdir -p ~/my-config ~/my-data ~/my-cache ~/my-state
 source bin/activate.sh
 ```
 
----
+______________________________________________________________________
 
 ### Error: "Directory is not writable"
 
@@ -358,6 +382,7 @@ XDGDirectoryError: Config directory is not writable: /home/user/.config/mycelium
 ```
 
 **Diagnosis**:
+
 ```bash
 # Check directory permissions
 ls -ld ~/.config/mycelium
@@ -367,6 +392,7 @@ touch ~/.config/mycelium/test.txt
 ```
 
 **Solution**:
+
 ```bash
 # Fix permissions
 chmod u+w ~/.config/mycelium
@@ -378,7 +404,7 @@ chmod u+w ~/.config
 source bin/activate.sh
 ```
 
----
+______________________________________________________________________
 
 ## Path Issues
 
@@ -392,6 +418,7 @@ bash: mycelium: command not found
 ```
 
 **Diagnosis**:
+
 ```bash
 # Check if bin is in PATH
 echo $PATH | grep mycelium
@@ -406,6 +433,7 @@ echo $MYCELIUM_ROOT
 **Solutions**:
 
 #### Solution 1: Verify Activation
+
 ```bash
 # Check if environment is actually active
 echo $MYCELIUM_ENV_ACTIVE
@@ -418,6 +446,7 @@ echo $PATH | grep "$(pwd)/bin"
 ```
 
 #### Solution 2: Manual PATH Addition
+
 ```bash
 # Add manually (temporary fix)
 export PATH="$MYCELIUM_ROOT/bin:$PATH"
@@ -427,12 +456,13 @@ which mycelium
 ```
 
 #### Solution 3: Use Absolute Paths
+
 ```bash
 # Use absolute path as workaround
 /path/to/mycelium/bin/mycelium status
 ```
 
----
+______________________________________________________________________
 
 ### Issue: Wrong Python version
 
@@ -444,6 +474,7 @@ which mycelium
 ```
 
 **Diagnosis**:
+
 ```bash
 # Check VIRTUAL_ENV
 echo $VIRTUAL_ENV
@@ -453,6 +484,7 @@ ls -la .venv/
 ```
 
 **Solution**:
+
 ```bash
 # If .venv doesn't exist, create it
 uv sync
@@ -465,7 +497,7 @@ deactivate
 source bin/activate.sh
 ```
 
----
+______________________________________________________________________
 
 ## Platform-Specific Issues
 
@@ -476,6 +508,7 @@ source bin/activate.sh
 **Symptom**: Everything is slow in WSL
 
 **Diagnosis**:
+
 ```bash
 # Check if in Windows filesystem
 pwd
@@ -483,6 +516,7 @@ pwd
 ```
 
 **Solution**:
+
 ```bash
 # Move project to WSL filesystem
 cp -r /mnt/c/Users/YourName/mycelium ~/mycelium
@@ -495,10 +529,11 @@ source bin/activate.sh
 ```
 
 **Performance Impact**:
+
 - Windows filesystem (`/mnt/c/`): 10-100x slower
 - WSL filesystem (`~/`): Native speed
 
----
+______________________________________________________________________
 
 #### Issue: WSL warning during activation
 
@@ -511,6 +546,7 @@ Warning: You're in Windows filesystem (/mnt/c/)
 ```
 
 **Solution**:
+
 ```bash
 # Option 1: Move project (recommended)
 mv /mnt/c/Users/YourName/mycelium ~/mycelium
@@ -519,7 +555,7 @@ mv /mnt/c/Users/YourName/mycelium ~/mycelium
 # Answer 'y' to the prompt
 ```
 
----
+______________________________________________________________________
 
 ### macOS Issues
 
@@ -528,6 +564,7 @@ mv /mnt/c/Users/YourName/mycelium ~/mycelium
 **Symptom**: zsh shows warnings about activate.sh
 
 **Solution**:
+
 ```bash
 # Make sure using source, not direct execution
 source bin/activate.sh
@@ -535,13 +572,14 @@ source bin/activate.sh
 # Not ./bin/activate.sh
 ```
 
----
+______________________________________________________________________
 
 #### Issue: Permission issues with Gatekeeper
 
 **Symptom**: macOS blocks script execution
 
 **Solution**:
+
 ```bash
 # Remove quarantine attribute
 xattr -d com.apple.quarantine bin/activate.sh
@@ -550,7 +588,7 @@ xattr -d com.apple.quarantine bin/activate.sh
 # System Preferences > Security & Privacy > General
 ```
 
----
+______________________________________________________________________
 
 ### Linux Issues
 
@@ -559,6 +597,7 @@ xattr -d com.apple.quarantine bin/activate.sh
 **Symptom**: Permission denied despite correct chmod
 
 **Diagnosis**:
+
 ```bash
 # Check SELinux status
 getenforce
@@ -568,6 +607,7 @@ ls -Z ~/.config
 ```
 
 **Solution**:
+
 ```bash
 # Set correct SELinux context
 chcon -R -t user_home_t ~/.config/mycelium
@@ -576,7 +616,7 @@ chcon -R -t user_home_t ~/.config/mycelium
 sudo setenforce 0
 ```
 
----
+______________________________________________________________________
 
 ## Virtual Environment Issues
 
@@ -590,6 +630,7 @@ Warning: Virtual environment not found at .venv/
 ```
 
 **Diagnosis**:
+
 ```bash
 # Check if .venv exists
 ls -la .venv/
@@ -601,6 +642,7 @@ which uv
 **Solutions**:
 
 #### Solution 1: Create with uv
+
 ```bash
 # Install uv if needed
 curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -613,6 +655,7 @@ source bin/activate.sh
 ```
 
 #### Solution 2: Create with venv
+
 ```bash
 # Create virtual environment
 python3 -m venv .venv
@@ -624,13 +667,14 @@ python3 -m venv .venv
 source bin/activate.sh
 ```
 
----
+______________________________________________________________________
 
 ### Issue: Virtual environment version mismatch
 
 **Symptom**: Wrong Python version in .venv
 
 **Solution**:
+
 ```bash
 # Remove old virtual environment
 rm -rf .venv
@@ -644,7 +688,7 @@ uv sync
 source bin/activate.sh
 ```
 
----
+______________________________________________________________________
 
 ## Shell Compatibility
 
@@ -661,6 +705,7 @@ Warning: Shell detection failed
 **Solutions**:
 
 #### Solution 1: Use Bash
+
 ```bash
 # Start bash
 bash
@@ -670,6 +715,7 @@ source bin/activate.sh
 ```
 
 #### Solution 2: Use Zsh
+
 ```bash
 # Start zsh
 zsh
@@ -679,24 +725,27 @@ source bin/activate.sh
 ```
 
 **Supported Shells**:
+
 - ✅ Bash 4.0+
 - ✅ Zsh 5.0+
 - ❌ Fish (activate.fish coming soon)
 - ❌ Dash (not supported)
 - ❌ Sh (not supported)
 
----
+______________________________________________________________________
 
 ### Issue: Bash version too old
 
 **Symptom**: Syntax errors in activate.sh
 
 **Diagnosis**:
+
 ```bash
 bash --version
 ```
 
 **Solution**:
+
 ```bash
 # Ubuntu/Debian - install newer bash
 sudo apt update
@@ -710,7 +759,7 @@ bash --version
 # Should be 4.0 or higher
 ```
 
----
+______________________________________________________________________
 
 ## Using mycelium-diagnose
 
@@ -725,38 +774,47 @@ The diagnostic tool provides comprehensive environment analysis.
 ### Output Sections
 
 **1. Shell Information**
+
 - Current shell and version
 - Helps diagnose shell compatibility issues
 
 **2. Environment Variables**
-- All MYCELIUM_* variables
+
+- All MYCELIUM\_\* variables
 - Shows which are set/unset
 
 **3. Directory Status**
+
 - Existence, size, permissions
 - Writability checks
 
 **4. PATH Check**
+
 - Shows mycelium paths in PATH
 - Helps diagnose command not found issues
 
 **5. Virtual Environment**
+
 - Python version and location
 - .venv status
 
 **6. direnv Status**
+
 - Installation status
 - .envrc allowed/blocked status
 
 **7. System Information**
+
 - OS and platform details
 - WSL detection
 
 **8. Critical Files**
+
 - Checks for required files
 - Validates project structure
 
 **9. Recommendations**
+
 - Actionable steps to fix issues
 - Prioritized by importance
 
@@ -773,6 +831,7 @@ cat diagnostics.txt
 ### Interpreting Output
 
 **Good Output Example**:
+
 ```
 === Mycelium Environment Diagnostics ===
 
@@ -793,6 +852,7 @@ cat diagnostics.txt
 ```
 
 **Problem Output Example**:
+
 ```
 === Recommendations ===
 
@@ -806,7 +866,7 @@ cat diagnostics.txt
     -> Install from: https://direnv.net/
 ```
 
----
+______________________________________________________________________
 
 ## Common Error Messages
 
@@ -815,6 +875,7 @@ cat diagnostics.txt
 **Meaning**: You're not in the correct directory
 
 **Solution**:
+
 ```bash
 # Navigate to project root
 cd /path/to/mycelium
@@ -826,13 +887,14 @@ ls pyproject.toml
 source bin/activate.sh
 ```
 
----
+______________________________________________________________________
 
 ### "Failed to determine script directory"
 
 **Meaning**: Script wasn't sourced correctly
 
 **Solution**:
+
 ```bash
 # Use 'source' command
 source bin/activate.sh
@@ -841,13 +903,14 @@ source bin/activate.sh
 # ./bin/activate.sh  # WRONG
 ```
 
----
+______________________________________________________________________
 
 ### "Deactivation may be incomplete"
 
 **Meaning**: Deactivation couldn't fully clean up
 
 **Solution**:
+
 ```bash
 # Start fresh shell
 exec $SHELL
@@ -855,13 +918,14 @@ exec $SHELL
 # Or close and reopen terminal
 ```
 
----
+______________________________________________________________________
 
 ### Import errors for mycelium_onboarding
 
 **Meaning**: Python package not installed or venv not activated
 
 **Solution**:
+
 ```bash
 # Ensure dependencies installed
 uv sync
@@ -873,7 +937,7 @@ source bin/activate.sh
 python -c "import mycelium_onboarding; print('OK')"
 ```
 
----
+______________________________________________________________________
 
 ## Getting Help
 
@@ -896,6 +960,7 @@ echo "Shell: $SHELL" >> system.txt
 ### 2. Create Issue Report
 
 Include:
+
 - Output from mycelium-diagnose
 - Output from check-dependencies.sh
 - Your OS and shell version
@@ -908,18 +973,18 @@ Include:
 - [Design Document](design/environment-isolation-strategy.md)
 - [Environment Activation Guide](environment-activation.md)
 
----
+______________________________________________________________________
 
 ## Prevention Tips
 
 ### Best Practices
 
 1. **Use direnv** for automatic activation
-2. **Always source** activation script (never execute directly)
-3. **Run diagnostics** regularly to catch issues early
-4. **Keep dependencies updated** (uv, direnv, Python)
-5. **Review .envrc changes** before allowing
-6. **Use WSL filesystem** (not Windows /mnt/c/)
+1. **Always source** activation script (never execute directly)
+1. **Run diagnostics** regularly to catch issues early
+1. **Keep dependencies updated** (uv, direnv, Python)
+1. **Review .envrc changes** before allowing
+1. **Use WSL filesystem** (not Windows /mnt/c/)
 
 ### Maintenance
 
@@ -937,23 +1002,22 @@ rm -rf ~/.cache/mycelium/*
 ls -lh ~/.local/share/mycelium
 ```
 
----
+______________________________________________________________________
 
 ## Quick Reference
 
-| Issue | Quick Fix |
-|-------|----------|
-| Environment not active | `source bin/activate.sh` |
-| Already active warning | `deactivate` then re-activate |
-| direnv blocked | `direnv allow` |
-| Commands not found | Check `$PATH`, re-activate |
-| Permission denied | `chmod u+w ~/.config ~/.local` |
-| Wrong Python | `uv sync`, re-activate |
-| Missing .venv | `uv sync` |
-| Shell unsupported | Use `bash` or `zsh` |
-| WSL slow | Move to `~/` from `/mnt/c/` |
+| Issue                  | Quick Fix                      |
+| ---------------------- | ------------------------------ |
+| Environment not active | `source bin/activate.sh`       |
+| Already active warning | `deactivate` then re-activate  |
+| direnv blocked         | `direnv allow`                 |
+| Commands not found     | Check `$PATH`, re-activate     |
+| Permission denied      | `chmod u+w ~/.config ~/.local` |
+| Wrong Python           | `uv sync`, re-activate         |
+| Missing .venv          | `uv sync`                      |
+| Shell unsupported      | Use `bash` or `zsh`            |
+| WSL slow               | Move to `~/` from `/mnt/c/`    |
 
----
+______________________________________________________________________
 
-**Last Updated**: 2025-10-13
-**Maintained By**: DevOps Engineering Team
+**Last Updated**: 2025-10-13 **Maintained By**: DevOps Engineering Team

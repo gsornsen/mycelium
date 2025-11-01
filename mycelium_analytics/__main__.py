@@ -62,10 +62,7 @@ Examples:
             print(json.dumps(report, indent=2))
         else:
             # Text format
-            print(
-                f"\n=== Mycelium Performance Analytics "
-                f"({args.days} days) ===\n"
-            )
+            print(f"\n=== Mycelium Performance Analytics ({args.days} days) ===\n")
 
             # Discovery Stats
             disc = report["discovery_stats"]
@@ -82,17 +79,14 @@ Examples:
                     print(f"      Count: {op_stats['count']}")
                     print(f"      p95: {op_stats['p95_ms']:.2f}ms")
                     if "cache_hit_rate" in op_stats:
-                        print(
-                            f"      Cache hit rate: "
-                            f"{op_stats['cache_hit_rate']:.2f}%"
-                        )
+                        print(f"      Cache hit rate: {op_stats['cache_hit_rate']:.2f}%")
 
             # Token Savings
             tokens = report["token_savings"]
             print("\nToken Consumption:")
             print(f"  Agents loaded: {tokens['total_agents_loaded']}")
             print(f"  Tokens loaded: {tokens['total_tokens_loaded']:,}")
-            if tokens['total_agents_loaded'] > 0:
+            if tokens["total_agents_loaded"] > 0:
                 print(
                     f"  Estimated savings: "
                     f"{tokens['estimated_savings_tokens']:,} tokens "
@@ -102,15 +96,10 @@ Examples:
             # Cache Performance
             cache = report["cache_performance"]
             print("\nCache Performance:")
-            if cache['total_lookups'] > 0:
+            if cache["total_lookups"] > 0:
                 print(f"  Hit rate: {cache['hit_rate_percentage']:.2f}%")
-                print(
-                    f"  Avg hit latency: {cache['avg_hit_latency_ms']:.2f}ms"
-                )
-                print(
-                    f"  Avg miss latency: "
-                    f"{cache['avg_miss_latency_ms']:.2f}ms"
-                )
+                print(f"  Avg hit latency: {cache['avg_hit_latency_ms']:.2f}ms")
+                print(f"  Avg miss latency: {cache['avg_miss_latency_ms']:.2f}ms")
             else:
                 print("  No cache lookups recorded")
 

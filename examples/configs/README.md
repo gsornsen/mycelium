@@ -7,6 +7,7 @@ This directory contains example configuration files demonstrating various deploy
 ### Basic Examples
 
 #### `minimal.yaml`
+
 Absolute minimum valid configuration using all defaults.
 
 - **Services**: Redis, PostgreSQL, Temporal (all on standard ports)
@@ -20,6 +21,7 @@ cp examples/configs/minimal.yaml ~/.config/mycelium/config.yaml
 ### Service-Specific Examples
 
 #### `redis-only.yaml`
+
 Lightweight setup with only Redis for pub/sub messaging.
 
 - **Services**: Redis only
@@ -27,6 +29,7 @@ Lightweight setup with only Redis for pub/sub messaging.
 - **Use case**: Messaging-only applications, lightweight deployments
 
 #### `postgres-only.yaml`
+
 Database-focused setup with only PostgreSQL.
 
 - **Services**: PostgreSQL only
@@ -34,6 +37,7 @@ Database-focused setup with only PostgreSQL.
 - **Use case**: Data persistence without messaging, database testing
 
 #### `temporal-only.yaml`
+
 Workflow orchestration with only Temporal.
 
 - **Services**: Temporal only
@@ -44,6 +48,7 @@ Workflow orchestration with only Temporal.
 ### Complete Examples
 
 #### `full-stack.yaml`
+
 Complete setup with all services and production-ready settings.
 
 - **Services**: Redis, PostgreSQL, Temporal (all configured)
@@ -53,6 +58,7 @@ Complete setup with all services and production-ready settings.
 ### Environment Examples
 
 #### `development.yaml`
+
 Optimized for local development with fast startup and minimal resources.
 
 - **Services**: All enabled with minimal settings
@@ -61,6 +67,7 @@ Optimized for local development with fast startup and minimal resources.
 - **Use case**: Day-to-day development
 
 #### `production.yaml`
+
 Production-ready configuration with high availability and performance tuning.
 
 - **Services**: All enabled with production settings
@@ -69,6 +76,7 @@ Production-ready configuration with high availability and performance tuning.
 - **Use case**: Production deployments, enterprise environments
 
 #### `kubernetes.yaml`
+
 Configuration for Kubernetes deployments.
 
 - **Services**: All enabled
@@ -81,15 +89,15 @@ Configuration for Kubernetes deployments.
 ### Quick Start
 
 1. **Choose an example** that matches your use case
-2. **Copy to config location**:
+1. **Copy to config location**:
    ```bash
    cp examples/configs/<example>.yaml ~/.config/mycelium/config.yaml
    ```
-3. **Validate configuration**:
+1. **Validate configuration**:
    ```bash
    mycelium config validate
    ```
-4. **Customize** as needed (edit ports, resource limits, etc.)
+1. **Customize** as needed (edit ports, resource limits, etc.)
 
 ### Validation
 
@@ -188,16 +196,16 @@ services:
 
 ## Comparison Matrix
 
-| Example | Redis | PostgreSQL | Temporal | Deployment | Resources | Use Case |
-|---------|-------|------------|----------|------------|-----------|----------|
-| minimal | ✓ | ✓ | ✓ | Docker | Minimal | Quick start |
-| redis-only | ✓ | ✗ | ✗ | Docker | Low | Messaging |
-| postgres-only | ✗ | ✓ | ✗ | Docker | Low | Database |
-| temporal-only | ✗ | ✗ | ✓ | Docker | Medium | Workflows |
-| full-stack | ✓ | ✓ | ✓ | Docker | High | Complete |
-| development | ✓ | ✓ | ✓ | Docker | Low | Dev |
-| production | ✓ | ✓ | ✓ | K8s | High | Prod |
-| kubernetes | ✓ | ✓ | ✓ | K8s | High | Cloud |
+| Example       | Redis | PostgreSQL | Temporal | Deployment | Resources | Use Case    |
+| ------------- | ----- | ---------- | -------- | ---------- | --------- | ----------- |
+| minimal       | ✓     | ✓          | ✓        | Docker     | Minimal   | Quick start |
+| redis-only    | ✓     | ✗          | ✗        | Docker     | Low       | Messaging   |
+| postgres-only | ✗     | ✓          | ✗        | Docker     | Low       | Database    |
+| temporal-only | ✗     | ✗          | ✓        | Docker     | Medium    | Workflows   |
+| full-stack    | ✓     | ✓          | ✓        | Docker     | High      | Complete    |
+| development   | ✓     | ✓          | ✓        | Docker     | Low       | Dev         |
+| production    | ✓     | ✓          | ✓        | K8s        | High      | Prod        |
+| kubernetes    | ✓     | ✓          | ✓        | K8s        | High      | Cloud       |
 
 ## Troubleshooting
 
@@ -206,12 +214,14 @@ services:
 If services fail to start due to port conflicts:
 
 1. Check what's using the port:
+
    ```bash
    lsof -i :6379  # Check Redis port
    lsof -i :5432  # Check PostgreSQL port
    ```
 
-2. Choose a different port in your config:
+1. Choose a different port in your config:
+
    ```yaml
    services:
      redis:
@@ -223,19 +233,21 @@ If services fail to start due to port conflicts:
 If configuration validation fails:
 
 1. Check the error message for specific field
-2. Refer to [Configuration Reference](../../docs/configuration-reference.md)
-3. Compare with working examples
+1. Refer to [Configuration Reference](../../docs/configuration-reference.md)
+1. Compare with working examples
 
 ### Resource Issues
 
 If services crash or perform poorly:
 
 1. Check available resources:
+
    ```bash
    docker stats  # Check container resources
    ```
 
-2. Adjust resource limits in config:
+1. Adjust resource limits in config:
+
    ```yaml
    services:
      redis:
@@ -254,9 +266,9 @@ If services crash or perform poorly:
 Have a useful configuration pattern? Contribute it!
 
 1. Create a new YAML file in this directory
-2. Add comprehensive comments explaining use case
-3. Validate with `mycelium config validate`
-4. Submit a pull request
+1. Add comprehensive comments explaining use case
+1. Validate with `mycelium config validate`
+1. Submit a pull request
 
 ## License
 

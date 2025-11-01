@@ -5,28 +5,32 @@ including state persistence, versioning, and rollback mechanisms.
 """
 
 import json
+import os
 import uuid
-from dataclasses import dataclass, field, asdict
+from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import asyncpg
-from asyncpg import Connection, Pool
+from asyncpg import Pool
 
 
 class StateManagerError(Exception):
     """Base exception for state manager errors."""
+
     pass
 
 
 class StateNotFoundError(StateManagerError):
     """Raised when workflow state is not found."""
+
     pass
 
 
 class WorkflowStatus(str, Enum):
     """Workflow execution status."""
+
     PENDING = "pending"
     RUNNING = "running"
     PAUSED = "paused"
@@ -37,6 +41,7 @@ class WorkflowStatus(str, Enum):
 
 class TaskStatus(str, Enum):
     """Individual task execution status."""
+
     PENDING = "pending"
     READY = "ready"
     RUNNING = "running"
@@ -49,26 +54,27 @@ class TaskStatus(str, Enum):
 @dataclass
 class TaskState:
     """State of an individual task in the workflow."""
+
     task_id: str
     agent_id: str
     agent_type: str
     status: TaskStatus = TaskStatus.PENDING
-    started_at: Optional[str] = None
-    completed_at: Optional[str] = None
-    execution_time: Optional[float] = None
-    result: Optional[Dict[str, Any]] = None
-    error: Optional[Dict[str, Any]] = None
+    started_at: str | None = None
+    completed_at: str | None = None
+    execution_time: float | None = None
+    result: dict[str, Any] | None = None
+    error: dict[str, Any] | None = None
     retry_count: int = 0
-    dependencies: List[str] = field(default_factory=list)
+    dependencies: list[str] = field(default_factory=list)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         data = asdict(self)
         data["status"] = self.status.value
         return data
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "TaskState":
+    def from_dict(cls, data: dict[str, Any]) -> "TaskState":
         """Create from dictionary."""
         data = data.copy()
         data["status"] = TaskStatus(data["status"])
@@ -78,19 +84,20 @@ class TaskState:
 @dataclass
 class WorkflowState:
     """Complete workflow execution state."""
+
     workflow_id: str
     status: WorkflowStatus
-    tasks: Dict[str, TaskState]
+    tasks: dict[str, TaskState]
     created_at: str
     updated_at: str
-    started_at: Optional[str] = None
-    completed_at: Optional[str] = None
-    variables: Dict[str, Any] = field(default_factory=dict)
-    metadata: Dict[str, Any] = field(default_factory=dict)
-    error: Optional[str] = None
+    started_at: str | None = None
+    completed_at: str | None = None
+    variables: dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
+    error: str | None = None
     version: int = 1
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "workflow_id": self.workflow_id,
@@ -107,7 +114,7 @@ class WorkflowState:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "WorkflowState":
+    def from_dict(cls, data: dict[str, Any]) -> "WorkflowState":
         """Create from dictionary."""
         data = data.copy()
         data["status"] = WorkflowStatus(data["status"])
@@ -122,7 +129,7 @@ class StateManager:
     Supports concurrent workflow execution with isolation.
     """
 
-    def __init__(self, pool: Optional[Pool] = None, connection_string: Optional[str] = None):
+    def __init__(self, pool: Pool | None = None, connection_string: str | None = None):
         """Initialize state manager.
 
         Args:
@@ -130,11 +137,13 @@ class StateManager:
             connection_string: Optional PostgreSQL connection string
         """
         if pool is not None:
-            self._pool = pool
+            self._pool: Pool | None = pool
             self._owns_pool = False
         else:
-            self._connection_string = connection_string or "postgresql://localhost:5432/mycelium_registry"
-            self._pool: Optional[Pool] = None
+            self._connection_string = connection_string or os.getenv(
+                "DATABASE_URL", "postgresql://localhost:5432/mycelium_registry"
+            )
+            self._pool = None
             self._owns_pool = True
 
     async def initialize(self) -> None:
@@ -175,7 +184,8 @@ class StateManager:
 
         CREATE TABLE IF NOT EXISTS task_states (
             task_id TEXT PRIMARY KEY,
-            workflow_id TEXT NOT NULL REFERENCES workflow_states(workflow_id) ON DELETE CASCADE,
+            workflow_id TEXT NOT NULL
+                REFERENCES workflow_states(workflow_id) ON DELETE CASCADE,
             agent_id TEXT NOT NULL,
             agent_type TEXT NOT NULL,
             status TEXT NOT NULL,
@@ -201,7 +211,8 @@ class StateManager:
             UNIQUE(workflow_id, version)
         );
 
-        CREATE INDEX IF NOT EXISTS idx_history_workflow ON workflow_state_history(workflow_id);
+        CREATE INDEX IF NOT EXISTS idx_history_workflow
+            ON workflow_state_history(workflow_id);
         """
 
         async with self._pool.acquire() as conn:
@@ -209,9 +220,9 @@ class StateManager:
 
     async def create_workflow(
         self,
-        workflow_id: Optional[str] = None,
-        tasks: Optional[List[TaskState]] = None,
-        metadata: Optional[Dict[str, Any]] = None,
+        workflow_id: str | None = None,
+        tasks: list[TaskState] | None = None,
+        metadata: dict[str, Any] | None = None,
     ) -> WorkflowState:
         """Create a new workflow state.
 
@@ -337,10 +348,10 @@ class StateManager:
         self,
         workflow_id: str,
         task_id: str,
-        status: Optional[TaskStatus] = None,
-        result: Optional[Dict[str, Any]] = None,
-        error: Optional[Dict[str, Any]] = None,
-        execution_time: Optional[float] = None,
+        status: TaskStatus | None = None,
+        result: dict[str, Any] | None = None,
+        error: dict[str, Any] | None = None,
+        execution_time: float | None = None,
     ) -> WorkflowState:
         """Update individual task state.
 
@@ -370,7 +381,11 @@ class StateManager:
             task.status = status
             if status == TaskStatus.RUNNING and not task.started_at:
                 task.started_at = now
-            elif status in (TaskStatus.COMPLETED, TaskStatus.FAILED, TaskStatus.SKIPPED):
+            elif status in (
+                TaskStatus.COMPLETED,
+                TaskStatus.FAILED,
+                TaskStatus.SKIPPED,
+            ):
                 task.completed_at = now
 
         if result is not None:
@@ -400,16 +415,13 @@ class StateManager:
 
         async with self._pool.acquire() as conn:
             row = await conn.fetchrow(
-                "SELECT state_snapshot FROM workflow_state_history "
-                "WHERE workflow_id = $1 AND version = $2",
+                "SELECT state_snapshot FROM workflow_state_history WHERE workflow_id = $1 AND version = $2",
                 workflow_id,
                 version,
             )
 
             if not row:
-                raise StateNotFoundError(
-                    f"Version {version} not found for workflow {workflow_id}"
-                )
+                raise StateNotFoundError(f"Version {version} not found for workflow {workflow_id}")
 
             state = WorkflowState.from_dict(row["state_snapshot"])
             await self._persist_state(state)
@@ -432,9 +444,9 @@ class StateManager:
 
     async def list_workflows(
         self,
-        status: Optional[WorkflowStatus] = None,
+        status: WorkflowStatus | None = None,
         limit: int = 100,
-    ) -> List[WorkflowState]:
+    ) -> list[WorkflowState]:
         """List workflows with optional status filter.
 
         Args:
@@ -450,15 +462,13 @@ class StateManager:
         async with self._pool.acquire() as conn:
             if status:
                 rows = await conn.fetch(
-                    "SELECT workflow_id FROM workflow_states WHERE status = $1 "
-                    "ORDER BY updated_at DESC LIMIT $2",
+                    "SELECT workflow_id FROM workflow_states WHERE status = $1 ORDER BY updated_at DESC LIMIT $2",
                     status.value,
                     limit,
                 )
             else:
                 rows = await conn.fetch(
-                    "SELECT workflow_id FROM workflow_states "
-                    "ORDER BY updated_at DESC LIMIT $1",
+                    "SELECT workflow_id FROM workflow_states ORDER BY updated_at DESC LIMIT $1",
                     limit,
                 )
 
@@ -480,11 +490,10 @@ class StateManager:
         if self._pool is None:
             raise StateManagerError("State manager not initialized")
 
-        async with self._pool.acquire() as conn:
-            async with conn.transaction():
-                # Upsert workflow
-                await conn.execute(
-                    """
+        async with self._pool.acquire() as conn, conn.transaction():
+            # Upsert workflow
+            await conn.execute(
+                """
                     INSERT INTO workflow_states (
                         workflow_id, status, created_at, updated_at, started_at,
                         completed_at, variables, metadata, error, version
@@ -499,47 +508,47 @@ class StateManager:
                         error = EXCLUDED.error,
                         version = EXCLUDED.version
                     """,
-                    state.workflow_id,
-                    state.status.value,
-                    datetime.fromisoformat(state.created_at.rstrip("Z")),
-                    datetime.fromisoformat(state.updated_at.rstrip("Z")),
-                    datetime.fromisoformat(state.started_at.rstrip("Z")) if state.started_at else None,
-                    datetime.fromisoformat(state.completed_at.rstrip("Z")) if state.completed_at else None,
-                    json.dumps(state.variables),
-                    json.dumps(state.metadata),
-                    state.error,
-                    state.version,
-                )
+                state.workflow_id,
+                state.status.value,
+                datetime.fromisoformat(state.created_at.rstrip("Z")),
+                datetime.fromisoformat(state.updated_at.rstrip("Z")),
+                datetime.fromisoformat(state.started_at.rstrip("Z")) if state.started_at else None,
+                datetime.fromisoformat(state.completed_at.rstrip("Z")) if state.completed_at else None,
+                json.dumps(state.variables),
+                json.dumps(state.metadata),
+                state.error,
+                state.version,
+            )
 
-                # Delete existing tasks and re-insert (simpler than complex upsert logic)
+            # Delete existing tasks and re-insert (simpler than complex upsert logic)
+            await conn.execute(
+                "DELETE FROM task_states WHERE workflow_id = $1",
+                state.workflow_id,
+            )
+
+            # Insert tasks
+            for task in state.tasks.values():
                 await conn.execute(
-                    "DELETE FROM task_states WHERE workflow_id = $1",
-                    state.workflow_id,
-                )
-
-                # Insert tasks
-                for task in state.tasks.values():
-                    await conn.execute(
-                        """
+                    """
                         INSERT INTO task_states (
                             task_id, workflow_id, agent_id, agent_type, status,
                             started_at, completed_at, execution_time, result,
                             error, retry_count, dependencies
                         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
                         """,
-                        task.task_id,
-                        state.workflow_id,
-                        task.agent_id,
-                        task.agent_type,
-                        task.status.value,
-                        datetime.fromisoformat(task.started_at.rstrip("Z")) if task.started_at else None,
-                        datetime.fromisoformat(task.completed_at.rstrip("Z")) if task.completed_at else None,
-                        task.execution_time,
-                        json.dumps(task.result) if task.result else None,
-                        json.dumps(task.error) if task.error else None,
-                        task.retry_count,
-                        task.dependencies,
-                    )
+                    task.task_id,
+                    state.workflow_id,
+                    task.agent_id,
+                    task.agent_type,
+                    task.status.value,
+                    datetime.fromisoformat(task.started_at.rstrip("Z")) if task.started_at else None,
+                    datetime.fromisoformat(task.completed_at.rstrip("Z")) if task.completed_at else None,
+                    task.execution_time,
+                    json.dumps(task.result) if task.result else None,
+                    json.dumps(task.error) if task.error else None,
+                    task.retry_count,
+                    task.dependencies,
+                )
 
     async def _save_snapshot(self, state: WorkflowState) -> None:
         """Save state snapshot for rollback.
@@ -553,7 +562,8 @@ class StateManager:
         async with self._pool.acquire() as conn:
             await conn.execute(
                 """
-                INSERT INTO workflow_state_history (workflow_id, version, state_snapshot)
+                INSERT INTO workflow_state_history
+                    (workflow_id, version, state_snapshot)
                 VALUES ($1, $2, $3)
                 ON CONFLICT (workflow_id, version) DO NOTHING
                 """,

@@ -12,8 +12,7 @@ Privacy principles:
 
 import hashlib
 import re
-from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 class DataAnonymizer:
@@ -26,10 +25,7 @@ class DataAnonymizer:
             salt: Salt for hashing identifiers
         """
         self.salt = salt
-        self._path_pattern = re.compile(
-            r'(?:File |at |in )"([^"]+)"',
-            re.IGNORECASE
-        )
+        self._path_pattern = re.compile(r'(?:File |at |in )"([^"]+)"', re.IGNORECASE)
 
     def hash_identifier(self, identifier: str) -> str:
         """Hash an identifier with salt.
@@ -62,19 +58,14 @@ class DataAnonymizer:
         original_path = path
 
         # Replace Unix home directories (/home/username or /Users/username)
-        path = re.sub(
-            r"/(?:home|Users)/([^/]+)/",
-            "<user>/",
-            path,
-            flags=re.IGNORECASE
-        )
+        path = re.sub(r"/(?:home|Users)/([^/]+)/", "<user>/", path, flags=re.IGNORECASE)
 
         # Replace Windows user directories (C:\Users\username or Users\username)
         path = re.sub(
             r"(?:[A-Z]:[/\\])?Users[/\\]([^/\\]+)[/\\]",
             "<user>/",
             path,
-            flags=re.IGNORECASE
+            flags=re.IGNORECASE,
         )
 
         # If path still starts with absolute indicators, remove them
@@ -91,10 +82,7 @@ class DataAnonymizer:
             try:
                 parts = original_path.replace("\\", "/").split("/")
                 parts = [p for p in parts if p and p not in ("C:", "D:", "")]
-                if len(parts) > 3:
-                    path = "/".join(parts[-3:])
-                else:
-                    path = "/".join(parts)
+                path = "/".join(parts[-3:]) if len(parts) > 3 else "/".join(parts)
             except Exception:
                 pass
 
@@ -115,6 +103,7 @@ class DataAnonymizer:
             >>> anonymizer.anonymize_stack_trace(trace)
             'File "<user>/project/file.py", line 42'
         """
+
         def replace_path(match: re.Match[str]) -> str:
             """Replace matched path with anonymized version."""
             path = match.group(1)
@@ -126,16 +115,9 @@ class DataAnonymizer:
 
         # Also anonymize any error messages within the stack trace
         # (which may contain emails, paths, etc.)
-        trace = self._anonymize_message(trace)
+        return self._anonymize_message(trace)
 
-        return trace
-
-    def anonymize_error(
-        self,
-        error_type: str,
-        error_message: str,
-        stack_trace: Optional[str] = None
-    ) -> Dict[str, Any]:
+    def anonymize_error(self, error_type: str, error_message: str, stack_trace: str | None = None) -> dict[str, Any]:
         """Anonymize error information.
 
         Args:
@@ -170,11 +152,8 @@ class DataAnonymizer:
         # Replace file paths in message (both quoted and unquoted)
         # First handle quoted paths
         message = self._path_pattern.sub(
-            lambda m: m.group(0).replace(
-                m.group(1),
-                self.anonymize_file_path(m.group(1))
-            ),
-            message
+            lambda m: m.group(0).replace(m.group(1), self.anonymize_file_path(m.group(1))),
+            message,
         )
 
         # Then handle unquoted Unix paths
@@ -182,38 +161,25 @@ class DataAnonymizer:
             r"(/(?:home|Users)/[^\s]+)",
             lambda m: self.anonymize_file_path(m.group(1)),
             message,
-            flags=re.IGNORECASE
+            flags=re.IGNORECASE,
         )
 
         # Handle unquoted Windows paths
         message = re.sub(
             r"([A-Z]:[/\\][^\s]+)",
             lambda m: self.anonymize_file_path(m.group(1)),
-            message
+            message,
         )
 
         # Remove passwords and credentials from connection strings
-        message = re.sub(
-            r'://[^:]+:([^@]+)@',
-            '://<user>:<password>@',
-            message
-        )
+        message = re.sub(r"://[^:]+:([^@]+)@", "://<user>:<password>@", message)
 
         # Remove any potential email addresses
-        message = re.sub(
-            r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b',
-            '<email>',
-            message
-        )
-
-        return message
+        return re.sub(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b", "<email>", message)
 
     def anonymize_agent_usage(
-        self,
-        agent_id: str,
-        operation: str,
-        metadata: Optional[Dict[str, Any]] = None
-    ) -> Dict[str, Any]:
+        self, agent_id: str, operation: str, metadata: dict[str, Any] | None = None
+    ) -> dict[str, Any]:
         """Anonymize agent usage data.
 
         Args:
@@ -224,7 +190,7 @@ class DataAnonymizer:
         Returns:
             Dictionary with anonymized agent usage data
         """
-        anonymized = {
+        anonymized: dict[str, Any] = {
             "agent_id_hash": self.hash_identifier(agent_id),
             "operation": operation,
         }
@@ -237,10 +203,7 @@ class DataAnonymizer:
 
         return anonymized
 
-    def _filter_safe_metadata(
-        self,
-        metadata: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    def _filter_safe_metadata(self, metadata: dict[str, Any]) -> dict[str, Any]:
         """Filter metadata to keep only safe, non-sensitive fields.
 
         Args:
@@ -259,18 +222,15 @@ class DataAnonymizer:
             "status_code",
         }
 
-        return {
-            k: v for k, v in metadata.items()
-            if k in safe_keys and not isinstance(v, (dict, list))
-        }
+        return {k: v for k, v in metadata.items() if k in safe_keys and not isinstance(v, dict | list)}
 
     def anonymize_performance_metric(
         self,
         metric_name: str,
         value: float,
         unit: str,
-        tags: Optional[Dict[str, str]] = None
-    ) -> Dict[str, Any]:
+        tags: dict[str, str] | None = None,
+    ) -> dict[str, Any]:
         """Anonymize performance metric data.
 
         Args:

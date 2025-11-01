@@ -9,19 +9,19 @@ This module provides workflow orchestration capabilities including:
 - Coordination event tracking
 """
 
-from .orchestrator import WorkflowOrchestrator, WorkflowStatus, TaskStatus
-from .state_manager import StateManager, WorkflowState
-from .protocol import HandoffProtocol, HandoffMessage
+from .orchestrator import WorkflowOrchestrator
+from .protocol import HandoffContext, HandoffMessage, HandoffProtocol
+from .state_manager import StateManager, TaskStatus, WorkflowState, WorkflowStatus
 from .tracker import (
-    CoordinationTracker,
-    CoordinationEvent,
-    EventType,
     AgentInfo,
+    CoordinationEvent,
+    CoordinationTracker,
     ErrorInfo,
+    EventType,
     PerformanceMetrics,
+    track_failure,
     track_handoff,
     track_task_execution,
-    track_failure,
 )
 
 __all__ = [
@@ -32,6 +32,7 @@ __all__ = [
     "WorkflowState",
     "HandoffProtocol",
     "HandoffMessage",
+    "HandoffContext",
     "CoordinationTracker",
     "CoordinationEvent",
     "EventType",

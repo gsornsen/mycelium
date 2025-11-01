@@ -6,14 +6,13 @@ and edge cases for the agent registry.
 
 import json
 import os
+from collections.abc import AsyncGenerator
 from pathlib import Path
-from typing import AsyncGenerator
 from uuid import UUID
 
-import pytest
 import asyncpg
-
-from plugins.mycelium_core.registry import (
+import pytest
+from registry import (
     AgentAlreadyExistsError,
     AgentNotFoundError,
     AgentRegistry,
@@ -21,11 +20,10 @@ from plugins.mycelium_core.registry import (
     load_agents_from_index,
 )
 
-
 # Test Configuration
 TEST_DB_URL = os.getenv(
     "TEST_DATABASE_URL",
-    "postgresql://mycelium:mycelium_dev_password@localhost:5432/mycelium_registry"
+    "postgresql://mycelium:mycelium_dev_password@localhost:5432/mycelium_registry",
 )
 
 # Sample test data
@@ -52,9 +50,7 @@ async def db_pool():
     """Create a database pool for testing."""
     # Create the test database if it doesn't exist
     try:
-        conn = await asyncpg.connect(
-            "postgresql://localhost:5432/postgres"
-        )
+        conn = await asyncpg.connect("postgresql://localhost:5432/postgres")
         try:
             await conn.execute("CREATE DATABASE mycelium_test")
         except asyncpg.DuplicateDatabaseError:
@@ -72,14 +68,13 @@ async def db_pool():
 @pytest.fixture(scope="session")
 async def schema_setup(db_pool):
     """Set up the database schema once for all tests."""
-    schema_path = Path(__file__).parent.parent.parent / \
-                  "plugins/mycelium-core/registry/schema.sql"
+    schema_path = Path(__file__).parent.parent.parent / "plugins/mycelium-core/registry/schema.sql"
 
     if not schema_path.exists():
         pytest.skip(f"Schema file not found: {schema_path}")
 
     async with db_pool.acquire() as conn:
-        with open(schema_path, 'r') as f:
+        with schema_path.open() as f:
             schema_sql = f.read()
         await conn.execute(schema_sql)
 
@@ -110,11 +105,20 @@ async def registry(db_pool, schema_setup) -> AsyncGenerator[AgentRegistry, None]
 class TestAgentRegistryInitialization:
     """Test registry initialization and connection management."""
 
-    async def test_initialize_with_connection_string(self):
+    async def test_initialize_with_connection_string(self, mocker):
         """Test registry initialization with connection string."""
+        # Mock asyncpg.create_pool to avoid real database connection in unit test
+        mock_pool = mocker.AsyncMock()
+        mock_create_pool = mocker.AsyncMock(return_value=mock_pool)
+        mocker.patch("asyncpg.create_pool", mock_create_pool)
+
         registry = AgentRegistry(connection_string=TEST_DB_URL)
         await registry.initialize()
+
         assert registry._pool is not None
+        assert registry._pool == mock_pool
+        mock_create_pool.assert_called_once()
+
         await registry.close()
 
     async def test_initialize_with_pool(self, db_pool):
@@ -129,11 +133,11 @@ class TestAgentRegistryInitialization:
         async with AgentRegistry(pool=db_pool) as registry:
             assert registry._pool is not None
 
-    async def test_get_connection_before_init(self):
-        """Test that getting connection before init raises error."""
+    async def test_operation_before_init(self):
+        """Test that calling operations before init raises error."""
         registry = AgentRegistry(connection_string=TEST_DB_URL)
-        with pytest.raises(AgentRegistryError):
-            await registry._get_connection()
+        with pytest.raises(AgentRegistryError, match="Registry not initialized"):
+            await registry.get_agent_count()
 
 
 @pytest.mark.asyncio
@@ -197,10 +201,7 @@ class TestAgentCRUD:
         await registry.create_agent(**SAMPLE_AGENT)
 
         new_description = "Updated description"
-        await registry.update_agent(
-            SAMPLE_AGENT["agent_id"],
-            description=new_description
-        )
+        await registry.update_agent(SAMPLE_AGENT["agent_id"], description=new_description)
 
         agent = await registry.get_agent_by_id(SAMPLE_AGENT["agent_id"])
         assert agent["description"] == new_description
@@ -210,10 +211,7 @@ class TestAgentCRUD:
         await registry.create_agent(**SAMPLE_AGENT)
 
         new_metadata = {"version": "2.0", "updated": True}
-        await registry.update_agent(
-            SAMPLE_AGENT["agent_id"],
-            metadata=new_metadata
-        )
+        await registry.update_agent(SAMPLE_AGENT["agent_id"], metadata=new_metadata)
 
         agent = await registry.get_agent_by_id(SAMPLE_AGENT["agent_id"])
         assert json.loads(agent["metadata"]) == new_metadata
@@ -385,11 +383,7 @@ class TestVectorSearch:
 
         # Search with similar embedding
         query_embedding = [0.11] * 384
-        results = await registry.similarity_search(
-            query_embedding,
-            limit=3,
-            threshold=0.5
-        )
+        results = await registry.similarity_search(query_embedding, limit=3, threshold=0.5)
 
         assert len(results) > 0
         # Results should be tuples of (agent_dict, similarity_score)
@@ -410,7 +404,7 @@ class TestVectorSearch:
         results = await registry.similarity_search(
             query_embedding,
             limit=10,
-            threshold=0.99  # Very high threshold
+            threshold=0.99,  # Very high threshold
         )
 
         # Should have few or no results due to high threshold
@@ -430,11 +424,7 @@ class TestVectorSearch:
 
         # Search with embedding close to middle one
         query_embedding = [0.5] * 384
-        results = await registry.similarity_search(
-            query_embedding,
-            limit=3,
-            threshold=0.0
-        )
+        results = await registry.similarity_search(query_embedding, limit=3, threshold=0.0)
 
         # Results should be ordered by similarity (descending)
         similarities = [sim for _, sim in results]
@@ -539,7 +529,7 @@ class TestLoadFromIndex:
         }
 
         index_path = tmp_path / "index.json"
-        with open(index_path, 'w') as f:
+        with index_path.open("w") as f:
             json.dump(index_data, f)
 
         # Load agents from index

@@ -1,21 +1,23 @@
 # Mycelium Onboarding & Configuration System
+
 ## Comprehensive Implementation Plan
 
----
+______________________________________________________________________
 
 ## 🎯 Executive Summary
 
-Transform Mycelium from passive infrastructure into an interactive, self-configuring system that guides users through setup, manages isolated environments, and validates coordination through agent-based testing.
+Transform Mycelium from passive infrastructure into an interactive, self-configuring system that guides users through
+setup, manages isolated environments, and validates coordination through agent-based testing.
 
 ### Key Deliverables
 
 1. **Interactive Onboarding System** - TUI-based configuration wizard
-2. **Infrastructure Management** - Docker Compose OR Justfile-based orchestration
-3. **Isolated Environments** - Language-specific isolation (Python via uv, Node.js, etc.)
-4. **Agent Testing Framework** - Orchestrator-driven coordination validation
-5. **Configuration Management** - View, edit, and reconfigure at any time
+1. **Infrastructure Management** - Docker Compose OR Justfile-based orchestration
+1. **Isolated Environments** - Language-specific isolation (Python via uv, Node.js, etc.)
+1. **Agent Testing Framework** - Orchestrator-driven coordination validation
+1. **Configuration Management** - View, edit, and reconfigure at any time
 
----
+______________________________________________________________________
 
 ## 📋 Part 1: Interactive Configuration System
 
@@ -24,6 +26,7 @@ Transform Mycelium from passive infrastructure into an interactive, self-configu
 **Purpose**: First-time setup wizard that detects, configures, and deploys infrastructure
 
 **Flow**:
+
 ```
 1. Welcome & System Detection
    ├─ Detect available services (Redis, Postgres, Temporal, Docker, GPUs)
@@ -74,6 +77,7 @@ Transform Mycelium from passive infrastructure into an interactive, self-configu
 **Technical Approach**:
 
 **Option 1: TUI with Python `textual`**
+
 ```python
 # ~/.claude/plugins/mycelium-core/lib/onboarding/tui.py
 from textual.app import App
@@ -90,6 +94,7 @@ class MyceliumOnboarding(App):
 ```
 
 **Option 2: CLI Q&A with `click`**
+
 ```python
 # ~/.claude/plugins/mycelium-core/lib/onboarding/cli.py
 import click
@@ -112,6 +117,7 @@ def onboard():
 ```
 
 **Detection Scripts**:
+
 ```python
 # ~/.claude/plugins/mycelium-core/lib/onboarding/detect.py
 
@@ -138,7 +144,7 @@ def detect_gpus():
     # Parse and return GPU list
 ```
 
----
+______________________________________________________________________
 
 ## 📋 Part 2: Configuration Storage & Management
 
@@ -245,6 +251,7 @@ def detect_gpus():
 **Purpose**: View current configuration and modify settings
 
 **Features**:
+
 - Show current configuration (formatted, colored output)
 - Edit specific services (enable/disable, change ports)
 - Switch deployment methods
@@ -252,6 +259,7 @@ def detect_gpus():
 - Export/import configurations
 
 **Flow**:
+
 ```
 $ /mycelium-configuration
 
@@ -277,7 +285,7 @@ Actions:
   [x] Exit
 ```
 
----
+______________________________________________________________________
 
 ## 📋 Part 3: Deployment Methods
 
@@ -358,6 +366,7 @@ networks:
 ```
 
 **Management Commands**:
+
 ```bash
 # Start all services
 docker compose -f ~/.config/mycelium/docker-compose.yaml up -d
@@ -457,6 +466,7 @@ logs-temporal:
 **Alternatives Considered**:
 
 1. **Procfile** (requires foreman/hivemind):
+
 ```procfile
 redis: redis-server --port 6379
 temporal: temporal server start-dev
@@ -464,6 +474,7 @@ postgres: pg_ctl -D ~/.config/mycelium/data/postgres start
 ```
 
 2. **Supervisord** (better for production):
+
 ```ini
 [supervisord]
 logfile=~/.config/mycelium/logs/supervisord.log
@@ -487,13 +498,14 @@ autorestart=true
 
 **Recommendation**: Use Justfile for simplicity and built-in parallel support.
 
----
+______________________________________________________________________
 
 ## 📋 Part 4: Environment Isolation
 
 ### Python Isolation via `uv`
 
 **Setup**:
+
 ```bash
 # Create isolated venv for Mycelium
 uv venv ~/.config/mycelium/venvs/mycelium
@@ -505,6 +517,7 @@ uv pip install -r ~/.config/mycelium/requirements.txt
 **Enforcement**:
 
 1. **Wrapper Script**: `~/.config/mycelium/bin/python`
+
 ```bash
 #!/bin/bash
 # Mycelium Python wrapper - enforces uv isolation
@@ -519,6 +532,7 @@ exec uv run python "$@"
 ```
 
 2. **Shell Hook**: Add to `.envrc` (direnv) or `.bashrc`
+
 ```bash
 # Mycelium environment isolation
 export PATH="~/.config/mycelium/bin:$PATH"
@@ -529,6 +543,7 @@ alias pip3='echo "Use: uv pip" && false'
 ```
 
 3. **Command Validation in Slash Commands**:
+
 ```python
 # In command execution context
 def validate_python_command(cmd: str) -> bool:
@@ -552,6 +567,7 @@ def validate_python_command(cmd: str) -> bool:
 ### Node.js Isolation
 
 **Enforcement**:
+
 ```bash
 # Use npx for global tools
 alias node-global='echo "Use: npx <tool>" && false'
@@ -563,13 +579,14 @@ export PATH="./node_modules/.bin:$PATH"
 ### Ruby Isolation
 
 **Enforcement**:
+
 ```bash
 # Require bundle exec
 alias gem='echo "Use: bundle install" && false'
 alias ruby='echo "Use: bundle exec ruby" && false'
 ```
 
----
+______________________________________________________________________
 
 ## 📋 Part 5: Agent Testing Framework
 
@@ -578,6 +595,7 @@ alias ruby='echo "Use: bundle exec ruby" && false'
 **Purpose**: Validate agent coordination through orchestrated tasks
 
 **Flow**:
+
 ```
 1. Orchestrator Setup
    ├─ multi-agent-coordinator initializes test
@@ -618,6 +636,7 @@ alias ruby='echo "Use: bundle exec ruby" && false'
 **Implementation**:
 
 **Test Orchestrator**:
+
 ```python
 # ~/.claude/plugins/mycelium-core/lib/testing/orchestrator.py
 
@@ -722,7 +741,8 @@ class MyceliumTest:
 ```
 
 **Command Integration**:
-```yaml
+
+````yaml
 ---
 # ~/.claude/plugins/mycelium-core/commands/mycelium-test.md
 allowed-tools:
@@ -751,15 +771,17 @@ Validate the multi-agent coordination infrastructure through orchestrated testin
    uv run python ~/.config/mycelium/lib/testing/orchestrator.py \
      --duration 60 \
      --agents task-distributor,context-manager,performance-monitor
-   ```
+````
 
 3. **Monitor Coordination**:
+
    - Track agent heartbeats in Redis
    - Monitor task progression in TaskQueue
    - Measure response latency
    - Validate pub/sub message flow
 
-4. **Generate Report**:
+1. **Generate Report**:
+
    ```
    === Mycelium Coordination Test ===
    Duration: 60 seconds
@@ -796,7 +818,8 @@ Validate the multi-agent coordination infrastructure through orchestrated testin
    All coordination systems operational!
    ```
 
-5. **Cleanup**:
+1. **Cleanup**:
+
    - Archive test project
    - Clear Redis test keys
    - Generate detailed log for debugging
@@ -804,11 +827,13 @@ Validate the multi-agent coordination infrastructure through orchestrated testin
 ## Integration
 
 This test validates:
+
 - `/team-status` - Agents reporting via Redis
 - `/infra-check` - Service availability
 - TaskQueue MCP - Task distribution
 - Redis MCP - State coordination
-```
+
+````
 
 ---
 
@@ -867,7 +892,7 @@ First-time setup wizard for Mycelium multi-agent coordination system.
 - Show service status
 - Provide next steps
 - Link to documentation
-```
+````
 
 ### Command 2: `/mycelium-configuration`
 
@@ -944,13 +969,14 @@ Validate multi-agent infrastructure through orchestrated testing.
 - Response latencies
 ```
 
----
+______________________________________________________________________
 
 ## 📋 Part 7: Implementation Roadmap
 
 ### Phase 1: Core Infrastructure (Week 1)
 
 **Deliverables**:
+
 - [ ] Configuration schema and storage
 - [ ] Service detection scripts
 - [ ] Docker Compose generator
@@ -962,6 +988,7 @@ Validate multi-agent infrastructure through orchestrated testing.
 ### Phase 2: Interactive UI (Week 2)
 
 **Deliverables**:
+
 - [ ] TUI with `textual` OR CLI wizard with `InquirerPy`
 - [ ] Interactive service selection
 - [ ] Deployment method chooser
@@ -972,6 +999,7 @@ Validate multi-agent infrastructure through orchestrated testing.
 ### Phase 3: Environment Isolation (Week 2)
 
 **Deliverables**:
+
 - [ ] Python isolation via uv
 - [ ] Node.js isolation patterns
 - [ ] Ruby isolation patterns
@@ -983,6 +1011,7 @@ Validate multi-agent infrastructure through orchestrated testing.
 ### Phase 4: Testing Framework (Week 3)
 
 **Deliverables**:
+
 - [ ] Test orchestrator implementation
 - [ ] Mycelium-themed task generator
 - [ ] Coordination monitoring
@@ -994,6 +1023,7 @@ Validate multi-agent infrastructure through orchestrated testing.
 ### Phase 5: Commands Integration (Week 3)
 
 **Deliverables**:
+
 - [ ] `/mycelium-onboarding` command
 - [ ] `/mycelium-configuration` command
 - [ ] `/mycelium-test` command
@@ -1004,6 +1034,7 @@ Validate multi-agent infrastructure through orchestrated testing.
 ### Phase 6: Documentation & Polish (Week 4)
 
 **Deliverables**:
+
 - [ ] User documentation
 - [ ] Developer documentation
 - [ ] Video tutorials
@@ -1012,7 +1043,7 @@ Validate multi-agent infrastructure through orchestrated testing.
 
 **Agents**: technical-writer, documentation-engineer
 
----
+______________________________________________________________________
 
 ## 📋 Part 8: File Structure
 
@@ -1069,7 +1100,7 @@ Validate multi-agent infrastructure through orchestrated testing.
     └── redis>=5.0.0
 ```
 
----
+______________________________________________________________________
 
 ## 📋 Part 9: Dependencies & Requirements
 
@@ -1102,11 +1133,13 @@ dev-dependencies = [
 ### System Dependencies
 
 **Docker Compose Deployment**:
+
 - Docker 24.0+
 - Docker Compose v2
 - nvidia-docker2 (for GPU support)
 
 **Baremetal Deployment**:
+
 - Redis 7.0+
 - PostgreSQL 14+
 - Temporal CLI 1.4+
@@ -1115,28 +1148,32 @@ dev-dependencies = [
 - OR Supervisord (alternative)
 
 **Common**:
+
 - Python 3.10+
 - uv 0.1.0+
 - Node.js 18+ (optional)
 - Git 2.30+
 
----
+______________________________________________________________________
 
 ## 📋 Part 10: Security & Best Practices
 
 ### Security Considerations
 
 1. **Secrets Management**:
+
    - Store passwords in environment variables
    - Use `.env` files (add to `.gitignore`)
    - Never commit secrets to config files
 
-2. **Network Security**:
+1. **Network Security**:
+
    - Bind services to localhost by default
    - Use Docker networks for isolation
    - Enable authentication for Redis/Postgres
 
-3. **Process Isolation**:
+1. **Process Isolation**:
+
    - Run services as non-root users
    - Use systemd user services for baremetal
    - Limit resource usage (cgroups/Docker)
@@ -1144,21 +1181,24 @@ dev-dependencies = [
 ### Best Practices
 
 1. **Configuration Validation**:
+
    - Schema validation on load
    - Compatibility checks between services
    - Version migration scripts
 
-2. **Graceful Degradation**:
+1. **Graceful Degradation**:
+
    - Fall back to markdown if Redis unavailable
    - Continue onboarding if optional services fail
    - Clear error messages with remediation steps
 
-3. **Monitoring & Observability**:
+1. **Monitoring & Observability**:
+
    - Log all service starts/stops
    - Publish metrics to Redis
    - Generate health check reports
 
----
+______________________________________________________________________
 
 ## 📋 Part 11: Testing Strategy
 
@@ -1225,56 +1265,63 @@ async def test_full_coordination_flow():
     await stop_services(config)
 ```
 
----
+______________________________________________________________________
 
 ## 📋 Part 12: Migration Path
 
 For users with existing setups:
 
 1. **Detect Existing Configuration**:
+
    - Check for running services
    - Import existing Redis/Postgres credentials
    - Preserve existing data
 
-2. **Migration Wizard**:
+1. **Migration Wizard**:
+
    - Show detected configuration
    - Offer to adopt existing services
    - Create config from current state
 
-3. **Backwards Compatibility**:
+1. **Backwards Compatibility**:
+
    - Support legacy `.infra-check.json` format
    - Auto-upgrade to new config schema
    - Maintain old slash commands
 
----
+______________________________________________________________________
 
 ## 🎯 Success Criteria
 
 **Onboarding**:
-- [ ] Complete setup in <5 minutes
+
+- [ ] Complete setup in \<5 minutes
 - [ ] Support both Docker and baremetal
 - [ ] Detect 90%+ of existing services
 - [ ] Zero manual config file editing required
 
 **Configuration**:
-- [ ] View config in <1 second
+
+- [ ] View config in \<1 second
 - [ ] Edit services without restart
 - [ ] Export/import configurations
 - [ ] Validate config before applying
 
 **Testing**:
-- [ ] Complete test in <60 seconds
+
+- [ ] Complete test in \<60 seconds
 - [ ] 100% agent response rate
 - [ ] Clear pass/fail results
 - [ ] Actionable error messages
 
 **Isolation**:
+
 - [ ] Block direct python/pip execution
 - [ ] Enforce uv for all Python commands
 - [ ] Isolate Node.js with npx
 - [ ] No system pollution
 
----
+______________________________________________________________________
 
 ## 📞 Questions for Review Agents
 
@@ -1282,60 +1329,61 @@ For users with existing setups:
 
 1. **Docker Compose vs Justfile**: Which would you recommend as default? Should we support both?
 
-2. **Supervisord Alternative**: Is supervisord overkill, or would it provide better process management than Justfile?
+1. **Supervisord Alternative**: Is supervisord overkill, or would it provide better process management than Justfile?
 
-3. **Service Dependencies**: How should we handle startup ordering in Justfile? (e.g., Temporal needs Postgres first)
+1. **Service Dependencies**: How should we handle startup ordering in Justfile? (e.g., Temporal needs Postgres first)
 
-4. **Health Checks**: Should we implement retries and backoff for service startup validation?
+1. **Health Checks**: Should we implement retries and backoff for service startup validation?
 
-5. **GPU Access**: How should we expose GPU in Docker Compose? Host network mode or device mapping?
+1. **GPU Access**: How should we expose GPU in Docker Compose? Host network mode or device mapping?
 
 ### For @agent-platform-engineer:
 
-1. **Environment Isolation**: Is the uv wrapper script approach sufficient, or should we use more aggressive enforcement?
+1. **Environment Isolation**: Is the uv wrapper script approach sufficient, or should we use more aggressive
+   enforcement?
 
-2. **Directory Structure**: Is `~/.config/mycelium/` the right location, or should we use XDG_CONFIG_HOME?
+1. **Directory Structure**: Is `~/.config/mycelium/` the right location, or should we use XDG_CONFIG_HOME?
 
-3. **Multiple Projects**: How should we handle users working on multiple projects with different Mycelium configs?
+1. **Multiple Projects**: How should we handle users working on multiple projects with different Mycelium configs?
 
-4. **Performance**: Will Python wrapper scripts add noticeable latency?
+1. **Performance**: Will Python wrapper scripts add noticeable latency?
 
 ### For @agent-python-pro:
 
 1. **TUI vs CLI**: Should we implement both, or pick one? Which provides better UX?
 
-2. **Async Coordination**: Should the test orchestrator use asyncio for monitoring, or is polling sufficient?
+1. **Async Coordination**: Should the test orchestrator use asyncio for monitoring, or is polling sufficient?
 
-3. **Type Safety**: Should we use Pydantic for config validation?
+1. **Type Safety**: Should we use Pydantic for config validation?
 
-4. **Error Handling**: What's the best pattern for graceful degradation in onboarding?
+1. **Error Handling**: What's the best pattern for graceful degradation in onboarding?
 
 ### For @agent-claude-code-developer:
 
-1. **Slash Command Integration**: How should these commands invoke the Python TUI/CLI? Via subprocess or direct Python execution?
+1. **Slash Command Integration**: How should these commands invoke the Python TUI/CLI? Via subprocess or direct Python
+   execution?
 
-2. **Permission Model**: Are the tool permissions specified correctly for the new commands?
+1. **Permission Model**: Are the tool permissions specified correctly for the new commands?
 
-3. **Command Dependencies**: Should `/mycelium-test` automatically run `/infra-check` first?
+1. **Command Dependencies**: Should `/mycelium-test` automatically run `/infra-check` first?
 
-4. **Plugin Updates**: How should we handle config schema changes in plugin updates?
+1. **Plugin Updates**: How should we handle config schema changes in plugin updates?
 
 ### For @agent-multi-agent-coordinator:
 
 1. **Test Design**: Are the mycelium-themed tasks appropriate for testing coordination?
 
-2. **Agent Selection**: Which agents should be included in the default test suite?
+1. **Agent Selection**: Which agents should be included in the default test suite?
 
-3. **Failure Scenarios**: How should the test handle partial failures (e.g., 3/5 agents respond)?
+1. **Failure Scenarios**: How should the test handle partial failures (e.g., 3/5 agents respond)?
 
-4. **Metrics**: What coordination metrics are most important to track?
+1. **Metrics**: What coordination metrics are most important to track?
 
----
+______________________________________________________________________
 
 ## 🔚 End of Plan
 
-This plan is now ready for review by specialized agents. After incorporating their feedback, we'll proceed with implementation.
+This plan is now ready for review by specialized agents. After incorporating their feedback, we'll proceed with
+implementation.
 
-**Generated**: 2025-10-13
-**Version**: 1.0.0-draft
-**Status**: Awaiting agent review
+**Generated**: 2025-10-13 **Version**: 1.0.0-draft **Status**: Awaiting agent review

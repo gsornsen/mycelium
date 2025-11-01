@@ -6,7 +6,7 @@ A centralized agent registry system with PostgreSQL backend and pgvector support
 
 - **PostgreSQL 15+ Backend**: Reliable, scalable storage with ACID guarantees
 - **Vector Embeddings**: 384-dimensional embeddings for semantic search using pgvector
-- **High Performance**: <100ms query performance with optimized indexes
+- **High Performance**: \<100ms query performance with optimized indexes
 - **HNSW Index**: Fast approximate nearest neighbor search for similarity queries
 - **Async API**: Built on asyncpg for high-concurrency workloads
 - **Comprehensive Metadata**: Track capabilities, tools, keywords, and performance metrics
@@ -193,12 +193,12 @@ agent_statistics (materialized view)
 
 ### Performance Characteristics
 
-| Operation | Target | Actual (100 agents) |
-|-----------|--------|---------------------|
-| get_agent_by_id | <100ms | ~5-10ms |
-| search_agents | <100ms | ~15-30ms |
-| similarity_search | <200ms | ~50-100ms |
-| bulk_insert (100) | <10s | ~2-5s |
+| Operation         | Target  | Actual (100 agents) |
+| ----------------- | ------- | ------------------- |
+| get_agent_by_id   | \<100ms | ~5-10ms             |
+| search_agents     | \<100ms | ~15-30ms            |
+| similarity_search | \<200ms | ~50-100ms           |
+| bulk_insert (100) | \<10s   | ~2-5s               |
 
 ## API Reference
 
@@ -246,6 +246,7 @@ pytest tests/unit/test_registry.py -v --cov=plugins/mycelium_core/registry --cov
 Current coverage: >90%
 
 See `tests/unit/test_registry.py` for comprehensive test suite including:
+
 - CRUD operations
 - Query operations
 - Vector similarity search
@@ -310,10 +311,10 @@ registry = AgentRegistry(pool=pool)
 ### Adding New Fields
 
 1. Create migration SQL file in `migrations/`
-2. Update schema.sql
-3. Update registry.py to handle new fields
-4. Add tests for new functionality
-5. Update documentation
+1. Update schema.sql
+1. Update registry.py to handle new fields
+1. Add tests for new functionality
+1. Update documentation
 
 Example migration:
 
@@ -342,11 +343,11 @@ WITH (m = 8, ef_construction = 32);
 ## Contributing
 
 1. Write tests for new features
-2. Ensure >90% test coverage
-3. Update documentation
-4. Follow existing code style
-5. Run linting: `ruff check .`
-6. Run type checking: `mypy plugins/mycelium-core/registry/`
+1. Ensure >90% test coverage
+1. Update documentation
+1. Follow existing code style
+1. Run linting: `ruff check .`
+1. Run type checking: `mypy plugins/mycelium-core/registry/`
 
 ## License
 

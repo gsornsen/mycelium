@@ -32,11 +32,13 @@ def __init__(self, config: MyceliumConfig, output_dir: Path | None = None) -> No
 ```
 
 **Parameters:**
+
 - `config` (MyceliumConfig): Configuration to generate from
 - `output_dir` (Path | None): Output directory for generated files
   - Default: `{XDG_DATA_HOME}/deployments/{project_name}`
 
 **Example:**
+
 ```python
 # Use default output directory
 generator = DeploymentGenerator(config)
@@ -56,21 +58,24 @@ def generate(self, method: DeploymentMethod) -> GenerationResult
 ```
 
 **Parameters:**
+
 - `method` (DeploymentMethod): Deployment method to use
   - `DeploymentMethod.DOCKER_COMPOSE`
   - `DeploymentMethod.KUBERNETES`
   - `DeploymentMethod.SYSTEMD`
 
 **Returns:**
+
 - `GenerationResult`: Result object containing:
   - `success` (bool): Whether generation succeeded
   - `method` (DeploymentMethod): Method used
   - `output_dir` (Path): Output directory path
-  - `files_generated` (list[Path]): List of generated file paths
-  - `errors` (list[str]): Error messages (empty if successful)
-  - `warnings` (list[str]): Warning messages
+  - `files_generated` (list\[Path\]): List of generated file paths
+  - `errors` (list\[str\]): Error messages (empty if successful)
+  - `warnings` (list\[str\]): Warning messages
 
 **Example:**
+
 ```python
 result = generator.generate(DeploymentMethod.DOCKER_COMPOSE)
 
@@ -86,7 +91,7 @@ if result.warnings:
         print(f"Warning: {warning}")
 ```
 
-##### _validate_config() (Internal)
+##### \_validate_config() (Internal)
 
 Validate configuration for deployment method.
 
@@ -95,24 +100,30 @@ def _validate_config(self, method: DeploymentMethod) -> list[str]
 ```
 
 **Parameters:**
+
 - `method` (DeploymentMethod): Deployment method to validate for
 
 **Returns:**
+
 - `list[str]`: List of validation errors (empty if valid)
 
 **Validation Rules:**
 
 *General:*
+
 - At least one service must be enabled
 
 *Kubernetes:*
+
 - Project name must be lowercase alphanumeric with hyphens
 - No special characters or underscores
 
 *systemd:*
+
 - Project name should be 50 characters or less
 
 **Example:**
+
 ```python
 errors = generator._validate_config(DeploymentMethod.KUBERNETES)
 if errors:
@@ -136,14 +147,16 @@ class GenerationResult:
 ```
 
 **Attributes:**
+
 - `success` (bool): Whether generation completed successfully
 - `method` (DeploymentMethod): Deployment method used
 - `output_dir` (Path): Directory where files were generated
-- `files_generated` (list[Path]): Paths to all generated files
-- `errors` (list[str]): Error messages if generation failed
-- `warnings` (list[str]): Warning messages (even on success)
+- `files_generated` (list\[Path\]): Paths to all generated files
+- `errors` (list\[str\]): Error messages if generation failed
+- `warnings` (list\[str\]): Warning messages (even on success)
 
 **Example:**
+
 ```python
 result = generator.generate(DeploymentMethod.KUBERNETES)
 
@@ -177,6 +190,7 @@ class DeploymentMethod(str, Enum):
 ```
 
 **Usage:**
+
 ```python
 from mycelium_onboarding.deployment.generator import DeploymentMethod
 
@@ -213,11 +227,13 @@ def __init__(self, project_name: str, secrets_dir: Path | None = None) -> None
 ```
 
 **Parameters:**
+
 - `project_name` (str): Project name for secrets
 - `secrets_dir` (Path | None): Directory for secrets storage
   - Default: `{XDG_STATE_HOME}/secrets`
 
 **Example:**
+
 ```python
 # Use default directory
 manager = SecretsManager("my-app")
@@ -243,15 +259,18 @@ def generate_secrets(
 ```
 
 **Parameters:**
+
 - `postgres` (bool): Generate PostgreSQL password
 - `redis` (bool): Generate Redis password
 - `temporal` (bool): Generate Temporal admin password
 - `overwrite` (bool): Overwrite existing secrets
 
 **Returns:**
+
 - `DeploymentSecrets`: Generated secrets object
 
 **Example:**
+
 ```python
 # Generate secrets for PostgreSQL and Redis
 secrets = manager.generate_secrets(postgres=True, redis=True)
@@ -277,16 +296,20 @@ def save_secrets(self, secrets_obj: DeploymentSecrets) -> None
 ```
 
 **Parameters:**
+
 - `secrets_obj` (DeploymentSecrets): Secrets to save
 
 **Raises:**
+
 - `SecretsError`: If save operation fails
 
 **Security:**
+
 - Directory permissions: `0o700` (owner only)
 - File permissions: `0o600` (owner read/write only)
 
 **Example:**
+
 ```python
 secrets = manager.generate_secrets(postgres=True)
 
@@ -306,9 +329,11 @@ def load_secrets(self) -> DeploymentSecrets | None
 ```
 
 **Returns:**
+
 - `DeploymentSecrets | None`: Loaded secrets or None if not found
 
 **Example:**
+
 ```python
 secrets = manager.load_secrets()
 
@@ -328,19 +353,23 @@ def rotate_secret(self, secret_type: str) -> DeploymentSecrets
 ```
 
 **Parameters:**
+
 - `secret_type` (str): Type of secret to rotate
   - `"postgres"` - PostgreSQL password
   - `"redis"` - Redis password
   - `"temporal"` - Temporal admin password
 
 **Returns:**
+
 - `DeploymentSecrets`: Updated secrets object
 
 **Raises:**
+
 - `ValueError`: If no existing secrets or invalid type
 - `SecretsError`: If rotation fails
 
 **Example:**
+
 ```python
 # Rotate PostgreSQL password
 try:
@@ -359,9 +388,11 @@ def delete_secrets(self) -> bool
 ```
 
 **Returns:**
+
 - `bool`: True if deleted, False if not found
 
 **Example:**
+
 ```python
 if manager.delete_secrets():
     print("Secrets deleted")
@@ -383,6 +414,7 @@ class DeploymentSecrets:
 ```
 
 **Attributes:**
+
 - `project_name` (str): Project name
 - `postgres_password` (str | None): PostgreSQL password
 - `redis_password` (str | None): Redis password
@@ -399,9 +431,11 @@ def to_env_vars(self) -> dict[str, str]
 ```
 
 **Returns:**
+
 - `dict[str, str]`: Environment variables (excludes None values)
 
 **Example:**
+
 ```python
 secrets = DeploymentSecrets(
     project_name="my-app",
@@ -432,13 +466,16 @@ def generate_env_file(secrets: DeploymentSecrets, output_path: Path) -> None
 ```
 
 **Parameters:**
+
 - `secrets` (DeploymentSecrets): Secrets to write
 - `output_path` (Path): Path to .env file
 
 **Raises:**
+
 - `SecretsError`: If file creation fails
 
 **Example:**
+
 ```python
 from mycelium_onboarding.deployment.secrets import generate_env_file
 
@@ -456,6 +493,7 @@ class SecretsError(Exception):
 ```
 
 **Example:**
+
 ```python
 from mycelium_onboarding.deployment.secrets import SecretsError
 
@@ -486,10 +524,12 @@ def __init__(self, templates_dir: Path | None = None) -> None
 ```
 
 **Parameters:**
+
 - `templates_dir` (Path | None): Custom templates directory
   - Default: Built-in templates directory
 
 **Example:**
+
 ```python
 # Use built-in templates
 renderer = TemplateRenderer()
@@ -509,12 +549,15 @@ def render_docker_compose(self, config: MyceliumConfig) -> str
 ```
 
 **Parameters:**
+
 - `config` (MyceliumConfig): Configuration to render
 
 **Returns:**
+
 - `str`: Rendered docker-compose.yml content
 
 **Example:**
+
 ```python
 config = MyceliumConfig(
     project_name="my-app",
@@ -534,12 +577,15 @@ def render_kubernetes(self, config: MyceliumConfig) -> dict[str, str]
 ```
 
 **Parameters:**
+
 - `config` (MyceliumConfig): Configuration to render
 
 **Returns:**
+
 - `dict[str, str]`: Mapping of filename to manifest content
 
 **Example:**
+
 ```python
 manifests = renderer.render_kubernetes(config)
 
@@ -557,12 +603,15 @@ def render_systemd(self, config: MyceliumConfig) -> dict[str, str]
 ```
 
 **Parameters:**
+
 - `config` (MyceliumConfig): Configuration to render
 
 **Returns:**
+
 - `dict[str, str]`: Mapping of service filename to content
 
 **Example:**
+
 ```python
 services = renderer.render_systemd(config)
 
@@ -727,6 +776,6 @@ from mycelium_onboarding.deployment.renderer import TemplateRenderer
 - [Integration Guide](deployment-integration.md) - Integration patterns
 - [Configuration Schema](../mycelium_onboarding/config/schema.py) - Config reference
 
----
+______________________________________________________________________
 
 *API Reference for Mycelium Deployment System*

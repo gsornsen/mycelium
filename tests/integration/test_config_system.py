@@ -14,7 +14,6 @@ from __future__ import annotations
 import shutil
 import tempfile
 from pathlib import Path
-from typing import Any
 
 import pytest
 import yaml
@@ -24,10 +23,6 @@ from mycelium_onboarding.config.manager import (
     ConfigManager,
     ConfigSaveError,
     ConfigValidationError,
-)
-from mycelium_onboarding.config.migrations import (
-    MigrationError,
-    get_default_registry,
 )
 from mycelium_onboarding.config.schema import (
     DeploymentMethod,
@@ -64,9 +59,7 @@ class TestExampleConfigurations:
             "production.yaml",
         ],
     )
-    def test_example_config_valid(
-        self, examples_dir: Path, example_name: str
-    ) -> None:
+    def test_example_config_valid(self, examples_dir: Path, example_name: str) -> None:
         """Test that example configuration is valid."""
         example_path = examples_dir / example_name
 
@@ -124,9 +117,7 @@ class TestExampleConfigurations:
         assert config.services.postgres.enabled is False
         assert config.services.temporal.enabled is False
 
-    def test_production_config_has_robust_settings(
-        self, examples_dir: Path
-    ) -> None:
+    def test_production_config_has_robust_settings(self, examples_dir: Path) -> None:
         """Test production config has appropriate settings."""
         prod_path = examples_dir / "production.yaml"
         if not prod_path.exists():
@@ -224,9 +215,7 @@ class TestMigrationScenarios:
         """Create temporary config file."""
         return tmp_path / "config.yaml"
 
-    def test_no_migration_needed_for_current_version(
-        self, temp_config_path: Path
-    ) -> None:
+    def test_no_migration_needed_for_current_version(self, temp_config_path: Path) -> None:
         """Test that current version configs don't trigger migration."""
         # Create current version config
         manager = ConfigManager(config_path=temp_config_path)
@@ -255,9 +244,7 @@ class TestMigrationScenarios:
         # For now, we test that the backup mechanism works
 
         # Create backup manually to test restoration
-        backup_path = temp_config_path.with_suffix(
-            temp_config_path.suffix + ".backup"
-        )
+        backup_path = temp_config_path.with_suffix(temp_config_path.suffix + ".backup")
         shutil.copy2(temp_config_path, backup_path)
 
         assert backup_path.exists()
@@ -279,9 +266,7 @@ class TestMigrationScenarios:
         current_mtime = temp_config_path.stat().st_mtime
         assert current_mtime == original_mtime
 
-    def test_migration_preserves_custom_values(
-        self, temp_config_path: Path
-    ) -> None:
+    def test_migration_preserves_custom_values(self, temp_config_path: Path) -> None:
         """Test that migrations preserve user customizations."""
         # Create config with custom values
         custom_config = MyceliumConfig(
@@ -378,9 +363,7 @@ class TestErrorHandlingAndRecovery:
         """Create temporary config file."""
         return tmp_path / "config.yaml"
 
-    def test_load_nonexistent_file_returns_defaults(
-        self, temp_config_path: Path
-    ) -> None:
+    def test_load_nonexistent_file_returns_defaults(self, temp_config_path: Path) -> None:
         """Test that loading nonexistent file returns defaults."""
         manager = ConfigManager(config_path=temp_config_path)
 
@@ -391,9 +374,7 @@ class TestErrorHandlingAndRecovery:
         config = manager.load()
         assert config.project_name == "mycelium"
 
-    def test_load_empty_file_returns_defaults(
-        self, temp_config_path: Path
-    ) -> None:
+    def test_load_empty_file_returns_defaults(self, temp_config_path: Path) -> None:
         """Test that loading empty file returns defaults."""
         # Create empty file
         temp_config_path.touch()
@@ -404,9 +385,7 @@ class TestErrorHandlingAndRecovery:
         # Should use defaults
         assert config.project_name == "mycelium"
 
-    def test_load_invalid_yaml_raises_error(
-        self, temp_config_path: Path
-    ) -> None:
+    def test_load_invalid_yaml_raises_error(self, temp_config_path: Path) -> None:
         """Test that invalid YAML raises clear error."""
         # Write invalid YAML
         with temp_config_path.open("w") as f:
@@ -418,9 +397,7 @@ class TestErrorHandlingAndRecovery:
         with pytest.raises(ConfigLoadError):
             manager.load()
 
-    def test_load_invalid_schema_raises_error(
-        self, temp_config_path: Path
-    ) -> None:
+    def test_load_invalid_schema_raises_error(self, temp_config_path: Path) -> None:
         """Test that invalid schema raises validation error."""
         # Write valid YAML but invalid schema
         invalid_config = {
@@ -441,9 +418,7 @@ class TestErrorHandlingAndRecovery:
         with pytest.raises(ConfigValidationError):
             manager.load()
 
-    def test_save_invalid_config_raises_error(
-        self, temp_config_path: Path
-    ) -> None:
+    def test_save_invalid_config_raises_error(self, temp_config_path: Path) -> None:
         """Test that saving invalid config raises error."""
         manager = ConfigManager(config_path=temp_config_path)
 
@@ -453,23 +428,21 @@ class TestErrorHandlingAndRecovery:
             "services": {
                 "redis": {"enabled": True, "port": 99999},  # Invalid port
                 "postgres": {"enabled": False},
-                "temporal": {"enabled": False}
+                "temporal": {"enabled": False},
             },
-            "deployment": {"method": "docker-compose"}
+            "deployment": {"method": "docker-compose"},
         }
 
         # Write invalid YAML directly
         temp_config_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(temp_config_path, 'w') as f:
+        with temp_config_path.open("w") as f:
             yaml.dump(invalid_data, f)
 
         # Should raise on load due to validation
         with pytest.raises((ConfigLoadError, ConfigValidationError)):
             manager.load()
 
-    def test_atomic_write_failure_doesnt_corrupt(
-        self, temp_config_path: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_atomic_write_failure_doesnt_corrupt(self, temp_config_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         """Test that save failure doesn't corrupt existing config."""
         manager = ConfigManager(config_path=temp_config_path)
 
@@ -478,7 +451,6 @@ class TestErrorHandlingAndRecovery:
         manager.save(initial_config)
 
         # Simulate write failure by making temp file creation fail
-        import tempfile
         original_mkstemp = tempfile.mkstemp
 
         def failing_mkstemp(*args, **kwargs):
@@ -511,9 +483,7 @@ class TestErrorHandlingAndRecovery:
         manager.save(modified_config)
 
         # Backup should exist
-        backup_path = temp_config_path.with_suffix(
-            temp_config_path.suffix + ".backup"
-        )
+        backup_path = temp_config_path.with_suffix(temp_config_path.suffix + ".backup")
         assert backup_path.exists()
 
         # Restore from backup

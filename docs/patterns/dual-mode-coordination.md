@@ -1,13 +1,14 @@
 # Dual-Mode Coordination Pattern
 
-This document defines the dual-mode coordination pattern used across Claude Code projects: Redis/TaskQueue preferred, markdown fallback.
+This document defines the dual-mode coordination pattern used across Claude Code projects: Redis/TaskQueue preferred,
+markdown fallback.
 
 ## Overview
 
 Claude Code agents need to coordinate complex, multi-step workflows. This pattern provides two coordination modes:
 
 1. **Preferred: Redis/TaskQueue MCP** - Real-time, durable, distributed coordination
-2. **Fallback: Markdown Files** - Ephemeral, filesystem-based coordination
+1. **Fallback: Markdown Files** - Ephemeral, filesystem-based coordination
 
 ## Design Principles
 
@@ -61,20 +62,21 @@ async function detectCoordinationMode() {
 
 Each coordination mode provides the same logical operations with different implementations:
 
-| Operation | Redis MCP | TaskQueue MCP | Markdown Fallback |
-|-----------|-----------|---------------|-------------------|
-| Store state | `json_set()` | Create task metadata | Write `.md` file |
-| Read state | `json_get()` | Read task | Read `.md` file |
-| Update state | `json_set(path)` | Update task status | Overwrite `.md` file |
-| List entities | `keys()` | `list_tasks()` | `ls *.md` |
-| Publish event | `publish()` | Create task with webhook | Update `.md` + timestamp |
-| Subscribe to events | `subscribe()` | Poll task status | Watch `.md` files |
+| Operation           | Redis MCP        | TaskQueue MCP            | Markdown Fallback        |
+| ------------------- | ---------------- | ------------------------ | ------------------------ |
+| Store state         | `json_set()`     | Create task metadata     | Write `.md` file         |
+| Read state          | `json_get()`     | Read task                | Read `.md` file          |
+| Update state        | `json_set(path)` | Update task status       | Overwrite `.md` file     |
+| List entities       | `keys()`         | `list_tasks()`           | `ls *.md`                |
+| Publish event       | `publish()`      | Create task with webhook | Update `.md` + timestamp |
+| Subscribe to events | `subscribe()`    | Poll task status         | Watch `.md` files        |
 
 ### 3. Consistent Data Structures
 
 Use the same data structures across all modes:
 
 **Agent Status Structure**:
+
 ```json
 {
   "agent_type": "ai-engineer",
@@ -97,6 +99,7 @@ Use the same data structures across all modes:
 ```
 
 **Task Status Structure**:
+
 ```json
 {
   "task_id": "task-123",
@@ -121,6 +124,7 @@ Use the same data structures across all modes:
 ### Pattern 1: State Storage
 
 **Redis Mode**:
+
 ```javascript
 // Store agent status
 await mcp__RedisMCPServer__json_set({
@@ -137,6 +141,7 @@ await mcp__RedisMCPServer__expire({
 ```
 
 **TaskQueue Mode**:
+
 ```javascript
 // Store as task metadata
 await mcp__taskqueue__create_task({
@@ -151,6 +156,7 @@ await mcp__taskqueue__create_task({
 ```
 
 **Markdown Mode**:
+
 ```bash
 # Store as markdown file
 cat > .claude/coordination/agent-ai-engineer.md <<EOF
@@ -175,6 +181,7 @@ EOF
 ### Pattern 2: State Retrieval
 
 **Redis Mode**:
+
 ```javascript
 // Retrieve agent status
 const status = await mcp__RedisMCPServer__json_get({
@@ -184,6 +191,7 @@ const status = await mcp__RedisMCPServer__json_get({
 ```
 
 **TaskQueue Mode**:
+
 ```javascript
 // Find agent status task
 const tasks = await mcp__taskqueue__list_tasks({
@@ -199,6 +207,7 @@ const status = JSON.parse(agentTask.description);
 ```
 
 **Markdown Mode**:
+
 ```bash
 # Read markdown file
 if [ -f ".claude/coordination/agent-ai-engineer.md" ]; then
@@ -215,6 +224,7 @@ fi
 ### Pattern 3: Event Publishing
 
 **Redis Mode**:
+
 ```javascript
 // Publish event to channel
 await mcp__RedisMCPServer__publish({
@@ -235,6 +245,7 @@ await mcp__RedisMCPServer__lpush({
 ```
 
 **TaskQueue Mode**:
+
 ```javascript
 // Create event task
 await mcp__taskqueue__create_task({
@@ -249,6 +260,7 @@ await mcp__taskqueue__create_task({
 ```
 
 **Markdown Mode**:
+
 ```bash
 # Append event to log file
 cat >> .claude/coordination/events-training.md <<EOF
@@ -269,6 +281,7 @@ mv .claude/coordination/events-training.md.tmp \
 ### Pattern 4: Listing Entities
 
 **Redis Mode**:
+
 ```javascript
 // List all agent status keys
 const agentKeys = await mcp__RedisMCPServer__keys({
@@ -287,6 +300,7 @@ for (const key of agentKeys) {
 ```
 
 **TaskQueue Mode**:
+
 ```javascript
 // List all agent status tasks
 const tasks = await mcp__taskqueue__list_tasks({
@@ -299,6 +313,7 @@ const agentStatuses = tasks
 ```
 
 **Markdown Mode**:
+
 ```bash
 # List all agent status files
 for file in .claude/coordination/agent-*.md; do
@@ -323,6 +338,7 @@ done
 ### Redis Mode
 
 **Advantages**:
+
 - ✅ Real-time updates via pub/sub
 - ✅ Atomic operations with transactions
 - ✅ TTL for automatic cleanup
@@ -331,6 +347,7 @@ done
 - ✅ Distributed access (multiple processes/machines)
 
 **Limitations**:
+
 - ❌ Requires Redis server installation
 - ❌ Additional infrastructure to manage
 - ❌ Memory-based (need persistence configuration)
@@ -341,6 +358,7 @@ done
 ### TaskQueue Mode
 
 **Advantages**:
+
 - ✅ Task-centric coordination model
 - ✅ Structured task metadata
 - ✅ Built-in status tracking
@@ -348,6 +366,7 @@ done
 - ✅ No additional server required (uses npx)
 
 **Limitations**:
+
 - ❌ No pub/sub (must poll)
 - ❌ Limited to task-based operations
 - ❌ Slower than Redis
@@ -358,6 +377,7 @@ done
 ### Markdown Mode
 
 **Advantages**:
+
 - ✅ Zero infrastructure required
 - ✅ Human-readable (can edit manually)
 - ✅ Version control friendly (git-trackable)
@@ -366,6 +386,7 @@ done
 - ✅ Cross-platform (just filesystem)
 
 **Limitations**:
+
 - ❌ No real-time updates (must poll files)
 - ❌ Race conditions possible (concurrent writes)
 - ❌ No automatic cleanup (files accumulate)
@@ -380,10 +401,11 @@ done
 Start with markdown fallback, migrate to Redis as project grows:
 
 1. **Week 1**: Use markdown for initial development
-2. **Week 2-4**: When coordination becomes complex, install Redis
-3. **Week 4+**: Migrate to Redis, keep markdown as backup
+1. **Week 2-4**: When coordination becomes complex, install Redis
+1. **Week 4+**: Migrate to Redis, keep markdown as backup
 
 Migration script:
+
 ```bash
 #!/bin/bash
 # Migrate markdown coordination to Redis
@@ -449,15 +471,15 @@ class TestCoordination:
 ## Best Practices
 
 1. **Always auto-detect** - Don't hardcode coordination mode
-2. **Fail gracefully** - Fallback to markdown if preferred mode unavailable
-3. **Use consistent structures** - Same JSON schema across all modes
-4. **Clean up stale data** - Implement TTLs or periodic cleanup
-5. **Document mode choice** - Log which coordination mode is active
-6. **Test all modes** - Use parameterized tests
-7. **Version data structures** - Include schema version in stored data
-8. **Handle concurrency** - Use locks in markdown mode
-9. **Monitor coordination health** - Track success/failure rates
-10. **Plan migration** - Design for eventual Redis upgrade
+1. **Fail gracefully** - Fallback to markdown if preferred mode unavailable
+1. **Use consistent structures** - Same JSON schema across all modes
+1. **Clean up stale data** - Implement TTLs or periodic cleanup
+1. **Document mode choice** - Log which coordination mode is active
+1. **Test all modes** - Use parameterized tests
+1. **Version data structures** - Include schema version in stored data
+1. **Handle concurrency** - Use locks in markdown mode
+1. **Monitor coordination health** - Track success/failure rates
+1. **Plan migration** - Design for eventual Redis upgrade
 
 ## Example: Complete Dual-Mode Implementation
 
@@ -541,7 +563,6 @@ await client.storeAgentStatus('ai-engineer', {
 - [Markdown State Management](./markdown-state.md) - Markdown file patterns
 - [Agent Coordination Overview](./agent-coordination-overview.md) - High-level coordination
 
----
+______________________________________________________________________
 
-**Maintained by**: Claude Code Extensibility Team
-**Last Updated**: 2025-10-12
+**Maintained by**: Claude Code Extensibility Team **Last Updated**: 2025-10-12

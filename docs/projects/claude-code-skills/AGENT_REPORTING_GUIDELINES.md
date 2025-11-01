@@ -2,7 +2,8 @@
 
 ## Overview
 
-This document defines how agents should report their work during milestone implementation to maintain a clean repository while providing comprehensive session reports.
+This document defines how agents should report their work during milestone implementation to maintain a clean repository
+while providing comprehensive session reports.
 
 ## Guiding Principle
 
@@ -15,6 +16,7 @@ Temporary reports help coordinate work during a session but lose value quickly. 
 ### Use /tmp/ for Session Reports
 
 **Store in `/tmp/` directory**:
+
 - Task completion reports
 - Validation results
 - Status updates
@@ -22,6 +24,7 @@ Temporary reports help coordinate work during a session but lose value quickly. 
 - Temporary analysis documents
 
 **Examples**:
+
 ```bash
 # Good - temporary session reports
 /tmp/m01-task-1.1-completion.md
@@ -38,6 +41,7 @@ M01_WEEK1_STATUS.md
 ### Use Repository for Permanent Documentation
 
 **Store in repository** (these have lasting value):
+
 - Technical documentation (API docs, guides)
 - Architecture documentation
 - Test documentation
@@ -46,6 +50,7 @@ M01_WEEK1_STATUS.md
 - Migration guides
 
 **Examples**:
+
 ```bash
 # Good - permanent value
 docs/api/registry-api.md
@@ -61,16 +66,16 @@ docs/projects/claude-code-skills/milestones/M01_*.md
 
 ### Task Completion Reports
 
-**Purpose**: Inform coordinator that task is complete
-**Storage**: `/tmp/task-<id>-completion.md`
-**Lifetime**: Single session
-**Content**:
+**Purpose**: Inform coordinator that task is complete **Storage**: `/tmp/task-<id>-completion.md` **Lifetime**: Single
+session **Content**:
+
 - Summary of implementation
 - Test results
 - Acceptance criteria checklist
 - Validation instructions
 
 **Example**:
+
 ```bash
 /tmp/m01-task-1.1-completion.md
 /tmp/m01-task-1.11-completion.md
@@ -78,16 +83,16 @@ docs/projects/claude-code-skills/milestones/M01_*.md
 
 ### Validation Reports
 
-**Purpose**: Document validation results
-**Storage**: `/tmp/validation-<task>.md`
-**Lifetime**: Single session
+**Purpose**: Document validation results **Storage**: `/tmp/validation-<task>.md` **Lifetime**: Single session
 **Content**:
+
 - Test execution results
 - Performance benchmarks
 - Coverage reports
 - Issues found
 
 **Example**:
+
 ```bash
 /tmp/validation-task-1.1.md
 /tmp/validation-integration-tests.md
@@ -95,16 +100,16 @@ docs/projects/claude-code-skills/milestones/M01_*.md
 
 ### Session Status Reports
 
-**Purpose**: Overall session or milestone status
-**Storage**: `/tmp/<milestone>-status.md`
-**Lifetime**: Single session or milestone
-**Content**:
+**Purpose**: Overall session or milestone status **Storage**: `/tmp/<milestone>-status.md` **Lifetime**: Single session
+or milestone **Content**:
+
 - Overall progress
 - Completed tasks
 - Blockers
 - Next steps
 
 **Example**:
+
 ```bash
 /tmp/m01-week1-status.md
 /tmp/m01-final-status.md
@@ -112,15 +117,15 @@ docs/projects/claude-code-skills/milestones/M01_*.md
 
 ### Temporary Scripts
 
-**Purpose**: One-time validation or setup
-**Storage**: `/tmp/validate-*.sh` or `/tmp/setup-*.sh`
-**Lifetime**: Single session
-**Content**:
+**Purpose**: One-time validation or setup **Storage**: `/tmp/validate-*.sh` or `/tmp/setup-*.sh` **Lifetime**: Single
+session **Content**:
+
 - Validation scripts
 - Setup automation
 - One-time checks
 
 **Example**:
+
 ```bash
 /tmp/validate-task-1.1.sh
 /tmp/setup-test-db.sh
@@ -174,6 +179,7 @@ cat /tmp/session-summary.md
 ## What NOT to Commit
 
 ❌ **Never commit these**:
+
 - `TASK_*_COMPLETION_REPORT.md`
 - `VALIDATION_RESULTS.md`
 - `*_STATUS.md` (unless permanent project tracking)
@@ -184,6 +190,7 @@ cat /tmp/session-summary.md
 ## What TO Commit
 
 ✅ **Always commit these**:
+
 - Implementation code
 - Tests
 - API documentation
@@ -268,6 +275,7 @@ git commit -m "docs: add completion report"
 **Project tracking documents** can live in the repository if they have lasting value:
 
 **Acceptable**:
+
 ```
 docs/projects/claude-code-skills/
 ├── milestones/
@@ -279,6 +287,7 @@ docs/projects/claude-code-skills/
 ```
 
 **Not Acceptable**:
+
 ```
 docs/projects/claude-code-skills/
 ├── M01_WEEK1_STATUS.md                 ✗ (temporary)
@@ -289,16 +298,16 @@ docs/projects/claude-code-skills/
 ## Summary
 
 **Remember**:
+
 - 📁 `/tmp/` for session reports
 - 📚 Repository for permanent documentation
 - 🧹 Clean before PR
 - ✅ Commit code, tests, and docs
 - ❌ Don't commit reports
 
-This keeps the repository clean and focused on code and permanent documentation while still enabling effective agent coordination during sessions.
+This keeps the repository clean and focused on code and permanent documentation while still enabling effective agent
+coordination during sessions.
 
----
+______________________________________________________________________
 
-**Document Version**: 1.0
-**Last Updated**: 2025-10-21
-**Status**: Active
+**Document Version**: 1.0 **Last Updated**: 2025-10-21 **Status**: Active

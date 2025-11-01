@@ -1,6 +1,7 @@
 # Service Detection Guide
 
-Complete guide to using Mycelium's automated service detection system for discovering and configuring infrastructure services.
+Complete guide to using Mycelium's automated service detection system for discovering and configuring infrastructure
+services.
 
 ## Table of Contents
 
@@ -17,7 +18,8 @@ Complete guide to using Mycelium's automated service detection system for discov
 
 ## Overview
 
-The Mycelium service detection system automatically discovers available infrastructure services on your system, including:
+The Mycelium service detection system automatically discovers available infrastructure services on your system,
+including:
 
 - **Docker**: Container runtime availability and version
 - **Redis**: In-memory data store instances on common ports
@@ -29,7 +31,7 @@ Detection runs in parallel for optimal performance, completing all checks in und
 
 ### Key Features
 
-- Parallel execution for fast detection (<5s total)
+- Parallel execution for fast detection (\<5s total)
 - Multiple output formats (text, JSON, YAML)
 - Automatic configuration file updates
 - Multi-instance detection (Redis/PostgreSQL on different ports)
@@ -48,6 +50,7 @@ mycelium detect services
 ```
 
 Output example:
+
 ```
 Service Detection Report
 ================================================================================
@@ -98,10 +101,11 @@ mycelium detect services --save-config
 ```
 
 This will:
+
 1. Run all service detections
-2. Update `~/.config/mycelium/mycelium.yaml` with detected ports and versions
-3. Enable services that are detected
-4. Preserve your existing custom settings
+1. Update `~/.config/mycelium/mycelium.yaml` with detected ports and versions
+1. Enable services that are detected
+1. Preserve your existing custom settings
 
 ### JSON Output for Automation
 
@@ -112,6 +116,7 @@ mycelium detect services --format json
 ```
 
 Output example:
+
 ```json
 {
   "detection_time": 2.34,
@@ -187,21 +192,25 @@ mycelium detect services [OPTIONS]
 ### Examples
 
 **Basic detection with human-readable output:**
+
 ```bash
 mycelium detect services
 ```
 
 **Detection with config save:**
+
 ```bash
 mycelium detect services --save-config
 ```
 
 **Machine-readable JSON output:**
+
 ```bash
 mycelium detect services --format json > detection-results.json
 ```
 
 **YAML output for configuration management:**
+
 ```bash
 mycelium detect services --format yaml
 ```
@@ -209,30 +218,35 @@ mycelium detect services --format yaml
 ### What Gets Detected
 
 1. **Docker Daemon**
+
    - Availability status
    - Version information
    - Socket path location
    - Permission checks
 
-2. **Redis Instances**
+1. **Redis Instances**
+
    - Scans ports: 6379, 6380, 6381
    - Connection status
    - Version information
    - Authentication requirements
 
-3. **PostgreSQL Instances**
+1. **PostgreSQL Instances**
+
    - Scans ports: 5432, 5433
    - Connection status
    - Version information
    - Authentication method
 
-4. **Temporal Server**
+1. **Temporal Server**
+
    - Frontend port (gRPC): 7233
    - UI port (HTTP): 8233
    - Version information
    - Namespace availability
 
-5. **GPU Hardware**
+1. **GPU Hardware**
+
    - NVIDIA GPUs (via nvidia-smi)
    - AMD GPUs (via rocm-smi)
    - Intel GPUs (via sycl-ls)
@@ -251,6 +265,7 @@ mycelium detect docker
 ```
 
 Output:
+
 ```
 Detecting Docker...
 
@@ -266,6 +281,7 @@ mycelium detect redis
 ```
 
 Output:
+
 ```
 Detecting Redis instances...
 
@@ -290,6 +306,7 @@ mycelium detect postgres
 ```
 
 Output:
+
 ```
 Detecting PostgreSQL instances...
 
@@ -309,6 +326,7 @@ mycelium detect temporal
 ```
 
 Output:
+
 ```
 Detecting Temporal server...
 
@@ -325,6 +343,7 @@ mycelium detect gpu
 ```
 
 Output:
+
 ```
 Detecting GPUs...
 
@@ -353,11 +372,13 @@ Detecting GPUs...
 Human-readable format with clear sections and status indicators.
 
 Best for:
+
 - Interactive terminal use
 - Manual diagnostics
 - Initial setup and exploration
 
 Example:
+
 ```bash
 mycelium detect services
 ```
@@ -367,12 +388,14 @@ mycelium detect services
 Structured JSON for programmatic consumption.
 
 Best for:
+
 - CI/CD pipelines
 - Automation scripts
 - Integration with monitoring systems
 - Parsing with jq or similar tools
 
 Example:
+
 ```bash
 mycelium detect services --format json | jq '.docker.version'
 ```
@@ -382,12 +405,14 @@ mycelium detect services --format json | jq '.docker.version'
 YAML output for configuration management tools.
 
 Best for:
+
 - Ansible playbooks
 - Configuration management
 - Documentation generation
 - Human-readable structured data
 
 Example:
+
 ```bash
 mycelium detect services --format yaml
 ```
@@ -405,13 +430,13 @@ mycelium detect services --save-config
 **What happens:**
 
 1. Runs full service detection
-2. Loads existing configuration (or creates default)
-3. Updates detected service settings:
+1. Loads existing configuration (or creates default)
+1. Updates detected service settings:
    - Enables services that are available
    - Updates port numbers from detected instances
    - Updates version information
    - Preserves custom configuration values
-4. Saves configuration to `~/.config/mycelium/mycelium.yaml`
+1. Saves configuration to `~/.config/mycelium/mycelium.yaml`
 
 **Example workflow:**
 
@@ -429,16 +454,19 @@ mycelium config show
 ### Configuration Update Behavior
 
 **Services Detected:**
+
 - Service is enabled in config
 - Port is set to first detected instance
 - Version is updated if detected
 
 **Services Not Detected:**
+
 - Service is disabled in config
 - Port number is preserved (for manual configuration)
 - Version is preserved
 
 **Custom Settings Preserved:**
+
 - Project name
 - Memory limits (Redis max_memory)
 - Database names
@@ -468,11 +496,13 @@ cat detection.json | jq '.redis.instances[0].port'
 ### Docker Detection
 
 **What's checked:**
+
 - Docker daemon is running
 - Docker socket is accessible
 - User has permission to access Docker
 
 **Common states:**
+
 - Available + version: Docker is fully functional
 - Not Available: Docker not installed or not running
 - Permission Error: User needs to be added to docker group
@@ -480,11 +510,13 @@ cat detection.json | jq '.redis.instances[0].port'
 ### Redis Detection
 
 **What's checked:**
+
 - Redis server is listening on common ports (6379, 6380, 6381)
 - Connection can be established
 - INFO command responds (for version detection)
 
 **Common states:**
+
 - Available + version: Redis is fully functional
 - Password Required: Redis requires authentication
 - Not Available: No Redis instances found on scanned ports
@@ -492,11 +524,13 @@ cat detection.json | jq '.redis.instances[0].port'
 ### PostgreSQL Detection
 
 **What's checked:**
+
 - PostgreSQL server is listening on common ports (5432, 5433)
 - Connection can be established
 - Version information is accessible
 
 **Common states:**
+
 - Available + version: PostgreSQL is fully functional
 - Authentication Required: Database requires credentials
 - Not Available: No PostgreSQL instances found on scanned ports
@@ -504,11 +538,13 @@ cat detection.json | jq '.redis.instances[0].port'
 ### Temporal Detection
 
 **What's checked:**
+
 - Temporal frontend (gRPC) is accessible on port 7233
 - Temporal UI is accessible on port 8233
 - Version information from health endpoint
 
 **Common states:**
+
 - Available + version: Temporal is fully functional
 - Connection Refused: Temporal server not running
 - Not Available: Temporal not installed or not configured
@@ -516,11 +552,13 @@ cat detection.json | jq '.redis.instances[0].port'
 ### GPU Detection
 
 **What's checked:**
+
 - NVIDIA GPUs: nvidia-smi command available and responsive
 - AMD GPUs: rocm-smi command available and responsive
 - Intel GPUs: sycl-ls command available and responsive
 
 **Information extracted:**
+
 - GPU model and vendor
 - Total memory capacity
 - Driver version
@@ -528,6 +566,7 @@ cat detection.json | jq '.redis.instances[0].port'
 - ROCm version (AMD)
 
 **Common states:**
+
 - Available + devices: GPUs detected and accessible
 - Not Available: No GPU hardware or drivers not installed
 - Driver Error: GPU present but driver issues detected
@@ -538,13 +577,14 @@ cat detection.json | jq '.redis.instances[0].port'
 
 The detection system is optimized for speed through parallel execution:
 
-- **Target**: <5 seconds for all detections
+- **Target**: \<5 seconds for all detections
 - **Typical**: 2-3 seconds with all services available
-- **Individual**: <1 second per service
+- **Individual**: \<1 second per service
 
 ### Performance Optimization
 
 Detection uses concurrent execution via ThreadPoolExecutor:
+
 - All 5 detectors run in parallel
 - Individual timeouts prevent hanging
 - Failed detections don't block others
@@ -567,7 +607,9 @@ done
 **Issue**: Detection shows no services available
 
 **Solutions:**
+
 1. Verify services are actually running:
+
    ```bash
    # Check Docker
    systemctl status docker  # or: docker ps
@@ -582,8 +624,10 @@ done
    tctl cluster health
    ```
 
-2. Check firewall/network settings
-3. Verify services are listening on expected ports:
+1. Check firewall/network settings
+
+1. Verify services are listening on expected ports:
+
    ```bash
    netstat -tlnp | grep -E '6379|5432|7233|8233'
    ```
@@ -593,6 +637,7 @@ done
 **Issue**: "Permission denied" errors during detection
 
 **Docker Permission Error:**
+
 ```bash
 # Add user to docker group
 sudo usermod -aG docker $USER
@@ -603,6 +648,7 @@ docker ps
 ```
 
 **PostgreSQL Connection Error:**
+
 ```bash
 # Update pg_hba.conf for trust authentication (development only)
 # Or set proper credentials in your application
@@ -613,6 +659,7 @@ docker ps
 **Issue**: Detection takes longer than 5 seconds
 
 **Diagnostics:**
+
 ```bash
 # Check network latency
 ping localhost
@@ -624,23 +671,26 @@ psql -c "SELECT 1;"
 ```
 
 **Solutions:**
+
 1. Ensure services are local (remote services are slower)
-2. Check for network issues or DNS resolution problems
-3. Verify no firewall rules causing timeouts
+1. Check for network issues or DNS resolution problems
+1. Verify no firewall rules causing timeouts
 
 ### Incorrect Version Information
 
 **Issue**: Version shows as "unknown" or incorrect
 
 **Causes:**
+
 - Service doesn't expose version via standard methods
 - Insufficient permissions to query version
 - Service is behind proxy/load balancer
 
 **Solutions:**
+
 1. Verify direct access to service
-2. Check service logs for version information
-3. Manually set version in configuration if needed
+1. Check service logs for version information
+1. Manually set version in configuration if needed
 
 ### GPU Not Detected
 
@@ -649,6 +699,7 @@ psql -c "SELECT 1;"
 **Solutions:**
 
 **NVIDIA:**
+
 ```bash
 # Verify nvidia-smi works
 nvidia-smi
@@ -662,6 +713,7 @@ nvcc --version
 ```
 
 **AMD:**
+
 ```bash
 # Verify ROCm installation
 rocm-smi
@@ -671,6 +723,7 @@ rocm-smi
 ```
 
 **Intel:**
+
 ```bash
 # Verify Intel GPU support
 sycl-ls
@@ -684,8 +737,8 @@ sycl-ls
 
 **Cause**: Services running on non-standard ports
 
-**Solution:**
-Detection scans these ports:
+**Solution:** Detection scans these ports:
+
 - Redis: 6379, 6380, 6381
 - PostgreSQL: 5432, 5433
 
@@ -831,6 +884,6 @@ mycelium detect services --format json | jq -r '
 - [M02 Configuration System](configuration-guide.md)
 - [Architecture Overview](ARCHITECTURE_DIAGRAMS.md)
 
----
+______________________________________________________________________
 
 For issues, questions, or contributions, visit: https://github.com/gsornsen/mycelium

@@ -9,31 +9,28 @@ Tests cover:
 """
 
 import asyncio
-import json
-import time
-from datetime import datetime
-from typing import List
-
-import pytest
-import asyncpg
 
 # Import coordination modules
 import sys
+import time
 from pathlib import Path
+
+import asyncpg
+import pytest
+
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "plugins" / "mycelium-core"))
 
 from coordination.tracker import (
-    CoordinationTracker,
-    CoordinationEvent,
-    EventType,
     AgentInfo,
+    CoordinationEvent,
+    CoordinationTracker,
     ErrorInfo,
+    EventType,
     PerformanceMetrics,
+    track_failure,
     track_handoff,
     track_task_execution,
-    track_failure,
 )
-
 
 # Test database configuration
 TEST_DB_URL = "postgresql://mycelium:mycelium_dev_password@localhost:5432/mycelium_registry"
@@ -133,7 +130,7 @@ class TestEventTracking:
             ),
         )
 
-        event_id = await tracker.track_event(error_event)
+        await tracker.track_event(error_event)
 
         # Retrieve and verify
         events = await tracker.get_workflow_events(workflow_id)
@@ -343,9 +340,7 @@ class TestStatistics:
         for w in range(3):
             workflow_id = f"test-workflow-stats-{w}"
             for e in range(5):
-                await tracker.track_event(
-                    CoordinationEvent(EventType.TASK_STARTED, workflow_id, task_id=f"t-{e}")
-                )
+                await tracker.track_event(CoordinationEvent(EventType.TASK_STARTED, workflow_id, task_id=f"t-{e}"))
 
         stats = await tracker.get_statistics()
 
@@ -394,7 +389,7 @@ class TestPerformance:
                 workflow_id,
                 task_id=f"task-{i}",
                 source_agent=AgentInfo(f"agent-{i}", "backend-developer"),
-                target_agent=AgentInfo(f"agent-{i+1}", "frontend-developer"),
+                target_agent=AgentInfo(f"agent-{i + 1}", "frontend-developer"),
                 context={"task_description": "Sample task " * 10},
                 metadata={"priority": "normal", "tags": ["test", "sample"]},
             )
@@ -475,7 +470,7 @@ class TestConvenienceFunctions:
         workflow_id = "test-workflow-exec"
 
         # Track start
-        start_id = await track_task_execution(
+        await track_task_execution(
             tracker,
             workflow_id,
             "exec-task",
@@ -485,7 +480,7 @@ class TestConvenienceFunctions:
         )
 
         # Track end
-        end_id = await track_task_execution(
+        await track_task_execution(
             tracker,
             workflow_id,
             "exec-task",
@@ -504,7 +499,7 @@ class TestConvenienceFunctions:
         """Test track_failure convenience function."""
         workflow_id = "test-workflow-fail"
 
-        event_id = await track_failure(
+        await track_failure(
             tracker,
             workflow_id,
             "fail-task",
@@ -531,9 +526,7 @@ class TestDataCleanup:
 
         # Create events
         for i in range(5):
-            await tracker.track_event(
-                CoordinationEvent(EventType.TASK_STARTED, workflow_id, task_id=f"t-{i}")
-            )
+            await tracker.track_event(CoordinationEvent(EventType.TASK_STARTED, workflow_id, task_id=f"t-{i}"))
 
         # Verify created
         events = await tracker.get_workflow_events(workflow_id)

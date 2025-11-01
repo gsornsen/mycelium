@@ -2,9 +2,12 @@
 
 ## Overview
 
-Temporal workflows provide durable, fault-tolerant execution for long-running ML training pipelines and multi-stage data processing. This pattern guide covers implementing production-ready workflows with automatic state persistence, checkpoint recovery, and distributed coordination.
+Temporal workflows provide durable, fault-tolerant execution for long-running ML training pipelines and multi-stage data
+processing. This pattern guide covers implementing production-ready workflows with automatic state persistence,
+checkpoint recovery, and distributed coordination.
 
 **Use Cases:**
+
 - ML model training (6-48 hour durations)
 - Multi-stage data processing pipelines
 - Human-in-the-loop approval workflows
@@ -14,11 +17,13 @@ Temporal workflows provide durable, fault-tolerant execution for long-running ML
 ## Prerequisites
 
 ### Required Tools
+
 - **temporal-mcp MCP server** - Workflow execution and history queries
 - **RedisMCPServer** - State synchronization and metrics publishing
 - **Temporal CLI** - Workflow management and debugging
 
 ### Dependencies
+
 ```python
 temporalio>=1.0.0
 structlog>=23.0.0
@@ -26,6 +31,7 @@ torch>=2.0.0  # For ML training examples
 ```
 
 ### Environment Setup
+
 ```bash
 # Start Temporal server (local development)
 temporal server start-dev
@@ -235,6 +241,7 @@ async def train_model_with_checkpoints(
 ```
 
 **Considerations:**
+
 - **Heartbeat Frequency:** Activities >30s must heartbeat to signal liveness
 - **Checkpoint Granularity:** Balance checkpoint frequency (every 500 steps) vs storage overhead
 - **Timeout Settings:** Set realistic `start_to_close_timeout` for long-running activities (48 hours for training)
@@ -303,6 +310,7 @@ class PodcastSynthesisPipelineWorkflow:
 ```
 
 **Considerations:**
+
 - **Parallel Execution:** Use `asyncio.gather()` to run independent child workflows concurrently
 - **Child Workflow IDs:** Assign deterministic IDs for idempotency and debugging
 - **Execution Timeout:** Set timeout per child workflow, not globally
@@ -380,6 +388,7 @@ class DistributedTrainingWorkflow:
 ```
 
 **Considerations:**
+
 - **Compensation Order:** Release resources in reverse order of acquisition
 - **Partial Completion:** Save progress even when saga fails
 - **Idempotency:** Ensure compensation activities are idempotent (can run multiple times safely)
@@ -424,6 +433,7 @@ class ScheduledTrainingWorkflow:
 ```
 
 **Considerations:**
+
 - **Timer Precision:** Temporal timers have ~second precision, not millisecond
 - **Resource Efficiency:** Sleeping workflows consume minimal resources
 - **Time Zone Handling:** Use UTC internally, convert for display
@@ -467,6 +477,7 @@ class HyperparameterSweepWorkflow:
 ```
 
 **Considerations:**
+
 - **History Limit:** Prevent workflows from exceeding Temporal's history size limit (~50KB)
 - **State Transfer:** Only pass essential state to continue-as-new (not full history)
 - **Search Termination:** Implement clear stopping criteria to prevent infinite loops
@@ -625,19 +636,20 @@ async def test_training_workflow_recovery_after_failure():
 ## Best Practices
 
 1. **Always Use Heartbeats for Long Activities** - Activities >30 seconds must heartbeat to signal liveness
-2. **Design Idempotent Activities** - Activities can be retried multiple times; ensure side effects are safe
-3. **Use Checkpoint/Resume for GPU Training** - Save checkpoints every 500 steps, resume on activity retry
-4. **Separate Fast and Slow Activities** - Don't mix quick validation (10s) with training (hours) in same activity
-5. **Use Child Workflows for Modularity** - Break complex pipelines into composable child workflows
-6. **Version Workflows Carefully** - Use `workflow.get_version()` for backward-compatible schema changes
-7. **Set Realistic Timeouts** - Training activities need hours, not minutes; set `start_to_close_timeout` appropriately
-8. **Publish Metrics to Redis** - Enable real-time monitoring without querying Temporal history repeatedly
-9. **Use Signals for Human Approval** - `workflow.wait_condition()` for manual quality gates
-10. **Continue-As-New for Unbounded Loops** - Prevent history bloat in hyperparameter sweeps and long experiments
+1. **Design Idempotent Activities** - Activities can be retried multiple times; ensure side effects are safe
+1. **Use Checkpoint/Resume for GPU Training** - Save checkpoints every 500 steps, resume on activity retry
+1. **Separate Fast and Slow Activities** - Don't mix quick validation (10s) with training (hours) in same activity
+1. **Use Child Workflows for Modularity** - Break complex pipelines into composable child workflows
+1. **Version Workflows Carefully** - Use `workflow.get_version()` for backward-compatible schema changes
+1. **Set Realistic Timeouts** - Training activities need hours, not minutes; set `start_to_close_timeout` appropriately
+1. **Publish Metrics to Redis** - Enable real-time monitoring without querying Temporal history repeatedly
+1. **Use Signals for Human Approval** - `workflow.wait_condition()` for manual quality gates
+1. **Continue-As-New for Unbounded Loops** - Prevent history bloat in hyperparameter sweeps and long experiments
 
 ## Related Agents
 
-- **workflow-orchestrator** (`/home/gerald/git/mycelium/plugins/mycelium-core/agents/09-meta-workflow-orchestrator.md`) - Coordinates multi-agent workflow execution
+- **workflow-orchestrator** (`/home/gerald/git/mycelium/plugins/mycelium-core/agents/09-meta-workflow-orchestrator.md`)
+  \- Coordinates multi-agent workflow execution
 - **error-coordinator** - Implements retry logic and circuit breakers for workflow failures
 - **performance-monitor** - Tracks workflow execution metrics and bottleneck identification
 - **context-manager** - Stores workflow state in Redis for real-time access

@@ -3,8 +3,7 @@
 from __future__ import annotations
 
 import subprocess
-from pathlib import Path
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import Mock
 
 import pytest
 import pytest_mock
@@ -14,6 +13,8 @@ from mycelium_onboarding.detection.docker_detector import (
     detect_docker,
     verify_docker_permissions,
 )
+
+pytestmark = pytest.mark.integration  # Mark entire file as integration
 
 
 class TestDetectDocker:
@@ -48,9 +49,7 @@ class TestDetectDocker:
 
     def test_detect_docker_not_installed(self, mocker: pytest_mock.MockerFixture) -> None:
         """Test Docker not installed scenario."""
-        mock_run = mocker.patch(
-            "subprocess.run", side_effect=FileNotFoundError("docker not found")
-        )
+        mocker.patch("subprocess.run", side_effect=FileNotFoundError("docker not found"))
 
         result = detect_docker()
 
@@ -111,9 +110,7 @@ class TestDetectDocker:
 
     def test_detect_docker_version_timeout(self, mocker: pytest_mock.MockerFixture) -> None:
         """Test Docker version command timeout."""
-        mock_run = mocker.patch(
-            "subprocess.run", side_effect=subprocess.TimeoutExpired("docker", 2.0)
-        )
+        mocker.patch("subprocess.run", side_effect=subprocess.TimeoutExpired("docker", 2.0))
 
         result = detect_docker()
 
@@ -149,7 +146,7 @@ class TestDetectDocker:
         version_result.stdout = ""
         version_result.stderr = "unknown error"
 
-        mock_run = mocker.patch("subprocess.run", return_value=version_result)
+        mocker.patch("subprocess.run", return_value=version_result)
 
         result = detect_docker()
 
@@ -211,9 +208,7 @@ class TestDetectDocker:
         assert result.available is True
         assert result.socket_path == "/var/run/docker.sock"
 
-    def test_detect_docker_socket_detection_windows(
-        self, mocker: pytest_mock.MockerFixture
-    ) -> None:
+    def test_detect_docker_socket_detection_windows(self, mocker: pytest_mock.MockerFixture) -> None:
         """Test Docker socket detection on Windows."""
         # Mock docker commands
         version_result = Mock()
@@ -248,7 +243,7 @@ class TestVerifyDockerPermissions:
         result.stdout = "CONTAINER ID   IMAGE     COMMAND\n"
         result.stderr = ""
 
-        mock_run = mocker.patch("subprocess.run", return_value=result)
+        mocker.patch("subprocess.run", return_value=result)
 
         has_permission, error = verify_docker_permissions()
 
@@ -262,7 +257,7 @@ class TestVerifyDockerPermissions:
         result.stdout = ""
         result.stderr = "permission denied while trying to connect"
 
-        mock_run = mocker.patch("subprocess.run", return_value=result)
+        mocker.patch("subprocess.run", return_value=result)
 
         has_permission, error = verify_docker_permissions()
 
@@ -271,16 +266,14 @@ class TestVerifyDockerPermissions:
         assert "Permission denied" in error
         assert "usermod -aG docker" in error
 
-    def test_verify_permissions_daemon_not_running(
-        self, mocker: pytest_mock.MockerFixture
-    ) -> None:
+    def test_verify_permissions_daemon_not_running(self, mocker: pytest_mock.MockerFixture) -> None:
         """Test daemon not running scenario."""
         result = Mock()
         result.returncode = 1
         result.stdout = ""
         result.stderr = "Cannot connect to the Docker daemon"
 
-        mock_run = mocker.patch("subprocess.run", return_value=result)
+        mocker.patch("subprocess.run", return_value=result)
 
         has_permission, error = verify_docker_permissions()
 
@@ -290,9 +283,7 @@ class TestVerifyDockerPermissions:
 
     def test_verify_permissions_cli_not_found(self, mocker: pytest_mock.MockerFixture) -> None:
         """Test Docker CLI not found."""
-        mock_run = mocker.patch(
-            "subprocess.run", side_effect=FileNotFoundError("docker not found")
-        )
+        mocker.patch("subprocess.run", side_effect=FileNotFoundError("docker not found"))
 
         has_permission, error = verify_docker_permissions()
 
@@ -302,9 +293,7 @@ class TestVerifyDockerPermissions:
 
     def test_verify_permissions_timeout(self, mocker: pytest_mock.MockerFixture) -> None:
         """Test permission verification timeout."""
-        mock_run = mocker.patch(
-            "subprocess.run", side_effect=subprocess.TimeoutExpired("docker", 2.0)
-        )
+        mocker.patch("subprocess.run", side_effect=subprocess.TimeoutExpired("docker", 2.0))
 
         has_permission, error = verify_docker_permissions()
 
@@ -314,9 +303,7 @@ class TestVerifyDockerPermissions:
 
     def test_verify_permissions_unexpected_error(self, mocker: pytest_mock.MockerFixture) -> None:
         """Test unexpected error during verification."""
-        mock_run = mocker.patch(
-            "subprocess.run", side_effect=Exception("Unexpected error")
-        )
+        mocker.patch("subprocess.run", side_effect=Exception("Unexpected error"))
 
         has_permission, error = verify_docker_permissions()
 
@@ -353,9 +340,7 @@ class TestDockerDetectionResult:
 
     def test_detection_result_error(self) -> None:
         """Test detection result with error."""
-        result = DockerDetectionResult(
-            available=False, error_message="Docker not found"
-        )
+        result = DockerDetectionResult(available=False, error_message="Docker not found")
 
         assert result.available is False
         assert result.error_message == "Docker not found"

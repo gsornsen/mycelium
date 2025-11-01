@@ -10,7 +10,6 @@ Date: 2025-10-19
 """
 
 import json
-import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -51,7 +50,7 @@ def test_agent_discovery_telemetry_integration(tmp_path):
     assert agent is not None, "Should load agent successfully"
 
     # Search for agents
-    results = discovery.search("api")
+    discovery.search("api")
 
     # Verify events were recorded
     events = storage.read_events()
@@ -94,9 +93,9 @@ def test_metrics_analyzer_with_real_data():
 
     # If we have data, verify it's well-formed
     if stats["total_operations"] > 0:
-        assert "list_agents" in stats["by_operation"] or "get_agent" in stats[
-            "by_operation"
-        ], "Should have at least one operation type"
+        assert "list_agents" in stats["by_operation"] or "get_agent" in stats["by_operation"], (
+            "Should have at least one operation type"
+        )
 
         for op_name, op_stats in stats["by_operation"].items():
             assert "count" in op_stats, f"{op_name} should have count"
@@ -117,12 +116,8 @@ def test_health_check_execution():
     report = generate_health_report(days=7)
 
     # Verify report structure
-    assert (
-        "Mycelium Performance Health Check" in report
-    ), "Should have health check header"
-    assert (
-        "AGENT DISCOVERY PERFORMANCE" in report
-    ), "Should have discovery performance section"
+    assert "Mycelium Performance Health Check" in report, "Should have health check header"
+    assert "AGENT DISCOVERY PERFORMANCE" in report, "Should have discovery performance section"
     assert "CACHE PERFORMANCE" in report, "Should have cache performance section"
     assert "TOKEN SAVINGS" in report, "Should have token savings section"
 
@@ -144,9 +139,7 @@ def test_telemetry_opt_out(tmp_path):
         telemetry = TelemetryCollector(storage)
 
         # Record some events (should be no-ops)
-        telemetry.record_agent_discovery(
-            operation="list_agents", duration_ms=1.0, agent_count=10
-        )
+        telemetry.record_agent_discovery(operation="list_agents", duration_ms=1.0, agent_count=10)
         telemetry.record_agent_load(
             agent_id="test-agent",
             load_time_ms=2.0,
@@ -179,7 +172,7 @@ def test_storage_rotation(tmp_path):
     }
 
     # Write 1100 events (11MB worth)
-    for i in range(1100):
+    for _i in range(1100):
         storage.append_event(large_event)
 
     # Check that rotation occurred
@@ -202,18 +195,12 @@ def test_end_to_end_analytics_workflow(tmp_path):
     analyzer = MetricsAnalyzer(storage)
 
     # Simulate agent discovery operations
-    telemetry.record_agent_discovery(
-        operation="list_agents", duration_ms=0.08, agent_count=119
-    )
+    telemetry.record_agent_discovery(operation="list_agents", duration_ms=0.08, agent_count=119)
 
     for i in range(10):
-        telemetry.record_agent_discovery(
-            operation="get_agent", duration_ms=0.03 if i < 8 else 1.2, cache_hit=i < 8
-        )
+        telemetry.record_agent_discovery(operation="get_agent", duration_ms=0.03 if i < 8 else 1.2, cache_hit=i < 8)
 
-    telemetry.record_agent_discovery(
-        operation="search", duration_ms=6.5, agent_count=5
-    )
+    telemetry.record_agent_discovery(operation="search", duration_ms=6.5, agent_count=5)
 
     # Record agent loads
     for i in range(5):
@@ -227,15 +214,9 @@ def test_end_to_end_analytics_workflow(tmp_path):
     # Analyze metrics
     discovery_stats = analyzer.get_discovery_stats(days=1)
     assert discovery_stats["total_operations"] == 12, "Should have 12 operations"
-    assert (
-        discovery_stats["by_operation"]["list_agents"]["count"] == 1
-    ), "Should have 1 list_agents"
-    assert (
-        discovery_stats["by_operation"]["get_agent"]["count"] == 10
-    ), "Should have 10 get_agent"
-    assert (
-        discovery_stats["by_operation"]["search"]["count"] == 1
-    ), "Should have 1 search"
+    assert discovery_stats["by_operation"]["list_agents"]["count"] == 1, "Should have 1 list_agents"
+    assert discovery_stats["by_operation"]["get_agent"]["count"] == 10, "Should have 10 get_agent"
+    assert discovery_stats["by_operation"]["search"]["count"] == 1, "Should have 1 search"
 
     # Check cache performance
     cache_perf = analyzer.get_cache_performance(days=1)
@@ -246,9 +227,7 @@ def test_end_to_end_analytics_workflow(tmp_path):
     # Check token savings
     token_savings = analyzer.get_token_savings(days=1)
     assert token_savings["total_agents_loaded"] == 5, "Should have loaded 5 agents"
-    assert (
-        token_savings["total_tokens_loaded"] == 6250
-    ), "Should have loaded 6250 tokens"
+    assert token_savings["total_tokens_loaded"] == 6250, "Should have loaded 6250 tokens"
 
     # Generate summary report
     summary = analyzer.get_summary_report(days=1)
@@ -288,9 +267,7 @@ def test_privacy_guarantees(tmp_path):
     assert "agent_id" not in event, "Should not contain raw agent_id"
     assert "agent_id_hash" in event, "Should contain hashed agent_id"
     assert len(event["agent_id_hash"]) == 8, "Hash should be 8 characters"
-    assert (
-        event["agent_id_hash"] != "01-core-api-designer"
-    ), "Should not contain raw ID"
+    assert event["agent_id_hash"] != "01-core-api-designer", "Should not contain raw ID"
 
     # Verify timestamp is UTC
     timestamp = datetime.fromisoformat(event["timestamp"].replace("Z", "+00:00"))
@@ -312,6 +289,6 @@ def test_privacy_guarantees(tmp_path):
         "estimated_tokens",
     }
     event_fields = set(event.keys())
-    assert event_fields.issubset(
-        allowed_fields
-    ), f"Should only have allowed fields, got extra: {event_fields - allowed_fields}"
+    assert event_fields.issubset(allowed_fields), (
+        f"Should only have allowed fields, got extra: {event_fields - allowed_fields}"
+    )
