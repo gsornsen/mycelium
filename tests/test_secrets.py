@@ -5,6 +5,7 @@ and correct secret management functionality.
 """
 
 import stat
+import sys
 from pathlib import Path
 
 import pytest
@@ -221,6 +222,7 @@ class TestSecretsPersistence:
 class TestFilePermissions:
     """Tests for secure file permissions."""
 
+    @pytest.mark.skipif(sys.platform == "win32", reason="Unix file permissions not supported on Windows")
     def test_secrets_file_permissions(self, tmp_path: Path) -> None:
         """Test secrets file has secure permissions (0o600)."""
         manager = SecretsManager("test", secrets_dir=tmp_path)
@@ -231,6 +233,7 @@ class TestFilePermissions:
         mode = manager.secrets_file.stat().st_mode
         assert stat.S_IMODE(mode) == 0o600
 
+    @pytest.mark.skipif(sys.platform == "win32", reason="Unix file permissions not supported on Windows")
     def test_secrets_directory_permissions(self, tmp_path: Path) -> None:
         """Test secrets directory has secure permissions (0o700)."""
         manager = SecretsManager("test", secrets_dir=tmp_path)
@@ -241,6 +244,7 @@ class TestFilePermissions:
         mode = manager.secrets_dir.stat().st_mode
         assert stat.S_IMODE(mode) == 0o700
 
+    @pytest.mark.skipif(sys.platform == "win32", reason="Unix file permissions not supported on Windows")
     def test_permissions_after_multiple_saves(self, tmp_path: Path) -> None:
         """Test permissions remain secure after multiple saves."""
         manager = SecretsManager("test", secrets_dir=tmp_path)
@@ -402,6 +406,7 @@ class TestEnvFileGeneration:
         content = env_file.read_text()
         assert "POSTGRES_PASSWORD=secret123" in content
 
+    @pytest.mark.skipif(sys.platform == "win32", reason="Unix file permissions not supported on Windows")
     def test_generate_env_file_permissions(self, tmp_path: Path) -> None:
         """Test .env file has secure permissions."""
         secrets = DeploymentSecrets(project_name="test", postgres_password="secret123")
@@ -532,6 +537,7 @@ class TestEdgeCases:
         assert loaded is not None
         assert loaded.postgres_password == secrets1.postgres_password
 
+    @pytest.mark.skipif(sys.platform == "win32", reason="Unix file permissions not supported on Windows")
     def test_save_error_handling(self, tmp_path: Path) -> None:
         """Test error handling when save fails due to permissions."""
         # Create writable directory first

@@ -7,6 +7,7 @@ including validation logic, error messages, and edge cases.
 from __future__ import annotations
 
 import os
+import sys
 from pathlib import Path
 
 import pytest
@@ -274,6 +275,7 @@ class TestValidateEnvironment:
         assert "do not exist" in error_msg
         assert "MYCELIUM_DATA_DIR" in error_msg
 
+    @pytest.mark.skipif(sys.platform == "win32", reason="Unix file permissions not supported on Windows")
     def test_fails_with_unwritable_directory(
         self, mock_mycelium_env: dict[str, Path], monkeypatch: pytest.MonkeyPatch
     ) -> None:
@@ -432,6 +434,7 @@ class TestErrorMessages:
         error_msg = str(exc_info.value)
         assert "Re-activate" in error_msg or "activate" in error_msg.lower()
 
+    @pytest.mark.skipif(sys.platform == "win32", reason="Unix file permissions not supported on Windows")
     def test_unwritable_dir_error_includes_chmod_command(self, mock_mycelium_env: dict[str, Path]) -> None:
         """Error should include chmod command for fixing permissions."""
         config_dir = mock_mycelium_env["MYCELIUM_CONFIG_DIR"]

@@ -6,6 +6,7 @@ covering all deployment methods, validation logic, and error handling.
 
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 
 import pytest
@@ -375,6 +376,7 @@ class TestSystemdGeneration:
         assert "systemctl daemon-reload" in content
         assert "cp" in content
 
+    @pytest.mark.skipif(sys.platform == "win32", reason="Unix file permissions not supported on Windows")
     def test_systemd_install_script_executable(self, tmp_path: Path) -> None:
         """Test that install script is executable."""
         config = MyceliumConfig(

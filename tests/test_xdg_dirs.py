@@ -121,6 +121,7 @@ class TestConfigDir:
         assert config_dir.exists()
         assert config_parent.exists()
 
+    @pytest.mark.skipif(sys.platform == "win32", reason="Unix file permissions not supported on Windows")
     def test_permissions(self, mock_home: Path) -> None:
         """Should set restrictive permissions (0700)."""
         config_dir = get_config_dir()
@@ -139,6 +140,7 @@ class TestConfigDir:
         # Should return same object (cached)
         assert dir1 is dir2
 
+    @pytest.mark.skipif(sys.platform == "win32", reason="Unix file permissions not supported on Windows")
     def test_not_writable_raises_error(self, mock_home: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         """Should raise error if directory is not writable."""
         config_dir = mock_home / ".config" / "mycelium"
@@ -157,6 +159,7 @@ class TestConfigDir:
             # Cleanup: restore permissions
             config_dir.chmod(0o755)
 
+    @pytest.mark.skipif(sys.platform == "win32", reason="Unix file permissions not supported on Windows")
     def test_mkdir_oserror(self, mock_home: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         """Should raise XDGDirectoryError when mkdir fails."""
         get_config_dir.cache_clear()
@@ -202,6 +205,7 @@ class TestDataDir:
         expected = mock_home / ".local" / "share" / "custom_project"
         assert data_dir == expected
 
+    @pytest.mark.skipif(sys.platform == "win32", reason="Unix file permissions not supported on Windows")
     def test_permissions(self, mock_home: Path) -> None:
         """Should set permissions (0755)."""
         data_dir = get_data_dir()
@@ -212,6 +216,7 @@ class TestDataDir:
         # Should be rwxr-xr-x (0755)
         assert mode == 0o755
 
+    @pytest.mark.skipif(sys.platform == "win32", reason="Unix file permissions not supported on Windows")
     def test_not_writable_raises_error(self, mock_home: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         """Should raise error if directory is not writable."""
         data_dir = mock_home / ".local" / "share" / "mycelium"
@@ -226,6 +231,7 @@ class TestDataDir:
         finally:
             data_dir.chmod(0o755)
 
+    @pytest.mark.skipif(sys.platform == "win32", reason="Unix file permissions not supported on Windows")
     def test_mkdir_oserror(self, mock_home: Path) -> None:
         """Should raise XDGDirectoryError when mkdir fails."""
         get_data_dir.cache_clear()
@@ -263,6 +269,7 @@ class TestCacheDir:
         expected = mock_home / ".cache" / "custom_project"
         assert cache_dir == expected
 
+    @pytest.mark.skipif(sys.platform == "win32", reason="Unix file permissions not supported on Windows")
     def test_permissions(self, mock_home: Path) -> None:
         """Should set permissions (0755)."""
         cache_dir = get_cache_dir()
@@ -273,6 +280,7 @@ class TestCacheDir:
         # Should be rwxr-xr-x (0755)
         assert mode == 0o755
 
+    @pytest.mark.skipif(sys.platform == "win32", reason="Unix file permissions not supported on Windows")
     def test_not_writable_raises_error(self, mock_home: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         """Should raise error if directory is not writable."""
         cache_dir = mock_home / ".cache" / "mycelium"
@@ -287,6 +295,7 @@ class TestCacheDir:
         finally:
             cache_dir.chmod(0o755)
 
+    @pytest.mark.skipif(sys.platform == "win32", reason="Unix file permissions not supported on Windows")
     def test_mkdir_oserror(self, mock_home: Path) -> None:
         """Should raise XDGDirectoryError when mkdir fails."""
         get_cache_dir.cache_clear()
@@ -324,6 +333,7 @@ class TestStateDir:
         expected = mock_home / ".local" / "state" / "custom_project"
         assert state_dir == expected
 
+    @pytest.mark.skipif(sys.platform == "win32", reason="Unix file permissions not supported on Windows")
     def test_permissions(self, mock_home: Path) -> None:
         """Should set restrictive permissions (0700)."""
         state_dir = get_state_dir()
@@ -334,6 +344,7 @@ class TestStateDir:
         # Should be rwx------ (0700)
         assert mode == 0o700
 
+    @pytest.mark.skipif(sys.platform == "win32", reason="Unix file permissions not supported on Windows")
     def test_not_writable_raises_error(self, mock_home: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         """Should raise error if directory is not writable."""
         state_dir = mock_home / ".local" / "state" / "mycelium"
@@ -348,6 +359,7 @@ class TestStateDir:
         finally:
             state_dir.chmod(0o755)
 
+    @pytest.mark.skipif(sys.platform == "win32", reason="Unix file permissions not supported on Windows")
     def test_mkdir_oserror(self, mock_home: Path) -> None:
         """Should raise XDGDirectoryError when mkdir fails."""
         get_state_dir.cache_clear()
@@ -451,6 +463,7 @@ class TestGetAllDirs:
 
         assert all("custom" in str(p) for p in dirs.values())
 
+    @pytest.mark.skipif(sys.platform == "win32", reason="Unix file permissions not supported on Windows")
     def test_all_directories_writable(self, mock_home: Path) -> None:
         """Should ensure all directories are writable."""
         dirs = get_all_dirs()
@@ -462,6 +475,7 @@ class TestGetAllDirs:
 class TestErrorHandling:
     """Tests for error handling."""
 
+    @pytest.mark.skipif(sys.platform == "win32", reason="Unix file permissions not supported on Windows")
     def test_raises_on_permission_denied(self, mock_home: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         """Should raise XDGDirectoryError on permission issues."""
         # Create a read-only parent directory
@@ -479,6 +493,7 @@ class TestErrorHandling:
             # Cleanup
             readonly_dir.chmod(0o755)
 
+    @pytest.mark.skipif(sys.platform == "win32", reason="Unix file permissions not supported on Windows")
     def test_error_message_is_informative(self, mock_home: Path) -> None:
         """Should provide clear error messages."""
         config_dir = mock_home / ".config" / "mycelium"
