@@ -301,13 +301,30 @@ jobs:
             const fs = require('fs');
             const results = JSON.parse(fs.readFileSync('benchmark-results.json', 'utf8'));
 
-            let comment = '## Benchmark Results\n\n';
-            comment += '| Test | Min | Max | Mean | StdDev |\n';
-            comment += '|------|-----|-----|------|--------|\n';
+            // Helper function to format time in appropriate units
+            function formatTime(seconds) {
+              if (seconds < 0.001) {
+                return `${(seconds * 1000000).toFixed(2)}µs`;
+              } else if (seconds < 1) {
+                return `${(seconds * 1000).toFixed(2)}ms`;
+              } else {
+                return `${seconds.toFixed(3)}s`;
+              }
+            }
+
+            let comment = '## 🏎️ Benchmark Results\n\n';
+            comment += '| Test | Min | Max | Mean | StdDev | Ops/sec |\n';
+            comment += '|------|-----|-----|------|--------|--------|\n';
 
             results.benchmarks.forEach(bench => {
               const stats = bench.stats;
-              comment += `| ${bench.name} | ${stats.min.toFixed(4)}s | ${stats.max.toFixed(4)}s | ${stats.mean.toFixed(4)}s | ${stats.stddev.toFixed(4)}s |\n`;
+              const opsPerSec = stats.mean > 0 ? (1 / stats.mean).toFixed(0) : 'N/A';
+              comment += `| ${bench.name.replace('test_benchmark_', '')} | `;
+              comment += `${formatTime(stats.min)} | `;
+              comment += `${formatTime(stats.max)} | `;
+              comment += `${formatTime(stats.mean)} | `;
+              comment += `${formatTime(stats.stddev)} | `;
+              comment += `${opsPerSec} |\n`;
             });
 
             github.rest.issues.createComment({
