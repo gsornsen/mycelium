@@ -228,11 +228,19 @@ jobs:
 
       - name: Initialize database schema
         run: |
+          # Registry schema (agents, agent_usage, etc.)
           PGPASSWORD=mycelium_test psql -h localhost -U mycelium -d mycelium_test -f plugins/mycelium-core/registry/schema.sql
 
-      - name: Verify schema loaded
+          # Coordination schema (workflow_states, task_states, coordination_events)
+          PGPASSWORD=mycelium_test psql -h localhost -U mycelium -d mycelium_test -f plugins/mycelium-core/coordination/schema.sql
+
+      - name: Verify schemas loaded
         run: |
-          PGPASSWORD=mycelium_test psql -h localhost -U mycelium -d mycelium_test -c "\dt" | grep agents
+          echo "Checking registry tables..."
+          PGPASSWORD=mycelium_test psql -h localhost -U mycelium -d mycelium_test -c "\dt" | grep -E "agents|agent_usage"
+
+          echo "Checking coordination tables..."
+          PGPASSWORD=mycelium_test psql -h localhost -U mycelium -d mycelium_test -c "\dt" | grep -E "workflow_states|task_states|coordination_events"
 
       - name: Run integration tests
         shell: bash

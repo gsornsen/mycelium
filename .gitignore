@@ -8,6 +8,8 @@ yarn.lock
 # Coordination state (ephemeral) - only Claude's coordination files
 .claude/coordination/
 !.claude/coordination/.gitkeep
+# Allow schema files in plugins coordination module
+!plugins/mycelium-core/coordination/schema.sql
 docs/design/
 TASK_1.2_IMPLEMENTATION_SUMMARY.md
 TASK_1.2_QUICK_START.md

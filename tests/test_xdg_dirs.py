@@ -37,8 +37,18 @@ def mock_home(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     home = tmp_path / "home"
     home.mkdir()
 
-    # Set HOME to temp directory
-    monkeypatch.setenv("HOME", str(home))
+    if sys.platform == "win32":
+        # On Windows, mock LOCALAPPDATA and APPDATA for XDG functions
+        local_appdata = home / "AppData" / "Local"
+        local_appdata.mkdir(parents=True)
+        monkeypatch.setenv("LOCALAPPDATA", str(local_appdata))
+
+        appdata = home / "AppData" / "Roaming"
+        appdata.mkdir(parents=True)
+        monkeypatch.setenv("APPDATA", str(appdata))
+    else:
+        # On Unix, mock HOME
+        monkeypatch.setenv("HOME", str(home))
 
     # Clear all XDG variables to test defaults
     for var in ["XDG_CONFIG_HOME", "XDG_DATA_HOME", "XDG_CACHE_HOME", "XDG_STATE_HOME"]:
