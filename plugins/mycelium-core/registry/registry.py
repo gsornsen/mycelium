@@ -6,7 +6,7 @@ capabilities, and semantic search using vector embeddings.
 
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 from uuid import UUID
@@ -582,14 +582,14 @@ class AgentRegistry:
                     "pgvector_installed": pgvector_installed,
                     "agent_count": agent_count,
                     "database_size": db_size,
-                    "timestamp": datetime.utcnow().isoformat(),
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
                 }
 
             except Exception as e:
                 return {
                     "status": "unhealthy",
                     "error": str(e),
-                    "timestamp": datetime.utcnow().isoformat(),
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
                 }
 
     async def __aenter__(self) -> "AgentRegistry":

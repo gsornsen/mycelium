@@ -9,7 +9,7 @@ import json
 import logging
 import uuid
 from dataclasses import asdict, dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from pathlib import Path
 from typing import Any
@@ -124,7 +124,7 @@ class CoordinationEvent:
 
     event_type: EventType
     workflow_id: str
-    timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat() + "Z")
+    timestamp: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     event_id: str = field(default_factory=lambda: str(uuid.uuid4()))
     task_id: str | None = None
     agent_id: str | None = None

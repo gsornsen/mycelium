@@ -8,7 +8,7 @@ import json
 import os
 import uuid
 from dataclasses import asdict, dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any
 
@@ -241,7 +241,7 @@ class StateManager:
             raise StateManagerError("State manager not initialized")
 
         workflow_id = workflow_id or str(uuid.uuid4())
-        now = datetime.utcnow().isoformat() + "Z"
+        now = datetime.now(timezone.utc).isoformat()
 
         tasks_dict = {}
         if tasks:
@@ -337,7 +337,7 @@ class StateManager:
         if self._pool is None:
             raise StateManagerError("State manager not initialized")
 
-        state.updated_at = datetime.utcnow().isoformat() + "Z"
+        state.updated_at = datetime.now(timezone.utc).isoformat()
         state.version += 1
 
         await self._persist_state(state)
@@ -375,7 +375,7 @@ class StateManager:
             raise StateNotFoundError(f"Task {task_id} not found in workflow {workflow_id}")
 
         task = state.tasks[task_id]
-        now = datetime.utcnow().isoformat() + "Z"
+        now = datetime.now(timezone.utc).isoformat()
 
         if status:
             task.status = status
