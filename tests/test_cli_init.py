@@ -182,7 +182,7 @@ class TestInitCommand:
                     # Setup mock config manager
                     with patch("mycelium_onboarding.config.manager.ConfigManager") as mock_manager:
                         manager = mock_manager.return_value
-                        manager._determine_save_path.return_value = Path("/tmp/config.yaml")
+                        manager._determine_save_path.return_value = Path("/tmp/config.yaml")  # nosec B108 - Test fixture using /tmp
 
                         # Run command with required inputs
                         runner.invoke(cli, ["init", "--no-resume"], input="test-project\n")
@@ -256,7 +256,7 @@ class TestInitCommand:
                     # Setup mock config manager
                     with patch("mycelium_onboarding.config.manager.ConfigManager") as mock_manager:
                         manager = mock_manager.return_value
-                        manager._determine_save_path.return_value = Path("/tmp/config.yaml")
+                        manager._determine_save_path.return_value = Path("/tmp/config.yaml")  # nosec B108 - Test fixture using /tmp
 
                         # Run command
                         runner.invoke(cli, ["init", "--no-resume"], input="test-project\n")
@@ -294,7 +294,7 @@ class TestInitCommand:
                     # Setup mock config manager
                     with patch("mycelium_onboarding.config.manager.ConfigManager") as mock_manager:
                         manager = mock_manager.return_value
-                        manager._determine_save_path.return_value = Path("/tmp/config.yaml")
+                        manager._determine_save_path.return_value = Path("/tmp/config.yaml")  # nosec B108 - Test fixture using /tmp
 
                         # Run command
                         runner.invoke(cli, ["init", "--no-resume"], input="test-project\n")
@@ -333,7 +333,7 @@ class TestInitCommand:
                     # Setup mock config manager
                     with patch("mycelium_onboarding.config.manager.ConfigManager") as mock_manager:
                         manager = mock_manager.return_value
-                        manager._determine_save_path.return_value = Path("/tmp/config.yaml")
+                        manager._determine_save_path.return_value = Path("/tmp/config.yaml")  # nosec B108 - Test fixture using /tmp
 
                         # Run command
                         runner.invoke(cli, ["init", "--no-resume"], input="test-project\n")
@@ -370,7 +370,7 @@ class TestInitCommand:
                     # Setup mock config manager
                     with patch("mycelium_onboarding.config.manager.ConfigManager") as mock_manager:
                         manager = mock_manager.return_value
-                        manager._determine_save_path.return_value = Path("/tmp/config.yaml")
+                        manager._determine_save_path.return_value = Path("/tmp/config.yaml")  # nosec B108 - Test fixture using /tmp
 
                         # Run command
                         result = runner.invoke(cli, ["init", "--no-resume"], input="test-project\n")

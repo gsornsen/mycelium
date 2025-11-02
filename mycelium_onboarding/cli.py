@@ -1310,7 +1310,7 @@ def start(method: str | None) -> None:
     # Execute start command based on method
     try:
         if deploy_method == DeploymentMethod.DOCKER_COMPOSE:
-            result = subprocess.run(
+            result = subprocess.run(  # nosec B603 B607 - Safe execution of system tools
                 ["docker-compose", "up", "-d"],
                 check=True,
                 capture_output=True,
@@ -1321,7 +1321,7 @@ def start(method: str | None) -> None:
                 console.print(result.stdout)
 
         elif deploy_method == DeploymentMethod.KUBERNETES:
-            result = subprocess.run(
+            result = subprocess.run(  # nosec B603 B607 - Safe execution of system tools
                 ["kubectl", "get", "pods", "-n", config.project_name],
                 check=True,
                 capture_output=True,
@@ -1339,7 +1339,7 @@ def start(method: str | None) -> None:
                 services.append(f"{config.project_name}-temporal")
 
             for service in services:
-                subprocess.run(["sudo", "systemctl", "start", service], check=True)
+                subprocess.run(["sudo", "systemctl", "start", service], check=True)  # nosec B603 B607 - Safe execution of system tools
             console.print(f"[green]✓[/green] Started {len(services)} service(s)")
 
     except subprocess.CalledProcessError as e:
@@ -1381,7 +1381,7 @@ def stop(method: str | None) -> None:
     # Execute stop command based on method
     try:
         if deploy_method == DeploymentMethod.DOCKER_COMPOSE:
-            result = subprocess.run(
+            result = subprocess.run(  # nosec B603 B607 - Safe execution of system tools
                 ["docker-compose", "down"],
                 check=True,
                 capture_output=True,
@@ -1392,7 +1392,7 @@ def stop(method: str | None) -> None:
                 console.print(result.stdout)
 
         elif deploy_method == DeploymentMethod.KUBERNETES:
-            result = subprocess.run(
+            result = subprocess.run(  # nosec B603 B607 - Safe execution of system tools
                 ["kubectl", "delete", "all", "--all", "-n", config.project_name],
                 check=True,
                 capture_output=True,
@@ -1412,7 +1412,7 @@ def stop(method: str | None) -> None:
                 services.append(f"{config.project_name}-temporal")
 
             for service in services:
-                subprocess.run(["sudo", "systemctl", "stop", service], check=True)
+                subprocess.run(["sudo", "systemctl", "stop", service], check=True)  # nosec B603 B607 - Safe execution of system tools
             console.print(f"[green]✓[/green] Stopped {len(services)} service(s)")
 
     except subprocess.CalledProcessError as e:
@@ -1455,7 +1455,7 @@ def status(method: str | None, watch: bool) -> None:
 
     if deploy_method == DeploymentMethod.DOCKER_COMPOSE:
         try:
-            result = subprocess.run(
+            result = subprocess.run(  # nosec B603 B607 - Safe execution of system tools
                 ["docker-compose", "ps", "--format", "json"],
                 capture_output=True,
                 text=True,
@@ -1498,7 +1498,7 @@ def status(method: str | None, watch: bool) -> None:
 
     elif deploy_method == DeploymentMethod.KUBERNETES:
         try:
-            result = subprocess.run(
+            result = subprocess.run(  # nosec B603 B607 - Safe execution of system tools
                 [
                     "kubectl",
                     "get",
@@ -1548,7 +1548,7 @@ def status(method: str | None, watch: bool) -> None:
 
         for service in services:
             try:
-                result = subprocess.run(
+                result = subprocess.run(  # nosec B603 B607 - Safe execution of system tools
                     ["systemctl", "is-active", service],
                     capture_output=True,
                     text=True,

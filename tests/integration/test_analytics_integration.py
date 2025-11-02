@@ -10,13 +10,19 @@ Date: 2025-10-19
 """
 
 import json
+import os
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
 import pytest
 
+# Add project root to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+
 from mycelium_analytics import EventStorage, MetricsAnalyzer, TelemetryCollector
 from scripts.agent_discovery import AgentDiscovery
+from scripts.health_check import generate_health_report
 
 
 def test_agent_discovery_telemetry_integration(tmp_path):
@@ -111,8 +117,6 @@ def test_health_check_execution():
     This test verifies that the health check report can be generated
     and contains expected sections.
     """
-    from scripts.health_check import generate_health_report
-
     report = generate_health_report(days=7)
 
     # Verify report structure
@@ -127,8 +131,6 @@ def test_telemetry_opt_out(tmp_path):
 
     This test verifies the opt-out mechanism works correctly.
     """
-    import os
-
     # Create temp storage
     storage = EventStorage(storage_dir=tmp_path / "analytics")
 
@@ -292,3 +294,7 @@ def test_privacy_guarantees(tmp_path):
     assert event_fields.issubset(allowed_fields), (
         f"Should only have allowed fields, got extra: {event_fields - allowed_fields}"
     )
+
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

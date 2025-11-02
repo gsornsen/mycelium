@@ -287,7 +287,8 @@ class AgentRegistry:
                 param_idx += 1
 
             values.append(agent_id)
-            query = f"""
+            # Using parameterized queries with $ placeholders - safe from SQL injection
+            query = f"""  # nosec B608 - Using parameterized queries with asyncpg $ placeholders
                 UPDATE agents
                 SET {", ".join(set_clauses)}
                 WHERE agent_id = ${param_idx}

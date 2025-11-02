@@ -50,7 +50,8 @@
       "Bash(jq:*)",
       "Bash(git config:*)",
       "Bash(gh pr view:*)",
-      "Bash(uv --version:*)"
+      "Bash(uv --version:*)",
+      "Bash(bandit:*)"
     ],
     "deny": [],
     "ask": []

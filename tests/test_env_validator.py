@@ -138,8 +138,8 @@ class TestGetMissingVars:
 
     def test_returns_some_missing_vars(self, clean_env: None, monkeypatch: pytest.MonkeyPatch) -> None:
         """Should return only the missing variables."""
-        monkeypatch.setenv("MYCELIUM_ROOT", "/tmp/mycelium")
-        monkeypatch.setenv("MYCELIUM_CONFIG_DIR", "/tmp/config")
+        monkeypatch.setenv("MYCELIUM_ROOT", "/tmp/mycelium")  # nosec B108 - Test fixture path
+        monkeypatch.setenv("MYCELIUM_CONFIG_DIR", "/tmp/config")  # nosec B108 - Test fixture path
 
         missing = get_missing_vars()
 
@@ -154,11 +154,11 @@ class TestGetMissingVars:
     def test_excludes_optional_by_default(self, clean_env: None, monkeypatch: pytest.MonkeyPatch) -> None:
         """Should not check optional vars by default."""
         # Set all required vars
-        monkeypatch.setenv("MYCELIUM_ROOT", "/tmp/mycelium")
-        monkeypatch.setenv("MYCELIUM_CONFIG_DIR", "/tmp/config")
-        monkeypatch.setenv("MYCELIUM_DATA_DIR", "/tmp/data")
-        monkeypatch.setenv("MYCELIUM_CACHE_DIR", "/tmp/cache")
-        monkeypatch.setenv("MYCELIUM_STATE_DIR", "/tmp/state")
+        monkeypatch.setenv("MYCELIUM_ROOT", "/tmp/mycelium")  # nosec B108 - Test fixture path
+        monkeypatch.setenv("MYCELIUM_CONFIG_DIR", "/tmp/config")  # nosec B108 - Test fixture path
+        monkeypatch.setenv("MYCELIUM_DATA_DIR", "/tmp/data")  # nosec B108 - Test fixture path
+        monkeypatch.setenv("MYCELIUM_CACHE_DIR", "/tmp/cache")  # nosec B108 - Test fixture path
+        monkeypatch.setenv("MYCELIUM_STATE_DIR", "/tmp/state")  # nosec B108 - Test fixture path
         # Don't set optional vars
 
         missing = get_missing_vars(include_optional=False)
@@ -167,11 +167,11 @@ class TestGetMissingVars:
     def test_includes_optional_when_requested(self, clean_env: None, monkeypatch: pytest.MonkeyPatch) -> None:
         """Should check optional vars when include_optional=True."""
         # Set all required vars
-        monkeypatch.setenv("MYCELIUM_ROOT", "/tmp/mycelium")
-        monkeypatch.setenv("MYCELIUM_CONFIG_DIR", "/tmp/config")
-        monkeypatch.setenv("MYCELIUM_DATA_DIR", "/tmp/data")
-        monkeypatch.setenv("MYCELIUM_CACHE_DIR", "/tmp/cache")
-        monkeypatch.setenv("MYCELIUM_STATE_DIR", "/tmp/state")
+        monkeypatch.setenv("MYCELIUM_ROOT", "/tmp/mycelium")  # nosec B108 - Test fixture path
+        monkeypatch.setenv("MYCELIUM_CONFIG_DIR", "/tmp/config")  # nosec B108 - Test fixture path
+        monkeypatch.setenv("MYCELIUM_DATA_DIR", "/tmp/data")  # nosec B108 - Test fixture path
+        monkeypatch.setenv("MYCELIUM_CACHE_DIR", "/tmp/cache")  # nosec B108 - Test fixture path
+        monkeypatch.setenv("MYCELIUM_STATE_DIR", "/tmp/state")  # nosec B108 - Test fixture path
         # Don't set optional vars
 
         missing = get_missing_vars(include_optional=True)
@@ -205,7 +205,7 @@ class TestGetEnvironmentInfo:
 
     def test_returns_partial_info(self, clean_env: None, monkeypatch: pytest.MonkeyPatch) -> None:
         """Should return mix of set and unset variables."""
-        monkeypatch.setenv("MYCELIUM_ROOT", "/tmp/mycelium")
+        monkeypatch.setenv("MYCELIUM_ROOT", "/tmp/mycelium")  # nosec B108 - Test fixture path
         monkeypatch.setenv("MYCELIUM_ENV_ACTIVE", "1")
 
         info = get_environment_info()
@@ -237,8 +237,8 @@ class TestValidateEnvironment:
 
     def test_fails_with_some_missing_variables(self, clean_env: None, monkeypatch: pytest.MonkeyPatch) -> None:
         """Should raise error with specific missing variables."""
-        monkeypatch.setenv("MYCELIUM_ROOT", "/tmp/mycelium")
-        monkeypatch.setenv("MYCELIUM_CONFIG_DIR", "/tmp/config")
+        monkeypatch.setenv("MYCELIUM_ROOT", "/tmp/mycelium")  # nosec B108 - Test fixture path
+        monkeypatch.setenv("MYCELIUM_CONFIG_DIR", "/tmp/config")  # nosec B108 - Test fixture path
         # Missing other vars
 
         with pytest.raises(EnvironmentValidationError) as exc_info:

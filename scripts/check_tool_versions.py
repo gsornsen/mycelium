@@ -12,7 +12,7 @@ import sys
 def get_version(command: list[str]) -> str:
     """Get version from a command output."""
     try:
-        result = subprocess.run(
+        result = subprocess.run(  # nosec B603 B607 - Safe execution of system tools
             command,
             capture_output=True,
             text=True,
@@ -63,7 +63,7 @@ def main() -> int:
         else:
             # For other tools, check exact version or use uv.lock
             if not actual_ver.startswith(expected_ver.split(".")[0]):
-                print(f"⚠️  {tool}: {actual_ver} (CI uses {expected_ver}, " "but uv.lock manages this)")
+                print(f"⚠️  {tool}: {actual_ver} (CI uses {expected_ver}, but uv.lock manages this)")
             else:
                 print(f"✅ {tool}: {actual_ver}")
 
@@ -73,9 +73,7 @@ def main() -> int:
         print("\n❌ Version mismatches detected:")
         for mismatch in mismatches:
             print(mismatch)
-        print(
-            "\nWARNING: Local Python version differs from CI. " "Consider using pyenv or similar to match CI version."
-        )
+        print("\nWARNING: Local Python version differs from CI. Consider using pyenv or similar to match CI version.")
         return 1
 
     print("\n✅ All critical tool versions are compatible with CI")

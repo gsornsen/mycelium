@@ -44,7 +44,7 @@ def detect_docker() -> DockerDetectionResult:
     """
     # Check if docker CLI is available
     try:
-        result = subprocess.run(
+        result = subprocess.run(  # nosec B603 B607 - Safe execution of docker CLI for version check
             ["docker", "--version"],
             capture_output=True,
             text=True,
@@ -85,7 +85,7 @@ def detect_docker() -> DockerDetectionResult:
 
     # Check if daemon is running
     try:
-        result = subprocess.run(
+        result = subprocess.run(  # nosec B603 B607 - Safe execution of docker CLI for daemon check
             ["docker", "info"],
             capture_output=True,
             text=True,
@@ -148,7 +148,7 @@ def verify_docker_permissions() -> tuple[bool, str | None]:
     with the Docker daemon.
     """
     try:
-        result = subprocess.run(
+        result = subprocess.run(  # nosec B603 B607 - Safe execution of docker CLI for permissions check
             ["docker", "ps"],
             capture_output=True,
             text=True,

@@ -123,7 +123,7 @@ class TelemetryClient:
                     method="POST",
                 )
 
-                with urlopen(request, timeout=self.config.timeout) as response:
+                with urlopen(request, timeout=self.config.timeout) as response:  # nosec B310 - Controlled telemetry endpoint
                     if response.status == 200:
                         logger.debug(f"Successfully sent {len(events)} telemetry events")
                         return

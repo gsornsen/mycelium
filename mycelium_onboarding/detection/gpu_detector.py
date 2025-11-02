@@ -199,7 +199,7 @@ def detect_nvidia_gpus() -> list[GPUInfo]:
     """
     try:
         # Query GPU information in CSV format
-        result = subprocess.run(
+        result = subprocess.run(  # nosec B603 B607 - Safe execution of system tools
             [
                 NVIDIA_SMI_CMD,
                 "--query-gpu=index,name,memory.total,driver_version",
@@ -276,7 +276,7 @@ def detect_amd_gpus() -> list[GPUInfo]:
     """
     try:
         # Get list of GPU devices
-        result = subprocess.run(
+        result = subprocess.run(  # nosec B603 B607 - Safe execution of system tools
             [ROCM_SMI_CMD, "--showproductname"],
             capture_output=True,
             text=True,
@@ -340,7 +340,7 @@ def _get_amd_gpu_memory(gpu_index: int) -> int | None:
         Memory in MB, or None if unavailable
     """
     try:
-        result = subprocess.run(
+        result = subprocess.run(  # nosec B603 B607 - Safe execution of system tools
             [ROCM_SMI_CMD, "--showmeminfo", "vram", "-d", str(gpu_index)],
             capture_output=True,
             text=True,
@@ -392,7 +392,7 @@ def detect_intel_gpus() -> list[GPUInfo]:
 def _detect_intel_gpus_linux() -> list[GPUInfo]:
     """Detect Intel GPUs on Linux using lspci."""
     try:
-        result = subprocess.run(
+        result = subprocess.run(  # nosec B603 B607 - Safe execution of system tools
             ["lspci"],
             capture_output=True,
             text=True,
@@ -438,7 +438,7 @@ def _detect_intel_gpus_linux() -> list[GPUInfo]:
 def _detect_intel_gpus_macos() -> list[GPUInfo]:
     """Detect Intel GPUs on macOS using system_profiler."""
     try:
-        result = subprocess.run(
+        result = subprocess.run(  # nosec B603 B607 - Safe execution of system tools
             ["system_profiler", "SPDisplaysDataType"],
             capture_output=True,
             text=True,
@@ -511,7 +511,7 @@ def _detect_intel_gpus_macos() -> list[GPUInfo]:
 def _detect_intel_gpus_windows() -> list[GPUInfo]:
     """Detect Intel GPUs on Windows using wmic."""
     try:
-        result = subprocess.run(
+        result = subprocess.run(  # nosec B603 B607 - Safe execution of system tools
             ["wmic", "path", "win32_VideoController", "get", "name"],
             capture_output=True,
             text=True,
@@ -561,7 +561,7 @@ def get_cuda_version() -> str | None:
     """
     # Try nvcc first (CUDA Toolkit version)
     try:
-        result = subprocess.run(
+        result = subprocess.run(  # nosec B603 B607 - Safe execution of system tools
             [NVCC_CMD, "--version"],
             capture_output=True,
             text=True,
@@ -584,7 +584,7 @@ def get_cuda_version() -> str | None:
 
     # Try nvidia-smi as fallback
     try:
-        result = subprocess.run(
+        result = subprocess.run(  # nosec B603 B607 - Safe execution of system tools
             [NVIDIA_SMI_CMD, "--query-gpu=driver_version", "--format=csv,noheader"],
             capture_output=True,
             text=True,
@@ -640,7 +640,7 @@ def get_rocm_version() -> str | None:
 
     # Try rocm-smi --version
     try:
-        result = subprocess.run(
+        result = subprocess.run(  # nosec B603 B607 - Safe execution of system tools
             [ROCM_SMI_CMD, "--version"],
             capture_output=True,
             text=True,
