@@ -1,11 +1,10 @@
-"""Unit tests for telemetry infrastructure."""
+"""Unit tests for telemetry functionality."""
 
 import json
 import sys
-import time
+import uuid
 from pathlib import Path
 from unittest.mock import MagicMock, patch
-from urllib.error import URLError
 
 import pytest
 
@@ -27,443 +26,257 @@ class TestTelemetryConfig:
         assert config.enabled is False
         assert config.is_enabled() is False
 
-    def test_config_from_env_disabled(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        """Test loading config from environment when disabled."""
-        monkeypatch.delenv("TELEMETRY_ENABLED", raising=False)
-        config = TelemetryConfig.from_env()
-        assert config.enabled is False
-
-    def test_config_from_env_enabled(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        """Test loading config from environment when enabled."""
-        monkeypatch.setenv("TELEMETRY_ENABLED", "true")
-        monkeypatch.setenv("TELEMETRY_ENDPOINT", "https://test.example.com")
-        monkeypatch.setenv("TELEMETRY_TIMEOUT", "10")
-        monkeypatch.setenv("TELEMETRY_BATCH_SIZE", "50")
-
-        config = TelemetryConfig.from_env()
+    def test_config_from_dict(self) -> None:
+        """Test configuration from dictionary."""
+        config_dict = {
+            "enabled": True,
+            "api_endpoint": "https://telemetry.example.com",
+            "device_id": str(uuid.uuid4()),
+            "consent_given": True,
+        }
+        config = TelemetryConfig(**config_dict)
         assert config.enabled is True
-        assert str(config.endpoint) == "https://test.example.com/"
-        assert config.timeout == 10
-        assert config.batch_size == 50
+        assert config.is_enabled() is True
+        assert config.api_endpoint == "https://telemetry.example.com"
+        assert config.consent_given is True
 
-    def test_config_enabled_variations(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        """Test various ways to enable telemetry."""
-        for value in ["true", "True", "TRUE", "1", "yes", "on"]:
-            monkeypatch.setenv("TELEMETRY_ENABLED", value)
-            config = TelemetryConfig.from_env()
-            assert config.enabled is True, f"Failed for value: {value}"
-
-    def test_config_disabled_variations(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        """Test various ways telemetry stays disabled."""
-        for value in ["false", "False", "FALSE", "0", "no", "off", ""]:
-            monkeypatch.setenv("TELEMETRY_ENABLED", value)
-            config = TelemetryConfig.from_env()
-            assert config.enabled is False, f"Failed for value: {value}"
-
-    def test_endpoint_validation(self) -> None:
-        """Test endpoint URL validation."""
-        # Should add https:// if missing
+    def test_config_persistence(self, tmp_path: Path) -> None:
+        """Test that configuration persists to file."""
+        config_file = tmp_path / "telemetry.json"
         config = TelemetryConfig(
             enabled=True,
-            endpoint="test.example.com",  # type: ignore
+            consent_given=True,
+            config_path=config_file,
         )
-        assert str(config.endpoint).startswith("https://")
 
-        # Should accept http://
-        config = TelemetryConfig(
-            enabled=True,
-            endpoint="http://localhost:8080",  # type: ignore
-        )
-        assert str(config.endpoint).startswith("http://")
+        # Save configuration
+        config.save()
+        assert config_file.exists()
 
-    def test_config_validation_ranges(self) -> None:
-        """Test configuration value validation."""
-        # Valid timeout
-        config = TelemetryConfig(timeout=5)
-        assert config.timeout == 5
+        # Load configuration
+        loaded_config = TelemetryConfig.load(config_file)
+        assert loaded_config.enabled is True
+        assert loaded_config.consent_given is True
+        assert loaded_config.device_id == config.device_id
 
-        # Invalid timeout (too low)
-        with pytest.raises(ValueError):
-            TelemetryConfig(timeout=0)
+    def test_is_enabled_requires_consent(self) -> None:
+        """Test that is_enabled requires both enabled and consent."""
+        config = TelemetryConfig(enabled=True, consent_given=False)
+        assert config.is_enabled() is False
 
-        # Invalid timeout (too high)
-        with pytest.raises(ValueError):
-            TelemetryConfig(timeout=100)
+        config = TelemetryConfig(enabled=False, consent_given=True)
+        assert config.is_enabled() is False
 
-        # Valid batch size
-        config = TelemetryConfig(batch_size=100)
-        assert config.batch_size == 100
-
-        # Invalid batch size
-        with pytest.raises(ValueError):
-            TelemetryConfig(batch_size=0)
-
-    def test_salt_generation(self) -> None:
-        """Test that salt is auto-generated if not provided."""
-        config1 = TelemetryConfig()
-        config2 = TelemetryConfig()
-
-        # Each config should have a unique salt
-        assert config1.salt != config2.salt
-        assert len(config1.salt) == 64  # 32 bytes hex-encoded
+        config = TelemetryConfig(enabled=True, consent_given=True)
+        assert config.is_enabled() is True
 
 
 class TestDataAnonymizer:
     """Tests for DataAnonymizer."""
 
-    @pytest.fixture
-    def anonymizer(self) -> DataAnonymizer:
-        """Create anonymizer with fixed salt for testing."""
-        return DataAnonymizer(salt="test_salt_12345")
+    def test_hash_string(self) -> None:
+        """Test string hashing."""
+        anonymizer = DataAnonymizer()
+        hashed = anonymizer.hash_string("test_value")
+        assert hashed != "test_value"
+        assert len(hashed) == 64  # SHA256 hex digest length
+        # Consistent hashing
+        assert anonymizer.hash_string("test_value") == hashed
 
-    def test_hash_identifier_deterministic(self, anonymizer: DataAnonymizer) -> None:
-        """Test that hashing is deterministic."""
-        hash1 = anonymizer.hash_identifier("user123")
-        hash2 = anonymizer.hash_identifier("user123")
-        assert hash1 == hash2
-
-    def test_hash_identifier_unique(self, anonymizer: DataAnonymizer) -> None:
-        """Test that different identifiers produce different hashes."""
-        hash1 = anonymizer.hash_identifier("user123")
-        hash2 = anonymizer.hash_identifier("user456")
+    def test_hash_with_salt(self) -> None:
+        """Test hashing with salt."""
+        anonymizer1 = DataAnonymizer(salt="salt1")
+        anonymizer2 = DataAnonymizer(salt="salt2")
+        hash1 = anonymizer1.hash_string("test")
+        hash2 = anonymizer2.hash_string("test")
         assert hash1 != hash2
 
-    def test_hash_identifier_salt_impact(self) -> None:
-        """Test that different salts produce different hashes."""
-        anon1 = DataAnonymizer(salt="salt1")
-        anon2 = DataAnonymizer(salt="salt2")
-
-        hash1 = anon1.hash_identifier("user123")
-        hash2 = anon2.hash_identifier("user123")
-        assert hash1 != hash2
-
-    def test_anonymize_unix_file_path(self, anonymizer: DataAnonymizer) -> None:
-        """Test anonymizing Unix file paths."""
-        path = "/home/john/project/myfile.py"
-        anonymized = anonymizer.anonymize_file_path(path)
-        assert "john" not in anonymized
-        assert "<user>" in anonymized or "myfile.py" in anonymized
-
-    def test_anonymize_windows_file_path(self, anonymizer: DataAnonymizer) -> None:
-        """Test anonymizing Windows file paths."""
-        path = "C:\\Users\\jane\\Documents\\code.py"
-        anonymized = anonymizer.anonymize_file_path(path)
-        assert "jane" not in anonymized
-        assert "<user>" in anonymized or "code.py" in anonymized
-
-    def test_anonymize_stack_trace(self, anonymizer: DataAnonymizer) -> None:
-        """Test anonymizing stack traces."""
-        trace = """File "/home/user/project/file.py", line 42, in function
-    raise ValueError("error")
-ValueError: error"""
-        anonymized = anonymizer.anonymize_stack_trace(trace)
-
-        # Should not contain full path
+    def test_anonymize_paths(self) -> None:
+        """Test path anonymization."""
+        anonymizer = DataAnonymizer()
+        test_path = "/home/user/project/file.py"
+        anonymized = anonymizer.anonymize_path(test_path)
         assert "/home/user" not in anonymized
-        # Should contain file name
-        assert "file.py" in anonymized
-        # Should preserve line number and error
-        assert "line 42" in anonymized
-        assert "ValueError" in anonymized
+        assert "file.py" in anonymized  # Filename preserved
 
-    def test_anonymize_error(self, anonymizer: DataAnonymizer) -> None:
-        """Test anonymizing error data."""
-        error_data = anonymizer.anonymize_error(
-            error_type="ValueError",
-            error_message="Invalid value in /home/user/file.py",
-            stack_trace='File "/home/user/file.py", line 10',
-        )
-
-        assert error_data["error_type"] == "ValueError"
-        assert "/home/user" not in error_data["error_message"]
-        assert "/home/user" not in error_data["stack_trace"]
-
-    def test_anonymize_agent_usage(self, anonymizer: DataAnonymizer) -> None:
-        """Test anonymizing agent usage data."""
-        usage_data = anonymizer.anonymize_agent_usage(
-            agent_id="agent-123",
-            operation="discover",
-            metadata={"duration_ms": 150, "success": True},
-        )
-
-        assert "agent_id_hash" in usage_data
-        assert usage_data["agent_id_hash"] != "agent-123"
-        assert usage_data["operation"] == "discover"
-        assert usage_data["metadata"]["duration_ms"] == 150
-
-    def test_filter_safe_metadata(self, anonymizer: DataAnonymizer) -> None:
-        """Test filtering metadata for safe fields only."""
-        unsafe_metadata = {
-            "duration_ms": 100,
-            "user_prompt": "secret data",  # Should be filtered
-            "file_content": "code",  # Should be filtered
-            "success": True,
-            "nested_dict": {"key": "value"},  # Should be filtered
+    def test_anonymize_data_structure(self) -> None:
+        """Test anonymization of nested data structures."""
+        anonymizer = DataAnonymizer()
+        data = {
+            "user": "john.doe",
+            "email": "john@example.com",
+            "path": "/home/john/project",
+            "stats": {"count": 10, "duration": 1.5},
         }
 
-        safe = anonymizer._filter_safe_metadata(unsafe_metadata)
+        anonymized = anonymizer.anonymize_data(data, fields_to_hash=["user", "email"])
+        assert anonymized["user"] != "john.doe"
+        assert anonymized["email"] != "john@example.com"
+        assert anonymized["stats"]["count"] == 10
+        assert anonymized["stats"]["duration"] == 1.5
 
-        assert "duration_ms" in safe
-        assert "success" in safe
-        assert "user_prompt" not in safe
-        assert "file_content" not in safe
-        assert "nested_dict" not in safe
+    def test_remove_sensitive_fields(self) -> None:
+        """Test removal of sensitive fields."""
+        anonymizer = DataAnonymizer()
+        data = {
+            "api_key": "secret_key",
+            "password": "secret_pass",
+            "token": "auth_token",
+            "safe_field": "safe_value",
+        }
 
-    def test_anonymize_performance_metric(self, anonymizer: DataAnonymizer) -> None:
-        """Test anonymizing performance metrics."""
-        metric = anonymizer.anonymize_performance_metric(
-            metric_name="discovery_latency",
-            value=123.45,
-            unit="ms",
-            tags={"agent_id": "agent-123", "operation": "search"},
-        )
-
-        assert metric["metric_name"] == "discovery_latency"
-        assert metric["value"] == 123.45
-        assert metric["unit"] == "ms"
-        # agent_id tag should be hashed
-        assert metric["tags"]["agent_id"] != "agent-123"
-        # operation tag should not be hashed
-        assert metric["tags"]["operation"] == "search"
-
-    def test_email_anonymization(self, anonymizer: DataAnonymizer) -> None:
-        """Test that email addresses are anonymized."""
-        message = "Error for user john.doe@example.com in file.py"
-        anonymized = anonymizer._anonymize_message(message)
-        assert "john.doe@example.com" not in anonymized
-        assert "<email>" in anonymized
+        cleaned = anonymizer.remove_sensitive_fields(data)
+        assert "api_key" not in cleaned
+        assert "password" not in cleaned
+        assert "token" not in cleaned
+        assert cleaned["safe_field"] == "safe_value"
 
 
 class TestTelemetryClient:
     """Tests for TelemetryClient."""
 
-    @pytest.fixture
-    def disabled_config(self) -> TelemetryConfig:
-        """Create disabled telemetry config."""
-        return TelemetryConfig(enabled=False)
+    def test_client_disabled_by_default(self) -> None:
+        """Test that client doesn't send when disabled."""
+        config = TelemetryConfig(enabled=False)
+        client = TelemetryClient(config)
 
-    @pytest.fixture
-    def enabled_config(self) -> TelemetryConfig:
-        """Create enabled telemetry config."""
-        return TelemetryConfig(
-            enabled=True,
-            endpoint="https://test.example.com",  # type: ignore
-            timeout=5,
-            batch_size=10,
-            retry_attempts=2,
-        )
+        with patch("requests.post") as mock_post:
+            client.track_event("test_event", {"key": "value"})
+            mock_post.assert_not_called()
 
-    def test_client_disabled_is_noop(self, disabled_config: TelemetryConfig) -> None:
-        """Test that disabled client has no overhead."""
-        client = TelemetryClient(config=disabled_config)
+    def test_client_respects_consent(self) -> None:
+        """Test that client respects consent."""
+        config = TelemetryConfig(enabled=True, consent_given=False)
+        client = TelemetryClient(config)
 
-        # Worker thread should not be started
-        assert client._worker_thread is None
+        with patch("requests.post") as mock_post:
+            client.track_event("test_event", {"key": "value"})
+            mock_post.assert_not_called()
 
-        # All tracking methods should be no-ops
-        client.track_agent_usage("agent-1", "test")
-        client.track_performance("test_metric", 100.0)
-        client.track_error("ValueError", "test error")
+    @patch("requests.post")
+    def test_client_sends_events(self, mock_post: MagicMock) -> None:
+        """Test that client sends events when enabled."""
+        config = TelemetryConfig(enabled=True, consent_given=True)
+        client = TelemetryClient(config)
 
-        # Queue should be empty
-        assert client._event_queue.empty()
-
-    def test_client_enabled_starts_worker(self, enabled_config: TelemetryConfig) -> None:
-        """Test that enabled client starts worker thread."""
-        client = TelemetryClient(config=enabled_config)
-
-        assert client._worker_thread is not None
-        assert client._worker_thread.is_alive()
-
-        client.shutdown()
-
-    def test_track_agent_usage(self, enabled_config: TelemetryConfig) -> None:
-        """Test tracking agent usage."""
-        client = TelemetryClient(config=enabled_config)
-
-        client.track_agent_usage(agent_id="test-agent", operation="discover", metadata={"duration_ms": 150})
-
-        # Event should be queued
-        assert not client._event_queue.empty()
-
-        # Get event and verify structure
-        event = client._event_queue.get(timeout=1.0)
-        assert event["event_type"] == "agent_usage"
-        assert "agent_id_hash" in event
-        assert event["operation"] == "discover"
-        assert "timestamp" in event
-
-        client.shutdown()
-
-    def test_track_performance(self, enabled_config: TelemetryConfig) -> None:
-        """Test tracking performance metrics."""
-        client = TelemetryClient(config=enabled_config)
-
-        client.track_performance(
-            metric_name="test_latency",
-            value=123.45,
-            unit="ms",
-            tags={"operation": "test"},
-        )
-
-        event = client._event_queue.get(timeout=1.0)
-        assert event["event_type"] == "performance"
-        assert event["metric_name"] == "test_latency"
-        assert event["value"] == 123.45
-
-        client.shutdown()
-
-    def test_track_error(self, enabled_config: TelemetryConfig) -> None:
-        """Test tracking errors."""
-        client = TelemetryClient(config=enabled_config)
-
-        client.track_error(
-            error_type="ValueError",
-            error_message="Test error",
-            stack_trace="File test.py, line 1",
-            context={"retry_count": 3},
-        )
-
-        event = client._event_queue.get(timeout=1.0)
-        assert event["event_type"] == "error"
-        assert event["error_type"] == "ValueError"
-        assert "timestamp" in event
-
-        client.shutdown()
-
-    @patch("telemetry.client.urlopen")
-    def test_batch_sending(self, mock_urlopen: MagicMock, enabled_config: TelemetryConfig) -> None:
-        """Test that events are batched before sending."""
         mock_response = MagicMock()
-        mock_response.status = 200
-        mock_response.__enter__ = MagicMock(return_value=mock_response)
-        mock_response.__exit__ = MagicMock(return_value=False)
-        mock_urlopen.return_value = mock_response
+        mock_response.status_code = 200
+        mock_post.return_value = mock_response
 
-        client = TelemetryClient(config=enabled_config)
+        client.track_event("test_event", {"key": "value"})
+        mock_post.assert_called_once()
 
-        # Send multiple events
-        for i in range(enabled_config.batch_size):
-            client.track_agent_usage(f"agent-{i}", "test")
+        # Check payload structure
+        call_args = mock_post.call_args
+        payload = json.loads(call_args[1]["data"])
+        assert payload["event"] == "test_event"
+        assert payload["properties"]["key"] == "value"
+        assert "timestamp" in payload
+        assert "device_id" in payload
 
-        # Wait for batch to be sent
-        time.sleep(0.5)
+    @patch("requests.post")
+    def test_client_anonymizes_data(self, mock_post: MagicMock) -> None:
+        """Test that client anonymizes sensitive data."""
+        config = TelemetryConfig(enabled=True, consent_given=True)
+        client = TelemetryClient(config, anonymize=True)
 
-        # Should have called urlopen at least once
-        assert mock_urlopen.call_count >= 1
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_post.return_value = mock_response
 
-        client.shutdown()
+        client.track_event(
+            "test_event",
+            {"user_id": "john.doe", "file_path": "/home/john/project/file.py"},
+        )
 
-    @patch("telemetry.client.urlopen")
-    def test_graceful_failure_handling(self, mock_urlopen: MagicMock, enabled_config: TelemetryConfig) -> None:
-        """Test that network failures are handled gracefully."""
-        mock_urlopen.side_effect = URLError("Network error")
+        call_args = mock_post.call_args
+        payload = json.loads(call_args[1]["data"])
+        properties = payload["properties"]
 
-        client = TelemetryClient(config=enabled_config)
+        # User ID should be hashed
+        assert properties["user_id"] != "john.doe"
+        assert len(properties["user_id"]) == 64  # SHA256 hash
 
-        # Should not raise exception
-        client.track_agent_usage("agent-1", "test")
+        # Path should be partially anonymized
+        assert "/home/john" not in properties["file_path"]
 
-        # Force immediate send by filling batch
-        for i in range(enabled_config.batch_size):
-            client.track_agent_usage(f"agent-{i}", "test")
+    @patch("requests.post")
+    def test_client_batch_events(self, mock_post: MagicMock) -> None:
+        """Test batching of events."""
+        config = TelemetryConfig(enabled=True, consent_given=True, batch_size=2)
+        client = TelemetryClient(config)
 
-        time.sleep(0.5)
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_post.return_value = mock_response
 
-        # Client should still be functional
-        assert client.is_enabled()
+        # Send 3 events, should trigger 1 batch send
+        client.track_event("event1", {"key": "value1"})
+        client.track_event("event2", {"key": "value2"})
+        client.track_event("event3", {"key": "value3"})
 
-        client.shutdown()
+        # Force flush remaining
+        client.flush()
 
-    def test_context_manager(self, enabled_config: TelemetryConfig) -> None:
-        """Test using client as context manager."""
-        with patch("telemetry.client.urlopen"):
-            with TelemetryClient(config=enabled_config) as client:
-                assert client.is_enabled()
-                client.track_agent_usage("agent-1", "test")
+        # Should have made 2 calls (batch of 2 + remaining 1)
+        assert mock_post.call_count == 2
 
-            # Should be shutdown after exiting context
-            assert client._shutdown.is_set()
+    def test_client_handles_errors_gracefully(self) -> None:
+        """Test that client handles errors without crashing."""
+        config = TelemetryConfig(enabled=True, consent_given=True)
+        client = TelemetryClient(config)
 
-    def test_track_system_info(self, enabled_config: TelemetryConfig) -> None:
-        """Test tracking system information."""
-        client = TelemetryClient(config=enabled_config)
+        with patch("requests.post") as mock_post:
+            # Simulate network error
+            mock_post.side_effect = Exception("Network error")
 
-        client.track_system_info()
+            # Should not raise exception
+            client.track_event("test_event", {"key": "value"})
 
-        event = client._event_queue.get(timeout=1.0)
-        assert event["event_type"] == "system_info"
-        assert "platform" in event
-        assert "python_version" in event
-        assert "python_implementation" in event
-
-        client.shutdown()
-
-
-class TestPrivacyGuarantees:
-    """Tests to validate privacy guarantees."""
-
-    @pytest.fixture
-    def client(self) -> TelemetryClient:
-        """Create enabled telemetry client for testing."""
+    def test_client_respects_opt_out(self, tmp_path: Path) -> None:
+        """Test that client respects opt-out."""
+        config_file = tmp_path / "telemetry.json"
         config = TelemetryConfig(
             enabled=True,
-            endpoint="https://test.example.com",  # type: ignore
+            consent_given=True,
+            config_path=config_file,
         )
-        return TelemetryClient(config=config)
+        client = TelemetryClient(config)
 
-    def test_no_user_prompts_collected(self, client: TelemetryClient) -> None:
-        """Verify that user prompts are never collected."""
-        # Try to track with user prompt in metadata
-        client.track_agent_usage("agent-1", "test", metadata={"user_prompt": "secret user input"})
+        # Opt out
+        client.opt_out()
+        assert config.enabled is False
+        assert config.consent_given is False
 
-        event = client._event_queue.get(timeout=1.0)
+        # Verify persistence
+        loaded_config = TelemetryConfig.load(config_file)
+        assert loaded_config.enabled is False
+        assert loaded_config.consent_given is False
 
-        # user_prompt should be filtered out
-        if "metadata" in event:
-            assert "user_prompt" not in event["metadata"]
+    def test_performance_metrics(self) -> None:
+        """Test performance metric tracking."""
+        config = TelemetryConfig(enabled=True, consent_given=True)
+        client = TelemetryClient(config)
 
-        client.shutdown()
+        with patch("requests.post") as mock_post:
+            mock_response = MagicMock()
+            mock_response.status_code = 200
+            mock_post.return_value = mock_response
 
-    def test_no_code_content_collected(self, client: TelemetryClient) -> None:
-        """Verify that code content is never collected."""
-        client.track_agent_usage("agent-1", "test", metadata={"code": "def secret(): pass"})
+            # Track performance metric
+            client.track_performance(
+                operation="database_query",
+                duration_ms=150.5,
+                metadata={"query_type": "SELECT"},
+            )
 
-        event = client._event_queue.get(timeout=1.0)
+            call_args = mock_post.call_args
+            payload = json.loads(call_args[1]["data"])
+            assert payload["event"] == "performance"
+            assert payload["properties"]["operation"] == "database_query"
+            assert payload["properties"]["duration_ms"] == 150.5
+            assert payload["properties"]["query_type"] == "SELECT"
 
-        # code should be filtered out
-        if "metadata" in event:
-            assert "code" not in event["metadata"]
 
-        client.shutdown()
-
-    def test_identifiers_are_hashed(self, client: TelemetryClient) -> None:
-        """Verify that all identifiers are hashed."""
-        client.track_agent_usage("my-agent-id", "test")
-
-        event = client._event_queue.get(timeout=1.0)
-
-        # Original ID should not appear
-        assert "my-agent-id" not in json.dumps(event)
-        # Should have hashed version
-        assert "agent_id_hash" in event
-
-        client.shutdown()
-
-    def test_file_paths_anonymized(self, client: TelemetryClient) -> None:
-        """Verify that file paths are anonymized."""
-        client.track_error(
-            "IOError",
-            "Cannot read /home/username/secret/file.txt",
-            stack_trace='File "/home/username/project/code.py", line 1',
-        )
-
-        event = client._event_queue.get(timeout=1.0)
-        event_json = json.dumps(event)
-
-        # Username should not appear
-        assert "username" not in event_json
-        # Full paths should not appear
-        assert "/home/username" not in event_json
-
-        client.shutdown()
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

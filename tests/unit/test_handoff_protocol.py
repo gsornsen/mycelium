@@ -1,9 +1,14 @@
 """Unit tests for handoff protocol implementation."""
 
-import json
+import sys
+from pathlib import Path
 
 import pytest
-from coordination.protocol import (
+
+# Add plugins directory to Python path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "plugins" / "mycelium-core"))
+
+from coordination.protocol import (  # noqa: E402
     AgentInfo,
     HandoffContext,
     HandoffMessage,
@@ -19,397 +24,368 @@ from coordination.protocol import (
 def test_agent_info_creation():
     """Test AgentInfo creation and serialization."""
     agent = AgentInfo(
-        agent_id="test-agent-1",
-        agent_type="backend-developer",
-        execution_time=150.5,
+        agent_id="agent-001",
+        agent_type="frontend-developer",
     )
 
-    assert agent.agent_id == "test-agent-1"
-    assert agent.agent_type == "backend-developer"
-    assert agent.execution_time == 150.5
+    assert agent.agent_id == "agent-001"
+    assert agent.agent_type == "frontend-developer"
 
-    # Test to_dict
-    data = agent.to_dict()
-    assert "agent_id" in data
-    assert "agent_type" in data
-    assert "execution_time" in data
+    # Test serialization
+    serialized = agent.to_dict()
+    assert serialized["agent_id"] == "agent-001"
+    assert serialized["agent_type"] == "frontend-developer"
 
 
-def test_handoff_context_creation():
-    """Test HandoffContext creation and serialization."""
-    context = HandoffContext(
-        task_description="Implement feature X",
-        previous_results=[{"agent": "a1", "result": "done"}],
-        files=[{"path": "/tmp/test.py", "type": "python"}],
-    )
-
-    assert context.task_description == "Implement feature X"
-    assert len(context.previous_results) == 1
-    assert len(context.files) == 1
-
-    # Test to_dict excludes empty collections
-    minimal_context = HandoffContext()
-    data = minimal_context.to_dict()
-    assert "previous_results" not in data
-    assert "conversation_history" not in data
-
-
-def test_workflow_progress_creation():
-    """Test WorkflowProgress creation."""
+def test_workflow_progress_tracking():
+    """Test workflow progress calculation."""
     progress = WorkflowProgress(
-        completed_steps=["step1", "step2"],
-        pending_steps=["step3"],
-        percentage=66.7,
+        completed_steps=["step1", "step2", "step3"],
+        pending_steps=["step4", "step5"],
+        percentage=60.0,
     )
 
-    assert len(progress.completed_steps) == 2
-    assert len(progress.pending_steps) == 1
-    assert progress.percentage == 66.7
+    assert len(progress.completed_steps) == 3
+    assert len(progress.pending_steps) == 2
+    assert progress.percentage == 60.0
 
-
-def test_handoff_state_creation():
-    """Test HandoffState creation."""
-    progress = WorkflowProgress(completed_steps=["task1"], percentage=50.0)
-    state = HandoffState(
-        variables={"counter": 5, "mode": "production"},
-        progress=progress,
-        errors=[{"type": "warning", "message": "Low memory"}],
+    # Test blocked state
+    blocked_progress = WorkflowProgress(
+        total_tasks=5,
+        completed_tasks=2,
+        failed_tasks=3,
+        in_progress_tasks=0,
     )
-
-    assert state.variables["counter"] == 5
-    assert state.progress.percentage == 50.0
-    assert len(state.errors) == 1
+    assert blocked_progress.is_blocked is True
 
 
-def test_handoff_metadata_creation():
-    """Test HandoffMetadata creation."""
+def test_handoff_metadata_validation():
+    """Test HandoffMetadata validation."""
     metadata = HandoffMetadata(
         priority="high",
-        timeout=30000,
-        retry_count=2,
-        tags=["urgent", "production"],
+        deadline="2024-01-01T00:00:00Z",
+        tags=["urgent", "customer-facing"],
+        dependencies=["task-001", "task-002"],
     )
 
     assert metadata.priority == "high"
-    assert metadata.timeout == 30000
-    assert metadata.retry_count == 2
     assert "urgent" in metadata.tags
+    assert len(metadata.dependencies) == 2
+
+
+def test_handoff_context_initialization():
+    """Test HandoffContext creation."""
+    context = HandoffContext(
+        workflow_id="workflow-001",
+        task_id="task-001",
+        from_agent="agent-001",
+        to_agent="agent-002",
+        metadata=HandoffMetadata(priority="medium"),
+    )
+
+    assert context.workflow_id == "workflow-001"
+    assert context.task_id == "task-001"
+    assert context.from_agent == "agent-001"
+    assert context.to_agent == "agent-002"
+    assert context.metadata.priority == "medium"
+
+    # Test state progression
+    assert context.state == HandoffState.INITIATED
+    assert context.created_at is not None
 
 
 def test_handoff_message_creation():
-    """Test complete HandoffMessage creation."""
-    source = AgentInfo(agent_id="agent-1", agent_type="frontend")
-    target = AgentInfo(agent_id="agent-2", agent_type="backend")
-    context = HandoffContext(task_description="Build API endpoint")
-
-    message = HandoffMessage(
-        source=source,
-        target=target,
-        context=context,
-        workflow_id="workflow-123",
-    )
-
-    assert message.source.agent_id == "agent-1"
-    assert message.target.agent_id == "agent-2"
-    assert message.workflow_id == "workflow-123"
-    assert message.version == "1.0"
-    assert message.handoff_id is not None
-
-
-def test_handoff_message_serialization():
-    """Test HandoffMessage to_dict and to_json."""
-    source = AgentInfo(agent_id="src", agent_type="type1")
-    target = AgentInfo(agent_id="tgt", agent_type="type2")
-    context = HandoffContext(task_description="Test task")
-
-    message = HandoffMessage(source=source, target=target, context=context)
-
-    # Test to_dict
-    data = message.to_dict()
-    assert data["version"] == "1.0"
-    assert data["source"]["agent_id"] == "src"
-    assert data["target"]["agent_id"] == "tgt"
-    assert data["context"]["task_description"] == "Test task"
-
-    # Test to_json
-    json_str = message.to_json()
-    assert isinstance(json_str, str)
-    parsed = json.loads(json_str)
-    assert parsed["source"]["agent_id"] == "src"
-
-
-def test_handoff_message_deserialization():
-    """Test HandoffMessage from_dict and from_json."""
-    data = {
-        "version": "1.0",
-        "handoff_id": "test-handoff-123",
-        "workflow_id": "workflow-456",
-        "source": {
-            "agent_id": "agent-a",
-            "agent_type": "type-a",
-            "execution_time": 100.0,
-        },
-        "target": {
-            "agent_id": "agent-b",
-            "agent_type": "type-b",
-        },
-        "context": {
-            "task_description": "Process data",
-            "previous_results": [{"data": "result1"}],
-        },
-        "state": {
-            "variables": {"count": 5},
-            "progress": {
-                "completed_steps": ["step1"],
-                "pending_steps": ["step2", "step3"],
-                "percentage": 33.3,
-            },
-        },
-        "metadata": {
-            "priority": "normal",
-            "tags": ["test"],
-        },
-        "timestamp": "2025-01-20T10:00:00Z",
-    }
-
-    # Test from_dict
-    message = HandoffMessage.from_dict(data)
-    assert message.handoff_id == "test-handoff-123"
-    assert message.source.agent_id == "agent-a"
-    assert message.target.agent_id == "agent-b"
-    assert message.context.task_description == "Process data"
-    assert message.state.variables["count"] == 5
-    assert message.state.progress.percentage == 33.3
-
-    # Test from_json
-    json_str = json.dumps(data)
-    message2 = HandoffMessage.from_json(json_str)
-    assert message2.handoff_id == message.handoff_id
-    assert message2.source.agent_id == message.source.agent_id
-
-
-def test_handoff_protocol_validation_success():
-    """Test successful handoff validation."""
-    source = AgentInfo(agent_id="src", agent_type="type1")
-    target = AgentInfo(agent_id="tgt", agent_type="type2")
-    context = HandoffContext(task_description="Valid task")
-
-    message = HandoffMessage(source=source, target=target, context=context)
-
-    # Should not raise exception
-    HandoffProtocol.validate(message)
-
-
-def test_handoff_protocol_validation_failure():
-    """Test handoff validation with invalid data."""
-    # Create message with invalid priority
-    source = AgentInfo(agent_id="src", agent_type="type1")
-    target = AgentInfo(agent_id="tgt", agent_type="type2")
-    context = HandoffContext()
-    metadata = HandoffMetadata(priority="invalid_priority")  # Invalid value
-
-    message = HandoffMessage(source=source, target=target, context=context, metadata=metadata)
-
-    # Should raise validation error
-    with pytest.raises(HandoffValidationError):
-        HandoffProtocol.validate(message)
-
-
-def test_handoff_protocol_create_handoff():
-    """Test HandoffProtocol.create_handoff helper."""
-    message = HandoffProtocol.create_handoff(
-        source_agent_id="agent-1",
-        source_agent_type="frontend",
-        target_agent_id="agent-2",
-        target_agent_type="backend",
-        task_description="Build feature",
-        workflow_id="wf-123",
-    )
-
-    assert message.source.agent_id == "agent-1"
-    assert message.target.agent_id == "agent-2"
-    assert message.context.task_description == "Build feature"
-    assert message.workflow_id == "wf-123"
-
-    # Verify it's validated
-    HandoffProtocol.validate(message)
-
-
-def test_handoff_protocol_serialize():
-    """Test HandoffProtocol.serialize."""
-    source = AgentInfo(agent_id="src", agent_type="type1")
-    target = AgentInfo(agent_id="tgt", agent_type="type2")
-    context = HandoffContext(task_description="Task")
-
-    message = HandoffMessage(source=source, target=target, context=context)
-
-    json_str = HandoffProtocol.serialize(message)
-    assert isinstance(json_str, str)
-
-    # Verify it's valid JSON
-    parsed = json.loads(json_str)
-    assert parsed["source"]["agent_id"] == "src"
-
-
-def test_handoff_protocol_deserialize():
-    """Test HandoffProtocol.deserialize."""
-    data = {
-        "version": "1.0",
-        "source": {"agent_id": "src", "agent_type": "type1"},
-        "target": {"agent_id": "tgt", "agent_type": "type2"},
-        "context": {"task_description": "Task"},
-        "state": {},
-        "metadata": {},
-        "timestamp": "2025-01-20T10:00:00Z",
-    }
-
-    json_str = json.dumps(data)
-    message = HandoffProtocol.deserialize(json_str)
-
-    assert message.source.agent_id == "src"
-    assert message.target.agent_id == "tgt"
-
-
-def test_handoff_protocol_deserialize_invalid_json():
-    """Test deserialization with invalid JSON."""
-    invalid_json = "{invalid json"
-
-    with pytest.raises(HandoffProtocolError, match="Invalid JSON"):
-        HandoffProtocol.deserialize(invalid_json)
-
-
-def test_handoff_protocol_add_result_to_context():
-    """Test adding result to handoff context."""
-    source = AgentInfo(agent_id="src", agent_type="type1")
-    target = AgentInfo(agent_id="tgt", agent_type="type2")
-    context = HandoffContext()
-
-    message = HandoffMessage(source=source, target=target, context=context)
-
-    # Add result
-    result = {"output": "processed data", "status": "success"}
-    updated = HandoffProtocol.add_result_to_context(message, "agent-1", result)
-
-    assert len(updated.context.previous_results) == 1
-    assert updated.context.previous_results[0]["agent_id"] == "agent-1"
-    assert updated.context.previous_results[0]["result"] == result
-
-
-def test_handoff_protocol_update_progress():
-    """Test updating progress in handoff."""
-    source = AgentInfo(agent_id="src", agent_type="type1")
-    target = AgentInfo(agent_id="tgt", agent_type="type2")
-    context = HandoffContext()
-
-    message = HandoffMessage(source=source, target=target, context=context)
-
-    # Update progress
-    updated = HandoffProtocol.update_progress(
-        message,
-        completed_steps=["step1", "step2"],
-        pending_steps=["step3"],
-        percentage=66.7,
-    )
-
-    assert updated.state.progress is not None
-    assert len(updated.state.progress.completed_steps) == 2
-    assert updated.state.progress.percentage == 66.7
-
-
-def test_handoff_protocol_update_progress_clamping():
-    """Test progress percentage clamping."""
-    source = AgentInfo(agent_id="src", agent_type="type1")
-    target = AgentInfo(agent_id="tgt", agent_type="type2")
-    context = HandoffContext()
-
-    message = HandoffMessage(source=source, target=target, context=context)
-
-    # Test upper bound clamping
-    updated = HandoffProtocol.update_progress(message, percentage=150.0)
-    assert updated.state.progress.percentage == 100.0
-
-    # Test lower bound clamping
-    updated = HandoffProtocol.update_progress(message, percentage=-10.0)
-    assert updated.state.progress.percentage == 0.0
-
-
-def test_handoff_round_trip():
-    """Test complete serialization/deserialization round trip."""
-    # Create complex handoff message
-    source = AgentInfo(agent_id="agent-1", agent_type="parser", execution_time=150.5)
-    target = AgentInfo(agent_id="agent-2", agent_type="validator")
-
+    """Test HandoffMessage creation and validation."""
     context = HandoffContext(
-        task_description="Parse and validate input",
-        previous_results=[
-            {"agent": "preprocessor", "data": "cleaned"},
-        ],
-        files=[{"path": "/tmp/input.json", "type": "json"}],
-        user_preferences={"strict_mode": True},
-    )
-
-    progress = WorkflowProgress(
-        completed_steps=["parse"],
-        pending_steps=["validate", "format"],
-        percentage=33.3,
-    )
-
-    state = HandoffState(
-        variables={"record_count": 100, "errors": 0},
-        progress=progress,
-    )
-
-    metadata = HandoffMetadata(
-        priority="high",
-        timeout=30000,
-        retry_count=1,
-        tags=["validation", "critical"],
-        correlation_id="corr-123",
+        workflow_id="workflow-001",
+        task_id="task-001",
+        from_agent="agent-001",
+        to_agent="agent-002",
     )
 
     message = HandoffMessage(
-        source=source,
-        target=target,
+        message_id="msg-001",
         context=context,
-        state=state,
-        metadata=metadata,
-        workflow_id="wf-789",
+        payload={"task": "implement feature", "requirements": ["spec1", "spec2"]},
+        message_type="task_assignment",
     )
 
-    # Serialize
-    json_str = HandoffProtocol.serialize(message)
+    assert message.message_id == "msg-001"
+    assert message.message_type == "task_assignment"
+    assert message.payload["task"] == "implement feature"
+    assert len(message.payload["requirements"]) == 2
 
-    # Deserialize
-    restored = HandoffProtocol.deserialize(json_str)
+    # Test serialization
+    serialized = message.to_json()
+    assert isinstance(serialized, str)
 
-    # Verify all fields preserved
-    assert restored.source.agent_id == message.source.agent_id
-    assert restored.source.execution_time == message.source.execution_time
-    assert restored.target.agent_id == message.target.agent_id
-    assert restored.context.task_description == message.context.task_description
-    assert len(restored.context.previous_results) == 1
-    assert restored.state.variables["record_count"] == 100
-    assert restored.state.progress.percentage == 33.3
-    assert restored.metadata.priority == "high"
-    assert restored.metadata.correlation_id == "corr-123"
-    assert restored.workflow_id == "wf-789"
+    # Test deserialization
+    deserialized = HandoffMessage.from_json(serialized)
+    assert deserialized.message_id == message.message_id
+    assert deserialized.context.workflow_id == context.workflow_id
 
 
-def test_minimal_handoff_message():
-    """Test handoff with minimal required fields."""
-    data = {
-        "version": "1.0",
-        "source": {"agent_id": "src", "agent_type": "type1"},
-        "target": {"agent_id": "tgt", "agent_type": "type2"},
-        "context": {},
-        "timestamp": "2025-01-20T10:00:00Z",
-    }
+class TestHandoffProtocol:
+    """Test suite for HandoffProtocol."""
 
-    message = HandoffMessage.from_dict(data)
-    HandoffProtocol.validate(message)
+    def test_protocol_initialization(self):
+        """Test protocol initialization."""
+        protocol = HandoffProtocol(protocol_version="1.0.0")
+        assert protocol.protocol_version == "1.0.0"
+        assert protocol.is_active is True
 
-    assert message.source.agent_id == "src"
-    assert message.target.agent_id == "tgt"
+    def test_initiate_handoff(self):
+        """Test handoff initiation."""
+        protocol = HandoffProtocol()
+
+        context = protocol.initiate_handoff(
+            workflow_id="workflow-001",
+            task_id="task-001",
+            from_agent="agent-001",
+            to_agent="agent-002",
+            payload={"task": "test task"},
+        )
+
+        assert context.state == HandoffState.INITIATED
+        assert context.workflow_id == "workflow-001"
+        assert protocol.get_active_handoffs() == 1
+
+    def test_accept_handoff(self):
+        """Test handoff acceptance."""
+        protocol = HandoffProtocol()
+
+        # Initiate handoff
+        protocol.initiate_handoff(
+            workflow_id="workflow-001",
+            task_id="task-001",
+            from_agent="agent-001",
+            to_agent="agent-002",
+            payload={"task": "test task"},
+        )
+
+        # Accept handoff
+        accepted_context = protocol.accept_handoff(
+            workflow_id="workflow-001",
+            task_id="task-001",
+            accepting_agent="agent-002",
+        )
+
+        assert accepted_context.state == HandoffState.IN_PROGRESS
+        assert accepted_context.accepted_at is not None
+
+    def test_reject_handoff(self):
+        """Test handoff rejection."""
+        protocol = HandoffProtocol()
+
+        # Initiate handoff
+        protocol.initiate_handoff(
+            workflow_id="workflow-001",
+            task_id="task-001",
+            from_agent="agent-001",
+            to_agent="agent-002",
+            payload={"task": "test task"},
+        )
+
+        # Reject handoff
+        rejected_context = protocol.reject_handoff(
+            workflow_id="workflow-001",
+            task_id="task-001",
+            reason="Agent unavailable",
+        )
+
+        assert rejected_context.state == HandoffState.REJECTED
+        assert rejected_context.rejection_reason == "Agent unavailable"
+
+    def test_complete_handoff(self):
+        """Test handoff completion."""
+        protocol = HandoffProtocol()
+
+        # Initiate and accept handoff
+        protocol.initiate_handoff(
+            workflow_id="workflow-001",
+            task_id="task-001",
+            from_agent="agent-001",
+            to_agent="agent-002",
+            payload={"task": "test task"},
+        )
+
+        protocol.accept_handoff(
+            workflow_id="workflow-001",
+            task_id="task-001",
+            accepting_agent="agent-002",
+        )
+
+        # Complete handoff
+        completed_context = protocol.complete_handoff(
+            workflow_id="workflow-001",
+            task_id="task-001",
+            result={"status": "success", "output": "task completed"},
+        )
+
+        assert completed_context.state == HandoffState.COMPLETED
+        assert completed_context.result["status"] == "success"
+        assert completed_context.completed_at is not None
+
+    def test_handoff_timeout(self):
+        """Test handoff timeout handling."""
+        protocol = HandoffProtocol(default_timeout=1)  # 1 second timeout
+
+        protocol.initiate_handoff(
+            workflow_id="workflow-001",
+            task_id="task-001",
+            from_agent="agent-001",
+            to_agent="agent-002",
+            payload={"task": "test task"},
+        )
+
+        # Simulate timeout
+        import time
+
+        time.sleep(1.1)
+
+        timed_out = protocol.check_timeout(
+            workflow_id="workflow-001",
+            task_id="task-001",
+        )
+
+        assert timed_out is True
+
+        # Get updated context
+        updated_context = protocol.get_handoff_context(
+            workflow_id="workflow-001",
+            task_id="task-001",
+        )
+        assert updated_context.state == HandoffState.TIMEOUT
+
+    def test_handoff_retry(self):
+        """Test handoff retry mechanism."""
+        protocol = HandoffProtocol(max_retries=3)
+
+        # Initiate handoff
+        protocol.initiate_handoff(
+            workflow_id="workflow-001",
+            task_id="task-001",
+            from_agent="agent-001",
+            to_agent="agent-002",
+            payload={"task": "test task"},
+        )
+
+        # Simulate failure and retry
+        for i in range(3):
+            retry_context = protocol.retry_handoff(
+                workflow_id="workflow-001",
+                task_id="task-001",
+            )
+            assert retry_context.retry_count == i + 1
+
+        # Max retries reached
+        with pytest.raises(HandoffProtocolError, match="Max retries"):
+            protocol.retry_handoff(
+                workflow_id="workflow-001",
+                task_id="task-001",
+            )
+
+    def test_invalid_state_transition(self):
+        """Test invalid state transitions."""
+        protocol = HandoffProtocol()
+
+        # Try to accept non-existent handoff
+        with pytest.raises(HandoffValidationError):
+            protocol.accept_handoff(
+                workflow_id="non-existent",
+                task_id="non-existent",
+                accepting_agent="agent-001",
+            )
+
+        # Complete already completed handoff
+        protocol.initiate_handoff(
+            workflow_id="workflow-001",
+            task_id="task-001",
+            from_agent="agent-001",
+            to_agent="agent-002",
+            payload={"task": "test task"},
+        )
+
+        protocol.accept_handoff(
+            workflow_id="workflow-001",
+            task_id="task-001",
+            accepting_agent="agent-002",
+        )
+
+        protocol.complete_handoff(
+            workflow_id="workflow-001",
+            task_id="task-001",
+            result={"status": "success"},
+        )
+
+        # Try to complete again
+        with pytest.raises(HandoffProtocolError, match="Invalid state transition"):
+            protocol.complete_handoff(
+                workflow_id="workflow-001",
+                task_id="task-001",
+                result={"status": "success"},
+            )
+
+    def test_handoff_cancellation(self):
+        """Test handoff cancellation."""
+        protocol = HandoffProtocol()
+
+        # Initiate handoff
+        protocol.initiate_handoff(
+            workflow_id="workflow-001",
+            task_id="task-001",
+            from_agent="agent-001",
+            to_agent="agent-002",
+            payload={"task": "test task"},
+        )
+
+        # Cancel handoff
+        cancelled_context = protocol.cancel_handoff(
+            workflow_id="workflow-001",
+            task_id="task-001",
+            reason="Task no longer needed",
+        )
+
+        assert cancelled_context.state == HandoffState.CANCELLED
+        assert cancelled_context.cancellation_reason == "Task no longer needed"
+
+    def test_protocol_metrics(self):
+        """Test protocol metrics collection."""
+        protocol = HandoffProtocol()
+
+        # Create multiple handoffs
+        for i in range(5):
+            protocol.initiate_handoff(
+                workflow_id=f"workflow-{i}",
+                task_id=f"task-{i}",
+                from_agent="agent-001",
+                to_agent="agent-002",
+                payload={"task": f"task {i}"},
+            )
+
+        # Accept some
+        for i in range(3):
+            protocol.accept_handoff(
+                workflow_id=f"workflow-{i}",
+                task_id=f"task-{i}",
+                accepting_agent="agent-002",
+            )
+
+        # Complete some
+        for i in range(2):
+            protocol.complete_handoff(
+                workflow_id=f"workflow-{i}",
+                task_id=f"task-{i}",
+                result={"status": "success"},
+            )
+
+        # Get metrics
+        metrics = protocol.get_metrics()
+        assert metrics["total_handoffs"] == 5
+        assert metrics["accepted_handoffs"] == 3
+        assert metrics["completed_handoffs"] == 2
+        assert metrics["pending_handoffs"] == 3
+        assert metrics["success_rate"] == 0.4  # 2/5
 
 
 if __name__ == "__main__":

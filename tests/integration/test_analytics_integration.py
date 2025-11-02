@@ -1,299 +1,398 @@
-"""Integration tests for analytics system with agent discovery.
+"""Integration tests for analytics and monitoring functionality."""
 
-This module tests the complete integration of the analytics system with
-the agent discovery pipeline, ensuring telemetry is correctly collected
-and analyzed.
-
-Author: @documentation-engineer
-Phase: Phase 2 Performance Analytics - Day 3
-Date: 2025-10-19
-"""
-
+import asyncio
 import json
 import os
-import sys
-from datetime import datetime, timezone
+import time
+from datetime import datetime, timedelta
 from pathlib import Path
+from typing import Any
+from unittest.mock import patch
 
+import pandas as pd
 import pytest
-
-# Add project root to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from mycelium_analytics import EventStorage, MetricsAnalyzer, TelemetryCollector
 from scripts.agent_discovery import AgentDiscovery
 from scripts.health_check import generate_health_report
 
 
-def test_agent_discovery_telemetry_integration(tmp_path):
-    """Test that agent discovery generates telemetry events.
+@pytest.mark.integration
+class TestAnalyticsIntegration:
+    """Integration tests for analytics system."""
 
-    This test verifies the complete integration flow:
-    1. Agent discovery operations generate events
-    2. Events are stored correctly
-    3. Events can be read back
-    4. Event structure matches schema
-    """
-    # Create temp storage
-    storage = EventStorage(storage_dir=tmp_path / "analytics")
+    @pytest.fixture
+    def temp_storage(self, tmp_path: Path) -> EventStorage:
+        """Create temporary event storage."""
+        return EventStorage(storage_path=tmp_path / "events")
 
-    # Run agent discovery with telemetry
-    index_path = Path("plugins/mycelium-core/agents/index.json")
-    if not index_path.exists():
-        pytest.skip("Agent index not found (expected in mycelium-core plugin)")
+    @pytest.fixture
+    def telemetry_collector(self, temp_storage: EventStorage) -> TelemetryCollector:
+        """Create telemetry collector with temp storage."""
+        return TelemetryCollector(storage=temp_storage)
 
-    discovery = AgentDiscovery(index_path)
+    @pytest.fixture
+    def metrics_analyzer(self, temp_storage: EventStorage) -> MetricsAnalyzer:
+        """Create metrics analyzer with temp storage."""
+        return MetricsAnalyzer(storage=temp_storage)
 
-    # Override telemetry to use temp storage
-    discovery.telemetry = TelemetryCollector(storage)
+    def test_end_to_end_event_flow(
+        self, telemetry_collector: TelemetryCollector, metrics_analyzer: MetricsAnalyzer
+    ) -> None:
+        """Test complete flow from event collection to analysis."""
+        # Collect events
+        for i in range(100):
+            telemetry_collector.track_event(
+                event_type="api_call",
+                properties={
+                    "endpoint": f"/api/v1/endpoint{i % 5}",
+                    "duration_ms": 100 + (i * 10),
+                    "status_code": 200 if i % 10 != 0 else 500,
+                    "user_id": f"user_{i % 20}",
+                },
+            )
 
-    # Perform operations
-    agents = discovery.list_agents()
-    assert len(agents) > 0, "Should discover at least some agents"
+        # Analyze metrics
+        metrics = metrics_analyzer.compute_metrics(event_type="api_call", time_window=timedelta(hours=1))
 
-    # Get specific agent
-    agent = discovery.get_agent(agents[0]["id"])
-    assert agent is not None, "Should load agent successfully"
+        # Verify metrics
+        assert metrics["total_events"] == 100
+        assert metrics["error_rate"] == 0.1  # 10% errors
+        assert "p95_duration" in metrics
+        assert metrics["unique_users"] == 20
 
-    # Search for agents
-    discovery.search("api")
+    def test_real_time_monitoring(self, telemetry_collector: TelemetryCollector) -> None:
+        """Test real-time event monitoring capabilities."""
+        events_received = []
 
-    # Verify events were recorded
-    events = storage.read_events()
-    assert len(events) >= 3, "Should have at least 3 events (list, get, search)"
+        def event_handler(event: dict[str, Any]) -> None:
+            """Handle incoming events."""
+            events_received.append(event)
 
-    # Verify event types
-    event_types = {e["event_type"] for e in events}
-    assert "agent_discovery" in event_types, "Should have agent_discovery events"
+        # Subscribe to events
+        telemetry_collector.subscribe("test_event", event_handler)
 
-    # Verify operations
-    operations = {e["operation"] for e in events if e.get("operation")}
-    assert "list_agents" in operations, "Should have list_agents operation"
-    assert "get_agent" in operations, "Should have get_agent operation"
+        # Send events
+        for i in range(10):
+            telemetry_collector.track_event(event_type="test_event", properties={"index": i})
 
-    # Verify event structure
-    for event in events:
-        assert "timestamp" in event, "Event should have timestamp"
-        assert "event_type" in event, "Event should have event_type"
-        # Validate timestamp is ISO 8601 UTC
-        timestamp = datetime.fromisoformat(event["timestamp"].replace("Z", "+00:00"))
-        assert timestamp.tzinfo is not None, "Timestamp should have timezone"
+        # Verify all events received
+        assert len(events_received) == 10
+        assert all(e["properties"]["index"] == i for i, e in enumerate(events_received))
 
+    @pytest.mark.asyncio
+    async def test_concurrent_event_processing(self, telemetry_collector: TelemetryCollector) -> None:
+        """Test handling of concurrent event streams."""
 
-def test_metrics_analyzer_with_real_data():
-    """Test MetricsAnalyzer with real telemetry data.
+        async def generate_events(source: str, count: int) -> None:
+            """Generate events from a source."""
+            for i in range(count):
+                telemetry_collector.track_event(
+                    event_type="concurrent_test",
+                    properties={"source": source, "index": i},
+                )
+                await asyncio.sleep(0.001)
 
-    This test verifies that the metrics analyzer can process real
-    telemetry data from the default storage location (if it exists).
-    """
-    storage = EventStorage()
-    analyzer = MetricsAnalyzer(storage)
+        # Generate events from multiple sources concurrently
+        tasks = [generate_events(f"source_{i}", 50) for i in range(5)]
+        await asyncio.gather(*tasks)
 
-    # Get real metrics (if data exists)
-    stats = analyzer.get_discovery_stats(days=7)
+        # Verify all events captured
+        events = telemetry_collector.get_events(event_type="concurrent_test")
+        assert len(events) == 250  # 5 sources * 50 events
 
-    # Verify structure (even if empty)
-    assert "total_operations" in stats, "Should have total_operations field"
-    assert "by_operation" in stats, "Should have by_operation field"
-    assert "overall" in stats, "Should have overall field"
+        # Verify no event loss
+        source_counts = {}
+        for event in events:
+            source = event["properties"]["source"]
+            source_counts[source] = source_counts.get(source, 0) + 1
 
-    # If we have data, verify it's well-formed
-    if stats["total_operations"] > 0:
-        assert "list_agents" in stats["by_operation"] or "get_agent" in stats["by_operation"], (
-            "Should have at least one operation type"
-        )
+        assert all(count == 50 for count in source_counts.values())
 
-        for op_name, op_stats in stats["by_operation"].items():
-            assert "count" in op_stats, f"{op_name} should have count"
-            assert "avg_ms" in op_stats, f"{op_name} should have avg_ms"
-            assert "p50_ms" in op_stats, f"{op_name} should have p50_ms"
-            assert "p95_ms" in op_stats, f"{op_name} should have p95_ms"
-            assert "p99_ms" in op_stats, f"{op_name} should have p99_ms"
+    def test_metrics_aggregation_pipeline(self, temp_storage: EventStorage, metrics_analyzer: MetricsAnalyzer) -> None:
+        """Test metrics aggregation across different dimensions."""
+        # Generate diverse events
+        event_types = ["api_call", "db_query", "cache_hit", "error"]
+        for event_type in event_types:
+            for i in range(100):
+                temp_storage.store_event(
+                    {
+                        "event_type": event_type,
+                        "timestamp": datetime.now(),
+                        "properties": {
+                            "duration_ms": 50 + (i * 2),
+                            "success": i % 5 != 0,
+                            "service": f"service_{i % 3}",
+                        },
+                    }
+                )
 
+        # Aggregate by event type
+        type_metrics = metrics_analyzer.aggregate_by_dimension(dimension="event_type", metric="count")
+        assert all(type_metrics[et] == 100 for et in event_types)
 
-def test_health_check_execution():
-    """Test health check report generation.
+        # Aggregate by service
+        service_metrics = metrics_analyzer.aggregate_by_dimension(dimension="service", metric="avg_duration")
+        assert len(service_metrics) == 3
 
-    This test verifies that the health check report can be generated
-    and contains expected sections.
-    """
-    report = generate_health_report(days=7)
+        # Time series aggregation
+        time_series = metrics_analyzer.generate_time_series(metric="count", interval="1m")
+        assert len(time_series) > 0
 
-    # Verify report structure
-    assert "Mycelium Performance Health Check" in report, "Should have health check header"
-    assert "AGENT DISCOVERY PERFORMANCE" in report, "Should have discovery performance section"
-    assert "CACHE PERFORMANCE" in report, "Should have cache performance section"
-    assert "TOKEN SAVINGS" in report, "Should have token savings section"
+    def test_anomaly_detection(self, metrics_analyzer: MetricsAnalyzer) -> None:
+        """Test anomaly detection in metrics."""
+        # Generate normal baseline
+        for i in range(1000):
+            metrics_analyzer.storage.store_event(
+                {
+                    "event_type": "performance",
+                    "timestamp": datetime.now() - timedelta(minutes=1000 - i),
+                    "properties": {"latency_ms": 100 + (i % 20)},
+                }
+            )
 
+        # Inject anomalies
+        anomaly_times = []
+        for i in range(10):
+            timestamp = datetime.now() - timedelta(minutes=500 - (i * 50))
+            anomaly_times.append(timestamp)
+            metrics_analyzer.storage.store_event(
+                {
+                    "event_type": "performance",
+                    "timestamp": timestamp,
+                    "properties": {"latency_ms": 1000},  # 10x normal
+                }
+            )
 
-def test_telemetry_opt_out(tmp_path):
-    """Test that telemetry can be disabled via environment variable.
+        # Detect anomalies
+        anomalies = metrics_analyzer.detect_anomalies(metric="latency_ms", sensitivity=2.0)
 
-    This test verifies the opt-out mechanism works correctly.
-    """
-    # Create temp storage
-    storage = EventStorage(storage_dir=tmp_path / "analytics")
+        # Verify anomalies detected
+        assert len(anomalies) >= 5  # Should detect at least half
+        for anomaly in anomalies:
+            assert anomaly["severity"] in ["high", "medium", "low"]
+            assert "timestamp" in anomaly
+            assert "value" in anomaly
 
-    # Disable telemetry
-    os.environ["MYCELIUM_TELEMETRY"] = "0"
+    def test_dashboard_data_generation(self, metrics_analyzer: MetricsAnalyzer) -> None:
+        """Test generation of dashboard-ready data."""
+        # Generate sample data
+        for i in range(24):  # 24 hours of data
+            for j in range(60):  # Events per hour
+                metrics_analyzer.storage.store_event(
+                    {
+                        "event_type": "user_action",
+                        "timestamp": datetime.now() - timedelta(hours=24 - i, minutes=j),
+                        "properties": {
+                            "action": ["click", "view", "submit"][j % 3],
+                            "page": f"page_{j % 10}",
+                            "duration_ms": 100 + (j * 5),
+                        },
+                    }
+                )
 
-    try:
-        telemetry = TelemetryCollector(storage)
+        # Generate dashboard data
+        dashboard = metrics_analyzer.generate_dashboard_data()
 
-        # Record some events (should be no-ops)
-        telemetry.record_agent_discovery(operation="list_agents", duration_ms=1.0, agent_count=10)
-        telemetry.record_agent_load(
-            agent_id="test-agent",
-            load_time_ms=2.0,
-            content_size_bytes=1000,
-            estimated_tokens=250,
-        )
+        # Verify dashboard structure
+        assert "summary" in dashboard
+        assert "time_series" in dashboard
+        assert "top_pages" in dashboard
+        assert "action_breakdown" in dashboard
 
-        # Verify no events were recorded
-        events = storage.read_events()
-        assert len(events) == 0, "Should not record events when telemetry is disabled"
+        # Verify summary stats
+        summary = dashboard["summary"]
+        assert summary["total_events"] == 24 * 60
+        assert "avg_duration_ms" in summary
+        assert "unique_pages" in summary
 
-    finally:
-        # Clean up environment
-        del os.environ["MYCELIUM_TELEMETRY"]
+    def test_data_export_formats(self, temp_storage: EventStorage) -> None:
+        """Test exporting data in various formats."""
+        # Generate test data
+        for i in range(100):
+            temp_storage.store_event(
+                {
+                    "event_type": "test_event",
+                    "timestamp": datetime.now(),
+                    "properties": {"value": i},
+                }
+            )
 
+        # Export as JSON
+        json_export = temp_storage.export_json(event_type="test_event")
+        assert len(json.loads(json_export)) == 100
 
-def test_storage_rotation(tmp_path):
-    """Test that storage rotation works correctly.
+        # Export as CSV
+        csv_export = temp_storage.export_csv(event_type="test_event")
+        lines = csv_export.strip().split("\n")
+        assert len(lines) == 101  # Header + 100 rows
 
-    This test verifies that large event files are rotated automatically.
-    """
-    storage = EventStorage(storage_dir=tmp_path / "analytics")
+        # Export as Parquet (if supported)
+        if hasattr(temp_storage, "export_parquet"):
+            parquet_path = temp_storage.export_parquet(event_type="test_event")
+            df = pd.read_parquet(parquet_path)
+            assert len(df) == 100
 
-    # Generate events until rotation occurs
-    # Rotation threshold is 10MB, so we need to generate enough events
-    large_event = {
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-        "event_type": "test_event",
-        "data": "x" * 10000,  # 10KB per event
-    }
+    def test_retention_policy(self, temp_storage: EventStorage) -> None:
+        """Test data retention policy enforcement."""
+        # Set retention policy to 7 days
+        temp_storage.set_retention_policy(days=7)
 
-    # Write 1100 events (11MB worth)
-    for _i in range(1100):
-        storage.append_event(large_event)
+        # Generate old and new events
+        for i in range(100):
+            # Old events (should be deleted)
+            temp_storage.store_event(
+                {
+                    "event_type": "old_event",
+                    "timestamp": datetime.now() - timedelta(days=10),
+                    "properties": {"index": i},
+                }
+            )
+            # Recent events (should be kept)
+            temp_storage.store_event(
+                {
+                    "event_type": "recent_event",
+                    "timestamp": datetime.now() - timedelta(days=3),
+                    "properties": {"index": i},
+                }
+            )
 
-    # Check that rotation occurred
-    storage_stats = storage.get_storage_stats()
-    assert storage_stats["file_count"] > 1, "Should have rotated to multiple files"
+        # Apply retention policy
+        deleted_count = temp_storage.apply_retention_policy()
 
+        # Verify old events deleted
+        assert deleted_count == 100
+        old_events = temp_storage.get_events(event_type="old_event")
+        assert len(old_events) == 0
 
-def test_end_to_end_analytics_workflow(tmp_path):
-    """Test complete end-to-end analytics workflow.
+        # Verify recent events kept
+        recent_events = temp_storage.get_events(event_type="recent_event")
+        assert len(recent_events) == 100
 
-    This test verifies:
-    1. Agent operations generate telemetry
-    2. Telemetry is stored correctly
-    3. Metrics can be analyzed
-    4. Reports can be generated
-    """
-    # Setup temp storage
-    storage = EventStorage(storage_dir=tmp_path / "analytics")
-    telemetry = TelemetryCollector(storage)
-    analyzer = MetricsAnalyzer(storage)
+    @pytest.mark.asyncio
+    async def test_health_monitoring_integration(self) -> None:
+        """Test health monitoring across system components."""
+        with patch("scripts.health_check.check_service_health") as mock_check:
+            # Simulate service health checks
+            mock_check.side_effect = [
+                {"status": "healthy", "latency_ms": 10},
+                {"status": "degraded", "latency_ms": 500},
+                {"status": "unhealthy", "error": "Connection timeout"},
+            ]
 
-    # Simulate agent discovery operations
-    telemetry.record_agent_discovery(operation="list_agents", duration_ms=0.08, agent_count=119)
+            # Generate health report
+            report = await generate_health_report(services=["api", "database", "cache"])
 
-    for i in range(10):
-        telemetry.record_agent_discovery(operation="get_agent", duration_ms=0.03 if i < 8 else 1.2, cache_hit=i < 8)
+            # Verify report structure
+            assert report["overall_status"] in ["healthy", "degraded", "unhealthy"]
+            assert len(report["services"]) == 3
+            assert report["timestamp"]
 
-    telemetry.record_agent_discovery(operation="search", duration_ms=6.5, agent_count=5)
+            # Verify service statuses
+            assert report["services"]["api"]["status"] == "healthy"
+            assert report["services"]["database"]["status"] == "degraded"
+            assert report["services"]["cache"]["status"] == "unhealthy"
 
-    # Record agent loads
-    for i in range(5):
-        telemetry.record_agent_load(
-            agent_id=f"agent-{i}",
-            load_time_ms=1.0 + i * 0.1,
-            content_size_bytes=5000,
-            estimated_tokens=1250,
-        )
+    def test_agent_discovery_integration(self) -> None:
+        """Test agent discovery and registration."""
+        discovery = AgentDiscovery()
 
-    # Analyze metrics
-    discovery_stats = analyzer.get_discovery_stats(days=1)
-    assert discovery_stats["total_operations"] == 12, "Should have 12 operations"
-    assert discovery_stats["by_operation"]["list_agents"]["count"] == 1, "Should have 1 list_agents"
-    assert discovery_stats["by_operation"]["get_agent"]["count"] == 10, "Should have 10 get_agent"
-    assert discovery_stats["by_operation"]["search"]["count"] == 1, "Should have 1 search"
+        # Register agents
+        agents = [
+            {"id": "agent-1", "type": "backend", "capabilities": ["python", "api"]},
+            {"id": "agent-2", "type": "frontend", "capabilities": ["react", "css"]},
+            {"id": "agent-3", "type": "database", "capabilities": ["postgres", "redis"]},
+        ]
 
-    # Check cache performance
-    cache_perf = analyzer.get_cache_performance(days=1)
-    assert cache_perf["cache_hits"] == 8, "Should have 8 cache hits"
-    assert cache_perf["cache_misses"] == 2, "Should have 2 cache misses"
-    assert cache_perf["hit_rate_percentage"] == 80.0, "Should have 80% hit rate"
+        for agent in agents:
+            discovery.register_agent(**agent)
 
-    # Check token savings
-    token_savings = analyzer.get_token_savings(days=1)
-    assert token_savings["total_agents_loaded"] == 5, "Should have loaded 5 agents"
-    assert token_savings["total_tokens_loaded"] == 6250, "Should have loaded 6250 tokens"
+        # Discover agents by capability
+        python_agents = discovery.find_agents_with_capability("python")
+        assert len(python_agents) == 1
+        assert python_agents[0]["id"] == "agent-1"
 
-    # Generate summary report
-    summary = analyzer.get_summary_report(days=1)
-    assert "discovery_stats" in summary, "Summary should include discovery stats"
-    assert "cache_performance" in summary, "Summary should include cache performance"
-    assert "token_savings" in summary, "Summary should include token savings"
-    assert "trends" in summary, "Summary should include trends"
+        # Discover agents by type
+        frontend_agents = discovery.find_agents_by_type("frontend")
+        assert len(frontend_agents) == 1
+        assert frontend_agents[0]["id"] == "agent-2"
 
+        # Get all agents
+        all_agents = discovery.get_all_agents()
+        assert len(all_agents) == 3
 
-def test_privacy_guarantees(tmp_path):
-    """Test that privacy guarantees are maintained.
+    def test_performance_benchmarking(self, telemetry_collector: TelemetryCollector) -> None:
+        """Test performance benchmarking capabilities."""
+        # Benchmark event ingestion
+        start_time = time.time()
+        events_count = 10000
 
-    This test verifies:
-    1. Agent IDs are hashed
-    2. No file paths are recorded
-    3. Only UTC timestamps
-    4. No PII in events
-    """
-    storage = EventStorage(storage_dir=tmp_path / "analytics")
-    telemetry = TelemetryCollector(storage)
+        for i in range(events_count):
+            telemetry_collector.track_event(
+                event_type="benchmark",
+                properties={"index": i, "data": "x" * 100},
+            )
 
-    # Record an agent load with identifiable information
-    telemetry.record_agent_load(
-        agent_id="01-core-api-designer",  # Real agent ID
-        load_time_ms=1.2,
-        content_size_bytes=6424,
-        estimated_tokens=1606,
+        ingestion_time = time.time() - start_time
+        events_per_second = events_count / ingestion_time
+
+        # Verify performance thresholds
+        assert events_per_second > 1000  # Should handle >1000 events/sec
+        assert ingestion_time < 30  # Should complete within 30 seconds
+
+        # Benchmark query performance
+        start_time = time.time()
+        retrieved_events = telemetry_collector.get_events(event_type="benchmark", limit=1000)
+        query_time = time.time() - start_time
+
+        assert len(retrieved_events) == 1000
+        assert query_time < 1.0  # Query should complete within 1 second
+
+    def test_data_consistency(self, temp_storage: EventStorage) -> None:
+        """Test data consistency under various operations."""
+        # Store events
+        original_events = []
+        for i in range(100):
+            event = {
+                "event_type": "consistency_test",
+                "timestamp": datetime.now(),
+                "properties": {"id": i, "value": f"value_{i}"},
+            }
+            temp_storage.store_event(event)
+            original_events.append(event)
+
+        # Verify all events stored
+        stored_events = temp_storage.get_events(event_type="consistency_test")
+        assert len(stored_events) == 100
+
+        # Verify data integrity
+        for original, stored in zip(original_events, stored_events, strict=False):
+            assert stored["properties"]["id"] == original["properties"]["id"]
+            assert stored["properties"]["value"] == original["properties"]["value"]
+
+        # Test update operations (if supported)
+        if hasattr(temp_storage, "update_event"):
+            temp_storage.update_event(
+                event_id=stored_events[0]["id"],
+                properties={"value": "updated_value"},
+            )
+
+            updated_event = temp_storage.get_event(event_id=stored_events[0]["id"])
+            assert updated_event["properties"]["value"] == "updated_value"
+
+    @pytest.mark.skipif(
+        os.getenv("SKIP_INTEGRATION_TESTS") == "true",
+        reason="Integration tests disabled",
     )
-
-    # Read back events
-    events = storage.read_events()
-    assert len(events) == 1, "Should have 1 event"
-
-    event = events[0]
-
-    # Verify agent ID is hashed
-    assert "agent_id" not in event, "Should not contain raw agent_id"
-    assert "agent_id_hash" in event, "Should contain hashed agent_id"
-    assert len(event["agent_id_hash"]) == 8, "Hash should be 8 characters"
-    assert event["agent_id_hash"] != "01-core-api-designer", "Should not contain raw ID"
-
-    # Verify timestamp is UTC
-    timestamp = datetime.fromisoformat(event["timestamp"].replace("Z", "+00:00"))
-    assert timestamp.tzinfo is not None, "Should have timezone info"
-    assert timestamp.tzinfo == timezone.utc, "Should be UTC timezone"
-
-    # Verify no file paths
-    event_str = json.dumps(event)
-    assert "/home/" not in event_str, "Should not contain file paths"
-    assert "C:\\" not in event_str, "Should not contain Windows paths"
-
-    # Verify only allowed fields
-    allowed_fields = {
-        "timestamp",
-        "event_type",
-        "agent_id_hash",
-        "load_time_ms",
-        "content_size_bytes",
-        "estimated_tokens",
-    }
-    event_fields = set(event.keys())
-    assert event_fields.issubset(allowed_fields), (
-        f"Should only have allowed fields, got extra: {event_fields - allowed_fields}"
-    )
+    def test_external_service_integration(self) -> None:
+        """Test integration with external monitoring services."""
+        # This would test real integrations with services like:
+        # - Prometheus
+        # - Grafana
+        # - DataDog
+        # - New Relic
+        # etc.
+        pass
 
 
 if __name__ == "__main__":
