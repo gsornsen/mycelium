@@ -443,8 +443,9 @@ class TestDatabaseIntegration:
     @pytest.mark.asyncio
     async def test_database_migration(self, tmp_path: Path) -> None:
         """Test database schema migration."""
-        db_path = tmp_path / "test.db"
-        tracker = CoordinationTracker(db_path=str(db_path))
+        # Use PostgreSQL connection string (CoordinationTracker uses PostgreSQL, not SQLite)
+        connection_string = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/mycelium_test")
+        tracker = CoordinationTracker(connection_string=connection_string)
 
         await tracker.initialize()
         # Verify schema version
