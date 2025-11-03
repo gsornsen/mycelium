@@ -231,8 +231,7 @@ jobs:
           # Registry schema (agents, agent_usage, etc.)
           PGPASSWORD=mycelium_test psql -h localhost -U mycelium -d mycelium_test -f plugins/mycelium-core/registry/schema.sql
 
-          # Coordination schema (workflow_states, task_states, coordination_events)
-          PGPASSWORD=mycelium_test psql -h localhost -U mycelium -d mycelium_test -f plugins/mycelium-core/coordination/schema.sql
+          # Note: Coordination schema is created programmatically by tracker.py and state_manager.py
 
       - name: Verify schemas loaded
         run: |
