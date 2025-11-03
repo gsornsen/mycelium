@@ -24,7 +24,7 @@ class TestAnalyticsIntegration:
     @pytest.fixture
     def temp_storage(self, tmp_path: Path) -> EventStorage:
         """Create temporary event storage."""
-        return EventStorage(storage_path=tmp_path / "events")
+        return EventStorage(storage_dir=tmp_path / "events")
 
     @pytest.fixture
     def telemetry_collector(self, temp_storage: EventStorage) -> TelemetryCollector:

@@ -22,8 +22,8 @@ class TestCoordinationTrackerIntegration:
     @pytest.fixture
     async def tracker(self) -> CoordinationTracker:
         """Create a tracker instance for testing."""
-        # Use in-memory SQLite for tests
-        tracker = CoordinationTracker(db_path=":memory:")
+        # Create tracker without database (will use in-memory)
+        tracker = CoordinationTracker()
         await tracker.initialize()
         yield tracker
         await tracker.close()
