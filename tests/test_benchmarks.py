@@ -13,12 +13,16 @@ Date: 2025-10-27
 """
 
 import json
+import sys
 import tempfile
 from pathlib import Path
 
 import pytest
 
-from scripts.agent_discovery import AgentDiscovery
+# Add scripts to path for import
+sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
+
+from agent_discovery import AgentDiscovery
 
 
 @pytest.fixture

@@ -2,10 +2,16 @@
 
 import asyncio
 import os
+import sys
 from collections.abc import AsyncGenerator, Generator
+from pathlib import Path
 
 import pytest
 import pytest_asyncio
+
+# Add plugins to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "plugins" / "mycelium-core"))
+
 from registry import AgentRegistry
 
 
