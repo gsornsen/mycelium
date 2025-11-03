@@ -93,10 +93,14 @@ class TestConfigDir:
     """Tests for get_config_dir()."""
 
     def test_default_location(self, mock_home: Path) -> None:
-        """Should use ~/.config/mycelium by default."""
+        """Should use platform-appropriate default location."""
         config_dir = get_config_dir()
 
-        expected = mock_home / ".config" / "mycelium"
+        if sys.platform == "win32":
+            expected = mock_home / "AppData" / "Local" / "mycelium"
+        else:
+            expected = mock_home / ".config" / "mycelium"
+
         assert config_dir == expected
         assert config_dir.exists()
         assert config_dir.is_dir()
@@ -113,14 +117,22 @@ class TestConfigDir:
         """Should accept custom project names."""
         config_dir = get_config_dir("custom_project")
 
-        expected = mock_home / ".config" / "custom_project"
+        if sys.platform == "win32":
+            expected = mock_home / "AppData" / "Local" / "custom_project"
+        else:
+            expected = mock_home / ".config" / "custom_project"
+
         assert config_dir == expected
         assert config_dir.exists()
 
     def test_creates_parent_directories(self, mock_home: Path) -> None:
         """Should create parent directories if missing."""
-        # Remove .config directory
-        config_parent = mock_home / ".config"
+        # Remove config parent directory
+        if sys.platform == "win32":
+            config_parent = mock_home / "AppData" / "Local"
+        else:
+            config_parent = mock_home / ".config"
+
         if config_parent.exists():
             import shutil
 
@@ -194,10 +206,14 @@ class TestDataDir:
     """Tests for get_data_dir()."""
 
     def test_default_location(self, mock_home: Path) -> None:
-        """Should use ~/.local/share/mycelium by default."""
+        """Should use platform-appropriate default location."""
         data_dir = get_data_dir()
 
-        expected = mock_home / ".local" / "share" / "mycelium"
+        if sys.platform == "win32":
+            expected = mock_home / "AppData" / "Local" / "mycelium"
+        else:
+            expected = mock_home / ".local" / "share" / "mycelium"
+
         assert data_dir == expected
         assert data_dir.exists()
 
@@ -212,7 +228,11 @@ class TestDataDir:
         """Should accept custom project names."""
         data_dir = get_data_dir("custom_project")
 
-        expected = mock_home / ".local" / "share" / "custom_project"
+        if sys.platform == "win32":
+            expected = mock_home / "AppData" / "Local" / "custom_project"
+        else:
+            expected = mock_home / ".local" / "share" / "custom_project"
+
         assert data_dir == expected
 
     @pytest.mark.skipif(sys.platform == "win32", reason="Unix file permissions not supported on Windows")
@@ -258,10 +278,14 @@ class TestCacheDir:
     """Tests for get_cache_dir()."""
 
     def test_default_location(self, mock_home: Path) -> None:
-        """Should use ~/.cache/mycelium by default."""
+        """Should use platform-appropriate default location."""
         cache_dir = get_cache_dir()
 
-        expected = mock_home / ".cache" / "mycelium"
+        if sys.platform == "win32":
+            expected = mock_home / "AppData" / "Local" / "mycelium"
+        else:
+            expected = mock_home / ".cache" / "mycelium"
+
         assert cache_dir == expected
         assert cache_dir.exists()
 
@@ -276,7 +300,11 @@ class TestCacheDir:
         """Should accept custom project names."""
         cache_dir = get_cache_dir("custom_project")
 
-        expected = mock_home / ".cache" / "custom_project"
+        if sys.platform == "win32":
+            expected = mock_home / "AppData" / "Local" / "custom_project"
+        else:
+            expected = mock_home / ".cache" / "custom_project"
+
         assert cache_dir == expected
 
     @pytest.mark.skipif(sys.platform == "win32", reason="Unix file permissions not supported on Windows")
@@ -322,10 +350,14 @@ class TestStateDir:
     """Tests for get_state_dir()."""
 
     def test_default_location(self, mock_home: Path) -> None:
-        """Should use ~/.local/state/mycelium by default."""
+        """Should use platform-appropriate default location."""
         state_dir = get_state_dir()
 
-        expected = mock_home / ".local" / "state" / "mycelium"
+        if sys.platform == "win32":
+            expected = mock_home / "AppData" / "Local" / "mycelium"
+        else:
+            expected = mock_home / ".local" / "state" / "mycelium"
+
         assert state_dir == expected
         assert state_dir.exists()
 
@@ -340,7 +372,11 @@ class TestStateDir:
         """Should accept custom project names."""
         state_dir = get_state_dir("custom_project")
 
-        expected = mock_home / ".local" / "state" / "custom_project"
+        if sys.platform == "win32":
+            expected = mock_home / "AppData" / "Local" / "custom_project"
+        else:
+            expected = mock_home / ".local" / "state" / "custom_project"
+
         assert state_dir == expected
 
     @pytest.mark.skipif(sys.platform == "win32", reason="Unix file permissions not supported on Windows")
