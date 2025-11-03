@@ -9,11 +9,10 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "plugins" / "mycelium-core"))
 
+from coordination.state_manager import TaskStatus, WorkflowStatus
 from coordination.tracker import (
     CoordinationTracker,
     EventType,
-    TaskStatus,
-    WorkflowStatus,
 )
 
 

@@ -51,7 +51,8 @@
       "Bash(git config:*)",
       "Bash(gh pr view:*)",
       "Bash(uv --version:*)",
-      "Bash(bandit:*)"
+      "Bash(bandit:*)",
+      "Bash(/tmp/windows_failures_19020.log)"
     ],
     "deny": [],
     "ask": []
