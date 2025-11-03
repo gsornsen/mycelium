@@ -147,6 +147,22 @@ class WorkflowState:
         return cls(**data)
 
 
+def _deserialize_json_field(value: Any) -> Any:
+    """Deserialize a JSON field that may be a string or dict.
+
+    Args:
+        value: The value to deserialize (may be string, dict, or None)
+
+    Returns:
+        Deserialized value as dict or None
+    """
+    if value is None:
+        return None
+    if isinstance(value, str):
+        return json.loads(value)
+    return value
+
+
 class StateManager:
     """Manages workflow state with persistence and rollback support.
 
@@ -327,8 +343,8 @@ class StateManager:
                     started_at=row["started_at"].isoformat() if row["started_at"] else None,
                     completed_at=row["completed_at"].isoformat() if row["completed_at"] else None,
                     execution_time=row["execution_time"],
-                    result=row["result"],
-                    error=row["error"],
+                    result=_deserialize_json_field(row["result"]),
+                    error=_deserialize_json_field(row["error"]),
                     retry_count=row["retry_count"],
                     dependencies=list(row["dependencies"]) if row["dependencies"] else [],
                 )
@@ -342,16 +358,8 @@ class StateManager:
                 updated_at=workflow_row["updated_at"].isoformat(),
                 started_at=workflow_row["started_at"].isoformat() if workflow_row["started_at"] else None,
                 completed_at=workflow_row["completed_at"].isoformat() if workflow_row["completed_at"] else None,
-                variables=(
-                    json.loads(workflow_row["variables"])
-                    if isinstance(workflow_row["variables"], str)
-                    else (workflow_row["variables"] or {})
-                ),
-                metadata=(
-                    json.loads(workflow_row["metadata"])
-                    if isinstance(workflow_row["metadata"], str)
-                    else (workflow_row["metadata"] or {})
-                ),
+                variables=_deserialize_json_field(workflow_row["variables"]) or {},
+                metadata=_deserialize_json_field(workflow_row["metadata"]) or {},
                 error=workflow_row["error"],
                 version=workflow_row["version"],
             )
@@ -457,7 +465,9 @@ class StateManager:
             if not row:
                 raise StateNotFoundError(f"Version {version} not found for workflow {workflow_id}")
 
-            state = WorkflowState.from_dict(row["state_snapshot"])
+            # Deserialize state_snapshot - it may be a string or dict depending on asyncpg version
+            state_snapshot = _deserialize_json_field(row["state_snapshot"])
+            state = WorkflowState.from_dict(state_snapshot)
             await self._persist_state(state)
             return state
 
