@@ -97,7 +97,8 @@ class TestConfigDir:
         config_dir = get_config_dir()
 
         if sys.platform == "win32":
-            expected = mock_home / "AppData" / "Local" / "mycelium"
+            # On Windows, config goes in a subdirectory
+            expected = mock_home / "AppData" / "Local" / "mycelium" / "config"
         else:
             expected = mock_home / ".config" / "mycelium"
 
@@ -118,7 +119,8 @@ class TestConfigDir:
         config_dir = get_config_dir("custom_project")
 
         if sys.platform == "win32":
-            expected = mock_home / "AppData" / "Local" / "custom_project"
+            # On Windows, config goes in a subdirectory
+            expected = mock_home / "AppData" / "Local" / "custom_project" / "config"
         else:
             expected = mock_home / ".config" / "custom_project"
 
@@ -210,7 +212,8 @@ class TestDataDir:
         data_dir = get_data_dir()
 
         if sys.platform == "win32":
-            expected = mock_home / "AppData" / "Local" / "mycelium"
+            # On Windows, data goes in a subdirectory
+            expected = mock_home / "AppData" / "Local" / "mycelium" / "data"
         else:
             expected = mock_home / ".local" / "share" / "mycelium"
 
@@ -229,7 +232,8 @@ class TestDataDir:
         data_dir = get_data_dir("custom_project")
 
         if sys.platform == "win32":
-            expected = mock_home / "AppData" / "Local" / "custom_project"
+            # On Windows, data goes in a subdirectory
+            expected = mock_home / "AppData" / "Local" / "custom_project" / "data"
         else:
             expected = mock_home / ".local" / "share" / "custom_project"
 
@@ -282,7 +286,8 @@ class TestCacheDir:
         cache_dir = get_cache_dir()
 
         if sys.platform == "win32":
-            expected = mock_home / "AppData" / "Local" / "mycelium"
+            # On Windows, cache goes in a Cache subdirectory (capital C)
+            expected = mock_home / "AppData" / "Local" / "mycelium" / "Cache"
         else:
             expected = mock_home / ".cache" / "mycelium"
 
@@ -301,7 +306,8 @@ class TestCacheDir:
         cache_dir = get_cache_dir("custom_project")
 
         if sys.platform == "win32":
-            expected = mock_home / "AppData" / "Local" / "custom_project"
+            # On Windows, cache goes in a Cache subdirectory (capital C)
+            expected = mock_home / "AppData" / "Local" / "custom_project" / "Cache"
         else:
             expected = mock_home / ".cache" / "custom_project"
 
@@ -354,7 +360,8 @@ class TestStateDir:
         state_dir = get_state_dir()
 
         if sys.platform == "win32":
-            expected = mock_home / "AppData" / "Local" / "mycelium"
+            # On Windows, state goes in a subdirectory
+            expected = mock_home / "AppData" / "Local" / "mycelium" / "state"
         else:
             expected = mock_home / ".local" / "state" / "mycelium"
 
@@ -373,7 +380,8 @@ class TestStateDir:
         state_dir = get_state_dir("custom_project")
 
         if sys.platform == "win32":
-            expected = mock_home / "AppData" / "Local" / "custom_project"
+            # On Windows, state goes in a subdirectory
+            expected = mock_home / "AppData" / "Local" / "custom_project" / "state"
         else:
             expected = mock_home / ".local" / "state" / "custom_project"
 
@@ -643,6 +651,12 @@ class TestIntegration:
         """Should support full workflow of directory operations."""
         # Get all directories
         dirs = get_all_dirs()
+
+        # On Windows, directories should be separate subdirectories
+        # On Unix, they're in different parent paths
+        # All should be unique paths
+        unique_paths = {str(p) for p in dirs.values()}
+        assert len(unique_paths) == 4, f"Expected 4 unique paths, got: {unique_paths}"
 
         # Create files in each directory
         (dirs["config"] / "config.yaml").write_text("key: value")

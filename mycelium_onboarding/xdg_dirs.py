@@ -95,10 +95,10 @@ def _get_default_cache_base() -> Path:
     Returns:
         Path to cache base directory:
         - Unix: ~/.cache
-        - Windows: %LOCALAPPDATA%\\cache
+        - Windows: %LOCALAPPDATA%
     """
     if sys.platform == "win32":
-        # On Windows, use LOCALAPPDATA\cache
+        # On Windows, use LOCALAPPDATA for cache
         appdata = os.environ.get("LOCALAPPDATA") or os.environ.get("APPDATA")
         if appdata:
             return Path(appdata)
@@ -171,7 +171,11 @@ def get_config_dir(project_name: str = DEFAULT_PROJECT_NAME) -> Path:
     else:
         base = Path(base_str)
 
-    config_dir: Path = base / project_name
+    # On Windows, add a subdirectory for config to avoid conflicts
+    if sys.platform == "win32" and base_str is None:
+        config_dir: Path = base / project_name / "config"
+    else:
+        config_dir = base / project_name
 
     try:
         _mkdir_with_mode(config_dir, CONFIG_DIR_MODE)
@@ -214,7 +218,11 @@ def get_data_dir(project_name: str = DEFAULT_PROJECT_NAME) -> Path:
     else:
         base = Path(base_str)
 
-    data_dir: Path = base / project_name
+    # On Windows, add a subdirectory for data to avoid conflicts
+    if sys.platform == "win32" and base_str is None:
+        data_dir: Path = base / project_name / "data"
+    else:
+        data_dir = base / project_name
 
     try:
         _mkdir_with_mode(data_dir, DATA_DIR_MODE)
@@ -257,7 +265,11 @@ def get_cache_dir(project_name: str = DEFAULT_PROJECT_NAME) -> Path:
     else:
         base = Path(base_str)
 
-    cache_dir: Path = base / project_name
+    # On Windows, add a subdirectory for cache (following Windows convention)
+    if sys.platform == "win32" and base_str is None:
+        cache_dir: Path = base / project_name / "Cache"  # Capital C is Windows convention
+    else:
+        cache_dir = base / project_name
 
     try:
         _mkdir_with_mode(cache_dir, CACHE_DIR_MODE)
@@ -300,7 +312,11 @@ def get_state_dir(project_name: str = DEFAULT_PROJECT_NAME) -> Path:
     else:
         base = Path(base_str)
 
-    state_dir: Path = base / project_name
+    # On Windows, add a subdirectory for state to avoid conflicts
+    if sys.platform == "win32" and base_str is None:
+        state_dir: Path = base / project_name / "state"
+    else:
+        state_dir = base / project_name
 
     try:
         _mkdir_with_mode(state_dir, STATE_DIR_MODE)
