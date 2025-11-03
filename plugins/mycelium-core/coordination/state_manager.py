@@ -16,6 +16,31 @@ import asyncpg
 from asyncpg import Pool
 
 
+def _parse_iso_datetime(iso_string: str) -> datetime:
+    """Parse ISO format datetime string, ensuring it's timezone-aware.
+
+    Args:
+        iso_string: ISO format datetime string (may end with 'Z' or include offset)
+
+    Returns:
+        Timezone-aware datetime object compatible with asyncpg
+    """
+    # Handle 'Z' suffix (UTC)
+    iso_string = iso_string[:-1] + "+00:00" if iso_string.endswith("Z") else iso_string.rstrip("Z")
+
+    # Parse with fromisoformat
+    dt = datetime.fromisoformat(iso_string)
+
+    # Convert to UTC timezone if it has a different offset
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    elif dt.tzinfo != timezone.utc:
+        # Convert to UTC
+        dt = dt.astimezone(timezone.utc)
+
+    return dt
+
+
 class StateManagerError(Exception):
     """Base exception for state manager errors."""
 
@@ -172,10 +197,10 @@ class StateManager:
         CREATE TABLE IF NOT EXISTS workflow_states (
             workflow_id TEXT PRIMARY KEY,
             status TEXT NOT NULL,
-            created_at TIMESTAMP NOT NULL,
-            updated_at TIMESTAMP NOT NULL,
-            started_at TIMESTAMP,
-            completed_at TIMESTAMP,
+            created_at TIMESTAMPTZ NOT NULL,
+            updated_at TIMESTAMPTZ NOT NULL,
+            started_at TIMESTAMPTZ,
+            completed_at TIMESTAMPTZ,
             variables JSONB DEFAULT '{}',
             metadata JSONB DEFAULT '{}',
             error TEXT,
@@ -183,14 +208,15 @@ class StateManager:
         );
 
         CREATE TABLE IF NOT EXISTS task_states (
-            task_id TEXT PRIMARY KEY,
+            task_id TEXT NOT NULL,
             workflow_id TEXT NOT NULL
                 REFERENCES workflow_states(workflow_id) ON DELETE CASCADE,
+            PRIMARY KEY (task_id, workflow_id),
             agent_id TEXT NOT NULL,
             agent_type TEXT NOT NULL,
             status TEXT NOT NULL,
-            started_at TIMESTAMP,
-            completed_at TIMESTAMP,
+            started_at TIMESTAMPTZ,
+            completed_at TIMESTAMPTZ,
             execution_time REAL,
             result JSONB,
             error JSONB,
@@ -207,7 +233,7 @@ class StateManager:
             workflow_id TEXT NOT NULL,
             version INTEGER NOT NULL,
             state_snapshot JSONB NOT NULL,
-            created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
             UNIQUE(workflow_id, version)
         );
 
@@ -298,8 +324,8 @@ class StateManager:
                     agent_id=row["agent_id"],
                     agent_type=row["agent_type"],
                     status=TaskStatus(row["status"]),
-                    started_at=row["started_at"].isoformat() + "Z" if row["started_at"] else None,
-                    completed_at=row["completed_at"].isoformat() + "Z" if row["completed_at"] else None,
+                    started_at=row["started_at"].isoformat() if row["started_at"] else None,
+                    completed_at=row["completed_at"].isoformat() if row["completed_at"] else None,
                     execution_time=row["execution_time"],
                     result=row["result"],
                     error=row["error"],
@@ -312,12 +338,20 @@ class StateManager:
                 workflow_id=workflow_row["workflow_id"],
                 status=WorkflowStatus(workflow_row["status"]),
                 tasks=tasks,
-                created_at=workflow_row["created_at"].isoformat() + "Z",
-                updated_at=workflow_row["updated_at"].isoformat() + "Z",
-                started_at=workflow_row["started_at"].isoformat() + "Z" if workflow_row["started_at"] else None,
-                completed_at=workflow_row["completed_at"].isoformat() + "Z" if workflow_row["completed_at"] else None,
-                variables=workflow_row["variables"] or {},
-                metadata=workflow_row["metadata"] or {},
+                created_at=workflow_row["created_at"].isoformat(),
+                updated_at=workflow_row["updated_at"].isoformat(),
+                started_at=workflow_row["started_at"].isoformat() if workflow_row["started_at"] else None,
+                completed_at=workflow_row["completed_at"].isoformat() if workflow_row["completed_at"] else None,
+                variables=(
+                    json.loads(workflow_row["variables"])
+                    if isinstance(workflow_row["variables"], str)
+                    else (workflow_row["variables"] or {})
+                ),
+                metadata=(
+                    json.loads(workflow_row["metadata"])
+                    if isinstance(workflow_row["metadata"], str)
+                    else (workflow_row["metadata"] or {})
+                ),
                 error=workflow_row["error"],
                 version=workflow_row["version"],
             )
@@ -497,7 +531,10 @@ class StateManager:
                     INSERT INTO workflow_states (
                         workflow_id, status, created_at, updated_at, started_at,
                         completed_at, variables, metadata, error, version
-                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+                    ) VALUES (
+                        $1, $2, $3::TIMESTAMPTZ, $4::TIMESTAMPTZ, $5::TIMESTAMPTZ,
+                        $6::TIMESTAMPTZ, $7, $8, $9, $10
+                    )
                     ON CONFLICT (workflow_id) DO UPDATE SET
                         status = EXCLUDED.status,
                         updated_at = EXCLUDED.updated_at,
@@ -510,12 +547,12 @@ class StateManager:
                     """,
                 state.workflow_id,
                 state.status.value,
-                datetime.fromisoformat(state.created_at.rstrip("Z")),
-                datetime.fromisoformat(state.updated_at.rstrip("Z")),
-                datetime.fromisoformat(state.started_at.rstrip("Z")) if state.started_at else None,
-                datetime.fromisoformat(state.completed_at.rstrip("Z")) if state.completed_at else None,
-                json.dumps(state.variables),
-                json.dumps(state.metadata),
+                _parse_iso_datetime(state.created_at),
+                _parse_iso_datetime(state.updated_at),
+                _parse_iso_datetime(state.started_at) if state.started_at else None,
+                _parse_iso_datetime(state.completed_at) if state.completed_at else None,
+                json.dumps(state.variables if isinstance(state.variables, dict) else {}),
+                json.dumps(state.metadata if isinstance(state.metadata, dict) else {}),
                 state.error,
                 state.version,
             )
@@ -534,15 +571,15 @@ class StateManager:
                             task_id, workflow_id, agent_id, agent_type, status,
                             started_at, completed_at, execution_time, result,
                             error, retry_count, dependencies
-                        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+                        ) VALUES ($1, $2, $3, $4, $5, $6::TIMESTAMPTZ, $7::TIMESTAMPTZ, $8, $9, $10, $11, $12)
                         """,
                     task.task_id,
                     state.workflow_id,
                     task.agent_id,
                     task.agent_type,
                     task.status.value,
-                    datetime.fromisoformat(task.started_at.rstrip("Z")) if task.started_at else None,
-                    datetime.fromisoformat(task.completed_at.rstrip("Z")) if task.completed_at else None,
+                    _parse_iso_datetime(task.started_at) if task.started_at else None,
+                    _parse_iso_datetime(task.completed_at) if task.completed_at else None,
                     task.execution_time,
                     json.dumps(task.result) if task.result else None,
                     json.dumps(task.error) if task.error else None,

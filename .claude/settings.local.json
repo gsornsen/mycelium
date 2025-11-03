@@ -52,7 +52,8 @@
       "Bash(gh pr view:*)",
       "Bash(uv --version:*)",
       "Bash(bandit:*)",
-      "Bash(/tmp/windows_failures_19020.log)"
+      "Bash(/tmp/windows_failures_19020.log)",
+      "Bash(timeout 30 python -m pytest:*)"
     ],
     "deny": [],
     "ask": []
