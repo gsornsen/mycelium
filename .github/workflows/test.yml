@@ -277,6 +277,8 @@ jobs:
 
       - name: Run benchmarks
         shell: bash
+        env:
+          PYTHONPATH: ${{ github.workspace }}
         run: |
           uv run pytest tests/ -v \
             -m "benchmark" \
