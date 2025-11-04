@@ -188,7 +188,11 @@ class StateManager:
             self._owns_pool = True
 
     async def initialize(self) -> None:
-        """Initialize database connection and schema."""
+        """Initialize database connection and verify schema exists.
+
+        The database schema must already exist via migrations.
+        Run 'alembic upgrade head' to create/update the schema.
+        """
         if self._pool is None and self._owns_pool:
             self._pool = await asyncpg.create_pool(
                 self._connection_string,
@@ -196,69 +200,33 @@ class StateManager:
                 max_size=10,
                 command_timeout=60,
             )
-        await self._ensure_schema()
+
+        # Verify schema exists
+        if self._pool is None:
+            raise StateManagerError("State manager not initialized")
+
+        async with self._pool.acquire() as conn:
+            # Check for all required tables
+            tables_query = """
+                SELECT table_name
+                FROM information_schema.tables
+                WHERE table_name IN ('workflow_states', 'task_states', 'workflow_state_history')
+            """
+            rows = await conn.fetch(tables_query)
+            existing_tables = {row["table_name"] for row in rows}
+
+            missing_tables = {"workflow_states", "task_states", "workflow_state_history"} - existing_tables
+            if missing_tables:
+                raise StateManagerError(
+                    f"Database schema not initialized. Missing tables: {', '.join(missing_tables)}. "
+                    "Run migrations first: alembic upgrade head"
+                )
 
     async def close(self) -> None:
         """Close database connection pool."""
         if self._pool is not None and self._owns_pool:
             await self._pool.close()
             self._pool = None
-
-    async def _ensure_schema(self) -> None:
-        """Ensure workflow state tables exist."""
-        if self._pool is None:
-            raise StateManagerError("State manager not initialized")
-
-        schema_sql = """
-        CREATE TABLE IF NOT EXISTS workflow_states (
-            workflow_id TEXT PRIMARY KEY,
-            status TEXT NOT NULL,
-            created_at TIMESTAMPTZ NOT NULL,
-            updated_at TIMESTAMPTZ NOT NULL,
-            started_at TIMESTAMPTZ,
-            completed_at TIMESTAMPTZ,
-            variables JSONB DEFAULT '{}',
-            metadata JSONB DEFAULT '{}',
-            error TEXT,
-            version INTEGER NOT NULL DEFAULT 1
-        );
-
-        CREATE TABLE IF NOT EXISTS task_states (
-            task_id TEXT NOT NULL,
-            workflow_id TEXT NOT NULL
-                REFERENCES workflow_states(workflow_id) ON DELETE CASCADE,
-            PRIMARY KEY (task_id, workflow_id),
-            agent_id TEXT NOT NULL,
-            agent_type TEXT NOT NULL,
-            status TEXT NOT NULL,
-            started_at TIMESTAMPTZ,
-            completed_at TIMESTAMPTZ,
-            execution_time REAL,
-            result JSONB,
-            error JSONB,
-            retry_count INTEGER DEFAULT 0,
-            dependencies TEXT[] DEFAULT ARRAY[]::TEXT[]
-        );
-
-        CREATE INDEX IF NOT EXISTS idx_task_workflow ON task_states(workflow_id);
-        CREATE INDEX IF NOT EXISTS idx_task_status ON task_states(status);
-        CREATE INDEX IF NOT EXISTS idx_workflow_status ON workflow_states(status);
-
-        CREATE TABLE IF NOT EXISTS workflow_state_history (
-            id SERIAL PRIMARY KEY,
-            workflow_id TEXT NOT NULL,
-            version INTEGER NOT NULL,
-            state_snapshot JSONB NOT NULL,
-            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-            UNIQUE(workflow_id, version)
-        );
-
-        CREATE INDEX IF NOT EXISTS idx_history_workflow
-            ON workflow_state_history(workflow_id);
-        """
-
-        async with self._pool.acquire() as conn:
-            await conn.execute(schema_sql)
 
     async def create_workflow(
         self,

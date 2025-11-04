@@ -216,7 +216,11 @@ class CoordinationTracker:
         self._event_counts: dict[str, int] = {}  # For performance monitoring
 
     async def initialize(self) -> None:
-        """Initialize database connection and schema."""
+        """Initialize database connection and verify schema exists.
+
+        The database schema must already exist via migrations.
+        Run 'alembic upgrade head' to create/update the schema.
+        """
         if self._pool is None and self._owns_pool:
             self._pool = await asyncpg.create_pool(
                 self._connection_string,
@@ -224,7 +228,18 @@ class CoordinationTracker:
                 max_size=10,
                 command_timeout=60,
             )
-        await self._ensure_schema()
+
+        # Verify schema exists
+        if self._pool is None:
+            raise TrackerError("Tracker not initialized")
+
+        async with self._pool.acquire() as conn:
+            result = await conn.fetchval(
+                "SELECT COUNT(*) FROM information_schema.tables WHERE table_name = 'coordination_events'"
+            )
+            if result == 0:
+                raise TrackerError("Database schema not initialized. Run migrations first: alembic upgrade head")
+
         logger.info("Coordination tracker initialized")
 
     async def close(self) -> None:
@@ -233,53 +248,6 @@ class CoordinationTracker:
             await self._pool.close()
             self._pool = None
         logger.info("Coordination tracker closed")
-
-    async def _ensure_schema(self) -> None:
-        """Ensure coordination events table exists with proper indexes."""
-        if self._pool is None:
-            raise TrackerError("Tracker not initialized")
-
-        schema_sql = """
-        CREATE TABLE IF NOT EXISTS coordination_events (
-            event_id TEXT PRIMARY KEY,
-            event_type TEXT NOT NULL,
-            workflow_id TEXT NOT NULL,
-            task_id TEXT,
-            timestamp TIMESTAMP NOT NULL,
-            agent_id TEXT,
-            agent_type TEXT,
-            source_agent JSONB,
-            target_agent JSONB,
-            status TEXT,
-            duration_ms REAL,
-            error JSONB,
-            metadata JSONB,
-            context JSONB,
-            performance JSONB,
-            created_at TIMESTAMP NOT NULL DEFAULT NOW()
-        );
-
-        -- Indexes for efficient queries
-        CREATE INDEX IF NOT EXISTS idx_events_workflow
-            ON coordination_events(workflow_id, timestamp DESC);
-        CREATE INDEX IF NOT EXISTS idx_events_task
-            ON coordination_events(task_id, timestamp DESC)
-            WHERE task_id IS NOT NULL;
-        CREATE INDEX IF NOT EXISTS idx_events_agent
-            ON coordination_events(agent_id, timestamp DESC)
-            WHERE agent_id IS NOT NULL;
-        CREATE INDEX IF NOT EXISTS idx_events_type
-            ON coordination_events(event_type, timestamp DESC);
-        CREATE INDEX IF NOT EXISTS idx_events_timestamp
-            ON coordination_events(timestamp DESC);
-
-        -- Composite index for common query patterns
-        CREATE INDEX IF NOT EXISTS idx_events_workflow_type
-            ON coordination_events(workflow_id, event_type, timestamp DESC);
-        """
-
-        async with self._pool.acquire() as conn:
-            await conn.execute(schema_sql)
 
     def _validate_event(self, event: CoordinationEvent) -> None:
         """Validate event against JSON schema.
