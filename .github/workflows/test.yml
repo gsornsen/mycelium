@@ -175,6 +175,10 @@ jobs:
       - name: Install dependencies
         run: uv sync --frozen --all-extras --group dev
 
+      - name: Install Alembic
+        run: |
+          uv pip install alembic
+
       - name: Verify PostgreSQL is ready
         run: |
           timeout 60 bash -c 'until pg_isready -h localhost -p 5432 -U mycelium; do echo "Waiting for PostgreSQL..."; sleep 2; done'
@@ -189,13 +193,32 @@ jobs:
           PGPASSWORD=mycelium_test psql -h localhost -U mycelium -d mycelium_test -c "CREATE DATABASE mycelium_test;" 2>/dev/null || echo "Database mycelium_test already exists"
           PGPASSWORD=mycelium_test psql -h localhost -U mycelium -d mycelium_test -c "CREATE DATABASE mycelium_registry;" 2>/dev/null || echo "Database mycelium_registry already exists"
 
-      - name: Initialize database schema
+      - name: Initialize database schema with old SQL method
         run: |
+          # First apply the original schema for agent registry
           PGPASSWORD=mycelium_test psql -h localhost -U mycelium -d mycelium_test -f plugins/mycelium-core/registry/schema.sql
 
-      - name: Verify schema loaded
+      - name: Run Alembic migrations for new tables
+        env:
+          DATABASE_URL: postgresql://mycelium:mycelium_test@localhost:5432/mycelium_test
         run: |
-          PGPASSWORD=mycelium_test psql -h localhost -U mycelium -d mycelium_test -c "\dt" | grep agents
+          # Run Alembic migrations to add state management and coordinator tables
+          uv run alembic upgrade head
+
+      - name: Verify all tables exist
+        run: |
+          echo "Checking for agent registry tables..."
+          PGPASSWORD=mycelium_test psql -h localhost -U mycelium -d mycelium_test -c "\dt" | grep agents || echo "agents table missing"
+
+          echo "Checking for state management tables..."
+          PGPASSWORD=mycelium_test psql -h localhost -U mycelium -d mycelium_test -c "\dt" | grep workflow_states || echo "workflow_states table missing"
+          PGPASSWORD=mycelium_test psql -h localhost -U mycelium -d mycelium_test -c "\dt" | grep task_states || echo "task_states table missing"
+          PGPASSWORD=mycelium_test psql -h localhost -U mycelium -d mycelium_test -c "\dt" | grep workflow_state_history || echo "workflow_state_history table missing"
+
+          echo "Checking for coordinator tables..."
+          PGPASSWORD=mycelium_test psql -h localhost -U mycelium -d mycelium_test -c "\dt" | grep coordinator_events || echo "coordinator_events table missing"
+          PGPASSWORD=mycelium_test psql -h localhost -U mycelium -d mycelium_test -c "\dt" | grep coordination_tracker || echo "coordination_tracker table missing"
+          PGPASSWORD=mycelium_test psql -h localhost -U mycelium -d mycelium_test -c "\dt" | grep agent_communication || echo "agent_communication table missing"
 
       - name: Run all integration tests
         shell: bash

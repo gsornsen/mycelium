@@ -16,8 +16,9 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# Override sqlalchemy.url with DATABASE_URL from environment if present
-if database_url := os.environ.get("DATABASE_URL"):
+# IMPORTANT: Check if sqlalchemy.url is already set (by tests)
+# Only read from environment if not already configured
+if not config.get_main_option("sqlalchemy.url") and (database_url := os.environ.get("DATABASE_URL")):
     config.set_main_option("sqlalchemy.url", database_url)
 
 # add your model's MetaData object here
@@ -65,6 +66,10 @@ def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
+    # Check if we're using PostgreSQL (for pgvector)
+    url = config.get_main_option("sqlalchemy.url")
+    is_postgres = url and "postgresql" in url
+
     connectable = engine_from_config(
         config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",
@@ -72,9 +77,15 @@ def run_migrations_online() -> None:
     )
 
     with connectable.connect() as connection:
-        # Ensure pgvector extension is available
-        connection.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
-        connection.commit()
+        # Only create pgvector extension for PostgreSQL
+        if is_postgres:
+            try:
+                connection.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
+                connection.commit()
+            except Exception as e:
+                # Log but don't fail if extension creation fails
+                # (might not have permissions or extension might not be available)
+                print(f"Warning: Could not create pgvector extension: {e}")
 
         context.configure(
             connection=connection,

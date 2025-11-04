@@ -53,7 +53,8 @@
       "Bash(uv --version:*)",
       "Bash(bandit:*)",
       "Bash(/tmp/windows_failures_19020.log)",
-      "Bash(timeout 30 python -m pytest:*)"
+      "Bash(timeout 30 python -m pytest:*)",
+      "Bash(alembic history:*)"
     ],
     "deny": [],
     "ask": []
