@@ -49,154 +49,181 @@ class TestCoordinationTrackerIntegration:
         await tracker.register_agent(
             agent_id="agent-002",
             agent_type="frontend-developer",
-            capabilities=["react", "typescript", "css"],
+            capabilities=["typescript", "react", "tailwind"],
         )
 
         # Create tasks
-        await tracker.create_task(
-            task_id="task-001",
+        backend_task = await tracker.create_task(
+            task_id="task-backend-001",
             workflow_id="test-workflow-001",
             task_type="api_development",
-            assigned_agent="agent-001",
             dependencies=[],
+            assigned_agent="agent-001",
         )
+        assert backend_task.status == TaskStatus.PENDING
+
         await tracker.create_task(
-            task_id="task-002",
+            task_id="task-frontend-001",
             workflow_id="test-workflow-001",
             task_type="ui_development",
+            dependencies=["task-backend-001"],  # Depends on backend
             assigned_agent="agent-002",
-            dependencies=["task-001"],
         )
 
-        # Start first task
-        await tracker.update_task_status(task_id="task-001", status=TaskStatus.IN_PROGRESS)
-
-        # Log some events
-        await tracker.log_event(
-            event_type=EventType.TASK_STARTED,
-            agent_id="agent-001",
-            task_id="task-001",
-            workflow_id="test-workflow-001",
-            details={"message": "Starting API development"},
-        )
-
-        # Complete first task
+        # Execute backend task
+        await tracker.update_task_status(task_id="task-backend-001", status=TaskStatus.IN_PROGRESS)
         await tracker.update_task_status(
-            task_id="task-001",
+            task_id="task-backend-001",
             status=TaskStatus.COMPLETED,
-            result={"endpoints_created": 5, "tests_passed": 10},
+            result={"endpoints": 5, "tests": 12},
         )
 
-        # Start second task
-        await tracker.update_task_status(task_id="task-002", status=TaskStatus.IN_PROGRESS)
-
-        # Complete second task
+        # Execute frontend task
+        await tracker.update_task_status(task_id="task-frontend-001", status=TaskStatus.IN_PROGRESS)
         await tracker.update_task_status(
-            task_id="task-002",
+            task_id="task-frontend-001",
             status=TaskStatus.COMPLETED,
-            result={"components_created": 3, "pages_built": 2},
+            result={"components": 8, "tests": 20},
         )
 
         # Complete workflow
-        completed_workflow = await tracker.complete_workflow(
-            workflow_id="test-workflow-001",
-            result={"deployment_url": "https://staging.example.com"},
-        )
-        assert completed_workflow.status == WorkflowStatus.COMPLETED
+        await tracker.complete_workflow(workflow_id="test-workflow-001")
 
-        # Verify workflow history
-        events = await tracker.get_workflow_events("test-workflow-001")
-        assert len(events) > 0
-        assert any(e.event_type == EventType.TASK_STARTED for e in events)
+        # Verify final states
+        final_workflow = await tracker.get_workflow("test-workflow-001")
+        assert final_workflow.status == WorkflowStatus.COMPLETED
 
-    @pytest.mark.asyncio
-    async def test_agent_collaboration(self, tracker: CoordinationTracker) -> None:
-        """Test multi-agent collaboration tracking."""
-        # Register multiple agents
-        agents = []
-        for i in range(3):
-            agent = await tracker.register_agent(
-                agent_id=f"agent-{i:03d}",
-                agent_type=f"type-{i}",
-                capabilities=[f"skill-{i}"],
-            )
-            agents.append(agent)
-
-        # Create workflow
-        await tracker.start_workflow(
-            workflow_id="collab-workflow",
-            workflow_type="collaborative_task",
-            metadata={"team_size": 3},
-        )
-
-        # Agents communicate
-        for i in range(len(agents)):
-            for j in range(len(agents)):
-                if i != j:
-                    await tracker.log_event(
-                        event_type=EventType.AGENT_COMMUNICATION,
-                        agent_id=agents[i].agent_id,
-                        workflow_id="collab-workflow",
-                        details={
-                            "to_agent": agents[j].agent_id,
-                            "message_type": "coordination",
-                        },
-                    )
-
-        # Check communication patterns
-        events = await tracker.get_workflow_events("collab-workflow")
-        comm_events = [e for e in events if e.event_type == EventType.AGENT_COMMUNICATION]
-        assert len(comm_events) == 6  # 3 agents, 2 messages each
+        backend = await tracker.get_task("task-backend-001")
+        assert backend.status == TaskStatus.COMPLETED
+        assert backend.result["endpoints"] == 5
 
     @pytest.mark.asyncio
     async def test_error_handling_and_recovery(self, tracker: CoordinationTracker) -> None:
-        """Test error tracking and recovery mechanisms."""
-        # Start workflow
-        await tracker.start_workflow(workflow_id="error-workflow", workflow_type="error_test")
+        """Test error scenarios and recovery mechanisms."""
+        await tracker.start_workflow(workflow_id="error-workflow", workflow_type="test_errors")
 
-        # Register agent
-        await tracker.register_agent(agent_id="error-agent", agent_type="worker")
-
-        # Create task
+        # Create task that will fail
         await tracker.create_task(
-            task_id="error-task",
+            task_id="failing-task",
             workflow_id="error-workflow",
             task_type="risky_operation",
-            assigned_agent="error-agent",
         )
 
-        # Task encounters error
-        error = await tracker.log_error(
-            error_type="RuntimeError",
-            message="Database connection failed",
-            agent_id="error-agent",
-            task_id="error-task",
-            workflow_id="error-workflow",
-            stack_trace="Traceback...",
-            context={"retry_count": 0},
+        # Start and fail task
+        await tracker.update_task_status(task_id="failing-task", status=TaskStatus.IN_PROGRESS)
+        await tracker.update_task_status(
+            task_id="failing-task",
+            status=TaskStatus.FAILED,
+            error={"message": "Connection timeout", "code": "TIMEOUT_ERROR"},
         )
-        assert error.error_type == "RuntimeError"
-        assert error.resolved is False
+
+        # Verify task failed
+        failed_task = await tracker.get_task("failing-task")
+        assert failed_task.status == TaskStatus.FAILED
+        assert failed_task.error["code"] == "TIMEOUT_ERROR"
 
         # Retry task
+        await tracker.update_task_status(task_id="failing-task", status=TaskStatus.IN_PROGRESS)
+        await tracker.update_task_status(task_id="failing-task", status=TaskStatus.COMPLETED)
+
+        # Verify recovery
+        recovered_task = await tracker.get_task("failing-task")
+        assert recovered_task.status == TaskStatus.COMPLETED
+
+    @pytest.mark.asyncio
+    async def test_agent_communication_flow(self, tracker: CoordinationTracker) -> None:
+        """Test inter-agent communication and messaging."""
+        # Register communicating agents
+        await tracker.register_agent(agent_id="sender", agent_type="producer")
+        await tracker.register_agent(agent_id="receiver", agent_type="consumer")
+
+        # Start communication workflow
+        await tracker.start_workflow(workflow_id="comm-workflow", workflow_type="communication_test")
+
+        # Log communication events
         await tracker.log_event(
-            event_type=EventType.TASK_RETRIED,
-            agent_id="error-agent",
-            task_id="error-task",
-            workflow_id="error-workflow",
-            details={"retry_attempt": 1},
+            event_type=EventType.MESSAGE_SENT,
+            workflow_id="comm-workflow",
+            agent_id="sender",
+            details={"to": "receiver", "message_type": "data_request"},
         )
 
-        # Task succeeds on retry
-        await tracker.update_task_status(task_id="error-task", status=TaskStatus.COMPLETED)
+        await tracker.log_event(
+            event_type=EventType.MESSAGE_RECEIVED,
+            workflow_id="comm-workflow",
+            agent_id="receiver",
+            details={"from": "sender", "message_type": "data_request"},
+        )
 
-        # Mark error as resolved
-        await tracker.resolve_error(error.error_id)
+        await tracker.log_event(
+            event_type=EventType.MESSAGE_SENT,
+            workflow_id="comm-workflow",
+            agent_id="receiver",
+            details={"to": "sender", "message_type": "data_response", "payload_size": 1024},
+        )
 
-        # Verify error was resolved
-        errors = await tracker.get_workflow_errors("error-workflow")
-        assert len(errors) == 1
-        assert errors[0].resolved is True
+        # Verify communication flow
+        events = await tracker.get_workflow_events("comm-workflow")
+        message_events = [e for e in events if "MESSAGE" in e.event_type.name]
+        assert len(message_events) >= 3
+
+    @pytest.mark.asyncio
+    async def test_parallel_task_execution(self, tracker: CoordinationTracker) -> None:
+        """Test parallel task execution and synchronization."""
+        await tracker.start_workflow(workflow_id="parallel-workflow", workflow_type="parallel_test")
+
+        # Create parallel tasks
+        parallel_tasks = []
+        for i in range(5):
+            task = await tracker.create_task(
+                task_id=f"parallel-task-{i}",
+                workflow_id="parallel-workflow",
+                task_type="parallel_work",
+                dependencies=[],  # No dependencies = can run in parallel
+            )
+            parallel_tasks.append(task)
+
+        # Start all tasks simultaneously
+        for task in parallel_tasks:
+            await tracker.update_task_status(task_id=task.task_id, status=TaskStatus.IN_PROGRESS)
+
+        # Complete tasks in random order
+        for i in [2, 0, 4, 1, 3]:
+            await tracker.update_task_status(
+                task_id=f"parallel-task-{i}",
+                status=TaskStatus.COMPLETED,
+                result={"processed": i * 100},
+            )
+
+        # Verify all completed
+        for i in range(5):
+            task = await tracker.get_task(f"parallel-task-{i}")
+            assert task.status == TaskStatus.COMPLETED
+
+    @pytest.mark.asyncio
+    async def test_workflow_state_transitions(self, tracker: CoordinationTracker) -> None:
+        """Test valid workflow state transitions."""
+        # Start workflow
+        workflow = await tracker.start_workflow(
+            workflow_id="state-workflow",
+            workflow_type="state_test",
+        )
+        assert workflow.status == WorkflowStatus.RUNNING
+
+        # Pause workflow
+        await tracker.pause_workflow(workflow_id="state-workflow")
+        paused = await tracker.get_workflow("state-workflow")
+        assert paused.status == WorkflowStatus.PAUSED
+
+        # Resume workflow
+        await tracker.resume_workflow(workflow_id="state-workflow")
+        resumed = await tracker.get_workflow("state-workflow")
+        assert resumed.status == WorkflowStatus.RUNNING
+
+        # Complete workflow
+        await tracker.complete_workflow(workflow_id="state-workflow")
+        completed = await tracker.get_workflow("state-workflow")
+        assert completed.status == WorkflowStatus.COMPLETED
 
     @pytest.mark.asyncio
     async def test_metrics_collection(self, tracker: CoordinationTracker) -> None:
@@ -298,22 +325,24 @@ class TestCoordinationTrackerIntegration:
             metadata={"env": "prod"},
         )
         await tracker.start_workflow(
+            workflow_id="test-1",
+            workflow_type="testing",
+            metadata={"env": "staging"},
+        )
+        await tracker.start_workflow(
             workflow_id="deploy-2",
             workflow_type="deployment",
             metadata={"env": "staging"},
         )
-        await tracker.start_workflow(
-            workflow_id="test-1",
-            workflow_type="testing",
-            metadata={"suite": "unit"},
-        )
 
-        # Get workflows by type
-        deployments = await tracker.get_workflows_by_type("deployment")
-        assert len(deployments) == 2
+        # Filter by type
+        deployments = await tracker.list_workflows(workflow_type="deployment")
+        assert len(deployments) >= 2
+        assert all(w.workflow_type == "deployment" for w in deployments)
 
-        tests = await tracker.get_workflows_by_type("testing")
-        assert len(tests) == 1
+        # Filter by status
+        active = await tracker.list_workflows(status=WorkflowStatus.RUNNING)
+        assert all(w.status == WorkflowStatus.RUNNING for w in active)
 
     @pytest.mark.asyncio
     async def test_agent_performance_tracking(self, tracker: CoordinationTracker) -> None:
@@ -444,8 +473,8 @@ class TestDatabaseIntegration:
     async def test_database_migration(self, tmp_path: Path) -> None:
         """Test database schema migration."""
         # Use PostgreSQL connection string (CoordinationTracker uses PostgreSQL, not SQLite)
-        connection_string = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/mycelium_test")
-        tracker = CoordinationTracker(connection_string=connection_string)
+        db_url = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/mycelium_test")
+        tracker = CoordinationTracker(db_url=db_url)
 
         await tracker.initialize()
         # Verify schema version

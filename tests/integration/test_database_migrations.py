@@ -29,7 +29,7 @@ def temp_database_url():
 @pytest.fixture
 def alembic_config(temp_database_url):
     """Create Alembic configuration for testing with isolated database."""
-    config_path = Path(__file__).parent.parent / "alembic.ini"
+    config_path = Path(__file__).parent.parent.parent / "alembic.ini"
     if not config_path.exists():
         pytest.skip(f"Alembic config not found: {config_path}")
 
@@ -40,7 +40,7 @@ def alembic_config(temp_database_url):
     config.set_main_option("sqlalchemy.url", temp_database_url)
 
     # Also set the script location explicitly
-    config.set_main_option("script_location", str(Path(__file__).parent.parent / "alembic"))
+    config.set_main_option("script_location", str(Path(__file__).parent.parent.parent / "alembic"))
 
     return config
 
@@ -226,10 +226,10 @@ def postgres_test_url():
 @pytest.fixture
 def postgres_alembic_config(postgres_test_url):
     """Create Alembic config for PostgreSQL testing."""
-    config_path = Path(__file__).parent.parent / "alembic.ini"
+    config_path = Path(__file__).parent.parent.parent / "alembic.ini"
     config = Config(str(config_path))
     config.set_main_option("sqlalchemy.url", postgres_test_url)
-    config.set_main_option("script_location", str(Path(__file__).parent.parent / "alembic"))
+    config.set_main_option("script_location", str(Path(__file__).parent.parent.parent / "alembic"))
     return config
 
 

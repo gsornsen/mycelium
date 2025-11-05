@@ -236,7 +236,7 @@ jobs:
 
           # Verify tables created
           echo "Verifying registry tables..."
-          psql -h localhost -U mycelium -d mycelium_test -c "\dt" | grep -E "agents|agent_usage" || exit 1
+          psql -h localhost -U mycelium -d mycelium_test -c "\dt" | grep -E "agents|agent_usage|agent_dependencies" || exit 1
 
           echo "Verifying coordination tables..."
           psql -h localhost -U mycelium -d mycelium_test -c "\dt" | grep -E "coordination_events|workflow_states|task_states" || exit 1
