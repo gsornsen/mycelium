@@ -220,6 +220,16 @@ def postgres_test_url():
         drop_database(test_url)
     except Exception:
         # Fallback: use the existing database but ensure cleanup
+        # Clean up existing tables before running tests
+        engine = create_engine(base_url)
+        with engine.connect() as conn:
+            # Drop all application tables (preserving alembic_version for tracking)
+            inspector = inspect(engine)
+            for table_name in inspector.get_table_names():
+                if table_name != "alembic_version":
+                    conn.execute(text(f"DROP TABLE IF EXISTS {table_name} CASCADE"))
+            conn.commit()
+
         yield base_url
 
 
@@ -236,11 +246,24 @@ def postgres_alembic_config(postgres_test_url):
 @pytest.mark.skipif(not os.getenv("DATABASE_URL"), reason="PostgreSQL database URL not configured")
 def test_postgresql_migration(postgres_alembic_config, postgres_test_url):
     """Test migrations work with PostgreSQL (if available)."""
+    # Clean up any existing tables first
+    engine = create_engine(postgres_test_url)
+    with engine.connect() as conn:
+        # Drop all tables except alembic_version to start fresh
+        inspector = inspect(engine)
+        for table_name in inspector.get_table_names():
+            if table_name != "alembic_version":
+                conn.execute(text(f"DROP TABLE IF EXISTS {table_name} CASCADE"))
+
+        # Also reset alembic_version if it exists
+        if "alembic_version" in inspector.get_table_names():
+            conn.execute(text("DELETE FROM alembic_version"))
+        conn.commit()
+
     # Run migration to all heads
     command.upgrade(postgres_alembic_config, "heads")
 
     # Verify pgvector extension and tables
-    engine = create_engine(postgres_test_url)
     with engine.connect() as conn:
         # Check for pgvector extension
         result = conn.execute(text("SELECT COUNT(*) FROM pg_extension WHERE extname = 'vector'"))

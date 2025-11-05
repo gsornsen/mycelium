@@ -20,9 +20,9 @@ from pathlib import Path
 import pytest
 
 # Add scripts to path for import
-sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from agent_discovery import AgentDiscovery
+from scripts.agent_discovery import AgentCache, AgentDiscovery
 
 
 @pytest.fixture
@@ -205,8 +205,6 @@ def test_benchmark_index_loading(benchmark, benchmark_index):
 @pytest.mark.benchmark
 def test_benchmark_cache_operations(benchmark, benchmark_index):
     """Benchmark cache put/get operations (should be <0.1ms)."""
-    from scripts.agent_discovery import AgentCache
-
     cache = AgentCache(max_size=100)
     test_agent = {"id": "test", "content": "Test content"}
 
@@ -224,8 +222,6 @@ def test_benchmark_cache_operations(benchmark, benchmark_index):
 @pytest.mark.benchmark
 def test_benchmark_cache_lru_eviction(benchmark):
     """Benchmark cache LRU eviction behavior."""
-    from scripts.agent_discovery import AgentCache
-
     cache = AgentCache(max_size=10)
 
     # Pre-fill cache to trigger evictions
