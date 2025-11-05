@@ -17,7 +17,8 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./plugins/mycelium-core/registry/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      # Schema is now managed by Alembic migrations - no need for init script
+      # Run 'alembic upgrade head' after container starts instead
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U mycelium -d mycelium_registry"]
       interval: 10s

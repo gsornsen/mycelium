@@ -564,8 +564,8 @@ class TestEdgeCases:
         """Test handling of corrupted agent file."""
         discovery = AgentDiscovery(mock_index)
 
-        # Corrupt agent file
-        (tmp_dir / "agent1.md").write_bytes(b"\x00\x01\x02\x03")
+        # Corrupt agent file with invalid UTF-8 bytes
+        (tmp_dir / "agent1.md").write_bytes(b"\xff\xfe\xfd\xfc")
 
         agent = discovery.get_agent("test-agent-1")
         assert agent is None  # Should handle gracefully

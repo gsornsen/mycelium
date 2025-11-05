@@ -61,63 +61,25 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/uv
-          key: uv-${{ matrix.os }}-py${{ matrix.python-version }}-${{ hashFiles('**/pyproject.toml', '**/uv.lock') }}
+          key: uv-${{ runner.os }}-py${{ matrix.python-version }}-${{ hashFiles('**/pyproject.toml', '**/uv.lock') }}
           restore-keys: |
-            uv-${{ matrix.os }}-py${{ matrix.python-version }}-
-            uv-${{ matrix.os }}-
-
-      - name: Cache pytest cache
-        uses: actions/cache@v4
-        with:
-          path: .pytest_cache
-          key: pytest-${{ matrix.os }}-py${{ matrix.python-version }}-${{ github.sha }}
-          restore-keys: |
-            pytest-${{ matrix.os }}-py${{ matrix.python-version }}-
-
-      - name: Cache sentence-transformers models
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/torch/sentence_transformers
-            ~/.cache/huggingface
-          key: st-models-${{ hashFiles('**/pyproject.toml') }}
-          restore-keys: |
-            st-models-
+            uv-${{ runner.os }}-py${{ matrix.python-version }}-
+            uv-${{ runner.os }}-
 
       - name: Install dependencies
         run: uv sync --frozen --all-extras --group dev
 
-      - name: Run unit tests
+      - name: Run comprehensive test suite
         shell: bash
         run: |
-          uv run pytest tests/unit/ tests/test_*.py -v \
-            -m "not integration and not benchmark and not slow" \
+          uv run pytest tests/ -v \
+            -m "not integration" \
             --tb=short \
-            --cov=plugins \
-            --cov=mycelium_onboarding \
-            --cov-report=xml \
-            --cov-report=term \
-            --cov-report=html
+            --maxfail=5
 
-      - name: Upload coverage report
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-${{ matrix.os }}-py${{ matrix.python-version }}
-          path: |
-            coverage.xml
-            htmlcov/
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          files: ./coverage.xml
-          flags: ${{ matrix.os }}-py${{ matrix.python-version }}
-          name: ${{ matrix.os }}-py${{ matrix.python-version }}
-          fail_ci_if_error: false
-
-  # Integration tests with full service stack
-  test-integration-full:
-    name: Full Integration Tests
+  # Database integration tests (PostgreSQL + pgvector)
+  integration-postgres:
+    name: Integration Tests (PostgreSQL)
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -157,16 +119,6 @@ jobs:
           restore-keys: |
             uv-${{ runner.os }}-
 
-      - name: Cache sentence-transformers models
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/torch/sentence_transformers
-            ~/.cache/huggingface
-          key: st-models-${{ hashFiles('**/pyproject.toml') }}
-          restore-keys: |
-            st-models-
-
       - name: Install PostgreSQL client
         run: |
           sudo apt-get update
@@ -174,10 +126,6 @@ jobs:
 
       - name: Install dependencies
         run: uv sync --frozen --all-extras --group dev
-
-      - name: Install Alembic
-        run: |
-          uv pip install alembic
 
       - name: Verify PostgreSQL is ready
         run: |
@@ -193,36 +141,33 @@ jobs:
           PGPASSWORD=mycelium_test psql -h localhost -U mycelium -d mycelium_test -c "CREATE DATABASE mycelium_test;" 2>/dev/null || echo "Database mycelium_test already exists"
           PGPASSWORD=mycelium_test psql -h localhost -U mycelium -d mycelium_test -c "CREATE DATABASE mycelium_registry;" 2>/dev/null || echo "Database mycelium_registry already exists"
 
-      - name: Initialize database schema with old SQL method
-        run: |
-          # First apply the original schema for agent registry
-          PGPASSWORD=mycelium_test psql -h localhost -U mycelium -d mycelium_test -f plugins/mycelium-core/registry/schema.sql
-
-      - name: Run Alembic migrations for new tables
+      - name: Run database migrations with Alembic
         env:
           DATABASE_URL: postgresql://mycelium:mycelium_test@localhost:5432/mycelium_test
+          PGPASSWORD: mycelium_test
         run: |
-          # Run Alembic migrations to add state management and coordinator tables
+          echo "Running Alembic migrations to create all tables..."
           uv run alembic upgrade head
 
-      - name: Verify all tables exist
-        run: |
-          echo "Checking for agent registry tables..."
-          PGPASSWORD=mycelium_test psql -h localhost -U mycelium -d mycelium_test -c "\dt" | grep agents || echo "agents table missing"
+          echo "Verifying all tables created..."
+          psql -h localhost -U mycelium -d mycelium_test -c "\dt" | tee tables.txt
 
-          echo "Checking for state management tables..."
-          PGPASSWORD=mycelium_test psql -h localhost -U mycelium -d mycelium_test -c "\dt" | grep workflow_states || echo "workflow_states table missing"
-          PGPASSWORD=mycelium_test psql -h localhost -U mycelium -d mycelium_test -c "\dt" | grep task_states || echo "task_states table missing"
-          PGPASSWORD=mycelium_test psql -h localhost -U mycelium -d mycelium_test -c "\dt" | grep workflow_state_history || echo "workflow_state_history table missing"
+          # Check registry tables
+          for table in agents agent_usage agent_dependencies; do
+            grep -q "$table" tables.txt || (echo "Registry table $table not found!" && exit 1)
+          done
 
-          echo "Checking for coordinator tables..."
-          PGPASSWORD=mycelium_test psql -h localhost -U mycelium -d mycelium_test -c "\dt" | grep coordinator_events || echo "coordinator_events table missing"
-          PGPASSWORD=mycelium_test psql -h localhost -U mycelium -d mycelium_test -c "\dt" | grep coordination_tracker || echo "coordination_tracker table missing"
-          PGPASSWORD=mycelium_test psql -h localhost -U mycelium -d mycelium_test -c "\dt" | grep agent_communication || echo "agent_communication table missing"
+          # Check coordination tables
+          for table in workflow_states task_states coordination_events; do
+            grep -q "$table" tables.txt || (echo "Coordination table $table not found!" && exit 1)
+          done
 
-      - name: Run all integration tests
+          echo "All required tables created successfully"
+
+      - name: Run integration tests
         shell: bash
         env:
+          PYTHONPATH: ${{ github.workspace }}
           POSTGRES_HOST: localhost
           POSTGRES_PORT: 5432
           POSTGRES_USER: mycelium
@@ -230,38 +175,16 @@ jobs:
           POSTGRES_DB: mycelium_test
           DATABASE_URL: postgresql://mycelium:mycelium_test@localhost:5432/mycelium_test
         run: |
-          uv run pytest tests/integration/ tests/telemetry/ -v \
-            --tb=long \
-            --cov=plugins \
-            --cov=mycelium_onboarding \
-            --cov-report=xml \
-            --cov-report=term \
-            --cov-report=html
+          uv run pytest tests/integration/ -v \
+            -m "integration" \
+            --tb=short \
+            --maxfail=5
 
-      - name: Upload integration test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: integration-test-results
-          path: |
-            coverage.xml
-            htmlcov/
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          files: ./coverage.xml
-          flags: integration-full
-          name: integration-full
-          fail_ci_if_error: false
-
-  # Performance benchmarks with detailed reporting
+  # Performance benchmarks
   benchmarks:
     name: Performance Benchmarks
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: write
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -285,129 +208,38 @@ jobs:
           restore-keys: |
             uv-${{ runner.os }}-
 
-      - name: Cache sentence-transformers models
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/torch/sentence_transformers
-            ~/.cache/huggingface
-          key: st-models-${{ hashFiles('**/pyproject.toml') }}
-          restore-keys: |
-            st-models-
-
       - name: Install dependencies
         run: uv sync --frozen --all-extras --group dev
 
       - name: Run benchmarks
         shell: bash
-        env:
-          PYTHONPATH: ${{ github.workspace }}
         run: |
           uv run pytest tests/ -v \
             -m "benchmark" \
             --benchmark-only \
-            --benchmark-json=benchmark-results.json \
-            --benchmark-autosave \
-            --benchmark-save-data
+            --benchmark-json=benchmark-results.json
 
       - name: Store benchmark results
         uses: actions/upload-artifact@v4
         with:
           name: benchmark-results
-          path: |
-            benchmark-results.json
-            .benchmarks/
+          path: benchmark-results.json
 
-      - name: Comment benchmark results on PR
-        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const fs = require('fs');
-            const results = JSON.parse(fs.readFileSync('benchmark-results.json', 'utf8'));
-
-            // Helper function to format time in appropriate units
-            function formatTime(seconds) {
-              if (seconds < 0.001) {
-                return `${(seconds * 1000000).toFixed(2)}µs`;
-              } else if (seconds < 1) {
-                return `${(seconds * 1000).toFixed(2)}ms`;
-              } else {
-                return `${seconds.toFixed(3)}s`;
-              }
-            }
-
-            let comment = '## 🏎️ Benchmark Results\n\n';
-            comment += '| Test | Min | Max | Mean | StdDev | Ops/sec |\n';
-            comment += '|------|-----|-----|------|--------|--------|\n';
-
-            results.benchmarks.forEach(bench => {
-              const stats = bench.stats;
-              const opsPerSec = stats.mean > 0 ? (1 / stats.mean).toFixed(0) : 'N/A';
-              comment += `| ${bench.name.replace('test_benchmark_', '')} | `;
-              comment += `${formatTime(stats.min)} | `;
-              comment += `${formatTime(stats.max)} | `;
-              comment += `${formatTime(stats.mean)} | `;
-              comment += `${formatTime(stats.stddev)} | `;
-              comment += `${opsPerSec} |\n`;
-            });
-
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: comment
-            });
-
-  # Coverage report aggregation
-  coverage-report:
-    name: Coverage Report
+  # Ensure all required checks pass
+  test-success:
+    name: Test Success
     runs-on: ubuntu-latest
-    needs: [test-matrix, test-integration-full]
+    needs: [test-matrix, integration-postgres]
     if: always()
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Download all coverage artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: coverage-reports/
-
-      - name: Display coverage structure
-        run: |
-          ls -R coverage-reports/
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Install coverage tools
-        run: |
-          pip install coverage
-
-      - name: Combine coverage reports
-        run: |
-          find coverage-reports -name 'coverage.xml' -exec echo "Found: {}" \;
-          # Note: This is a placeholder - actual combining would need coverage combine
-          echo "Coverage reports collected from all test runs"
-
-  # Test result summary
-  test-summary:
-    name: Test Summary
-    runs-on: ubuntu-latest
-    needs: [test-matrix, test-integration-full, benchmarks]
-    if: always()
-    steps:
-      - name: Check test results
+      - name: Check all test jobs status
         run: |
           if [[ "${{ needs.test-matrix.result }}" != "success" ]]; then
-            echo "Test matrix failed"
+            echo "Test matrix job failed"
             exit 1
           fi
-          if [[ "${{ needs.test-integration-full.result }}" != "success" ]]; then
-            echo "Integration tests failed"
+          if [[ "${{ needs.integration-postgres.result }}" != "success" ]]; then
+            echo "PostgreSQL integration tests failed"
             exit 1
           fi
-          echo "All tests passed successfully!"
+          echo "All tests passed!"
