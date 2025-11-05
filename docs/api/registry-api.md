@@ -100,6 +100,9 @@ Create a new agent in the registry.
 **Signature:**
 
 ```python
+from uuid import UUID
+from typing import Optional, List, Dict, Any
+
 async def create_agent(
     agent_id: str,
     agent_type: str,
@@ -114,7 +117,9 @@ async def create_agent(
     embedding: Optional[List[float]] = None,
     estimated_tokens: Optional[int] = None,
     metadata: Optional[Dict[str, Any]] = None,
-) -> UUID
+) -> UUID:
+    """Create an agent in the registry."""
+    pass
 ```
 
 **Parameters:**
@@ -167,7 +172,11 @@ Retrieve an agent by its agent_id.
 **Signature:**
 
 ```python
-async def get_agent_by_id(agent_id: str) -> Dict[str, Any]
+from typing import Dict, Any
+
+async def get_agent_by_id(agent_id: str) -> Dict[str, Any]:
+    """Get agent by ID."""
+    pass
 ```
 
 **Parameters:**
@@ -183,10 +192,11 @@ async def get_agent_by_id(agent_id: str) -> Dict[str, Any]
 **Example:**
 
 ```python
-agent = await registry.get_agent_by_id("01-core-backend-developer")
-print(f"Agent: {agent['name']}")
-print(f"Description: {agent['description']}")
-print(f"Capabilities: {agent['capabilities']}")
+async def example():
+    agent = await registry.get_agent_by_id("01-core-backend-developer")
+    print(f"Agent: {agent['name']}")
+    print(f"Description: {agent['description']}")
+    print(f"Capabilities: {agent['capabilities']}")
 ```
 
 ______________________________________________________________________
