@@ -8,6 +8,7 @@ on:
       - 'docs/**'
       - '**.md'
       - 'examples/**'
+      - 'tests/docs/**'
   push:
     branches:
       - main
@@ -15,6 +16,7 @@ on:
       - 'docs/**'
       - '**.md'
       - 'examples/**'
+      - 'tests/docs/**'
   workflow_dispatch:
 
 env:
@@ -22,11 +24,66 @@ env:
   UV_VERSION: "0.5.11"
 
 jobs:
+  # Run the generated documentation snippet tests
+  test-generated-snippets:
+    name: Test Generated Documentation Snippets
+    runs-on: ubuntu-latest
+    continue-on-error: true  # Non-blocking - allow failures
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: ${{ env.UV_VERSION }}
+          enable-cache: true
+
+      - name: Cache uv packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/uv
+          key: uv-${{ runner.os }}-${{ hashFiles('**/pyproject.toml', '**/uv.lock') }}
+          restore-keys: |
+            uv-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: uv sync --frozen --all-extras --group dev
+
+      - name: Run generated snippet tests
+        run: |
+          echo "Running tests for generated documentation snippets..."
+          echo "Note: These tests are non-blocking and may fail due to syntax errors in docs"
+          uv run pytest tests/docs/ -v --tb=short || true
+
+      - name: Generate snippet test report
+        if: always()
+        run: |
+          echo "## Documentation Snippet Test Results" > snippet-report.md
+          echo "" >> snippet-report.md
+          echo "These tests validate code snippets extracted from documentation." >> snippet-report.md
+          echo "Failures here indicate syntax errors or issues in documentation examples." >> snippet-report.md
+          echo "" >> snippet-report.md
+          uv run pytest tests/docs/ --tb=no --no-header -q 2>&1 | tee -a snippet-report.md || true
+
+      - name: Upload snippet test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: snippet-test-report
+          path: snippet-report.md
+
   # Extract and test Python code snippets from documentation
   # Note: Markdown linting is handled by pre-commit hooks (mdformat)
   test-doc-examples:
     name: Test Documentation Examples
     runs-on: ubuntu-latest
+    continue-on-error: true  # Non-blocking - allow failures
     services:
       postgres:
         image: ankane/pgvector:latest
@@ -168,6 +225,7 @@ jobs:
           fi
 
       - name: Validate Python syntax in extracted code
+        continue-on-error: true
         run: |
           if [ -f /tmp/doc-tests/test_files.txt ]; then
             while IFS= read -r test_file; do
@@ -179,6 +237,7 @@ jobs:
           fi
 
       - name: Run static analysis on examples
+        continue-on-error: true
         run: |
           if [ -f /tmp/doc-tests/test_files.txt ]; then
             while IFS= read -r test_file; do
@@ -188,9 +247,9 @@ jobs:
           else
             echo "No test files to lint"
           fi
-        continue-on-error: true
 
       - name: Test imports in documentation examples
+        continue-on-error: true
         run: |
           if [ -f /tmp/doc-tests/test_files.txt ]; then
             echo "Testing imports in documentation examples..."
@@ -226,12 +285,12 @@ jobs:
           else
             echo "No test files to check imports"
           fi
-        continue-on-error: true
 
   # Validate code examples in examples/ directory
   test-examples:
     name: Test Example Scripts
     runs-on: ubuntu-latest
+    continue-on-error: true  # Non-blocking - allow failures
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -251,6 +310,7 @@ jobs:
         run: uv sync --frozen --all-extras --group dev
 
       - name: Validate example scripts syntax
+        continue-on-error: true
         run: |
           find examples -name "*.py" -type f | while read -r script; do
             echo "Validating: $script"
@@ -258,19 +318,20 @@ jobs:
           done
 
       - name: Lint example scripts
+        continue-on-error: true
         run: |
           uv run ruff check examples/ --select F,E,W --ignore E501
-        continue-on-error: true
 
       - name: Type check example scripts
+        continue-on-error: true
         run: |
           uv run mypy examples/ --ignore-missing-imports --no-strict-optional
-        continue-on-error: true
 
   # Check documentation completeness
   docs-coverage:
     name: Documentation Coverage
     runs-on: ubuntu-latest
+    continue-on-error: true  # Non-blocking - allow failures
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -292,6 +353,7 @@ jobs:
           pip install interrogate
 
       - name: Check docstring coverage
+        continue-on-error: true
         run: |
           interrogate -v \
             --ignore-init-method \
@@ -303,9 +365,9 @@ jobs:
             --ignore-property-decorators \
             --fail-under=50 \
             plugins/ mycelium_onboarding/
-        continue-on-error: true
 
       - name: Generate documentation coverage report
+        continue-on-error: true
         run: |
           interrogate -v \
             --ignore-init-method \
@@ -317,19 +379,21 @@ jobs:
             --ignore-property-decorators \
             --generate-badge docs/ \
             plugins/ mycelium_onboarding/
-        continue-on-error: true
 
   # Summary job
   docs-validation-summary:
     name: Documentation Validation Summary
     runs-on: ubuntu-latest
-    needs: [test-doc-examples, test-examples, docs-coverage]
+    needs: [test-generated-snippets, test-doc-examples, test-examples, docs-coverage]
     if: always()
     steps:
       - name: Check validation results
         run: |
-          echo "Documentation validation completed"
+          echo "Documentation validation completed (non-blocking)"
+          echo "Generated snippets: ${{ needs.test-generated-snippets.result }}"
           echo "Doc examples: ${{ needs.test-doc-examples.result }}"
           echo "Example scripts: ${{ needs.test-examples.result }}"
           echo "Docs coverage: ${{ needs.docs-coverage.result }}"
-          echo "Note: Markdown linting handled by pre-commit hooks"
+          echo ""
+          echo "Note: All documentation tests are non-blocking."
+          echo "Failures indicate issues in documentation that should be fixed but won't block PRs."

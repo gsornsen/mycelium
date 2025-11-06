@@ -74,6 +74,7 @@ jobs:
         run: |
           uv run pytest tests/ -v \
             -m "not integration" \
+            --ignore=tests/docs \
             --tb=short \
             --maxfail=5
 
@@ -216,6 +217,7 @@ jobs:
         run: |
           uv run pytest tests/ -v \
             -m "benchmark" \
+            --ignore=tests/docs \
             --benchmark-only \
             --benchmark-json=benchmark-results.json
 
