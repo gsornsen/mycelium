@@ -9,7 +9,6 @@ Date: 2025-10-18
 """
 
 import pytest
-from datetime import datetime, timezone, timedelta
 
 from scripts.health_check import format_duration, generate_health_report, status_icon
 

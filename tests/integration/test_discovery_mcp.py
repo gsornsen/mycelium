@@ -3,28 +3,26 @@
 Simplified test suite using Pydantic models and reduced fixture complexity.
 """
 
-import json
-from unittest.mock import AsyncMock, Mock, patch
+from unittest.mock import Mock
 
 import httpx
 import pytest
-
-from plugins.mycelium_core.mcp.models import (
+from mycelium_mcp.models import (
     AgentDetails,
     AgentMatch,
     DiscoverAgentsResponse,
     GetAgentDetailsResponse,
     HealthCheckResponse,
 )
-from plugins.mycelium_core.mcp.tools.discovery_tools import (
+from mycelium_mcp.tools.discovery_tools import (
     DiscoveryAPIError,
     DiscoveryTimeoutError,
-    DiscoveryToolError,
     check_discovery_health,
     close_http_client,
     discover_agents,
     get_agent_details,
 )
+from pydantic import ValidationError
 
 
 class TestDiscoverAgents:
@@ -62,15 +60,15 @@ class TestDiscoverAgents:
     async def test_discover_agents_validation_errors(self):
         """Test Pydantic validation catches invalid inputs."""
         # Empty query
-        with pytest.raises(Exception):  # Pydantic ValidationError
+        with pytest.raises(ValidationError):
             await discover_agents(query="")
 
         # Invalid limit
-        with pytest.raises(Exception):
+        with pytest.raises(ValidationError):
             await discover_agents(query="test", limit=0)
 
         # Invalid threshold
-        with pytest.raises(Exception):
+        with pytest.raises(ValidationError):
             await discover_agents(query="test", threshold=1.5)
 
     @pytest.mark.asyncio
@@ -118,7 +116,7 @@ class TestGetAgentDetails:
     @pytest.mark.asyncio
     async def test_get_agent_details_validation(self):
         """Test Pydantic validation for agent_id."""
-        with pytest.raises(Exception):  # Pydantic ValidationError
+        with pytest.raises(ValidationError):
             await get_agent_details(agent_id="")
 
     @pytest.mark.asyncio
@@ -164,6 +162,7 @@ class TestCheckDiscoveryHealth:
 
 # Simplified fixtures using pytest-asyncio
 
+
 @pytest.fixture(autouse=True)
 async def cleanup_client():
     """Cleanup HTTP client after each test."""
@@ -174,6 +173,7 @@ async def cleanup_client():
 @pytest.fixture
 def mock_discovery_response(monkeypatch):
     """Mock successful discovery API response."""
+
     async def mock_post(self, url, **kwargs):
         return Mock(
             status_code=200,
@@ -209,6 +209,7 @@ def mock_discovery_response(monkeypatch):
 @pytest.fixture
 def mock_agent_details(monkeypatch):
     """Mock successful agent details response."""
+
     async def mock_get(self, url, **kwargs):
         return Mock(
             status_code=200,
@@ -237,6 +238,7 @@ def mock_agent_details(monkeypatch):
 @pytest.fixture
 def mock_no_results(monkeypatch):
     """Mock API with no results."""
+
     async def mock_post(self, url, **kwargs):
         return Mock(
             status_code=200,
@@ -254,6 +256,7 @@ def mock_no_results(monkeypatch):
 @pytest.fixture
 def mock_api_500(monkeypatch):
     """Mock API 500 error."""
+
     async def mock_post(self, url, **kwargs):
         return Mock(
             status_code=500,
@@ -266,6 +269,7 @@ def mock_api_500(monkeypatch):
 @pytest.fixture
 def mock_404(monkeypatch):
     """Mock API 404 error."""
+
     async def mock_get(self, url, **kwargs):
         return Mock(
             status_code=404,
@@ -278,6 +282,7 @@ def mock_404(monkeypatch):
 @pytest.fixture
 def mock_timeout(monkeypatch):
     """Mock API timeout."""
+
     async def mock_request(self, *args, **kwargs):
         raise httpx.TimeoutException("Request timed out")
 
@@ -311,6 +316,7 @@ def mock_retry_then_success(monkeypatch):
 @pytest.fixture
 def mock_health_ok(monkeypatch):
     """Mock healthy API response."""
+
     async def mock_get(self, url, **kwargs):
         return Mock(
             status_code=200,
@@ -329,6 +335,7 @@ def mock_health_ok(monkeypatch):
 @pytest.fixture
 def mock_health_error(monkeypatch):
     """Mock unhealthy API response."""
+
     async def mock_get(self, url, **kwargs):
         return Mock(status_code=503)
 

@@ -1,0 +1,247 @@
+name: Test Suite
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+  schedule:
+    # Run comprehensive tests daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: "3.10"
+  UV_VERSION: "0.5.11"
+
+jobs:
+  # Comprehensive test matrix across Python versions and OS
+  test-matrix:
+    name: Test (${{ matrix.os }}, Python ${{ matrix.python-version }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+        exclude:
+          # Windows can be slow, test only latest Python
+          - os: windows-latest
+            python-version: "3.10"
+          - os: windows-latest
+            python-version: "3.11"
+          - os: windows-latest
+            python-version: "3.12"
+          # macOS is expensive, test only one version
+          - os: macos-latest
+            python-version: "3.10"
+          - os: macos-latest
+            python-version: "3.11"
+          - os: macos-latest
+            python-version: "3.12"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: ${{ env.UV_VERSION }}
+          enable-cache: true
+
+      - name: Cache uv packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/uv
+          key: uv-${{ runner.os }}-py${{ matrix.python-version }}-${{ hashFiles('**/pyproject.toml', '**/uv.lock') }}
+          restore-keys: |
+            uv-${{ runner.os }}-py${{ matrix.python-version }}-
+            uv-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: uv sync --frozen --all-extras --group dev
+
+      - name: Run unit tests only
+        shell: bash
+        run: |
+          uv run pytest tests/unit/ tests/test_*.py -v \
+            --ignore=tests/docs \
+            -m "not integration and not benchmark and not slow" \
+            --tb=short \
+            --maxfail=5
+
+  # Database integration tests (PostgreSQL + pgvector)
+  integration-postgres:
+    name: Integration Tests (PostgreSQL)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: ankane/pgvector:latest
+        env:
+          POSTGRES_USER: mycelium
+          POSTGRES_PASSWORD: mycelium_test
+          POSTGRES_DB: mycelium_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: ${{ env.UV_VERSION }}
+          enable-cache: true
+
+      - name: Cache uv packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/uv
+          key: uv-${{ runner.os }}-${{ hashFiles('**/pyproject.toml', '**/uv.lock') }}
+          restore-keys: |
+            uv-${{ runner.os }}-
+
+      - name: Install PostgreSQL client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+
+      - name: Install dependencies
+        run: uv sync --frozen --all-extras --group dev
+
+      - name: Verify PostgreSQL is ready
+        run: |
+          timeout 60 bash -c 'until pg_isready -h localhost -p 5432 -U mycelium; do echo "Waiting for PostgreSQL..."; sleep 2; done'
+
+      - name: Verify pgvector extension
+        run: |
+          PGPASSWORD=mycelium_test psql -h localhost -U mycelium -d mycelium_test -c "CREATE EXTENSION IF NOT EXISTS vector;"
+          PGPASSWORD=mycelium_test psql -h localhost -U mycelium -d mycelium_test -c "SELECT * FROM pg_extension WHERE extname='vector';" | grep vector
+
+      - name: Create test databases
+        run: |
+          PGPASSWORD=mycelium_test psql -h localhost -U mycelium -d mycelium_test -c "CREATE DATABASE mycelium_test;" 2>/dev/null || echo "Database mycelium_test already exists"
+          PGPASSWORD=mycelium_test psql -h localhost -U mycelium -d mycelium_test -c "CREATE DATABASE mycelium_registry;" 2>/dev/null || echo "Database mycelium_registry already exists"
+
+      - name: Run database migrations with Alembic
+        env:
+          DATABASE_URL: postgresql://mycelium:mycelium_test@localhost:5432/mycelium_test
+          PGPASSWORD: mycelium_test
+        run: |
+          echo "Running Alembic migrations to create all tables..."
+          uv run alembic upgrade head
+
+          echo "Verifying all tables created..."
+          psql -h localhost -U mycelium -d mycelium_test -c "\dt" | tee tables.txt
+
+          # Check registry tables
+          for table in agents agent_usage agent_dependencies; do
+            grep -q "$table" tables.txt || (echo "Registry table $table not found!" && exit 1)
+          done
+
+          # Check coordination tables
+          for table in workflow_states task_states coordination_events; do
+            grep -q "$table" tables.txt || (echo "Coordination table $table not found!" && exit 1)
+          done
+
+          echo "All required tables created successfully"
+
+      - name: Run integration tests
+        shell: bash
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: 5432
+          POSTGRES_USER: mycelium
+          POSTGRES_PASSWORD: mycelium_test
+          POSTGRES_DB: mycelium_test
+          DATABASE_URL: postgresql://mycelium:mycelium_test@localhost:5432/mycelium_test
+        run: |
+          uv run pytest tests/integration/ -v \
+            -m "integration" \
+            --tb=short \
+            --maxfail=5
+
+  # Performance benchmarks
+  benchmarks:
+    name: Performance Benchmarks
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: ${{ env.UV_VERSION }}
+          enable-cache: true
+
+      - name: Cache uv packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/uv
+          key: uv-${{ runner.os }}-${{ hashFiles('**/pyproject.toml', '**/uv.lock') }}
+          restore-keys: |
+            uv-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: uv sync --frozen --all-extras --group dev
+
+      - name: Run benchmarks
+        shell: bash
+        run: |
+          uv run pytest tests/ -v \
+            -m "benchmark" \
+            --ignore=tests/docs \
+            --benchmark-only \
+            --benchmark-json=benchmark-results.json
+
+      - name: Store benchmark results
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-results
+          path: benchmark-results.json
+
+  # Ensure all required checks pass
+  test-success:
+    name: Test Success
+    runs-on: ubuntu-latest
+    needs: [test-matrix, integration-postgres]
+    if: always()
+    steps:
+      - name: Check all test jobs status
+        run: |
+          if [[ "${{ needs.test-matrix.result }}" != "success" ]]; then
+            echo "Test matrix job failed"
+            exit 1
+          fi
+          if [[ "${{ needs.integration-postgres.result }}" != "success" ]]; then
+            echo "PostgreSQL integration tests failed"
+            exit 1
+          fi
+          echo "All tests passed!"

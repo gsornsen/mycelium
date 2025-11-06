@@ -1,28 +1,27 @@
 # Task Template
 
-Use this template to document individual tasks within milestones. Each task should be actionable, measurable, and have clear deliverables.
+Use this template to document individual tasks within milestones. Each task should be actionable, measurable, and have
+clear deliverables.
 
----
+______________________________________________________________________
 
-## Task [Milestone].[Number]: [Task Title]
+## Task \[Milestone\].\[Number\]: \[Task Title\]
 
-**Effort**: [Hours] hours
-**Agent**: [Lead agent name], [Support agent name(s)]
-**Dependencies**: [Required tasks or milestones to complete first]
-**Priority**: [P0 (Critical) | P1 (High) | P2 (Medium) | P3 (Low)]
+**Effort**: \[Hours\] hours **Agent**: \[Lead agent name\], \[Support agent name(s)\] **Dependencies**: \[Required tasks
+or milestones to complete first\] **Priority**: \[P0 (Critical) | P1 (High) | P2 (Medium) | P3 (Low)\]
 
 ### Overview
 
-[2-3 sentences describing what this task accomplishes and why it's important to the milestone]
+\[2-3 sentences describing what this task accomplishes and why it's important to the milestone\]
 
 ### Requirements
 
-- **[Req-ID]**: [Specific requirement this task fulfills]
-- **[Req-ID]**: [Another requirement]
+- **\[Req-ID\]**: \[Specific requirement this task fulfills\]
+- **\[Req-ID\]**: \[Another requirement\]
 
 ### Implementation Details
 
-[Detailed description of how this task should be implemented, including:]
+\[Detailed description of how this task should be implemented, including:\]
 
 - Architecture decisions
 - Key components to build
@@ -53,13 +52,13 @@ def example_function(param: str) -> dict:
 
 ### Testing Strategy
 
-[How this task will be tested:]
+\[How this task will be tested:\]
 
 - Unit tests for individual functions
 - Integration tests for component interactions
 - Manual testing scenarios (if applicable)
 
-**Test Coverage Target**: [Percentage or specific test cases]
+**Test Coverage Target**: \[Percentage or specific test cases\]
 
 ### Exit Criteria
 
@@ -67,54 +66,57 @@ def example_function(param: str) -> dict:
 - [ ] Tests written and passing
 - [ ] Documentation updated
 - [ ] Integration points validated
-- [ ] [Custom criterion specific to this task]
+- [ ] \[Custom criterion specific to this task\]
 
 ### Deliverables
 
-1. **[Deliverable 1]**: [Description]
-   - File path: `path/to/file.py`
-   - Purpose: [What this file does]
+1. **\[Deliverable 1\]**: \[Description\]
 
-2. **[Deliverable 2]**: [Description]
+   - File path: `path/to/file.py`
+   - Purpose: \[What this file does\]
+
+1. **\[Deliverable 2\]**: \[Description\]
+
    - File path: `path/to/other_file.py`
-   - Purpose: [What this file does]
+   - Purpose: \[What this file does\]
 
 ### Risks & Mitigation
 
-| Risk | Likelihood | Impact | Mitigation Strategy |
-|------|-----------|--------|---------------------|
-| [Risk description] | [Low\|Med\|High] | [Low\|Med\|High] | [How to mitigate] |
+| Risk                 | Likelihood         | Impact             | Mitigation Strategy |
+| -------------------- | ------------------ | ------------------ | ------------------- |
+| \[Risk description\] | \[Low\|Med\|High\] | \[Low\|Med\|High\] | \[How to mitigate\] |
 
 ### Dependencies
 
 **Blocks**:
-- [Task or milestone that depends on this completing]
+
+- \[Task or milestone that depends on this completing\]
 
 **Blocked By**:
-- [Task or milestone that must complete first]
+
+- \[Task or milestone that must complete first\]
 
 ### Notes
 
-[Any additional context, alternative approaches considered, or implementation notes]
+\[Any additional context, alternative approaches considered, or implementation notes\]
 
----
+______________________________________________________________________
 
 ## Example Usage
 
 Below is a completed example of this template:
 
----
+______________________________________________________________________
 
 ## Task 5.2: Justfile Generator Implementation
 
-**Effort**: 4 hours
-**Agent**: python-pro, devops-engineer
-**Dependencies**: M05.1 (Docker Compose Generator)
+**Effort**: 4 hours **Agent**: python-pro, devops-engineer **Dependencies**: M05.1 (Docker Compose Generator)
 **Priority**: P1 (High)
 
 ### Overview
 
-Implement Justfile generator that creates task runner configuration for native service deployments. This enables users to manage locally-installed services (systemd, Homebrew) using a consistent interface similar to Docker Compose.
+Implement Justfile generator that creates task runner configuration for native service deployments. This enables users
+to manage locally-installed services (systemd, Homebrew) using a consistent interface similar to Docker Compose.
 
 ### Requirements
 
@@ -191,6 +193,7 @@ class JustfileGenerator:
 ### Testing Strategy
 
 Unit tests validate:
+
 - Correct Justfile syntax generation
 - Service commands (start, stop, status) included
 - Platform detection (systemd vs Homebrew)
@@ -209,36 +212,42 @@ Unit tests validate:
 ### Deliverables
 
 1. **JustfileGenerator Class**: Implementation
+
    - File path: `mycelium/generators/justfile.py`
    - Purpose: Generate Justfile from configuration
 
-2. **Jinja2 Template**: Justfile template
+1. **Jinja2 Template**: Justfile template
+
    - File path: `mycelium/templates/justfile.j2`
    - Purpose: Template for Justfile generation
 
-3. **Unit Tests**: Test suite
+1. **Unit Tests**: Test suite
+
    - File path: `tests/unit/test_justfile_generator.py`
    - Purpose: Validate generator functionality
 
 ### Risks & Mitigation
 
-| Risk | Likelihood | Impact | Mitigation Strategy |
-|------|-----------|--------|---------------------|
-| Platform differences (systemd vs Homebrew) | High | Medium | Template conditionals for platform-specific commands |
-| Invalid Justfile syntax | Low | High | Syntax validation after generation |
+| Risk                                       | Likelihood | Impact | Mitigation Strategy                                  |
+| ------------------------------------------ | ---------- | ------ | ---------------------------------------------------- |
+| Platform differences (systemd vs Homebrew) | High       | Medium | Template conditionals for platform-specific commands |
+| Invalid Justfile syntax                    | Low        | High   | Syntax validation after generation                   |
 
 ### Dependencies
 
 **Blocks**:
+
 - Task 5.5: Slash command integration (/mycelium-generate)
 
 **Blocked By**:
+
 - Task 5.1: Docker Compose generator (pattern established)
 
 ### Notes
 
-Consider adding support for other service managers (OpenRC, runit) in future versions. Current focus on systemd (Linux) and Homebrew (macOS) covers 90% of use cases.
+Consider adding support for other service managers (OpenRC, runit) in future versions. Current focus on systemd (Linux)
+and Homebrew (macOS) covers 90% of use cases.
 
----
+______________________________________________________________________
 
 *This template ensures consistent task documentation across all milestones.*

@@ -8,7 +8,7 @@ and error handling.
 from __future__ import annotations
 
 import copy
-from datetime import datetime
+from datetime import datetime, timezone
 
 import pytest
 
@@ -180,7 +180,7 @@ class TestMigrationHistory:
 
     def test_history_with_values(self):
         """Test MigrationHistory with explicit values."""
-        timestamp = datetime.now()
+        timestamp = datetime.now(timezone.utc)
         changes = {"added": {"monitoring": {}}}
 
         history = MigrationHistory(
@@ -675,8 +675,6 @@ class TestMigrationErrorHandling:
         registry.register(CircularMigration1())
         registry.register(CircularMigration2())
 
-        config = {"version": "1.0"}
-
         # Should still work (BFS doesn't loop infinitely)
         path = registry.get_migration_path("1.0", "1.1")
         assert len(path) == 1
@@ -746,7 +744,7 @@ class TestMigrationIntegration:
         registry = MigrationRegistry()
 
         # Create a graph with multiple paths using valid version numbers
-        class Mig_1_0_to_1_1(Migration):
+        class Mig10To11(Migration):
             from_version = "1.0"
             to_version = "1.1"
 
@@ -754,7 +752,7 @@ class TestMigrationIntegration:
                 config_dict["version"] = "1.1"
                 return config_dict
 
-        class Mig_1_1_to_1_3(Migration):
+        class Mig11To13(Migration):
             from_version = "1.1"
             to_version = "1.3"
 
@@ -762,7 +760,7 @@ class TestMigrationIntegration:
                 config_dict["version"] = "1.3"
                 return config_dict
 
-        class Mig_1_0_to_1_2(Migration):
+        class Mig10To12(Migration):
             from_version = "1.0"
             to_version = "1.2"
 
@@ -770,7 +768,7 @@ class TestMigrationIntegration:
                 config_dict["version"] = "1.2"
                 return config_dict
 
-        class Mig_1_2_to_1_3(Migration):
+        class Mig12To13(Migration):
             from_version = "1.2"
             to_version = "1.3"
 
@@ -778,10 +776,10 @@ class TestMigrationIntegration:
                 config_dict["version"] = "1.3"
                 return config_dict
 
-        registry.register(Mig_1_0_to_1_1())
-        registry.register(Mig_1_1_to_1_3())
-        registry.register(Mig_1_0_to_1_2())
-        registry.register(Mig_1_2_to_1_3())
+        registry.register(Mig10To11())
+        registry.register(Mig11To13())
+        registry.register(Mig10To12())
+        registry.register(Mig12To13())
 
         # Should find shortest path (1.0 -> 1.1 -> 1.3 or 1.0 -> 1.2 -> 1.3)
         path = registry.get_migration_path("1.0", "1.3")

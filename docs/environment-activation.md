@@ -1,10 +1,8 @@
 # Environment Activation Guide
 
-**Version**: 1.0
-**Last Updated**: 2025-10-13
-**Audience**: Developers using Mycelium
+**Version**: 1.0 **Last Updated**: 2025-10-13 **Audience**: Developers using Mycelium
 
----
+______________________________________________________________________
 
 ## Quick Start (30 seconds)
 
@@ -30,19 +28,19 @@ source bin/activate.sh
 deactivate
 ```
 
----
+______________________________________________________________________
 
 ## Table of Contents
 
 1. [What Gets Set Up](#what-gets-set-up)
-2. [Automatic Activation with direnv](#automatic-activation-with-direnv)
-3. [Manual Activation](#manual-activation)
-4. [Verification Steps](#verification-steps)
-5. [Common Workflows](#common-workflows)
-6. [Environment Variables Reference](#environment-variables-reference)
-7. [Troubleshooting](#troubleshooting)
+1. [Automatic Activation with direnv](#automatic-activation-with-direnv)
+1. [Manual Activation](#manual-activation)
+1. [Verification Steps](#verification-steps)
+1. [Common Workflows](#common-workflows)
+1. [Environment Variables Reference](#environment-variables-reference)
+1. [Troubleshooting](#troubleshooting)
 
----
+______________________________________________________________________
 
 ## What Gets Set Up
 
@@ -107,7 +105,7 @@ user@host:~/mycelium$
 (mycelium) user@host:~/mycelium$
 ```
 
----
+______________________________________________________________________
 
 ## Automatic Activation with direnv
 
@@ -116,6 +114,7 @@ user@host:~/mycelium$
 ### Prerequisites
 
 1. Install direnv:
+
    ```bash
    # Ubuntu/Debian
    sudo apt install direnv
@@ -126,7 +125,8 @@ user@host:~/mycelium$
    # Other: https://direnv.net/docs/installation.html
    ```
 
-2. Add direnv hook to your shell config:
+1. Add direnv hook to your shell config:
+
    ```bash
    # For bash (~/.bashrc)
    eval "$(direnv hook bash)"
@@ -138,7 +138,7 @@ user@host:~/mycelium$
    direnv hook fish | source
    ```
 
-3. Restart your shell or source the config file.
+1. Restart your shell or source the config file.
 
 ### Setup
 
@@ -187,7 +187,7 @@ cat .envrc                  # Review changes
 direnv allow                # Only if changes look safe
 ```
 
----
+______________________________________________________________________
 
 ## Manual Activation
 
@@ -231,6 +231,7 @@ source bin/activate.sh --verbose
 ```
 
 Verbose mode shows:
+
 - Script execution steps
 - Timestamps
 - Working directory
@@ -269,7 +270,7 @@ deactivate
 source bin/activate.sh
 ```
 
----
+______________________________________________________________________
 
 ## Verification Steps
 
@@ -293,6 +294,7 @@ mycelium-diagnose
 ```
 
 This shows:
+
 - Shell information
 - All environment variables
 - Directory status (existence, permissions, size)
@@ -333,7 +335,7 @@ python --version
 # Should show: Python 3.10+ (your project version)
 ```
 
----
+______________________________________________________________________
 
 ## Common Workflows
 
@@ -425,26 +427,26 @@ source bin/activate.sh
 # Use development config in .mycelium/
 ```
 
----
+______________________________________________________________________
 
 ## Environment Variables Reference
 
 ### Core Variables
 
-| Variable | Example | Purpose |
-|----------|---------|---------|
-| `MYCELIUM_ROOT` | `/home/user/mycelium` | Project root directory (absolute path) |
-| `MYCELIUM_ENV_ACTIVE` | `1` | Activation flag (1 = active, unset = inactive) |
+| Variable              | Example               | Purpose                                        |
+| --------------------- | --------------------- | ---------------------------------------------- |
+| `MYCELIUM_ROOT`       | `/home/user/mycelium` | Project root directory (absolute path)         |
+| `MYCELIUM_ENV_ACTIVE` | `1`                   | Activation flag (1 = active, unset = inactive) |
 
 ### XDG Directories
 
-| Variable | Example | Purpose |
-|----------|---------|---------|
-| `MYCELIUM_CONFIG_DIR` | `~/.config/mycelium` | User configuration files |
-| `MYCELIUM_DATA_DIR` | `~/.local/share/mycelium` | Application data (templates, history) |
-| `MYCELIUM_CACHE_DIR` | `~/.cache/mycelium` | Temporary cache (safe to delete) |
-| `MYCELIUM_STATE_DIR` | `~/.local/state/mycelium` | Application state and logs |
-| `MYCELIUM_PROJECT_DIR` | `.mycelium/` | Project-local configuration |
+| Variable               | Example                   | Purpose                               |
+| ---------------------- | ------------------------- | ------------------------------------- |
+| `MYCELIUM_CONFIG_DIR`  | `~/.config/mycelium`      | User configuration files              |
+| `MYCELIUM_DATA_DIR`    | `~/.local/share/mycelium` | Application data (templates, history) |
+| `MYCELIUM_CACHE_DIR`   | `~/.cache/mycelium`       | Temporary cache (safe to delete)      |
+| `MYCELIUM_STATE_DIR`   | `~/.local/state/mycelium` | Application state and logs            |
+| `MYCELIUM_PROJECT_DIR` | `.mycelium/`              | Project-local configuration           |
 
 ### XDG Overrides
 
@@ -466,12 +468,12 @@ source bin/activate.sh
 
 ### Internal Variables (Don't Modify)
 
-| Variable | Purpose |
-|----------|---------|
-| `MYCELIUM_OLD_PATH` | Backup of original PATH (for deactivation) |
-| `MYCELIUM_OLD_PS1` | Backup of original prompt (for deactivation) |
+| Variable            | Purpose                                      |
+| ------------------- | -------------------------------------------- |
+| `MYCELIUM_OLD_PATH` | Backup of original PATH (for deactivation)   |
+| `MYCELIUM_OLD_PS1`  | Backup of original prompt (for deactivation) |
 
----
+______________________________________________________________________
 
 ## Troubleshooting
 
@@ -480,6 +482,7 @@ source bin/activate.sh
 **Symptom**: Commands fail with "environment not active" error
 
 **Solutions**:
+
 ```bash
 # Check if active
 echo $MYCELIUM_ENV_ACTIVE
@@ -496,6 +499,7 @@ direnv allow
 **Symptom**: "Warning: Mycelium environment already active"
 
 **Solution**:
+
 ```bash
 # Deactivate first
 deactivate
@@ -509,6 +513,7 @@ source bin/activate.sh
 **Symptom**: "Warning: Virtual environment not found at .venv/"
 
 **Solution**:
+
 ```bash
 # Create virtual environment
 uv sync
@@ -522,6 +527,7 @@ source bin/activate.sh
 **Symptom**: Can't create directories or write files
 
 **Solution**:
+
 ```bash
 # Check permissions
 ls -ld ~/.config ~/.local ~/.cache
@@ -538,10 +544,12 @@ mycelium-diagnose
 **Symptom**: "Warning: Shell detection failed"
 
 **Supported shells**:
+
 - Bash 4.0+
 - Zsh 5.0+
 
 **Solution**:
+
 ```bash
 # Check your shell
 echo $SHELL
@@ -556,6 +564,7 @@ source bin/activate.sh
 **Symptom**: Slow operations in WSL
 
 **Solution**:
+
 ```bash
 # Check if in Windows filesystem
 pwd
@@ -572,6 +581,7 @@ source bin/activate.sh
 **Symptom**: direnv doesn't activate automatically
 
 **Solutions**:
+
 ```bash
 # 1. Check direnv is installed
 which direnv
@@ -595,6 +605,7 @@ direnv allow
 **Explanation**: Subshells don't inherit activation automatically
 
 **Solution**:
+
 ```bash
 # In parent shell
 source bin/activate.sh
@@ -608,7 +619,7 @@ source bin/activate.sh
 
 For more troubleshooting, see [troubleshooting-environment.md](troubleshooting-environment.md)
 
----
+______________________________________________________________________
 
 ## Advanced Topics
 
@@ -617,10 +628,12 @@ For more troubleshooting, see [troubleshooting-environment.md](troubleshooting-e
 Mycelium uses a two-tier configuration hierarchy:
 
 1. **User-global** (in `MYCELIUM_CONFIG_DIR`)
+
    - Applies to all Mycelium projects
    - Example: `~/.config/mycelium/config.yaml`
 
-2. **Project-local** (in `MYCELIUM_PROJECT_DIR`)
+1. **Project-local** (in `MYCELIUM_PROJECT_DIR`)
+
    - Overrides user-global settings
    - Example: `.mycelium/config.yaml`
 
@@ -662,7 +675,7 @@ except EnvironmentValidationError as e:
     print(f"Environment error: {e}")
 ```
 
----
+______________________________________________________________________
 
 ## See Also
 
@@ -671,16 +684,15 @@ except EnvironmentValidationError as e:
 - [Design Document](design/environment-isolation-strategy.md) - Technical architecture
 - [Contributing Guide](../CONTRIBUTING.md) - Development setup
 
----
+______________________________________________________________________
 
 ## Getting Help
 
 1. **Run diagnostics**: `mycelium-diagnose`
-2. **Check dependencies**: `./bin/check-dependencies.sh`
-3. **Read troubleshooting**: [troubleshooting-environment.md](troubleshooting-environment.md)
-4. **Ask for help**: Open an issue with diagnostics output
+1. **Check dependencies**: `./bin/check-dependencies.sh`
+1. **Read troubleshooting**: [troubleshooting-environment.md](troubleshooting-environment.md)
+1. **Ask for help**: Open an issue with diagnostics output
 
----
+______________________________________________________________________
 
-**Last Updated**: 2025-10-13
-**Maintained By**: DevOps Engineering Team
+**Last Updated**: 2025-10-13 **Maintained By**: DevOps Engineering Team

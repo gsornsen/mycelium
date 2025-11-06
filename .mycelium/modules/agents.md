@@ -1,23 +1,25 @@
 # Mycelium Agents Guide
 
-Complete guide to agent categories, discovery, development, communication protocols, and integration patterns in the Mycelial network.
+Complete guide to agent categories, discovery, development, communication protocols, and integration patterns in the
+Mycelial network.
 
 ## Table of Contents
 
 1. [Agent Architecture](#agent-architecture)
-2. [Agent Categories](#agent-categories)
-3. [Agent Discovery](#agent-discovery)
-4. [Creating Custom Agents](#creating-custom-agents)
-5. [Communication Protocols](#communication-protocols)
-6. [Team Status Monitoring](#team-status-monitoring)
-7. [Integration Patterns](#integration-patterns)
-8. [Best Practices](#best-practices)
+1. [Agent Categories](#agent-categories)
+1. [Agent Discovery](#agent-discovery)
+1. [Creating Custom Agents](#creating-custom-agents)
+1. [Communication Protocols](#communication-protocols)
+1. [Team Status Monitoring](#team-status-monitoring)
+1. [Integration Patterns](#integration-patterns)
+1. [Best Practices](#best-practices)
 
 ## Agent Architecture
 
 ### The Spores Metaphor
 
-In mycelial networks, spores are specialized reproductive structures. Similarly, Mycelium agents are specialized units focused on specific domains.
+In mycelial networks, spores are specialized reproductive structures. Similarly, Mycelium agents are specialized units
+focused on specific domains.
 
 ```
 Meta-Orchestration (Fruiting Bodies)
@@ -59,6 +61,7 @@ Specialist Agents (Spores)
 **Focus**: Primary programming languages and frameworks
 
 Agents:
+
 - `python-pro` - Python development, testing, packaging
 - `ai-engineer` - Machine learning, deep learning, model training
 - `javascript-expert` - JavaScript, Node.js, npm ecosystem
@@ -66,6 +69,7 @@ Agents:
 - `rust-developer` - Rust development, memory safety, performance
 
 **When to invoke**:
+
 - Writing or reviewing code in these languages
 - Building applications or libraries
 - Debugging language-specific issues
@@ -76,6 +80,7 @@ Agents:
 **Focus**: Additional programming languages
 
 Agents:
+
 - `go-specialist` - Go development, concurrency, microservices
 - `java-expert` - Java, Spring, JVM optimization
 - `cpp-developer` - C++, performance, systems programming
@@ -83,6 +88,7 @@ Agents:
 - `swift-developer` - Swift, iOS, SwiftUI
 
 **When to invoke**:
+
 - Multi-language projects
 - Language-specific features or idioms
 - Cross-platform development
@@ -93,6 +99,7 @@ Agents:
 **Focus**: DevOps, cloud, and deployment
 
 Agents:
+
 - `devops-engineer` - CI/CD pipelines, automation, deployment
 - `kubernetes-specialist` - K8s deployment, scaling, monitoring
 - `docker-expert` - Containerization, Docker optimization
@@ -101,6 +108,7 @@ Agents:
 - `security-auditor` - Security reviews, vulnerability scanning
 
 **When to invoke**:
+
 - Setting up CI/CD pipelines
 - Deploying to production
 - Scaling infrastructure
@@ -111,12 +119,14 @@ Agents:
 **Focus**: Testing, QA, security, performance
 
 Agents:
+
 - `qa-engineer` - Test strategy, test design, quality gates
 - `security-auditor` - Security reviews, penetration testing
 - `performance-engineer` - Performance profiling, optimization
 - `test-automation-specialist` - Automated testing frameworks
 
 **When to invoke**:
+
 - Writing tests
 - Performance analysis
 - Security reviews
@@ -127,6 +137,7 @@ Agents:
 **Focus**: Data engineering, ML, NLP, computer vision
 
 Agents:
+
 - `data-engineer` - Data pipelines, ETL, data quality
 - `ml-engineer` - ML model training, deployment, monitoring
 - `nlp-specialist` - Natural language processing, transformers
@@ -134,6 +145,7 @@ Agents:
 - `data-scientist` - Statistical analysis, experimentation
 
 **When to invoke**:
+
 - Building data pipelines
 - Training ML models
 - Working with datasets
@@ -144,12 +156,14 @@ Agents:
 **Focus**: CLI tools, documentation, MCP, tooling
 
 Agents:
+
 - `cli-developer` - Command-line tools, terminal UIs
 - `documentation-engineer` - Technical writing, docs-as-code
 - `mcp-specialist` - Model Context Protocol development
 - `tooling-expert` - Build systems, developer tools
 
 **When to invoke**:
+
 - Creating CLI tools
 - Writing documentation
 - Building MCP servers
@@ -160,6 +174,7 @@ Agents:
 **Focus**: Web3, IoT, game dev, audio/video
 
 Agents:
+
 - `web3-specialist` - Blockchain, smart contracts, dApps
 - `iot-engineer` - Embedded systems, IoT protocols
 - `game-developer` - Game engines, graphics, physics
@@ -167,6 +182,7 @@ Agents:
 - `video-engineer` - Video processing, streaming, codecs
 
 **When to invoke**:
+
 - Domain-specific projects
 - Specialized technical requirements
 - Industry-specific knowledge needed
@@ -176,12 +192,14 @@ Agents:
 **Focus**: PM, UX, technical writing, marketing
 
 Agents:
+
 - `product-manager` - Requirements, roadmaps, prioritization
 - `ux-designer` - User experience, interaction design
 - `technical-writer` - Documentation, tutorials, API docs
 - `marketing-specialist` - Content, SEO, growth
 
 **When to invoke**:
+
 - Product planning
 - User research
 - Creating content
@@ -192,6 +210,7 @@ Agents:
 **Focus**: Multi-agent coordination, workflows
 
 Agents:
+
 - `multi-agent-coordinator` - Coordinate multiple agents
 - `workflow-orchestrator` - Orchestrate complex workflows
 - `task-distributor` - Distribute work across agents
@@ -200,6 +219,7 @@ Agents:
 - `error-coordinator` - Handle errors, retries, recovery
 
 **When to invoke**:
+
 - Complex multi-agent tasks
 - Workflow automation
 - Coordination challenges
@@ -210,12 +230,14 @@ Agents:
 **Focus**: Academic research, benchmarking, innovation
 
 Agents:
+
 - `research-analyst` - Literature review, research synthesis
 - `benchmark-specialist` - Performance benchmarking, comparison
 - `innovation-scout` - Emerging technologies, trends
 - `academic-writer` - Research papers, citations
 
 **When to invoke**:
+
 - Research projects
 - Benchmarking systems
 - Exploring new technologies
@@ -226,12 +248,14 @@ Agents:
 **Focus**: Plugin development, subagent creation
 
 Agents:
+
 - `plugin-developer` - Claude Code plugin development
 - `subagent-creator` - Creating new subagent definitions
 - `hook-specialist` - Event hooks, automation
 - `claude-code-expert` - Claude Code internals, best practices
 
 **When to invoke**:
+
 - Extending Claude Code
 - Creating plugins
 - Building automation
@@ -281,6 +305,7 @@ keywords: python, pytest, packaging, optimization, async
 ```
 
 **Metadata fields**:
+
 - `name` - Agent identifier
 - `description` - When to invoke this agent
 - `tools` - Tool access permissions
@@ -291,7 +316,7 @@ keywords: python, pytest, packaging, optimization, async
 
 ### Agent Template
 
-```markdown
+````markdown
 ---
 name: your-specialist
 description: Expert in specific domain. Invoke when working on X, Y, or Z.
@@ -328,27 +353,33 @@ Report progress to multi-agent-coordinator using this format:
   },
   "next_steps": ["step 1", "step 2"]
 }
-```
+````
 
 ## Tool Usage
 
 ### Read
+
 Use Read to examine existing code, configuration, and documentation.
 
 ### Write
+
 Use Write to create or modify files. Always back up important files first.
 
 ### Bash
+
 Execute domain-specific commands. Allowed patterns:
+
 - `domain-cli:*` - Domain-specific CLI
 - `tool-name:*` - Specific tools
 
 ### Grep
+
 Search for patterns in code or documentation.
 
 ## Integration
 
 Coordinate with these agents:
+
 - `multi-agent-coordinator` - Overall coordination
 - `related-agent-1` - Specific collaboration
 - `related-agent-2` - Domain overlap
@@ -356,21 +387,22 @@ Coordinate with these agents:
 ## Best Practices
 
 1. Always verify input before processing
-2. Provide clear progress updates
-3. Handle errors gracefully
-4. Document assumptions
-5. Coordinate with relevant agents
+1. Provide clear progress updates
+1. Handle errors gracefully
+1. Document assumptions
+1. Coordinate with relevant agents
 
 ## Examples
 
-### Example 1: [Use case]
+### Example 1: \[Use case\]
 
-[Detailed example of agent usage]
+\[Detailed example of agent usage\]
 
-### Example 2: [Use case]
+### Example 2: \[Use case\]
 
-[Another example]
-```
+\[Another example\]
+
+````
 
 ### Saving Custom Agents
 
@@ -382,7 +414,7 @@ EOF
 
 # Restart Claude Code to load new agent
 # Exit completely and restart
-```
+````
 
 ### Testing Custom Agents
 
@@ -661,38 +693,38 @@ const workflow = await client.createWorkflow('ml-pipeline', {
 ### Agent Design
 
 1. **Single Responsibility**: Each agent should focus on one domain
-2. **Clear Invocation Criteria**: Description should clearly state when to invoke
-3. **Minimal Tool Access**: Request only necessary tools
-4. **Explicit Communication**: Always report progress to coordinator
-5. **Error Handling**: Handle errors gracefully, suggest recovery
+1. **Clear Invocation Criteria**: Description should clearly state when to invoke
+1. **Minimal Tool Access**: Request only necessary tools
+1. **Explicit Communication**: Always report progress to coordinator
+1. **Error Handling**: Handle errors gracefully, suggest recovery
 
 ### Communication
 
 1. **Structured Messages**: Use JSON for machine-readable communication
-2. **Progress Updates**: Report progress regularly (every 30-60 seconds for long tasks)
-3. **Event Publishing**: Publish events for important milestones
-4. **Status Cleanup**: Remove agent status on exit
+1. **Progress Updates**: Report progress regularly (every 30-60 seconds for long tasks)
+1. **Event Publishing**: Publish events for important milestones
+1. **Status Cleanup**: Remove agent status on exit
 
 ### Coordination
 
 1. **Use Coordination Library**: Don't implement coordination from scratch
-2. **Handle Mode Degradation**: Support all coordination modes
-3. **Respect Dependencies**: Wait for prerequisite tasks to complete
-4. **Avoid Deadlocks**: Don't create circular dependencies
+1. **Handle Mode Degradation**: Support all coordination modes
+1. **Respect Dependencies**: Wait for prerequisite tasks to complete
+1. **Avoid Deadlocks**: Don't create circular dependencies
 
 ### Performance
 
 1. **Minimize Coordination Overhead**: Batch operations when possible
-2. **Use Pub/Sub for Events**: Don't poll for status updates
-3. **Clean Up Resources**: Remove old tasks and status
-4. **Monitor Metrics**: Track coordination latency and throughput
+1. **Use Pub/Sub for Events**: Don't poll for status updates
+1. **Clean Up Resources**: Remove old tasks and status
+1. **Monitor Metrics**: Track coordination latency and throughput
 
 ### Security
 
 1. **Principle of Least Privilege**: Request minimal tool access
-2. **Validate Input**: Always validate task payloads
-3. **Sanitize Commands**: Escape shell commands properly
-4. **Audit Logs**: Log all agent actions
+1. **Validate Input**: Always validate task payloads
+1. **Sanitize Commands**: Escape shell commands properly
+1. **Audit Logs**: Log all agent actions
 
 ## Next Steps
 

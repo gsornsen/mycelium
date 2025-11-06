@@ -1,18 +1,17 @@
 # Coordination Tracking System - Operations Guide
 
-**Version:** 1.0
-**Last Updated:** 2025-10-21
-**Owners:** Backend Team
+**Version:** 1.0 **Last Updated:** 2025-10-21 **Owners:** Backend Team
 
 ## Overview
 
-The Coordination Tracking System provides comprehensive logging and monitoring of all inter-agent communications, workflow executions, and coordination events in the Mycelium multi-agent system.
+The Coordination Tracking System provides comprehensive logging and monitoring of all inter-agent communications,
+workflow executions, and coordination events in the Mycelium multi-agent system.
 
 ### Key Features
 
 - **Complete Event History**: Track all coordination events including handoffs, executions, failures, and state changes
-- **High Performance**: <5% overhead on coordination operations
-- **Efficient Storage**: <10MB per 1000 events with PostgreSQL compression
+- **High Performance**: \<5% overhead on coordination operations
+- **Efficient Storage**: \<10MB per 1000 events with PostgreSQL compression
 - **Flexible Querying**: Rich query API for history retrieval and analysis
 - **Structured Logging**: JSON-based event schema with validation
 - **Real-time Monitoring**: Statistics and metrics for operational insights
@@ -47,17 +46,21 @@ The Coordination Tracking System provides comprehensive logging and monitoring o
 The system tracks the following event types:
 
 ### Handoff Events
+
 - **`handoff`**: Agent-to-agent state transfer
 
 ### Task Execution Events
+
 - **`execution_start`**: Task execution begins
 - **`execution_end`**: Task execution completes
 
 ### Failure Events
+
 - **`failure`**: Task or operation failure
 - **`retry`**: Retry attempt after failure
 
 ### Workflow Lifecycle Events
+
 - **`workflow_created`**: New workflow created
 - **`workflow_started`**: Workflow execution begins
 - **`workflow_completed`**: Workflow completes successfully
@@ -67,6 +70,7 @@ The system tracks the following event types:
 - **`workflow_resumed`**: Workflow resumed from pause
 
 ### Task Lifecycle Events
+
 - **`task_created`**: New task added to workflow
 - **`task_started`**: Task begins execution
 - **`task_completed`**: Task completes successfully
@@ -360,19 +364,22 @@ async def my_task_executor(context):
 ## Performance Characteristics
 
 ### Tracking Overhead
-- **Target**: <5% performance impact
+
+- **Target**: \<5% performance impact
 - **Measured**: ~2-3% overhead on coordination operations
 - **Async operations**: Non-blocking persistence
 
 ### Storage Efficiency
-- **Target**: <10MB per 1000 events
+
+- **Target**: \<10MB per 1000 events
 - **Measured**: ~6-8MB per 1000 events (with JSONB compression)
 - **Retention**: Configurable (default: 90 days)
 
 ### Query Performance
-- **Workflow events**: <10ms for typical workflow (100-500 events)
-- **Agent events**: <20ms for active agent (1000+ events)
-- **Timeline generation**: <50ms for complex workflow
+
+- **Workflow events**: \<10ms for typical workflow (100-500 events)
+- **Agent events**: \<20ms for active agent (1000+ events)
+- **Timeline generation**: \<50ms for complex workflow
 
 ### Database Indexes
 
@@ -393,23 +400,27 @@ CREATE INDEX idx_events_workflow_type ON coordination_events(workflow_id, event_
 ### Key Metrics to Monitor
 
 1. **Event Rate**: Events per second
+
    ```python
    stats = await tracker.get_statistics()
    event_rate = stats['total_events'] / time_window_seconds
    ```
 
-2. **Failure Rate**: Percentage of failure events
+1. **Failure Rate**: Percentage of failure events
+
    ```python
    failure_count = stats['event_type_counts'].get('failure', 0)
    failure_rate = failure_count / stats['total_events'] * 100
    ```
 
-3. **Storage Growth**: Database size over time
+1. **Storage Growth**: Database size over time
+
    ```sql
    SELECT pg_total_relation_size('coordination_events') / 1024 / 1024 as size_mb;
    ```
 
-4. **Query Performance**: Average query time
+1. **Query Performance**: Average query time
+
    ```python
    # Use PostgreSQL query stats
    SELECT query, mean_exec_time
@@ -473,46 +484,51 @@ VACUUM FULL coordination_events;
 **Symptom**: Database size growing faster than expected
 
 **Solutions**:
+
 1. Check event volume: `SELECT COUNT(*), event_type FROM coordination_events GROUP BY event_type`
-2. Reduce retention period
-3. Archive old events to cold storage
-4. Check for duplicate events
+1. Reduce retention period
+1. Archive old events to cold storage
+1. Check for duplicate events
 
 ### Slow Queries
 
 **Symptom**: Query performance degraded
 
 **Solutions**:
+
 1. Check index usage: `EXPLAIN ANALYZE SELECT ...`
-2. Update statistics: `ANALYZE coordination_events`
-3. Rebuild indexes: `REINDEX TABLE coordination_events`
-4. Add missing indexes for specific query patterns
+1. Update statistics: `ANALYZE coordination_events`
+1. Rebuild indexes: `REINDEX TABLE coordination_events`
+1. Add missing indexes for specific query patterns
 
 ### Missing Events
 
 **Symptom**: Expected events not appearing in history
 
 **Solutions**:
+
 1. Check validation errors in logs
-2. Verify tracker is initialized
-3. Check database connection
-4. Verify workflow/task IDs are correct
+1. Verify tracker is initialized
+1. Check database connection
+1. Verify workflow/task IDs are correct
 
 ### Performance Impact
 
 **Symptom**: Coordination operations slowed by tracking
 
 **Solutions**:
+
 1. Disable validation for performance: `CoordinationTracker(enable_validation=False)`
-2. Increase connection pool size
-3. Use async/await properly to avoid blocking
-4. Consider batching events (for very high volume)
+1. Increase connection pool size
+1. Use async/await properly to avoid blocking
+1. Consider batching events (for very high volume)
 
 ## Security Considerations
 
 ### Data Privacy
 
 The tracking system stores:
+
 - ✅ **Safe**: Event metadata, timestamps, agent IDs, workflow IDs
 - ✅ **Safe**: Task descriptions and result summaries
 - ⚠️ **Caution**: Context variables (may contain sensitive data)
@@ -545,13 +561,13 @@ logger.info(
 ## Best Practices
 
 1. **Track Meaningful Events**: Don't over-track; focus on coordination points
-2. **Use Structured Context**: Include relevant context but avoid large payloads
-3. **Monitor Performance**: Track overhead and optimize if needed
-4. **Clean Up Regularly**: Implement retention policies
-5. **Index Appropriately**: Add indexes for your query patterns
-6. **Validate Critical Events**: Enable validation for production
-7. **Use Convenience Functions**: Prefer helper functions for common operations
-8. **Handle Errors Gracefully**: Don't let tracking failures break workflows
+1. **Use Structured Context**: Include relevant context but avoid large payloads
+1. **Monitor Performance**: Track overhead and optimize if needed
+1. **Clean Up Regularly**: Implement retention policies
+1. **Index Appropriately**: Add indexes for your query patterns
+1. **Validate Critical Events**: Enable validation for production
+1. **Use Convenience Functions**: Prefer helper functions for common operations
+1. **Handle Errors Gracefully**: Don't let tracking failures break workflows
 
 ## Future Enhancements
 
@@ -566,6 +582,7 @@ Planned features:
 ## Support
 
 For issues or questions:
+
 - **Documentation**: `/docs/operations/coordination-tracking.md`
 - **Code**: `/plugins/mycelium-core/coordination/tracker.py`
 - **Tests**: `/tests/integration/test_tracking.py`

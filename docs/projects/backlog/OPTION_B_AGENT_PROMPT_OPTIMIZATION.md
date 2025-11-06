@@ -1,31 +1,31 @@
 # Option B: Agent Prompt Optimization
 
-**Status**: Draft Backlog
-**Author**: @claude-code-developer + @project-manager
-**Created**: 2025-10-18
-**Estimated Effort**: 5-7 days (2-person team)
-**Complexity**: Medium
-**Dependencies**: Phase 2 Performance Analytics (completed)
+**Status**: Draft Backlog **Author**: @claude-code-developer + @project-manager **Created**: 2025-10-18 **Estimated
+Effort**: 5-7 days (2-person team) **Complexity**: Medium **Dependencies**: Phase 2 Performance Analytics (completed)
 
----
+______________________________________________________________________
 
 ## Executive Summary
 
-Systematic optimization of all 119 agent prompts using a **data-driven quality rubric** and automated analysis tools. Combines NLP analysis, effectiveness metrics, and best practices to improve agent performance, reduce token usage, and enhance user experience.
+Systematic optimization of all 119 agent prompts using a **data-driven quality rubric** and automated analysis tools.
+Combines NLP analysis, effectiveness metrics, and best practices to improve agent performance, reduce token usage, and
+enhance user experience.
 
 **Value Proposition**:
+
 - **Consistency**: Standardize prompt structure across all agents
 - **Effectiveness**: Improve agent performance through empirical optimization
 - **Token Efficiency**: Reduce prompt length without losing capability
 - **Measurability**: A/B test improvements with analytics data
 
 **Expected Improvements**:
+
 - 15-25% reduction in average prompt token count
 - 10-20% improvement in agent effectiveness scores
 - 100% compliance with quality rubric
 - Standardized structure for easier maintenance
 
----
+______________________________________________________________________
 
 ## Technical Architecture
 
@@ -67,7 +67,7 @@ Systematic optimization of all 119 agent prompts using a **data-driven quality r
 └─────────────────────────────────────────────┘
 ```
 
----
+______________________________________________________________________
 
 ## Prompt Quality Rubric
 
@@ -75,7 +75,7 @@ Systematic optimization of all 119 agent prompts using a **data-driven quality r
 
 **File**: `/home/gerald/git/mycelium/config/prompt_quality_rubric.yaml`
 
-```yaml
+````yaml
 # Prompt Quality Rubric for Mycelium Agents
 #
 # This rubric defines measurable criteria for evaluating and optimizing
@@ -374,9 +374,9 @@ optimization_targets:
   excellent_score: 90  # Grade A
   batch_optimization_priority: "lowest_scores_first"
   ab_test_threshold: 5  # Points improvement to justify A/B test
-```
+````
 
----
+______________________________________________________________________
 
 ## Implementation Details
 
@@ -384,7 +384,7 @@ optimization_targets:
 
 **File**: `/home/gerald/git/mycelium/scripts/prompt_analyzer.py`
 
-```python
+````python
 """Prompt quality analysis using rubric and NLP.
 
 Analyzes agent prompts against quality rubric to identify improvement
@@ -865,7 +865,7 @@ class PromptAnalyzer:
         """Hash agent ID (matches TelemetryCollector)."""
         import hashlib
         return hashlib.sha256(agent_id.encode()).hexdigest()[:8]
-```
+````
 
 **Dependencies**: Install `textstat` for readability metrics:
 
@@ -1450,7 +1450,7 @@ if __name__ == "__main__":
     main()
 ```
 
----
+______________________________________________________________________
 
 ## Testing Strategy
 
@@ -1494,48 +1494,55 @@ def test_token_optimization(tmp_path):
     assert stats['optimized_tokens'] < stats['original_tokens']
 ```
 
----
+______________________________________________________________________
 
 ## Implementation Timeline
 
 ### Week 1: Days 1-2 (Analysis Tools)
+
 - Build `PromptAnalyzer` class
 - Implement rubric scoring logic
 - Unit tests for all criteria
 
 ### Week 1: Days 3-4 (Optimization Engine)
+
 - Build `PromptOptimizer` class
 - Create standard template
 - Token reduction methods
 
 ### Week 1: Day 5 (CLI + Integration)
+
 - Build `optimize_agent.py` CLI
 - Integration tests
 - Documentation
 
 ### Week 2: Days 1-2 (Pilot Optimization)
+
 - Analyze all 119 agents
 - Optimize 10 low-scoring agents
 - Measure improvements
 
 ### Week 2: Days 3-5 (Batch Optimization)
+
 - Optimize remaining agents
 - A/B testing framework
 - Final documentation
 
 **Total**: 5-7 days for 2-person team
 
----
+______________________________________________________________________
 
 ## Effort Estimate
 
 **Complexity**: Medium (NLP + analytics integration)
 
 **Team Composition**:
+
 - 1x @python-pro (lead developer, NLP)
 - 1x @documentation-engineer (optimization, templates)
 
 **Breakdown**:
+
 - Analysis tools: 2 days
 - Optimization engine: 2 days
 - CLI + integration: 1 day
@@ -1544,68 +1551,77 @@ def test_token_optimization(tmp_path):
 
 **Total**: 5-7 days (depending on batch size)
 
----
+______________________________________________________________________
 
 ## Dependencies
 
 **Required**:
+
 - Phase 2 Performance Analytics (✅ Complete)
 - Python `textstat` library (readability metrics)
 - Agent discovery system (✅ Complete)
 
 **Optional**:
+
 - Option A (Usage Analytics) for effectiveness scoring
 - spaCy for advanced NLP (if needed)
 
----
+______________________________________________________________________
 
 ## Success Metrics
 
 **Acceptance Criteria**:
+
 1. ✅ Rubric covers 5 criteria with measurable metrics
-2. ✅ All 119 agents analyzed with scores
-3. ✅ Batch optimization of agents < 70/100
-4. ✅ 15-25% token reduction achieved
-5. ✅ CLI tool supports analyze, optimize, batch operations
-6. ✅ A/B testing framework validates improvements
-7. ✅ 100% test coverage (unit + integration)
+1. ✅ All 119 agents analyzed with scores
+1. ✅ Batch optimization of agents \< 70/100
+1. ✅ 15-25% token reduction achieved
+1. ✅ CLI tool supports analyze, optimize, batch operations
+1. ✅ A/B testing framework validates improvements
+1. ✅ 100% test coverage (unit + integration)
 
 **Performance Targets**:
+
 - Average score improvement: +10-20 points
 - Token reduction: 15-25%
-- Analysis time: <5s per agent
-- Batch optimization: <10 min for 100 agents
+- Analysis time: \<5s per agent
+- Batch optimization: \<10 min for 100 agents
 
----
+______________________________________________________________________
 
 ## Risk Assessment
 
 **Technical Risks**: MEDIUM
+
 - NLP accuracy depends on textstat library quality
 - Manual review still needed for quality assurance
 - A/B testing requires sufficient usage data
 
 **Blockers**: NONE
+
 - All dependencies available
 
 **Mitigation**:
+
 - Start with pilot (10 agents) to validate approach
 - Human review of optimized prompts before rollout
 - Gradual rollout with monitoring
 
----
+______________________________________________________________________
 
 ## Conclusion
 
-Option B provides **systematic quality improvement** across all 119 agents using data-driven analysis and automated optimization. The rubric ensures consistency, while analytics integration validates improvements.
+Option B provides **systematic quality improvement** across all 119 agents using data-driven analysis and automated
+optimization. The rubric ensures consistency, while analytics integration validates improvements.
 
 **Recommendation**: **APPROVED for Sprint Planning** (after Option A if effectiveness metrics needed)
 
----
+______________________________________________________________________
 
 **Next Steps**:
+
 1. Approve backlog item
-2. Install dependencies (`textstat`)
-3. Create prompt quality rubric (YAML)
-4. Assign to @python-pro + @documentation-engineer
-5. Run pilot optimization on 10 agents
+1. Install dependencies (`textstat`)
+1. Create prompt quality rubric (YAML)
+1. Assign to @python-pro + @documentation-engineer
+1. Run pilot optimization on 10 agents

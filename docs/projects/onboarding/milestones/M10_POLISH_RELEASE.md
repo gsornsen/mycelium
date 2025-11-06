@@ -2,17 +2,17 @@
 
 ## Overview
 
-**Duration**: 2 days
-**Dependencies**: M06 (Coordination Testing), M07 (Configuration Management), M08 (Documentation), M09 (Testing Suite)
-**Blocks**: Public release
-**Critical Path**: Yes - final milestone
+**Duration**: 2 days **Dependencies**: M06 (Coordination Testing), M07 (Configuration Management), M08 (Documentation),
+M09 (Testing Suite) **Blocks**: Public release **Critical Path**: Yes - final milestone
 
-**Lead Agent**: qa-expert
-**Support Agents**: devops-engineer, performance-engineer, technical-writer
+**Lead Agent**: qa-expert **Support Agents**: devops-engineer, performance-engineer, technical-writer
 
 ## Why This Milestone
 
-This final milestone focuses on quality assurance, performance optimization, and release preparation. It ensures the onboarding system is production-ready with comprehensive validation across all supported platforms, performance profiling to identify bottlenecks, release candidate testing, and post-release monitoring setup. This milestone transforms a functional implementation into a polished, reliable product ready for end users.
+This final milestone focuses on quality assurance, performance optimization, and release preparation. It ensures the
+onboarding system is production-ready with comprehensive validation across all supported platforms, performance
+profiling to identify bottlenecks, release candidate testing, and post-release monitoring setup. This milestone
+transforms a functional implementation into a polished, reliable product ready for end users.
 
 ## Requirements
 
@@ -45,26 +45,25 @@ This final milestone focuses on quality assurance, performance optimization, and
 - **CR-10.3**: License compliance verified for all dependencies
 - **CR-10.4**: Privacy review for data handling (no PII collection)
 
----
+______________________________________________________________________
 
 ## Tasks
 
 ### Task 10.1: Multi-Platform QA Validation
 
-**Effort**: 6 hours
-**Agent**: qa-expert, devops-engineer
+**Effort**: 6 hours **Agent**: qa-expert, devops-engineer
 
 Execute comprehensive QA validation across all supported platforms with automated checklist.
 
 **QA Test Matrix**:
 
-| Platform | Version | Python | Docker | Tests |
-|----------|---------|--------|--------|-------|
-| Ubuntu | 22.04 LTS | 3.11, 3.12 | 24.0+ | Full suite |
-| Ubuntu | 24.04 LTS | 3.11, 3.12 | 24.0+ | Full suite |
-| macOS | 13 (Ventura) | 3.11, 3.12 | 24.0+ | Full suite |
-| macOS | 14 (Sonoma) | 3.11, 3.12 | 24.0+ | Full suite |
-| Windows | WSL2 (Ubuntu 22.04) | 3.11, 3.12 | 24.0+ | Full suite |
+| Platform | Version             | Python     | Docker | Tests      |
+| -------- | ------------------- | ---------- | ------ | ---------- |
+| Ubuntu   | 22.04 LTS           | 3.11, 3.12 | 24.0+  | Full suite |
+| Ubuntu   | 24.04 LTS           | 3.11, 3.12 | 24.0+  | Full suite |
+| macOS    | 13 (Ventura)        | 3.11, 3.12 | 24.0+  | Full suite |
+| macOS    | 14 (Sonoma)         | 3.11, 3.12 | 24.0+  | Full suite |
+| Windows  | WSL2 (Ubuntu 22.04) | 3.11, 3.12 | 24.0+  | Full suite |
 
 **Automated QA Checklist**:
 
@@ -404,12 +403,11 @@ if __name__ == "__main__":
 - [ ] Line endings handled correctly (LF not CRLF)
 ```
 
----
+______________________________________________________________________
 
 ### Task 10.2: Performance Profiling and Optimization
 
-**Effort**: 5 hours
-**Agent**: performance-engineer, python-pro
+**Effort**: 5 hours **Agent**: performance-engineer, python-pro
 
 Profile key operations and optimize bottlenecks to ensure responsive user experience.
 
@@ -598,30 +596,29 @@ if __name__ == "__main__":
 
 **Performance Targets**:
 
-| Operation | Target | Acceptable | Threshold |
-|-----------|--------|------------|-----------|
-| Docker detection | <50ms | <100ms | <200ms |
-| Redis detection | <30ms | <50ms | <100ms |
-| Full infrastructure scan | <200ms | <500ms | <1000ms |
-| Configuration validation | <10ms | <20ms | <50ms |
-| Docker Compose generation | <20ms | <50ms | <100ms |
-| Justfile generation | <20ms | <50ms | <100ms |
-| Wizard complete flow | <5s | <10s | <20s |
+| Operation                 | Target  | Acceptable | Threshold |
+| ------------------------- | ------- | ---------- | --------- |
+| Docker detection          | \<50ms  | \<100ms    | \<200ms   |
+| Redis detection           | \<30ms  | \<50ms     | \<100ms   |
+| Full infrastructure scan  | \<200ms | \<500ms    | \<1000ms  |
+| Configuration validation  | \<10ms  | \<20ms     | \<50ms    |
+| Docker Compose generation | \<20ms  | \<50ms     | \<100ms   |
+| Justfile generation       | \<20ms  | \<50ms     | \<100ms   |
+| Wizard complete flow      | \<5s    | \<10s      | \<20s     |
 
 **Optimization Strategies**:
 
 1. **Caching**: Cache detection results during wizard session
-2. **Parallel Detection**: Run Docker/Redis/Postgres detection concurrently
-3. **Template Caching**: Pre-compile Jinja2 templates
-4. **Lazy Loading**: Defer imports until needed
-5. **Async Operations**: Use async/await for I/O-bound operations
+1. **Parallel Detection**: Run Docker/Redis/Postgres detection concurrently
+1. **Template Caching**: Pre-compile Jinja2 templates
+1. **Lazy Loading**: Defer imports until needed
+1. **Async Operations**: Use async/await for I/O-bound operations
 
----
+______________________________________________________________________
 
 ### Task 10.3: Release Candidate Validation
 
-**Effort**: 4 hours
-**Agent**: qa-expert, devops-engineer
+**Effort**: 4 hours **Agent**: qa-expert, devops-engineer
 
 Create release candidate, conduct beta testing, and validate release artifacts.
 
@@ -717,7 +714,7 @@ Create release candidate, conduct beta testing, and validate release artifacts.
 
 **Beta Testing Guide**:
 
-```markdown
+````markdown
 # Beta Testing Guide - Mycelium Onboarding v1.0.0-rc1
 
 Thank you for participating in beta testing!
@@ -732,7 +729,7 @@ Thank you for participating in beta testing!
    uv venv
    source .venv/bin/activate
    uv sync
-   ```
+````
 
 2. **Verify installation**:
    ```bash
@@ -742,27 +739,30 @@ Thank you for participating in beta testing!
 ## Testing Scenarios
 
 ### Scenario 1: Fresh Onboarding (Docker)
+
 1. Run `/mycelium-onboarding`
-2. Select services: Redis, Postgres, TaskQueue
-3. Choose deployment method: docker-compose
-4. Verify configuration saved
-5. Generate deployment files: `/mycelium-generate`
-6. Start services: `docker-compose up -d`
-7. Test coordination: `/mycelium-test --pattern pubsub`
+1. Select services: Redis, Postgres, TaskQueue
+1. Choose deployment method: docker-compose
+1. Verify configuration saved
+1. Generate deployment files: `/mycelium-generate`
+1. Start services: `docker-compose up -d`
+1. Test coordination: `/mycelium-test --pattern pubsub`
 
 **Expected**: All steps complete successfully, services start, tests pass
 
 ### Scenario 2: Configuration Management
+
 1. View configuration: `/mycelium-configuration show`
-2. Edit configuration: `/mycelium-configuration edit`
-3. Validate: `/mycelium-configuration validate`
+1. Edit configuration: `/mycelium-configuration edit`
+1. Validate: `/mycelium-configuration validate`
 
 **Expected**: Configuration displays correctly, edits persist, validation succeeds
 
 ### Scenario 3: Error Recovery
+
 1. Introduce error: Edit config.yaml with invalid port (e.g., port: 70000)
-2. Run validation: `/mycelium-configuration validate --strict`
-3. Observe error message and guidance
+1. Run validation: `/mycelium-configuration validate --strict`
+1. Observe error message and guidance
 
 **Expected**: Clear error message, helpful guidance for fix
 
@@ -771,26 +771,30 @@ Thank you for participating in beta testing!
 Please provide feedback using this template:
 
 **Bug Report**:
-- Title: [Brief description]
+
+- Title: \[Brief description\]
 - Steps to reproduce:
 - Expected behavior:
 - Actual behavior:
-- Platform: [OS, Python version]
-- Severity: [Critical / High / Medium / Low]
+- Platform: \[OS, Python version\]
+- Severity: \[Critical / High / Medium / Low\]
 
 **Feature Request**:
-- Title: [Brief description]
+
+- Title: \[Brief description\]
 - Use case:
 - Proposed solution:
-- Priority: [High / Medium / Low]
+- Priority: \[High / Medium / Low\]
 
 **General Feedback**:
+
 - What worked well:
 - What was confusing:
 - Suggestions for improvement:
 
-Submit feedback to: [feedback@your-org.com]
-```
+Submit feedback to: \[feedback@your-org.com\]
+
+````
 
 ---
 
@@ -860,7 +864,7 @@ echo "Next steps:"
 echo "1. Monitor GitHub Actions for release workflow completion"
 echo "2. Verify release artifacts are published"
 echo "3. Announce release to users"
-```
+````
 
 **Changelog Generation Script**:
 
@@ -950,7 +954,7 @@ def categorize_commits(commits: List[Dict]) -> Dict[str, List[Dict]]:
 
 def generate_changelog(version: str) -> str:
     """Generate changelog in markdown format."""
-    today = datetime.now().strftime('%Y-%m-%d')
+    today = datetime.now(UTC).strftime('%Y-%m-%d')
 
     changelog = f"# Release {version}\n\n"
     changelog += f"**Release Date**: {today}\n\n"
@@ -1008,7 +1012,7 @@ if __name__ == "__main__":
 
 **Release Notes Template**:
 
-```markdown
+````markdown
 # Mycelium Onboarding v1.0.0
 
 **Release Date**: 2025-01-XX
@@ -1060,7 +1064,7 @@ cd mycelium
 uv venv
 source .venv/bin/activate
 uv sync
-```
+````
 
 ## Quick Start
 
@@ -1101,7 +1105,8 @@ Thank you to all contributors who made this release possible!
 - [GitHub Repository](https://github.com/your-org/mycelium)
 - [Issue Tracker](https://github.com/your-org/mycelium/issues)
 - [Changelog](https://github.com/your-org/mycelium/blob/main/CHANGELOG.md)
-```
+
+````
 
 ---
 
@@ -1159,7 +1164,7 @@ Set up monitoring, alerting, and support infrastructure for post-release.
     ]
   }
 }
-```
+````
 
 **Telemetry Collection (Optional, Opt-in)**:
 
@@ -1285,7 +1290,7 @@ If critical bug (P0) discovered post-release:
 5. Backport fix to main branch
 ```
 
----
+______________________________________________________________________
 
 ## Exit Criteria
 
@@ -1304,40 +1309,45 @@ If critical bug (P0) discovered post-release:
 ## Deliverables
 
 1. **QA Validation Report** (qa_report.json)
+
    - Multi-platform test results
    - Manual QA checklist completion
    - Platform-specific issues documented
 
-2. **Performance Benchmark Report** (performance_report.json)
+1. **Performance Benchmark Report** (performance_report.json)
+
    - Operation timings
    - Profiling results
    - Optimization recommendations
 
-3. **Release Artifacts**
+1. **Release Artifacts**
+
    - Git tag (v1.0.0)
    - GitHub release
    - Release notes (CHANGELOG.md)
    - Binary packages (if applicable)
 
-4. **Monitoring Infrastructure**
+1. **Monitoring Infrastructure**
+
    - Grafana dashboard configuration
    - Telemetry client (opt-in)
    - Alert rules
 
-5. **Support Documentation**
+1. **Support Documentation**
+
    - Triage workflow
    - Escalation paths
    - Hotfix procedures
 
 ## Risk Assessment
 
-| Risk | Likelihood | Impact | Mitigation |
-|------|-----------|--------|------------|
-| Critical bug found post-release | Medium | High | Comprehensive QA, beta testing, hotfix process ready |
-| Performance degradation on specific platform | Low | Medium | Multi-platform benchmarking, platform-specific optimization |
-| Documentation inaccuracies | Medium | Low | Technical writer review, beta tester validation |
-| User adoption lower than expected | Medium | Low | Clear documentation, onboarding tutorials, community support |
-| Dependency vulnerability discovered | Low | High | Regular security scans, rapid patch release process |
+| Risk                                         | Likelihood | Impact | Mitigation                                                   |
+| -------------------------------------------- | ---------- | ------ | ------------------------------------------------------------ |
+| Critical bug found post-release              | Medium     | High   | Comprehensive QA, beta testing, hotfix process ready         |
+| Performance degradation on specific platform | Low        | Medium | Multi-platform benchmarking, platform-specific optimization  |
+| Documentation inaccuracies                   | Medium     | Low    | Technical writer review, beta tester validation              |
+| User adoption lower than expected            | Medium     | Low    | Clear documentation, onboarding tutorials, community support |
+| Dependency vulnerability discovered          | Low        | High   | Regular security scans, rapid patch release process          |
 
 ## Dependencies for Post-Release
 
@@ -1348,6 +1358,7 @@ This milestone completes the onboarding system development. Post-release activit
 - **Monthly**: Review roadmap and plan next features
 - **Quarterly**: Major version releases with new capabilities
 
----
+______________________________________________________________________
 
-*This milestone marks the completion of the Mycelium onboarding system development, delivering a polished, production-ready solution validated across all supported platforms.*
+*This milestone marks the completion of the Mycelium onboarding system development, delivering a polished,
+production-ready solution validated across all supported platforms.*

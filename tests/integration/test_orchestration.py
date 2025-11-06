@@ -11,26 +11,28 @@ Tests cover:
 
 import asyncio
 import os
+from typing import Any
+
 import pytest
-from typing import Any, Dict
 
 # Set test database URL
-os.environ["DATABASE_URL"] = "postgresql://localhost:5432/mycelium_test"
-
-from plugins.mycelium_core.coordination import (
-    WorkflowOrchestrator,
-    StateManager,
-    WorkflowStatus,
-    TaskStatus,
-    HandoffProtocol,
-    HandoffContext,
+os.environ["DATABASE_URL"] = os.getenv(
+    "DATABASE_URL", "postgresql://mycelium:mycelium_test@localhost:5432/mycelium_test"
 )
-from plugins.mycelium_core.coordination.orchestrator import (
+
+from coordination import (
+    HandoffContext,
+    StateManager,
+    TaskStatus,
+    WorkflowOrchestrator,
+    WorkflowStatus,
+)
+from coordination.orchestrator import (
+    DependencyError,
+    OrchestrationError,
+    RetryPolicy,
     TaskDefinition,
     TaskExecutionContext,
-    RetryPolicy,
-    OrchestrationError,
-    DependencyError,
 )
 
 
@@ -54,19 +56,19 @@ async def test_sequential_workflow(orchestrator):
     """Test sequential workflow with dependency chain."""
     results = []
 
-    async def task_a(ctx: TaskExecutionContext) -> Dict[str, Any]:
+    async def task_a(ctx: TaskExecutionContext) -> dict[str, Any]:
         results.append("A")
         await asyncio.sleep(0.1)
         return {"output": "A completed"}
 
-    async def task_b(ctx: TaskExecutionContext) -> Dict[str, Any]:
+    async def task_b(ctx: TaskExecutionContext) -> dict[str, Any]:
         results.append("B")
         # Verify task A result is available
         assert len(ctx.previous_results) == 1
         assert ctx.previous_results[0]["task_id"] == "task_a"
         return {"output": "B completed"}
 
-    async def task_c(ctx: TaskExecutionContext) -> Dict[str, Any]:
+    async def task_c(ctx: TaskExecutionContext) -> dict[str, Any]:
         results.append("C")
         # Verify both A and B results available
         assert len(ctx.previous_results) == 2
@@ -109,7 +111,7 @@ async def test_parallel_workflow(orchestrator):
     """Test parallel execution of independent tasks."""
     execution_times = {}
 
-    async def parallel_task(ctx: TaskExecutionContext) -> Dict[str, Any]:
+    async def parallel_task(ctx: TaskExecutionContext) -> dict[str, Any]:
         task_id = ctx.task_def.task_id
         execution_times[task_id] = asyncio.get_event_loop().time()
         await asyncio.sleep(0.2)
@@ -150,7 +152,7 @@ async def test_dependency_resolution(orchestrator):
     """Test complex dependency resolution with diamond pattern."""
     execution_order = []
 
-    async def tracked_task(ctx: TaskExecutionContext) -> Dict[str, Any]:
+    async def tracked_task(ctx: TaskExecutionContext) -> dict[str, Any]:
         task_id = ctx.task_def.task_id
         execution_order.append(task_id)
         await asyncio.sleep(0.05)
@@ -232,7 +234,7 @@ async def test_retry_mechanism(orchestrator):
     """Test task retry with exponential backoff."""
     attempt_count = 0
 
-    async def failing_task(ctx: TaskExecutionContext) -> Dict[str, Any]:
+    async def failing_task(ctx: TaskExecutionContext) -> dict[str, Any]:
         nonlocal attempt_count
         attempt_count += 1
         if attempt_count < 3:
@@ -263,10 +265,10 @@ async def test_retry_mechanism(orchestrator):
 async def test_failure_recovery_with_allow_failure(orchestrator):
     """Test workflow continuation when task allows failure."""
 
-    async def success_task(ctx: TaskExecutionContext) -> Dict[str, Any]:
+    async def success_task(ctx: TaskExecutionContext) -> dict[str, Any]:
         return {"output": "success"}
 
-    async def failing_task(ctx: TaskExecutionContext) -> Dict[str, Any]:
+    async def failing_task(ctx: TaskExecutionContext) -> dict[str, Any]:
         raise ValueError("Intentional failure")
 
     orchestrator.register_executor("success_agent", success_task)
@@ -308,10 +310,10 @@ async def test_failure_recovery_with_allow_failure(orchestrator):
 async def test_critical_task_failure_aborts_workflow(orchestrator):
     """Test workflow abort when critical task fails."""
 
-    async def success_task(ctx: TaskExecutionContext) -> Dict[str, Any]:
+    async def success_task(ctx: TaskExecutionContext) -> dict[str, Any]:
         return {"output": "success"}
 
-    async def failing_task(ctx: TaskExecutionContext) -> Dict[str, Any]:
+    async def failing_task(ctx: TaskExecutionContext) -> dict[str, Any]:
         raise ValueError("Critical failure")
 
     orchestrator.register_executor("success_agent", success_task)
@@ -348,7 +350,7 @@ async def test_critical_task_failure_aborts_workflow(orchestrator):
 async def test_state_persistence(orchestrator, state_manager):
     """Test state persistence and retrieval."""
 
-    async def simple_task(ctx: TaskExecutionContext) -> Dict[str, Any]:
+    async def simple_task(ctx: TaskExecutionContext) -> dict[str, Any]:
         return {"data": f"Result from {ctx.task_def.task_id}"}
 
     orchestrator.register_executor("test_agent", simple_task)
@@ -385,7 +387,7 @@ async def test_state_persistence(orchestrator, state_manager):
 async def test_state_rollback(orchestrator, state_manager):
     """Test rollback to previous workflow version."""
 
-    async def simple_task(ctx: TaskExecutionContext) -> Dict[str, Any]:
+    async def simple_task(ctx: TaskExecutionContext) -> dict[str, Any]:
         return {"data": "result"}
 
     orchestrator.register_executor("test_agent", simple_task)
@@ -404,9 +406,7 @@ async def test_state_rollback(orchestrator, state_manager):
     assert final_version > initial_version
 
     # Rollback to initial version
-    rolled_back_state = await orchestrator.rollback_workflow(
-        workflow_id, initial_version
-    )
+    rolled_back_state = await orchestrator.rollback_workflow(workflow_id, initial_version)
     assert rolled_back_state.version == initial_version
     assert rolled_back_state.status == WorkflowStatus.PENDING
 
@@ -416,7 +416,7 @@ async def test_multi_agent_workflow(orchestrator):
     """Test complex multi-agent workflow with 5+ agents."""
     execution_log = []
 
-    async def agent_task(ctx: TaskExecutionContext) -> Dict[str, Any]:
+    async def agent_task(ctx: TaskExecutionContext) -> dict[str, Any]:
         agent_type = ctx.task_def.agent_type
         execution_log.append(agent_type)
         await asyncio.sleep(0.05)
@@ -487,7 +487,7 @@ async def test_multi_agent_workflow(orchestrator):
 async def test_timeout_handling(orchestrator):
     """Test task timeout and recovery."""
 
-    async def slow_task(ctx: TaskExecutionContext) -> Dict[str, Any]:
+    async def slow_task(ctx: TaskExecutionContext) -> dict[str, Any]:
         await asyncio.sleep(1.0)  # Will timeout
         return {"output": "should not reach here"}
 
@@ -518,15 +518,13 @@ async def test_timeout_handling(orchestrator):
 async def test_workflow_cancellation(orchestrator):
     """Test workflow cancellation."""
 
-    async def long_task(ctx: TaskExecutionContext) -> Dict[str, Any]:
+    async def long_task(ctx: TaskExecutionContext) -> dict[str, Any]:
         await asyncio.sleep(5.0)
         return {"output": "completed"}
 
     orchestrator.register_executor("long_agent", long_task)
 
-    tasks = [
-        TaskDefinition(task_id="task_1", agent_id="agent_1", agent_type="long_agent")
-    ]
+    tasks = [TaskDefinition(task_id="task_1", agent_id="agent_1", agent_type="long_agent")]
 
     workflow_id = await orchestrator.create_workflow(tasks)
 
@@ -545,7 +543,7 @@ async def test_memory_overhead(orchestrator):
     """Test memory overhead remains under 50MB per workflow."""
     import sys
 
-    async def lightweight_task(ctx: TaskExecutionContext) -> Dict[str, Any]:
+    async def lightweight_task(ctx: TaskExecutionContext) -> dict[str, Any]:
         return {"data": "result"}
 
     orchestrator.register_executor("test_agent", lightweight_task)
@@ -562,6 +560,7 @@ async def test_memory_overhead(orchestrator):
 
     # Measure memory before
     import gc
+
     gc.collect()
 
     workflow_id = await orchestrator.create_workflow(tasks)
@@ -580,12 +579,14 @@ async def test_context_preservation(orchestrator):
     """Test context preservation across handoffs."""
     context_checks = []
 
-    async def context_aware_task(ctx: TaskExecutionContext) -> Dict[str, Any]:
-        context_checks.append({
-            "task_id": ctx.task_def.task_id,
-            "has_description": ctx.workflow_context.task_description is not None,
-            "prev_results_count": len(ctx.previous_results),
-        })
+    async def context_aware_task(ctx: TaskExecutionContext) -> dict[str, Any]:
+        context_checks.append(
+            {
+                "task_id": ctx.task_def.task_id,
+                "has_description": ctx.workflow_context.task_description is not None,
+                "prev_results_count": len(ctx.previous_results),
+            }
+        )
         return {"output": f"Processed by {ctx.task_def.task_id}"}
 
     orchestrator.register_executor("test_agent", context_aware_task)

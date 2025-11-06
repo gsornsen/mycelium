@@ -154,8 +154,7 @@ class SecretsManager:
         existing = None if overwrite else self.load_secrets()
 
         logger.info(
-            "Generating secrets for project: %s "
-            "(postgres=%s, redis=%s, temporal=%s, overwrite=%s)",
+            "Generating secrets for project: %s (postgres=%s, redis=%s, temporal=%s, overwrite=%s)",
             self.project_name,
             postgres,
             redis,
@@ -221,9 +220,7 @@ class SecretsManager:
             )
         except OSError as e:
             logger.error("Failed to save secrets: %s", e, exc_info=True)
-            raise SecretsError(
-                f"Failed to save secrets to {self.secrets_file}: {e}"
-            ) from e
+            raise SecretsError(f"Failed to save secrets to {self.secrets_file}: {e}") from e
 
     def load_secrets(self) -> DeploymentSecrets | None:
         """Load secrets from storage.
@@ -247,9 +244,7 @@ class SecretsManager:
             logger.debug("Secrets loaded successfully from %s", self.secrets_file)
             return DeploymentSecrets(**data)
         except (json.JSONDecodeError, KeyError, TypeError) as e:
-            logger.warning(
-                "Failed to load secrets from %s: %s", self.secrets_file, e
-            )
+            logger.warning("Failed to load secrets from %s: %s", self.secrets_file, e)
             return None
 
     def delete_secrets(self) -> bool:
@@ -350,9 +345,7 @@ class SecretsManager:
         else:
             raise ValueError(f"Unknown secret type: {secret_type}")
 
-        logger.info(
-            "Rotating %s secret for project %s", secret_type, self.project_name
-        )
+        logger.info("Rotating %s secret for project %s", secret_type, self.project_name)
         self.save_secrets(existing)
         return existing
 
@@ -393,6 +386,4 @@ def generate_env_file(secrets: DeploymentSecrets, output_path: Path) -> None:
         logger.info("Generated .env file at %s with secure permissions", output_path)
     except OSError as e:
         logger.error("Failed to generate .env file: %s", e, exc_info=True)
-        raise SecretsError(
-            f"Failed to generate .env file at {output_path}: {e}"
-        ) from e
+        raise SecretsError(f"Failed to generate .env file at {output_path}: {e}") from e

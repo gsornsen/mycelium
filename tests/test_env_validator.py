@@ -7,8 +7,8 @@ including validation logic, error messages, and edge cases.
 from __future__ import annotations
 
 import os
+import sys
 from pathlib import Path
-from typing import Any
 
 import pytest
 
@@ -39,9 +39,7 @@ def clean_env(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 @pytest.fixture
-def mock_mycelium_env(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> dict[str, Path]:
+def mock_mycelium_env(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> dict[str, Path]:
     """Create a complete mock Mycelium environment.
 
     Returns:
@@ -110,9 +108,7 @@ class TestIsEnvironmentActive:
         monkeypatch.setenv("MYCELIUM_ENV_ACTIVE", "0")
         assert is_environment_active() is False
 
-    def test_returns_false_when_empty_string(
-        self, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_returns_false_when_empty_string(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """Should return False when MYCELIUM_ENV_ACTIVE is empty."""
         monkeypatch.setenv("MYCELIUM_ENV_ACTIVE", "")
         assert is_environment_active() is False
@@ -121,9 +117,7 @@ class TestIsEnvironmentActive:
 class TestGetMissingVars:
     """Tests for get_missing_vars()."""
 
-    def test_returns_empty_when_all_required_set(
-        self, mock_mycelium_env: dict[str, Path]
-    ) -> None:
+    def test_returns_empty_when_all_required_set(self, mock_mycelium_env: dict[str, Path]) -> None:
         """Should return empty list when all required vars are set."""
         missing = get_missing_vars()
         assert missing == []
@@ -142,12 +136,10 @@ class TestGetMissingVars:
 
         assert set(missing) == set(expected)
 
-    def test_returns_some_missing_vars(
-        self, clean_env: None, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_returns_some_missing_vars(self, clean_env: None, monkeypatch: pytest.MonkeyPatch) -> None:
         """Should return only the missing variables."""
-        monkeypatch.setenv("MYCELIUM_ROOT", "/tmp/mycelium")
-        monkeypatch.setenv("MYCELIUM_CONFIG_DIR", "/tmp/config")
+        monkeypatch.setenv("MYCELIUM_ROOT", "/tmp/mycelium")  # nosec B108 - Test fixture path
+        monkeypatch.setenv("MYCELIUM_CONFIG_DIR", "/tmp/config")  # nosec B108 - Test fixture path
 
         missing = get_missing_vars()
 
@@ -159,31 +151,27 @@ class TestGetMissingVars:
 
         assert set(missing) == set(expected)
 
-    def test_excludes_optional_by_default(
-        self, clean_env: None, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_excludes_optional_by_default(self, clean_env: None, monkeypatch: pytest.MonkeyPatch) -> None:
         """Should not check optional vars by default."""
         # Set all required vars
-        monkeypatch.setenv("MYCELIUM_ROOT", "/tmp/mycelium")
-        monkeypatch.setenv("MYCELIUM_CONFIG_DIR", "/tmp/config")
-        monkeypatch.setenv("MYCELIUM_DATA_DIR", "/tmp/data")
-        monkeypatch.setenv("MYCELIUM_CACHE_DIR", "/tmp/cache")
-        monkeypatch.setenv("MYCELIUM_STATE_DIR", "/tmp/state")
+        monkeypatch.setenv("MYCELIUM_ROOT", "/tmp/mycelium")  # nosec B108 - Test fixture path
+        monkeypatch.setenv("MYCELIUM_CONFIG_DIR", "/tmp/config")  # nosec B108 - Test fixture path
+        monkeypatch.setenv("MYCELIUM_DATA_DIR", "/tmp/data")  # nosec B108 - Test fixture path
+        monkeypatch.setenv("MYCELIUM_CACHE_DIR", "/tmp/cache")  # nosec B108 - Test fixture path
+        monkeypatch.setenv("MYCELIUM_STATE_DIR", "/tmp/state")  # nosec B108 - Test fixture path
         # Don't set optional vars
 
         missing = get_missing_vars(include_optional=False)
         assert missing == []
 
-    def test_includes_optional_when_requested(
-        self, clean_env: None, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_includes_optional_when_requested(self, clean_env: None, monkeypatch: pytest.MonkeyPatch) -> None:
         """Should check optional vars when include_optional=True."""
         # Set all required vars
-        monkeypatch.setenv("MYCELIUM_ROOT", "/tmp/mycelium")
-        monkeypatch.setenv("MYCELIUM_CONFIG_DIR", "/tmp/config")
-        monkeypatch.setenv("MYCELIUM_DATA_DIR", "/tmp/data")
-        monkeypatch.setenv("MYCELIUM_CACHE_DIR", "/tmp/cache")
-        monkeypatch.setenv("MYCELIUM_STATE_DIR", "/tmp/state")
+        monkeypatch.setenv("MYCELIUM_ROOT", "/tmp/mycelium")  # nosec B108 - Test fixture path
+        monkeypatch.setenv("MYCELIUM_CONFIG_DIR", "/tmp/config")  # nosec B108 - Test fixture path
+        monkeypatch.setenv("MYCELIUM_DATA_DIR", "/tmp/data")  # nosec B108 - Test fixture path
+        monkeypatch.setenv("MYCELIUM_CACHE_DIR", "/tmp/cache")  # nosec B108 - Test fixture path
+        monkeypatch.setenv("MYCELIUM_STATE_DIR", "/tmp/state")  # nosec B108 - Test fixture path
         # Don't set optional vars
 
         missing = get_missing_vars(include_optional=True)
@@ -194,9 +182,7 @@ class TestGetMissingVars:
 class TestGetEnvironmentInfo:
     """Tests for get_environment_info()."""
 
-    def test_returns_all_vars_when_set(
-        self, mock_mycelium_env: dict[str, Path]
-    ) -> None:
+    def test_returns_all_vars_when_set(self, mock_mycelium_env: dict[str, Path]) -> None:
         """Should return dict with all environment variables."""
         info = get_environment_info()
 
@@ -217,11 +203,9 @@ class TestGetEnvironmentInfo:
 
         assert all(value is None for value in info.values())
 
-    def test_returns_partial_info(
-        self, clean_env: None, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_returns_partial_info(self, clean_env: None, monkeypatch: pytest.MonkeyPatch) -> None:
         """Should return mix of set and unset variables."""
-        monkeypatch.setenv("MYCELIUM_ROOT", "/tmp/mycelium")
+        monkeypatch.setenv("MYCELIUM_ROOT", "/tmp/mycelium")  # nosec B108 - Test fixture path
         monkeypatch.setenv("MYCELIUM_ENV_ACTIVE", "1")
 
         info = get_environment_info()
@@ -235,9 +219,7 @@ class TestGetEnvironmentInfo:
 class TestValidateEnvironment:
     """Tests for validate_environment()."""
 
-    def test_passes_with_valid_environment(
-        self, mock_mycelium_env: dict[str, Path]
-    ) -> None:
+    def test_passes_with_valid_environment(self, mock_mycelium_env: dict[str, Path]) -> None:
         """Should not raise exception with valid environment."""
         # Should not raise
         validate_environment()
@@ -253,12 +235,10 @@ class TestValidateEnvironment:
         assert "direnv allow" in error_msg
         assert "source bin/activate.sh" in error_msg
 
-    def test_fails_with_some_missing_variables(
-        self, clean_env: None, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_fails_with_some_missing_variables(self, clean_env: None, monkeypatch: pytest.MonkeyPatch) -> None:
         """Should raise error with specific missing variables."""
-        monkeypatch.setenv("MYCELIUM_ROOT", "/tmp/mycelium")
-        monkeypatch.setenv("MYCELIUM_CONFIG_DIR", "/tmp/config")
+        monkeypatch.setenv("MYCELIUM_ROOT", "/tmp/mycelium")  # nosec B108 - Test fixture path
+        monkeypatch.setenv("MYCELIUM_CONFIG_DIR", "/tmp/config")  # nosec B108 - Test fixture path
         # Missing other vars
 
         with pytest.raises(EnvironmentValidationError) as exc_info:
@@ -269,9 +249,7 @@ class TestValidateEnvironment:
         assert "MYCELIUM_CACHE_DIR" in error_msg
         assert "MYCELIUM_STATE_DIR" in error_msg
 
-    def test_fails_with_missing_directory(
-        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_fails_with_missing_directory(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         """Should raise error when a directory doesn't exist."""
         # Create project root
         project_root = tmp_path / "mycelium"
@@ -297,6 +275,7 @@ class TestValidateEnvironment:
         assert "do not exist" in error_msg
         assert "MYCELIUM_DATA_DIR" in error_msg
 
+    @pytest.mark.skipif(sys.platform == "win32", reason="Unix file permissions not supported on Windows")
     def test_fails_with_unwritable_directory(
         self, mock_mycelium_env: dict[str, Path], monkeypatch: pytest.MonkeyPatch
     ) -> None:
@@ -316,9 +295,7 @@ class TestValidateEnvironment:
             # Restore permissions for cleanup
             config_dir.chmod(0o755)
 
-    def test_fails_without_git_directory(
-        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_fails_without_git_directory(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         """Should raise error when MYCELIUM_ROOT is not a git repo."""
         # Create project root without .git
         project_root = tmp_path / "mycelium"
@@ -343,9 +320,7 @@ class TestValidateEnvironment:
         assert "not a git repository" in error_msg
         assert str(project_root) in error_msg
 
-    def test_fails_without_pyproject_toml(
-        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_fails_without_pyproject_toml(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         """Should raise error when pyproject.toml is missing."""
         # Create project root with .git but no pyproject.toml
         project_root = tmp_path / "mycelium"
@@ -370,9 +345,7 @@ class TestValidateEnvironment:
         assert "does not contain pyproject.toml" in error_msg
         assert str(project_root) in error_msg
 
-    def test_project_dir_optional_by_default(
-        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_project_dir_optional_by_default(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         """Should not require MYCELIUM_PROJECT_DIR by default."""
         # Create valid environment without project dir
         project_root = tmp_path / "mycelium"
@@ -394,9 +367,7 @@ class TestValidateEnvironment:
         # Should not raise
         validate_environment(require_project_dir=False)
 
-    def test_requires_project_dir_when_requested(
-        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_requires_project_dir_when_requested(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         """Should require MYCELIUM_PROJECT_DIR when requested."""
         # Create valid environment without project dir
         project_root = tmp_path / "mycelium"
@@ -424,9 +395,7 @@ class TestValidateEnvironment:
         error_msg = str(exc_info.value)
         assert "MYCELIUM_PROJECT_DIR" in error_msg
 
-    def test_validates_project_dir_when_set(
-        self, mock_mycelium_env: dict[str, Path]
-    ) -> None:
+    def test_validates_project_dir_when_set(self, mock_mycelium_env: dict[str, Path]) -> None:
         """Should validate project dir when required and set."""
         # Should not raise - project dir is set and exists
         validate_environment(require_project_dir=True)
@@ -435,9 +404,7 @@ class TestValidateEnvironment:
 class TestErrorMessages:
     """Tests for error message quality and actionability."""
 
-    def test_missing_vars_error_includes_fix_instructions(
-        self, clean_env: None
-    ) -> None:
+    def test_missing_vars_error_includes_fix_instructions(self, clean_env: None) -> None:
         """Error should include how to activate environment."""
         with pytest.raises(EnvironmentValidationError) as exc_info:
             validate_environment()
@@ -467,9 +434,8 @@ class TestErrorMessages:
         error_msg = str(exc_info.value)
         assert "Re-activate" in error_msg or "activate" in error_msg.lower()
 
-    def test_unwritable_dir_error_includes_chmod_command(
-        self, mock_mycelium_env: dict[str, Path]
-    ) -> None:
+    @pytest.mark.skipif(sys.platform == "win32", reason="Unix file permissions not supported on Windows")
+    def test_unwritable_dir_error_includes_chmod_command(self, mock_mycelium_env: dict[str, Path]) -> None:
         """Error should include chmod command for fixing permissions."""
         config_dir = mock_mycelium_env["MYCELIUM_CONFIG_DIR"]
         config_dir.chmod(0o444)
@@ -512,14 +478,11 @@ class TestErrorMessages:
 class TestEdgeCases:
     """Tests for edge cases and unusual scenarios."""
 
-    def test_handles_relative_paths_in_env_vars(
-        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_handles_relative_paths_in_env_vars(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         """Should handle relative paths correctly."""
         # Change to tmp directory
-        import os
 
-        original_cwd = os.getcwd()
+        original_cwd = Path.cwd()
         try:
             os.chdir(tmp_path)
 
@@ -544,9 +507,7 @@ class TestEdgeCases:
         finally:
             os.chdir(original_cwd)
 
-    def test_handles_symlinks(
-        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_handles_symlinks(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         """Should handle symlinked directories correctly."""
         # Create real directory
         real_dir = tmp_path / "real_mycelium"
@@ -572,9 +533,7 @@ class TestEdgeCases:
         # Should work with symlinks
         validate_environment()
 
-    def test_empty_string_env_var_treated_as_missing(
-        self, clean_env: None, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    def test_empty_string_env_var_treated_as_missing(self, clean_env: None, monkeypatch: pytest.MonkeyPatch) -> None:
         """Empty string should be treated as missing variable."""
         monkeypatch.setenv("MYCELIUM_ROOT", "")
         monkeypatch.setenv("MYCELIUM_CONFIG_DIR", "")

@@ -6,9 +6,10 @@ Thank you for your interest in contributing to Mycelium! This guide will help yo
 
 ### 1. New Agents (Spores)
 
-Add specialized agents for new domains. See [.mycelium/modules/agents.md](.mycelium/modules/agents.md) for detailed agent architecture and patterns.
+Add specialized agents for new domains. See [.mycelium/modules/agents.md](.mycelium/modules/agents.md) for detailed
+agent architecture and patterns.
 
-```markdown
+````markdown
 ---
 name: your-specialist
 description: Expert in specific domain. Invoke when working on X, Y, or Z.
@@ -26,8 +27,9 @@ Report progress to multi-agent-coordinator:
   "status": "completed",
   "metrics": {...}
 }
-```
-```
+````
+
+````
 
 **Guidelines**:
 - Clear invocation criteria in description
@@ -54,9 +56,10 @@ argument-hint: [optional-args]
 1. Do X
 2. Do Y
 3. Report Z
-```
+````
 
 **Guidelines**:
+
 - Project-agnostic where possible
 - Clear argument handling
 - Dual-mode coordination support (see [.mycelium/modules/coordination.md](.mycelium/modules/coordination.md))
@@ -79,7 +82,8 @@ Add automation hooks:
 ```
 
 **Guidelines**:
-- Fast execution (<1s preferred)
+
+- Fast execution (\<1s preferred)
 - Proper error handling
 - Exit codes (0=success, 1=error, 2=block)
 - Security validation
@@ -97,13 +101,15 @@ Improve documentation:
 
 ### 5. Library Enhancements
 
-Enhance coordination libraries (see [.mycelium/modules/coordination.md](.mycelium/modules/coordination.md) for architecture):
+Enhance coordination libraries (see [.mycelium/modules/coordination.md](.mycelium/modules/coordination.md) for
+architecture):
 
 - `lib/coordination.js` - Coordination abstractions
 - `lib/pubsub.js` - Pub/sub messaging
 - `lib/workflow.js` - Workflow orchestration
 
 **Guidelines**:
+
 - Maintain dual-mode support
 - Add tests for all modes
 - Document API changes
@@ -167,6 +173,7 @@ git push origin feature/your-feature-name
 ### 7. Create Pull Request
 
 Open a PR with:
+
 - Clear description of changes
 - Test results
 - Documentation updates
@@ -241,7 +248,8 @@ tools: Minimal required tools
 
 ### Test All Coordination Modes
 
-For coordination mode details, see [.mycelium/modules/coordination.md](.mycelium/modules/coordination.md#dual-mode-coordination).
+For coordination mode details, see
+[.mycelium/modules/coordination.md](.mycelium/modules/coordination.md#dual-mode-coordination).
 
 ```javascript
 // Test should work in all modes
@@ -264,15 +272,16 @@ node tests/integration/test-coordination.js
 ### Manual Testing
 
 1. Test with Redis available
-2. Test with TaskQueue only
-3. Test in markdown fallback mode
-4. Test error handling
+1. Test with TaskQueue only
+1. Test in markdown fallback mode
+1. Test error handling
 
 ## Documentation Standards
 
 ### Agent Documentation
 
 Every agent should have (see [.mycelium/modules/agents.md](.mycelium/modules/agents.md#creating-custom-agents)):
+
 - Clear description with invocation criteria
 - Tool access justification
 - Communication protocol
@@ -282,6 +291,7 @@ Every agent should have (see [.mycelium/modules/agents.md](.mycelium/modules/age
 ### Command Documentation
 
 Every command should have:
+
 - Clear usage instructions
 - Argument descriptions
 - Configuration examples
@@ -291,6 +301,7 @@ Every command should have:
 ### Library Documentation
 
 Every public function should have:
+
 - JSDoc comments
 - Parameter descriptions
 - Return value documentation
@@ -300,11 +311,11 @@ Every public function should have:
 ## Pull Request Process
 
 1. **Create PR** with clear title and description
-2. **Fill PR template** (description, testing, breaking changes)
-3. **Address review feedback** promptly
-4. **Update documentation** if needed
-5. **Squash commits** if requested
-6. **Wait for approval** from maintainers
+1. **Fill PR template** (description, testing, breaking changes)
+1. **Address review feedback** promptly
+1. **Update documentation** if needed
+1. **Squash commits** if requested
+1. **Wait for approval** from maintainers
 
 ## Versioning
 
@@ -317,10 +328,10 @@ We follow [Semantic Versioning](https://semver.org/):
 ## Release Process
 
 1. Update version in `package.json`
-2. Update `CHANGELOG.md`
-3. Create git tag: `git tag v1.x.x`
-4. Push tag: `git push --tags`
-5. Create GitHub release
+1. Update `CHANGELOG.md`
+1. Create git tag: `git tag v1.x.x`
+1. Push tag: `git push --tags`
+1. Create GitHub release
 
 ## Community Guidelines
 
@@ -333,6 +344,7 @@ We follow [Semantic Versioning](https://semver.org/):
 ## Recognition
 
 Contributors will be:
+
 - Listed in `CONTRIBUTORS.md`
 - Credited in release notes
 - Mentioned in documentation (where applicable)
@@ -355,6 +367,6 @@ Contributors will be:
 
 By contributing to Mycelium, you agree that your contributions will be licensed under the MIT License.
 
----
+______________________________________________________________________
 
 **Thank you for helping grow the Mycelial network!** 🍄

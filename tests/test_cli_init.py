@@ -14,8 +14,8 @@ import pytest
 from click.testing import CliRunner
 
 from mycelium_onboarding.cli import cli
-from mycelium_onboarding.wizard.flow import WizardState, WizardStep
 from mycelium_onboarding.detection.orchestrator import DetectionSummary
+from mycelium_onboarding.wizard.flow import WizardState
 
 
 class TestInitCommand:
@@ -25,10 +25,7 @@ class TestInitCommand:
     def runner(self) -> CliRunner:
         """Provide Click test runner with clean environment."""
         # Create runner with isolated environment (no MYCELIUM_* vars)
-        return CliRunner(env={
-            k: v for k, v in __import__('os').environ.items()
-            if not k.startswith('MYCELIUM_')
-        })
+        return CliRunner(env={k: v for k, v in __import__("os").environ.items() if not k.startswith("MYCELIUM_")})
 
     @pytest.fixture
     def mock_state(self) -> WizardState:
@@ -47,9 +44,7 @@ class TestInitCommand:
 
     def test_init_fresh_start(self, runner: CliRunner, tmp_path: Path) -> None:
         """Test init command with fresh start (no saved state)."""
-        with patch(
-            "mycelium_onboarding.wizard.persistence.WizardStatePersistence"
-        ) as mock_persistence_class:
+        with patch("mycelium_onboarding.wizard.persistence.WizardStatePersistence") as mock_persistence_class:
             # Setup mock persistence
             mock_persistence = MagicMock()
             mock_persistence.exists.return_value = False
@@ -60,16 +55,14 @@ class TestInitCommand:
                 mock_screens.return_value.show_welcome.side_effect = SystemExit(0)
 
                 # Run command
-                result = runner.invoke(cli, ["init", "--no-resume"])
+                runner.invoke(cli, ["init", "--no-resume"])
 
                 # Verify persistence was checked
                 mock_persistence.exists.assert_called()
 
     def test_init_with_resume_flag(self, runner: CliRunner, mock_state: WizardState) -> None:
         """Test init command with --resume flag when state exists."""
-        with patch(
-            "mycelium_onboarding.wizard.persistence.WizardStatePersistence"
-        ) as mock_persistence_class:
+        with patch("mycelium_onboarding.wizard.persistence.WizardStatePersistence") as mock_persistence_class:
             # Setup mock persistence with saved state
             mock_persistence = MagicMock()
             mock_persistence.exists.return_value = True
@@ -81,16 +74,14 @@ class TestInitCommand:
                 mock_screens.return_value.show_welcome.side_effect = SystemExit(0)
 
                 # Run command
-                result = runner.invoke(cli, ["init", "--resume"])
+                runner.invoke(cli, ["init", "--resume"])
 
                 # Verify state was loaded
                 mock_persistence.load.assert_called_once()
 
     def test_init_with_reset_flag(self, runner: CliRunner) -> None:
         """Test init command with --reset flag clears saved state."""
-        with patch(
-            "mycelium_onboarding.wizard.persistence.WizardStatePersistence"
-        ) as mock_persistence_class:
+        with patch("mycelium_onboarding.wizard.persistence.WizardStatePersistence") as mock_persistence_class:
             # Setup mock persistence
             mock_persistence = MagicMock()
             mock_persistence.exists.return_value = True
@@ -101,18 +92,14 @@ class TestInitCommand:
                 mock_screens.return_value.show_welcome.side_effect = SystemExit(0)
 
                 # Run command
-                result = runner.invoke(cli, ["init", "--reset", "--no-resume"])
+                runner.invoke(cli, ["init", "--reset", "--no-resume"])
 
                 # Verify state was cleared
                 mock_persistence.clear.assert_called()
 
-    def test_init_resume_confirmation_yes(
-        self, runner: CliRunner, mock_state: WizardState
-    ) -> None:
+    def test_init_resume_confirmation_yes(self, runner: CliRunner, mock_state: WizardState) -> None:
         """Test init command with resume confirmation (user selects yes)."""
-        with patch(
-            "mycelium_onboarding.wizard.persistence.WizardStatePersistence"
-        ) as mock_persistence_class:
+        with patch("mycelium_onboarding.wizard.persistence.WizardStatePersistence") as mock_persistence_class:
             # Setup mock persistence with saved state
             mock_persistence = MagicMock()
             mock_persistence.exists.return_value = True
@@ -124,16 +111,14 @@ class TestInitCommand:
                 mock_screens.return_value.show_welcome.side_effect = SystemExit(0)
 
                 # Run command with "yes" input
-                result = runner.invoke(cli, ["init"], input="y\n")
+                runner.invoke(cli, ["init"], input="y\n")
 
                 # Verify state was loaded
                 mock_persistence.load.assert_called()
 
     def test_init_resume_confirmation_no(self, runner: CliRunner) -> None:
         """Test init command with resume confirmation (user selects no)."""
-        with patch(
-            "mycelium_onboarding.wizard.persistence.WizardStatePersistence"
-        ) as mock_persistence_class:
+        with patch("mycelium_onboarding.wizard.persistence.WizardStatePersistence") as mock_persistence_class:
             # Setup mock persistence
             mock_persistence = MagicMock()
             mock_persistence.exists.return_value = True
@@ -144,16 +129,14 @@ class TestInitCommand:
                 mock_screens.return_value.show_welcome.side_effect = SystemExit(0)
 
                 # Run command with "no" input
-                result = runner.invoke(cli, ["init"], input="n\n")
+                runner.invoke(cli, ["init"], input="n\n")
 
                 # Verify load was not called
                 mock_persistence.load.assert_not_called()
 
     def test_init_keyboard_interrupt(self, runner: CliRunner) -> None:
         """Test init command handles keyboard interrupt gracefully."""
-        with patch(
-            "mycelium_onboarding.wizard.persistence.WizardStatePersistence"
-        ) as mock_persistence_class:
+        with patch("mycelium_onboarding.wizard.persistence.WizardStatePersistence") as mock_persistence_class:
             # Setup mock persistence
             mock_persistence = MagicMock()
             mock_persistence.exists.return_value = False
@@ -170,13 +153,9 @@ class TestInitCommand:
                 assert mock_persistence.save.called
                 assert result.exit_code == 1
 
-    def test_init_complete_wizard_flow(
-        self, runner: CliRunner, mock_detection_summary: DetectionSummary
-    ) -> None:
+    def test_init_complete_wizard_flow(self, runner: CliRunner, mock_detection_summary: DetectionSummary) -> None:
         """Test complete wizard flow from welcome to completion."""
-        with patch(
-            "mycelium_onboarding.wizard.persistence.WizardStatePersistence"
-        ) as mock_persistence_class:
+        with patch("mycelium_onboarding.wizard.persistence.WizardStatePersistence") as mock_persistence_class:
             # Setup mock persistence
             mock_persistence = MagicMock()
             mock_persistence.exists.return_value = False
@@ -203,12 +182,10 @@ class TestInitCommand:
                     # Setup mock config manager
                     with patch("mycelium_onboarding.config.manager.ConfigManager") as mock_manager:
                         manager = mock_manager.return_value
-                        manager._determine_save_path.return_value = Path("/tmp/config.yaml")
+                        manager._determine_save_path.return_value = Path("/tmp/config.yaml")  # nosec B108 - Test fixture using /tmp
 
                         # Run command with required inputs
-                        result = runner.invoke(
-                            cli, ["init", "--no-resume"], input="test-project\n"
-                        )
+                        runner.invoke(cli, ["init", "--no-resume"], input="test-project\n")
 
                         # Verify wizard completed
                         assert screens.show_complete.called
@@ -217,9 +194,7 @@ class TestInitCommand:
 
     def test_init_validation_errors(self, runner: CliRunner) -> None:
         """Test init command handles validation errors properly."""
-        with patch(
-            "mycelium_onboarding.wizard.persistence.WizardStatePersistence"
-        ) as mock_persistence_class:
+        with patch("mycelium_onboarding.wizard.persistence.WizardStatePersistence") as mock_persistence_class:
             # Setup mock persistence
             mock_persistence = MagicMock()
             mock_persistence.exists.return_value = False
@@ -244,23 +219,17 @@ class TestInitCommand:
                 with patch("mycelium_onboarding.wizard.validation.WizardValidator") as mock_validator:
                     validator = mock_validator.return_value
                     validator.validate_state.return_value = False
-                    validator.get_error_messages.return_value = [
-                        "Project name is required"
-                    ]
+                    validator.get_error_messages.return_value = ["Project name is required"]
 
                     # Run command
-                    result = runner.invoke(cli, ["init"], input="\n")
+                    runner.invoke(cli, ["init"], input="\n")
 
                     # Verify validation was called
                     assert validator.validate_state.called
 
-    def test_init_quick_mode_skips_advanced(
-        self, runner: CliRunner, mock_detection_summary: DetectionSummary
-    ) -> None:
+    def test_init_quick_mode_skips_advanced(self, runner: CliRunner, mock_detection_summary: DetectionSummary) -> None:
         """Test quick mode skips advanced configuration screen."""
-        with patch(
-            "mycelium_onboarding.wizard.persistence.WizardStatePersistence"
-        ) as mock_persistence_class:
+        with patch("mycelium_onboarding.wizard.persistence.WizardStatePersistence") as mock_persistence_class:
             # Setup mock persistence
             mock_persistence = MagicMock()
             mock_persistence.exists.return_value = False
@@ -287,23 +256,17 @@ class TestInitCommand:
                     # Setup mock config manager
                     with patch("mycelium_onboarding.config.manager.ConfigManager") as mock_manager:
                         manager = mock_manager.return_value
-                        manager._determine_save_path.return_value = Path("/tmp/config.yaml")
+                        manager._determine_save_path.return_value = Path("/tmp/config.yaml")  # nosec B108 - Test fixture using /tmp
 
                         # Run command
-                        result = runner.invoke(
-                            cli, ["init", "--no-resume"], input="test-project\n"
-                        )
+                        runner.invoke(cli, ["init", "--no-resume"], input="test-project\n")
 
                         # Verify advanced was NOT called
                         screens.show_advanced.assert_not_called()
 
-    def test_init_custom_mode_shows_advanced(
-        self, runner: CliRunner, mock_detection_summary: DetectionSummary
-    ) -> None:
+    def test_init_custom_mode_shows_advanced(self, runner: CliRunner, mock_detection_summary: DetectionSummary) -> None:
         """Test custom mode shows advanced configuration screen."""
-        with patch(
-            "mycelium_onboarding.wizard.persistence.WizardStatePersistence"
-        ) as mock_persistence_class:
+        with patch("mycelium_onboarding.wizard.persistence.WizardStatePersistence") as mock_persistence_class:
             # Setup mock persistence
             mock_persistence = MagicMock()
             mock_persistence.exists.return_value = False
@@ -331,12 +294,10 @@ class TestInitCommand:
                     # Setup mock config manager
                     with patch("mycelium_onboarding.config.manager.ConfigManager") as mock_manager:
                         manager = mock_manager.return_value
-                        manager._determine_save_path.return_value = Path("/tmp/config.yaml")
+                        manager._determine_save_path.return_value = Path("/tmp/config.yaml")  # nosec B108 - Test fixture using /tmp
 
                         # Run command
-                        result = runner.invoke(
-                            cli, ["init", "--no-resume"], input="test-project\n"
-                        )
+                        runner.invoke(cli, ["init", "--no-resume"], input="test-project\n")
 
                         # Verify advanced WAS called
                         screens.show_advanced.assert_called_once()
@@ -345,9 +306,7 @@ class TestInitCommand:
         self, runner: CliRunner, mock_detection_summary: DetectionSummary
     ) -> None:
         """Test that state is saved after each wizard step."""
-        with patch(
-            "mycelium_onboarding.wizard.persistence.WizardStatePersistence"
-        ) as mock_persistence_class:
+        with patch("mycelium_onboarding.wizard.persistence.WizardStatePersistence") as mock_persistence_class:
             # Setup mock persistence
             mock_persistence = MagicMock()
             mock_persistence.exists.return_value = False
@@ -374,23 +333,17 @@ class TestInitCommand:
                     # Setup mock config manager
                     with patch("mycelium_onboarding.config.manager.ConfigManager") as mock_manager:
                         manager = mock_manager.return_value
-                        manager._determine_save_path.return_value = Path("/tmp/config.yaml")
+                        manager._determine_save_path.return_value = Path("/tmp/config.yaml")  # nosec B108 - Test fixture using /tmp
 
                         # Run command
-                        result = runner.invoke(
-                            cli, ["init", "--no-resume"], input="test-project\n"
-                        )
+                        runner.invoke(cli, ["init", "--no-resume"], input="test-project\n")
 
                         # Verify save was called multiple times (once per step)
                         assert mock_persistence.save.call_count >= 4
 
-    def test_init_config_generation_and_save(
-        self, runner: CliRunner, mock_detection_summary: DetectionSummary
-    ) -> None:
+    def test_init_config_generation_and_save(self, runner: CliRunner, mock_detection_summary: DetectionSummary) -> None:
         """Test that configuration is generated and saved correctly."""
-        with patch(
-            "mycelium_onboarding.wizard.persistence.WizardStatePersistence"
-        ) as mock_persistence_class:
+        with patch("mycelium_onboarding.wizard.persistence.WizardStatePersistence") as mock_persistence_class:
             # Setup mock persistence
             mock_persistence = MagicMock()
             mock_persistence.exists.return_value = False
@@ -417,21 +370,17 @@ class TestInitCommand:
                     # Setup mock config manager
                     with patch("mycelium_onboarding.config.manager.ConfigManager") as mock_manager:
                         manager = mock_manager.return_value
-                        manager._determine_save_path.return_value = Path("/tmp/config.yaml")
+                        manager._determine_save_path.return_value = Path("/tmp/config.yaml")  # nosec B108 - Test fixture using /tmp
 
                         # Run command
-                        result = runner.invoke(
-                            cli, ["init", "--no-resume"], input="test-project\n"
-                        )
+                        result = runner.invoke(cli, ["init", "--no-resume"], input="test-project\n")
 
                         # Verify wizard completed successfully
                         assert result.exit_code == 0, f"Wizard failed: {result.output}"
 
     def test_init_corrupted_state_handling(self, runner: CliRunner) -> None:
         """Test handling of corrupted saved state."""
-        with patch(
-            "mycelium_onboarding.wizard.persistence.WizardStatePersistence"
-        ) as mock_persistence_class:
+        with patch("mycelium_onboarding.wizard.persistence.WizardStatePersistence") as mock_persistence_class:
             # Setup mock persistence that returns None (corrupted state)
             mock_persistence = MagicMock()
             mock_persistence.exists.return_value = True
@@ -443,16 +392,14 @@ class TestInitCommand:
                 mock_screens.return_value.show_welcome.side_effect = SystemExit(0)
 
                 # Run command with resume
-                result = runner.invoke(cli, ["init"], input="y\n")
+                runner.invoke(cli, ["init"], input="y\n")
 
                 # Verify load was attempted
                 assert mock_persistence.load.called
 
     def test_init_error_handling_with_state_save(self, runner: CliRunner) -> None:
         """Test that state is saved when an unexpected error occurs."""
-        with patch(
-            "mycelium_onboarding.wizard.persistence.WizardStatePersistence"
-        ) as mock_persistence_class:
+        with patch("mycelium_onboarding.wizard.persistence.WizardStatePersistence") as mock_persistence_class:
             # Setup mock persistence
             mock_persistence = MagicMock()
             mock_persistence.exists.return_value = False
@@ -460,9 +407,7 @@ class TestInitCommand:
 
             # Setup mock screens to raise exception
             with patch("mycelium_onboarding.wizard.screens.WizardScreens") as mock_screens:
-                mock_screens.return_value.show_welcome.side_effect = RuntimeError(
-                    "Test error"
-                )
+                mock_screens.return_value.show_welcome.side_effect = RuntimeError("Test error")
 
                 # Run command
                 result = runner.invoke(cli, ["init"])
@@ -479,10 +424,7 @@ class TestInitCommandSimple:
     def runner(self) -> CliRunner:
         """Provide Click test runner with clean environment."""
         # Create runner with isolated environment (no MYCELIUM_* vars)
-        return CliRunner(env={
-            k: v for k, v in __import__('os').environ.items()
-            if not k.startswith('MYCELIUM_')
-        })
+        return CliRunner(env={k: v for k, v in __import__("os").environ.items() if not k.startswith("MYCELIUM_")})
 
     def test_init_command_exists(self, runner: CliRunner) -> None:
         """Test that init command is registered."""

@@ -1,31 +1,31 @@
 # Option A: Agent Usage Analytics
 
-**Status**: Draft Backlog
-**Author**: @claude-code-developer + @project-manager
-**Created**: 2025-10-18
-**Estimated Effort**: 2-3 days (1 senior developer)
-**Complexity**: Low
-**Dependencies**: Phase 2 Performance Analytics (completed)
+**Status**: Draft Backlog **Author**: @claude-code-developer + @project-manager **Created**: 2025-10-18 **Estimated
+Effort**: 2-3 days (1 senior developer) **Complexity**: Low **Dependencies**: Phase 2 Performance Analytics (completed)
 
----
+______________________________________________________________________
 
 ## Executive Summary
 
-Extend the existing `mycelium_analytics` system to track **agent usage patterns** including popularity ranking, usage frequency, category breakdown, and unused agent detection. Provides data-driven insights for agent portfolio optimization and recommendation system improvements.
+Extend the existing `mycelium_analytics` system to track **agent usage patterns** including popularity ranking, usage
+frequency, category breakdown, and unused agent detection. Provides data-driven insights for agent portfolio
+optimization and recommendation system improvements.
 
 **Value Proposition**:
+
 - Identify most/least used agents for optimization efforts
 - Detect "zombie agents" (zero usage in 30 days)
 - Understand usage patterns by time-of-day and category
 - Inform smart agent suggestion algorithms (Option C)
 
----
+______________________________________________________________________
 
 ## Technical Architecture
 
 ### System Context
 
 This feature **extends** the existing analytics infrastructure:
+
 - Builds on `EventStorage` (JSONL storage, thread-safe)
 - Extends `TelemetryCollector` with new event types
 - Adds `UsageAnalyzer` class to `metrics.py`
@@ -64,7 +64,7 @@ This feature **extends** the existing analytics infrastructure:
 └─────────────────────────────────────────────┘
 ```
 
----
+______________________________________________________________________
 
 ## Data Schema
 
@@ -87,6 +87,7 @@ This feature **extends** the existing analytics infrastructure:
 ```
 
 **Privacy Guarantees**:
+
 - Agent IDs are **hashed** (SHA-256, first 8 chars)
 - Session IDs are **hashed**
 - No file paths, command content, or PII
@@ -106,7 +107,7 @@ This feature **extends** the existing analytics infrastructure:
 }
 ```
 
----
+______________________________________________________________________
 
 ## Implementation Details
 
@@ -822,7 +823,7 @@ class AgentDiscovery:
         return agent_full
 ```
 
----
+______________________________________________________________________
 
 ## Testing Strategy
 
@@ -901,37 +902,42 @@ python scripts/agent_stats.py unused --days 30
 python scripts/agent_stats.py heatmap --days 7
 ```
 
----
+______________________________________________________________________
 
 ## Implementation Timeline
 
 ### Day 1: Telemetry Extension
+
 - **Morning**: Add `record_agent_usage()` to `TelemetryCollector`
 - **Afternoon**: Add `record_agent_effectiveness()` method
 - **End of Day**: Unit tests for new methods (100% coverage)
 
 ### Day 2: Usage Analyzer
+
 - **Morning**: Implement `UsageAnalyzer` class with all methods
 - **Afternoon**: Integrate with `AgentDiscovery.get_agent()`
 - **End of Day**: Unit tests for analyzer (100% coverage)
 
 ### Day 3: CLI + Testing
+
 - **Morning**: Build `agent_stats.py` CLI tool
 - **Afternoon**: Integration testing + documentation
 - **End of Day**: Demo to team, gather feedback
 
 **Total**: 2-3 days for 1 senior Python developer
 
----
+______________________________________________________________________
 
 ## Effort Estimate
 
 **Complexity**: Low (extends existing system)
 
 **Team Composition**:
+
 - 1x @python-pro (lead developer)
 
 **Breakdown**:
+
 - Code implementation: 1.5 days
 - Testing (unit + integration): 0.5 days
 - Documentation: 0.5 days
@@ -939,79 +945,90 @@ python scripts/agent_stats.py heatmap --days 7
 
 **Total**: 2.5 - 3 days
 
----
+______________________________________________________________________
 
 ## Dependencies
 
 **Required**:
+
 - Phase 2 Performance Analytics (✅ Complete)
 - `EventStorage` with JSONL backend (✅ Complete)
 - `TelemetryCollector` infrastructure (✅ Complete)
 - `AgentDiscovery` with lazy loading (✅ Complete)
 
 **Optional**:
+
 - Option C (Smart Agent Suggestions) benefits from this data
 - Future ML models can train on usage patterns
 
----
+______________________________________________________________________
 
 ## Success Metrics
 
 **Acceptance Criteria**:
+
 1. ✅ Popularity ranking returns top agents by usage count
-2. ✅ Category breakdown shows usage distribution
-3. ✅ Unused agent detection identifies zombie agents
-4. ✅ Usage heatmap displays day/hour patterns
-5. ✅ CLI tool provides all 4 commands
-6. ✅ 100% test coverage (unit + integration)
-7. ✅ <20ms for analytics queries (p95)
+1. ✅ Category breakdown shows usage distribution
+1. ✅ Unused agent detection identifies zombie agents
+1. ✅ Usage heatmap displays day/hour patterns
+1. ✅ CLI tool provides all 4 commands
+1. ✅ 100% test coverage (unit + integration)
+1. ✅ \<20ms for analytics queries (p95)
 
 **Performance Targets**:
-- `get_popularity_ranking()`: p95 < 50ms
-- `get_category_breakdown()`: p95 < 20ms
-- `get_unused_agents()`: p95 < 100ms (involves AgentDiscovery)
-- `get_usage_heatmap()`: p95 < 30ms
 
----
+- `get_popularity_ranking()`: p95 \< 50ms
+- `get_category_breakdown()`: p95 \< 20ms
+- `get_unused_agents()`: p95 \< 100ms (involves AgentDiscovery)
+- `get_usage_heatmap()`: p95 \< 30ms
+
+______________________________________________________________________
 
 ## Future Enhancements
 
 **Phase 2 (Optional)**:
+
 - Real-time usage dashboard (web UI)
 - Slack/Discord notifications for unused agents
 - Automatic agent deprecation recommendations
 - Integration with Option C (recommendation engine)
 - A/B testing framework for agent improvements
 
----
+______________________________________________________________________
 
 ## Risk Assessment
 
 **Technical Risks**: LOW
+
 - Extends proven analytics infrastructure
 - No external dependencies beyond stdlib
 - Simple data structures (dicts, lists)
 
 **Blockers**: NONE
+
 - All dependencies complete (Phase 2)
 
 **Mitigation**:
+
 - Graceful degradation if telemetry fails
 - Privacy-first design (hashed IDs)
 - Thread-safe storage operations
 
----
+______________________________________________________________________
 
 ## Conclusion
 
-Option A provides **high value** at **low cost** by extending the existing analytics system to track agent usage patterns. The implementation is straightforward (2-3 days), low risk, and provides immediate insights for optimization efforts and smart agent suggestions (Option C).
+Option A provides **high value** at **low cost** by extending the existing analytics system to track agent usage
+patterns. The implementation is straightforward (2-3 days), low risk, and provides immediate insights for optimization
+efforts and smart agent suggestions (Option C).
 
 **Recommendation**: **APPROVED for Sprint Planning**
 
----
+______________________________________________________________________
 
 **Next Steps**:
+
 1. Approve backlog item
-2. Add to sprint planning
-3. Assign to @python-pro
-4. Coordinate with @project-manager for tracking
+1. Add to sprint planning
+1. Assign to @python-pro
+1. Coordinate with @project-manager for tracking

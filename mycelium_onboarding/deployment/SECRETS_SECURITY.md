@@ -2,7 +2,8 @@
 
 ## Overview
 
-The Mycelium secrets management system provides cryptographically secure generation and storage of deployment credentials. This document outlines security features, best practices, and considerations.
+The Mycelium secrets management system provides cryptographically secure generation and storage of deployment
+credentials. This document outlines security features, best practices, and considerations.
 
 ## Security Features
 
@@ -18,11 +19,13 @@ The Mycelium secrets management system provides cryptographically secure generat
 ### 2. Secure File Permissions
 
 #### Secrets Files (0o600)
+
 - **Owner**: Read and write only
 - **Group**: No access
 - **Others**: No access
 
 #### Secrets Directory (0o700)
+
 - **Owner**: Read, write, and execute
 - **Group**: No access
 - **Others**: No access
@@ -50,6 +53,7 @@ The Mycelium secrets management system provides cryptographically secure generat
 ### DO
 
 1. **Always use `.gitignore`**
+
    ```gitignore
    # Secrets
    .env
@@ -58,7 +62,8 @@ The Mycelium secrets management system provides cryptographically secure generat
    *.json
    ```
 
-2. **Use environment variables in production**
+1. **Use environment variables in production**
+
    ```python
    from mycelium_onboarding.deployment.secrets import SecretsManager
 
@@ -70,7 +75,8 @@ The Mycelium secrets management system provides cryptographically secure generat
    os.environ.update(env_vars)
    ```
 
-3. **Rotate secrets regularly**
+1. **Rotate secrets regularly**
+
    ```python
    # Rotate every 90 days
    manager.rotate_secret("postgres")
@@ -78,14 +84,16 @@ The Mycelium secrets management system provides cryptographically secure generat
    manager.rotate_secret("temporal")
    ```
 
-4. **Use separate secrets for each environment**
+1. **Use separate secrets for each environment**
+
    ```python
    dev_manager = SecretsManager("myapp-dev")
    staging_manager = SecretsManager("myapp-staging")
    prod_manager = SecretsManager("myapp-prod")
    ```
 
-5. **Verify file permissions after deployment**
+1. **Verify file permissions after deployment**
+
    ```bash
    ls -la ~/.local/state/mycelium/secrets/
    # Should show: -rw------- (600)
@@ -94,12 +102,14 @@ The Mycelium secrets management system provides cryptographically secure generat
 ### DON'T
 
 1. **Never commit secrets to version control**
+
    - Not in code
    - Not in comments
    - Not in commit messages
    - Not in .env files
 
-2. **Never log or print passwords**
+1. **Never log or print passwords**
+
    ```python
    # BAD
    print(f"Password: {secrets.postgres_password}")
@@ -109,12 +119,14 @@ The Mycelium secrets management system provides cryptographically secure generat
    logger.info("Password generated successfully")
    ```
 
-3. **Never share secrets via insecure channels**
+1. **Never share secrets via insecure channels**
+
    - No email
    - No Slack/chat (use secret sharing tools)
    - No screenshots
 
-4. **Never use weak permissions**
+1. **Never use weak permissions**
+
    ```python
    # BAD - Don't do this
    secrets_file.chmod(0o644)  # Too permissive!
@@ -123,7 +135,8 @@ The Mycelium secrets management system provides cryptographically secure generat
    secrets_file.chmod(0o600)
    ```
 
-5. **Never reuse secrets across environments**
+1. **Never reuse secrets across environments**
+
    ```python
    # BAD
    prod_secrets = dev_secrets  # Never!
@@ -138,52 +151,63 @@ The Mycelium secrets management system provides cryptographically secure generat
 ### Protected Against
 
 1. **Weak Random Number Generation**
+
    - Uses `secrets` module with OS entropy
    - Not predictable or reproducible
 
-2. **Unauthorized File Access**
+1. **Unauthorized File Access**
+
    - File permissions prevent other users from reading
    - Directory permissions prevent listing
 
-3. **Information Disclosure**
+1. **Information Disclosure**
+
    - Passwords never logged in plaintext
    - Only sanitized information in logs
 
-4. **Password Guessing**
+1. **Password Guessing**
+
    - 32-character passwords with mixed character sets
    - Approximately 2^192 possible combinations
 
 ### NOT Protected Against
 
 1. **Root/Administrator Access**
+
    - Root can always read files
    - Use system-level encryption for defense
 
-2. **Memory Dumps**
+1. **Memory Dumps**
+
    - Passwords exist in memory during use
    - Use secure memory allocation if needed
 
-3. **Compromised Application**
+1. **Compromised Application**
+
    - If app is compromised, secrets may be exposed
    - Use secrets rotation and monitoring
 
-4. **Social Engineering**
+1. **Social Engineering**
+
    - Humans remain weakest link
    - Use security awareness training
 
 ## Compliance Considerations
 
 ### GDPR
+
 - Secrets are personal data if they identify users
 - Implement data retention policies
 - Support right to deletion (use `delete_secrets()`)
 
 ### PCI DSS
+
 - Change default passwords immediately
 - Rotate secrets quarterly
 - Maintain access logs
 
 ### SOC 2
+
 - Document secret management procedures
 - Implement least privilege access
 - Regular security reviews
@@ -282,23 +306,27 @@ def test_no_password_logging(caplog):
 ### If Secrets Are Compromised
 
 1. **Immediately rotate all affected secrets**
+
    ```python
    manager.rotate_secret("postgres")
    manager.rotate_secret("redis")
    manager.rotate_secret("temporal")
    ```
 
-2. **Update all deployments**
+1. **Update all deployments**
+
    - Generate new .env files
    - Restart services with new secrets
    - Verify connectivity
 
-3. **Investigate the breach**
+1. **Investigate the breach**
+
    - Check access logs
    - Review file permissions
    - Audit code for leaks
 
-4. **Document and learn**
+1. **Document and learn**
+
    - Post-mortem analysis
    - Update procedures
    - Additional training
@@ -313,5 +341,6 @@ def test_no_password_logging(caplog):
 ## Support
 
 For security concerns or questions:
+
 - File an issue on GitHub (do NOT include actual secrets!)
 - Email: security@mycelium.dev (for responsible disclosure)

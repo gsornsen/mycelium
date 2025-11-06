@@ -2,17 +2,17 @@
 
 ## Overview
 
-**Duration**: 2 days
-**Dependencies**: M06 (Coordination Testing)
-**Parallel Work**: Runs concurrently with M07 (Configuration Management) and M08 (Documentation)
-**Blocks**: M10 (Polish & Release)
+**Duration**: 2 days **Dependencies**: M06 (Coordination Testing) **Parallel Work**: Runs concurrently with M07
+(Configuration Management) and M08 (Documentation) **Blocks**: M10 (Polish & Release)
 
-**Lead Agent**: test-automator
-**Support Agents**: python-pro, devops-engineer, qa-expert
+**Lead Agent**: test-automator **Support Agents**: python-pro, devops-engineer, qa-expert
 
 ## Why This Milestone
 
-While M06 established functional coordination testing, this milestone creates a comprehensive test infrastructure covering all components of the onboarding system. This includes unit tests for individual modules, integration tests for component interactions, CI/CD pipeline setup, and automated coverage reporting. A robust test suite ensures code quality, catches regressions early, and provides confidence for future development.
+While M06 established functional coordination testing, this milestone creates a comprehensive test infrastructure
+covering all components of the onboarding system. This includes unit tests for individual modules, integration tests for
+component interactions, CI/CD pipeline setup, and automated coverage reporting. A robust test suite ensures code
+quality, catches regressions early, and provides confidence for future development.
 
 ## Requirements
 
@@ -44,14 +44,13 @@ While M06 established functional coordination testing, this milestone creates a 
 - **CR-9.2**: All integration points must have integration tests
 - **CR-9.3**: Test code follows same quality standards as production code (type hints, docstrings)
 
----
+______________________________________________________________________
 
 ## Tasks
 
 ### Task 9.1: Unit Test Suite for Core Modules
 
-**Effort**: 8 hours
-**Agent**: test-automator, python-pro
+**Effort**: 8 hours **Agent**: test-automator, python-pro
 
 Create comprehensive unit tests for all core modules with ≥80% coverage target.
 
@@ -363,12 +362,11 @@ class TestInfraDetectorFullScan:
 
 **Coverage Target**: ≥80% for all modules in `mycelium/` directory.
 
----
+______________________________________________________________________
 
 ### Task 9.2: Integration Tests for Component Workflows
 
-**Effort**: 6 hours
-**Agent**: test-automator, python-pro
+**Effort**: 6 hours **Agent**: test-automator, python-pro
 
 Create integration tests validating end-to-end workflows across multiple components.
 
@@ -524,16 +522,15 @@ class TestComponentIntegration:
 **Integration Test Categories**:
 
 1. Full workflow tests (detection → wizard → config → generation)
-2. Component pair integration (detection ↔ config, config ↔ generators)
-3. MCP coordination integration (using M06 patterns)
-4. CLI command integration (slash commands end-to-end)
+1. Component pair integration (detection ↔ config, config ↔ generators)
+1. MCP coordination integration (using M06 patterns)
+1. CLI command integration (slash commands end-to-end)
 
----
+______________________________________________________________________
 
 ### Task 9.3: CI/CD Pipeline with GitHub Actions
 
-**Effort**: 4 hours
-**Agent**: devops-engineer, test-automator
+**Effort**: 4 hours **Agent**: devops-engineer, test-automator
 
 Create GitHub Actions workflow for automated testing on every pull request and main branch push.
 
@@ -698,12 +695,11 @@ branch_protection:
     enforce_admins: false
 ```
 
----
+______________________________________________________________________
 
 ### Task 9.4: Test Configuration and Coverage Reporting
 
-**Effort**: 3 hours
-**Agent**: test-automator, python-pro
+**Effort**: 3 hours **Agent**: test-automator, python-pro
 
 Configure pytest with plugins and set up comprehensive coverage reporting.
 
@@ -920,12 +916,11 @@ if __name__ == "__main__":
     main()
 ```
 
----
+______________________________________________________________________
 
 ### Task 9.5: Mock Strategies and Test Data Management
 
-**Effort**: 3 hours
-**Agent**: test-automator, python-pro
+**Effort**: 3 hours **Agent**: test-automator, python-pro
 
 Implement comprehensive mock strategies for external dependencies and test data factories.
 
@@ -1140,7 +1135,7 @@ def test_redis_memory_validation(max_memory: int, should_pass: bool):
             RedisConfig(enabled=True, max_memory=max_memory)
 ```
 
----
+______________________________________________________________________
 
 ## Exit Criteria
 
@@ -1158,44 +1153,50 @@ def test_redis_memory_validation(max_memory: int, should_pass: bool):
 ## Deliverables
 
 1. **Unit Test Suite** (tests/unit/)
+
    - test_config_manager.py (M02 tests)
    - test_detection.py (M03 tests)
    - test_wizard.py (M04 tests)
    - test_generators.py (M05 tests)
    - test_orchestrator.py (M06 tests)
 
-2. **Integration Test Suite** (tests/integration/)
+1. **Integration Test Suite** (tests/integration/)
+
    - test_full_flow.py (end-to-end workflows)
    - test_component_integration.py (component pairs)
 
-3. **CI/CD Pipeline** (.github/workflows/)
+1. **CI/CD Pipeline** (.github/workflows/)
+
    - test.yml (main test workflow)
    - coverage-comment.yml (PR coverage reporting)
 
-4. **Test Configuration**
+1. **Test Configuration**
+
    - pytest configuration in pyproject.toml
    - conftest.py with shared fixtures
    - Coverage reporting configuration
 
-5. **Test Utilities** (tests/fixtures/)
+1. **Test Utilities** (tests/fixtures/)
+
    - mcp_fixtures.py (MCP mocks)
    - config_fixtures.py (test data factories)
    - detection_fixtures.py (detection result mocks)
 
-6. **Test Documentation**
+1. **Test Documentation**
+
    - Testing guide in docs/
    - CI/CD documentation
    - Mock strategy documentation
 
 ## Risk Assessment
 
-| Risk | Likelihood | Impact | Mitigation |
-|------|-----------|--------|------------|
-| Coverage target not met | Medium | High | Iterative testing, focus on critical paths first |
-| CI/CD pipeline failures | Low | Medium | Thorough local testing before push, mock external dependencies |
-| Flaky tests due to timing | Medium | Medium | Use deterministic fixtures, avoid real I/O where possible |
-| Mock drift from real implementations | Medium | High | Periodic integration tests with real MCP servers, contract testing |
-| Test maintenance overhead | Medium | Medium | Follow DRY principles, use factories, clear documentation |
+| Risk                                 | Likelihood | Impact | Mitigation                                                         |
+| ------------------------------------ | ---------- | ------ | ------------------------------------------------------------------ |
+| Coverage target not met              | Medium     | High   | Iterative testing, focus on critical paths first                   |
+| CI/CD pipeline failures              | Low        | Medium | Thorough local testing before push, mock external dependencies     |
+| Flaky tests due to timing            | Medium     | Medium | Use deterministic fixtures, avoid real I/O where possible          |
+| Mock drift from real implementations | Medium     | High   | Periodic integration tests with real MCP servers, contract testing |
+| Test maintenance overhead            | Medium     | Medium | Follow DRY principles, use factories, clear documentation          |
 
 ## Dependencies for Next Milestones
 
@@ -1213,6 +1214,7 @@ Dependencies required from previous milestones:
 - **M05**: Generators for deployment file testing
 - **M06**: TestOrchestrator patterns for coordination testing
 
----
+______________________________________________________________________
 
-*This milestone ensures comprehensive test coverage and CI/CD automation for the Mycelium onboarding system, providing confidence in code quality and preventing regressions.*
+*This milestone ensures comprehensive test coverage and CI/CD automation for the Mycelium onboarding system, providing
+confidence in code quality and preventing regressions.*

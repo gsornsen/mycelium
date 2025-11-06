@@ -101,13 +101,10 @@ def get_config_path(filename: str, prefer_project: bool = True) -> Path:
 
     if "/" in filename or "\\" in filename:
         raise ConfigLoaderError(
-            f"Filename cannot contain path separators: {filename}\n"
-            "Use simple filename like 'config.yaml'"
+            f"Filename cannot contain path separators: {filename}\nUse simple filename like 'config.yaml'"
         )
 
-    logger.debug(
-        "Getting config path for '%s' (prefer_project=%s)", filename, prefer_project
-    )
+    logger.debug("Getting config path for '%s' (prefer_project=%s)", filename, prefer_project)
 
     # Check project-local first if preferred
     if prefer_project and "MYCELIUM_PROJECT_DIR" in os.environ:
@@ -181,9 +178,7 @@ def get_all_config_paths(filename: str) -> list[Path]:
         raise ConfigLoaderError("Filename cannot be empty")
 
     if "/" in filename or "\\" in filename:
-        raise ConfigLoaderError(
-            f"Filename cannot contain path separators: {filename}"
-        )
+        raise ConfigLoaderError(f"Filename cannot contain path separators: {filename}")
 
     logger.debug("Getting all config paths for '%s'", filename)
 

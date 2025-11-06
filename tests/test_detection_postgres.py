@@ -3,16 +3,18 @@
 from __future__ import annotations
 
 import socket
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 
 import pytest
-
 import pytest_mock
+
 from mycelium_onboarding.detection.postgres_detector import (
     PostgresDetectionResult,
     detect_postgres,
     scan_common_postgres_ports,
 )
+
+pytestmark = pytest.mark.integration  # Mark entire file as integration
 
 
 class TestDetectPostgres:
@@ -40,9 +42,7 @@ class TestDetectPostgres:
         assert result.version == "16.1"
         assert result.error_message is None
 
-    def test_detect_postgres_with_custom_host_port(
-        self, mocker: pytest_mock.MockerFixture
-    ) -> None:
+    def test_detect_postgres_with_custom_host_port(self, mocker: pytest_mock.MockerFixture) -> None:
         """Test PostgreSQL detection with custom host and port."""
         mock_socket = Mock()
         mock_socket.recv.return_value = b"S"  # SSL supported
@@ -80,7 +80,7 @@ class TestDetectPostgres:
     def test_detect_postgres_timeout(self, mocker: pytest_mock.MockerFixture) -> None:
         """Test PostgreSQL connection timeout."""
         mock_socket = Mock()
-        mock_socket.connect.side_effect = socket.timeout()
+        mock_socket.connect.side_effect = TimeoutError()
 
         mock_socket_class = mocker.patch("socket.socket")
         mock_socket_class.return_value = mock_socket
@@ -105,9 +105,7 @@ class TestDetectPostgres:
         assert result.error_message is not None
         assert "No response" in result.error_message
 
-    def test_detect_postgres_hostname_resolution_error(
-        self, mocker: pytest_mock.MockerFixture
-    ) -> None:
+    def test_detect_postgres_hostname_resolution_error(self, mocker: pytest_mock.MockerFixture) -> None:
         """Test PostgreSQL hostname resolution error."""
         mock_socket = Mock()
         mock_socket.connect.side_effect = socket.gaierror("Name resolution failed")
@@ -190,16 +188,10 @@ class TestScanCommonPostgresPorts:
 
     def test_scan_common_ports_all_available(self, mocker: pytest_mock.MockerFixture) -> None:
         """Test scanning when all common ports have PostgreSQL."""
-        mock_detect = mocker.patch(
-            "mycelium_onboarding.detection.postgres_detector.detect_postgres"
-        )
+        mock_detect = mocker.patch("mycelium_onboarding.detection.postgres_detector.detect_postgres")
         mock_detect.side_effect = [
-            PostgresDetectionResult(
-                available=True, host="localhost", port=5432, version="16.1"
-            ),
-            PostgresDetectionResult(
-                available=True, host="localhost", port=5433, version="15.4"
-            ),
+            PostgresDetectionResult(available=True, host="localhost", port=5432, version="16.1"),
+            PostgresDetectionResult(available=True, host="localhost", port=5433, version="15.4"),
         ]
 
         results = scan_common_postgres_ports()
@@ -210,13 +202,9 @@ class TestScanCommonPostgresPorts:
 
     def test_scan_common_ports_some_available(self, mocker: pytest_mock.MockerFixture) -> None:
         """Test scanning when only some ports have PostgreSQL."""
-        mock_detect = mocker.patch(
-            "mycelium_onboarding.detection.postgres_detector.detect_postgres"
-        )
+        mock_detect = mocker.patch("mycelium_onboarding.detection.postgres_detector.detect_postgres")
         mock_detect.side_effect = [
-            PostgresDetectionResult(
-                available=True, host="localhost", port=5432, version="16.1"
-            ),
+            PostgresDetectionResult(available=True, host="localhost", port=5432, version="16.1"),
             PostgresDetectionResult(
                 available=False,
                 host="localhost",
@@ -232,9 +220,7 @@ class TestScanCommonPostgresPorts:
 
     def test_scan_common_ports_none_available(self, mocker: pytest_mock.MockerFixture) -> None:
         """Test scanning when no ports have PostgreSQL."""
-        mock_detect = mocker.patch(
-            "mycelium_onboarding.detection.postgres_detector.detect_postgres"
-        )
+        mock_detect = mocker.patch("mycelium_onboarding.detection.postgres_detector.detect_postgres")
         mock_detect.side_effect = [
             PostgresDetectionResult(
                 available=False,
@@ -256,13 +242,9 @@ class TestScanCommonPostgresPorts:
 
     def test_scan_common_ports_custom_host(self, mocker: pytest_mock.MockerFixture) -> None:
         """Test scanning with custom host."""
-        mock_detect = mocker.patch(
-            "mycelium_onboarding.detection.postgres_detector.detect_postgres"
-        )
+        mock_detect = mocker.patch("mycelium_onboarding.detection.postgres_detector.detect_postgres")
         mock_detect.side_effect = [
-            PostgresDetectionResult(
-                available=True, host="db.example.com", port=5432, version="16.1"
-            ),
+            PostgresDetectionResult(available=True, host="db.example.com", port=5432, version="16.1"),
             PostgresDetectionResult(
                 available=False,
                 host="db.example.com",
@@ -366,9 +348,9 @@ class TestPostgresDetectionResult:
 
         mock_socket = Mock()
         mock_socket.recv.return_value = b"EFATAL\x00PostgreSQL 16.1 server error"
-        
+
         version = _attempt_version_detection(mock_socket, 2.0)
-        
+
         assert version == "16.1"
 
     def test_attempt_version_detection_with_exception(self, mocker: pytest_mock.MockerFixture) -> None:
@@ -379,10 +361,10 @@ class TestPostgresDetectionResult:
 
         mock_socket = Mock()
         mock_socket.sendall.side_effect = Exception("Network error")
-        
+
         # Should not raise, should return None
         version = _attempt_version_detection(mock_socket, 2.0)
-        
+
         assert version is None
 
     def test_parse_error_message_version_with_exception(self, mocker: pytest_mock.MockerFixture) -> None:
@@ -393,8 +375,6 @@ class TestPostgresDetectionResult:
 
         # Invalid byte sequence that might cause decode issues
         result = _parse_error_message_version(b"\xff\xfe")
-        
+
         # Should handle gracefully
         assert result is None
-
-

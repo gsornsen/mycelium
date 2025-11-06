@@ -1,18 +1,20 @@
 """Unit tests for state manager."""
 
 import os
+
 import pytest
 
 # Set test database URL
-os.environ["DATABASE_URL"] = "postgresql://localhost:5432/mycelium_test"
+os.environ["DATABASE_URL"] = os.getenv(
+    "DATABASE_URL", "postgresql://mycelium:mycelium_test@localhost:5432/mycelium_test"
+)
 
-from plugins.mycelium_core.coordination.state_manager import (
+from coordination.state_manager import (
     StateManager,
-    WorkflowState,
-    WorkflowStatus,
+    StateNotFoundError,
     TaskState,
     TaskStatus,
-    StateNotFoundError,
+    WorkflowStatus,
 )
 
 
@@ -172,9 +174,7 @@ async def test_state_snapshot_creation(state_manager):
         state = await state_manager.update_workflow(state)
 
     # Verify we can rollback to initial version
-    rolled_back = await state_manager.rollback_workflow(
-        state.workflow_id, initial_version
-    )
+    rolled_back = await state_manager.rollback_workflow(state.workflow_id, initial_version)
     assert rolled_back.version == initial_version
 
 
@@ -187,9 +187,7 @@ async def test_rollback_workflow(state_manager):
     version1 = state.version
 
     # Update task
-    await state_manager.update_task(
-        state.workflow_id, "task1", status=TaskStatus.COMPLETED
-    )
+    await state_manager.update_task(state.workflow_id, "task1", status=TaskStatus.COMPLETED)
     state = await state_manager.get_workflow(state.workflow_id)
     version2 = state.version
 
@@ -291,7 +289,7 @@ async def test_workflow_variables(state_manager):
         "mode": "production",
         "config": {"timeout": 30},
     }
-    updated = await state_manager.update_workflow(state)
+    await state_manager.update_workflow(state)
 
     # Verify persistence
     retrieved = await state_manager.get_workflow(state.workflow_id)

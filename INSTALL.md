@@ -51,7 +51,8 @@ ls ~/.claude/plugins/mycelium/hooks/
 
 ## Coordination Setup
 
-Choose and configure your coordination mode. For detailed information about coordination modes, see [.mycelium/modules/coordination.md](.mycelium/modules/coordination.md).
+Choose and configure your coordination mode. For detailed information about coordination modes, see
+[.mycelium/modules/coordination.md](.mycelium/modules/coordination.md).
 
 ### Mode 1: Redis (Recommended for Production)
 
@@ -175,7 +176,8 @@ temporal workflow list --namespace mycelium-workflows
 
 ## Configuration
 
-For detailed configuration options, see [.mycelium/modules/onboarding.md](.mycelium/modules/onboarding.md#configuration).
+For detailed configuration options, see
+[.mycelium/modules/onboarding.md](.mycelium/modules/onboarding.md#configuration).
 
 ### Global Infrastructure Check Config
 
@@ -267,7 +269,8 @@ chmod +x .pre-test-checks.sh
 
 ### Test JavaScript Library
 
-For coordination library usage examples, see [.mycelium/modules/coordination.md](.mycelium/modules/coordination.md#coordination-library-api).
+For coordination library usage examples, see
+[.mycelium/modules/coordination.md](.mycelium/modules/coordination.md#coordination-library-api).
 
 ```bash
 # Create test script
@@ -428,11 +431,12 @@ rm .pipeline-status.sh
 ## Next Steps
 
 1. **Read the Documentation**: Check out [README.md](README.md) for features and usage
-2. **Complete Onboarding**: See [.mycelium/modules/onboarding.md](.mycelium/modules/onboarding.md) for detailed setup
-3. **Explore Agents**: Browse the 130+ agents (see [.mycelium/modules/agents.md](.mycelium/modules/agents.md))
-4. **Try Commands**: Use `/infra-check`, `/team-status`, `/pipeline-status`
-5. **Learn Coordination**: Read [.mycelium/modules/coordination.md](.mycelium/modules/coordination.md) for workflow patterns
-6. **Join Community**: Report issues, share patterns, contribute agents (see [CONTRIBUTING.md](CONTRIBUTING.md))
+1. **Complete Onboarding**: See [.mycelium/modules/onboarding.md](.mycelium/modules/onboarding.md) for detailed setup
+1. **Explore Agents**: Browse the 130+ agents (see [.mycelium/modules/agents.md](.mycelium/modules/agents.md))
+1. **Try Commands**: Use `/infra-check`, `/team-status`, `/pipeline-status`
+1. **Learn Coordination**: Read [.mycelium/modules/coordination.md](.mycelium/modules/coordination.md) for workflow
+   patterns
+1. **Join Community**: Report issues, share patterns, contribute agents (see [CONTRIBUTING.md](CONTRIBUTING.md))
 
 ## Support
 
@@ -440,6 +444,6 @@ rm .pipeline-status.sh
 - **Issues**: https://github.com/gsornsen/mycelium/issues
 - **Discussions**: https://github.com/gsornsen/mycelium/discussions
 
----
+______________________________________________________________________
 
 **Mycelium** - Growing distributed intelligence, one agent at a time 🍄

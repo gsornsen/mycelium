@@ -13,7 +13,8 @@
 
 ## Schema Overview
 
-Mycelium configuration uses Pydantic v2 for type-safe validation with comprehensive error messages. The configuration schema is hierarchical with four main sections:
+Mycelium configuration uses Pydantic v2 for type-safe validation with comprehensive error messages. The configuration
+schema is hierarchical with four main sections:
 
 ```yaml
 version: "1.0"                 # Schema version
@@ -25,11 +26,11 @@ created_at: 2025-10-13T10:30:00  # Auto-generated timestamp
 
 ### Schema Version History
 
-| Version | Release Date | Changes |
-|---------|--------------|---------|
-| 1.0     | 2025-10-13  | Initial release with Redis, PostgreSQL, Temporal |
-| 1.1     | TBD         | Planned: Monitoring and logging configuration |
-| 1.2     | TBD         | Planned: Backup configuration |
+| Version | Release Date | Changes                                          |
+| ------- | ------------ | ------------------------------------------------ |
+| 1.0     | 2025-10-13   | Initial release with Redis, PostgreSQL, Temporal |
+| 1.1     | TBD          | Planned: Monitoring and logging configuration    |
+| 1.2     | TBD          | Planned: Backup configuration                    |
 
 See [Migration Guide](migration-guide.md) for version migration details.
 
@@ -63,6 +64,7 @@ Project identifier used throughout the system.
 - **Example**: `project_name: "my-awesome-project"`
 
 **Used for**:
+
 - Docker Compose project name
 - Kubernetes namespace prefix
 - Service naming
@@ -108,6 +110,7 @@ Deployment method for services.
 - **Example**: `method: docker-compose`
 
 **Selection guide**:
+
 - **docker-compose**: Local development, testing, simple deployments
 - **kubernetes**: Production deployments, scalability, high availability
 - **systemd**: Native Linux deployments, minimal overhead
@@ -124,6 +127,7 @@ Automatically start services after deployment.
 - **Example**: `auto_start: true`
 
 **Behavior**:
+
 - `true`: Services start automatically after deployment generation
 - `false`: Services require manual start (useful for staged deployments)
 
@@ -139,6 +143,7 @@ Timeout in seconds to wait for services to become healthy.
 - **Example**: `healthcheck_timeout: 60`
 
 **Tuning guide**:
+
 - **10-30 seconds**: Fast systems, local development
 - **60 seconds**: Default, balanced for most use cases
 - **120-300 seconds**: Slow systems, large databases, CI/CD
@@ -187,6 +192,7 @@ Specific version of the service to use.
   - `"7.0-alpine"`: Version with variant
 
 **Version selection**:
+
 - Omit for deployment method defaults
 - Specify for reproducible builds
 - Pin exact versions in production
@@ -235,6 +241,7 @@ Redis port number.
 - **Example**: `port: 6379`
 
 **Common ports**:
+
 - `6379`: Standard Redis port
 - `6380-6389`: Alternative Redis instances
 
@@ -249,6 +256,7 @@ Enable RDB (Redis Database) persistence.
 - **Example**: `persistence: true`
 
 **Behavior**:
+
 - `true`: Periodic snapshots saved to disk, data survives restarts
 - `false`: In-memory only, data lost on restart (faster, useful for caching)
 
@@ -268,6 +276,7 @@ Maximum memory limit for Redis.
   - `"512MB"`: 512 megabytes (normalized to "512mb")
 
 **Sizing guide**:
+
 - **128-256mb**: Lightweight usage, few agents
 - **512mb-1gb**: Moderate usage, standard deployment
 - **2gb+**: Heavy usage, many agents, large queues
@@ -321,6 +330,7 @@ PostgreSQL port number.
 - **Example**: `port: 5432`
 
 **Common ports**:
+
 - `5432`: Standard PostgreSQL port
 - `5433-5439`: Alternative PostgreSQL instances
 
@@ -337,6 +347,7 @@ Default database name.
 - **Example**: `database: "mycelium_dev"`
 
 **Naming rules** (PostgreSQL requirements):
+
 - Start with letter (a-z, A-Z)
 - Contain only letters, numbers, underscores
 - No hyphens, spaces, or special characters
@@ -354,12 +365,14 @@ Maximum number of concurrent database connections.
 - **Example**: `max_connections: 100`
 
 **Sizing guide**:
+
 - **20-50**: Lightweight usage, few agents
 - **100-200**: Standard usage, moderate agents
 - **300-500**: Heavy usage, many agents
 - **1000+**: Enterprise usage (requires PostgreSQL tuning)
 
 **Note**: Each connection uses memory. Calculate as:
+
 ```
 Memory for connections ≈ max_connections * work_mem
 ```
@@ -417,6 +430,7 @@ Temporal Web UI port number.
 - **Example**: `ui_port: 8080`
 
 **Common ports**:
+
 - `8080`: Standard HTTP alternate port
 - `8081-8089`: Alternative HTTP ports
 
@@ -448,6 +462,7 @@ Default Temporal namespace for workflows.
 - **Example**: `namespace: "production"`
 
 **Namespaces** are logical isolation boundaries for workflows:
+
 - Separate environments (dev, staging, prod)
 - Different teams or projects
 - Multi-tenancy
@@ -466,33 +481,33 @@ Additional Temporal configuration options (service-specific).
 
 #### String Pattern Validation
 
-| Field | Pattern | Description |
-|-------|---------|-------------|
-| `project_name` | `^[a-zA-Z0-9_-]+$` | Alphanumeric, hyphens, underscores |
-| `postgres.database` | `^[a-zA-Z][a-zA-Z0-9_]*$` | Start with letter, then alphanumeric + underscores |
-| `temporal.namespace` | `^[a-zA-Z0-9_-]+$` | Alphanumeric, hyphens, underscores |
-| `version` | `^\d+\.\d+$` | Major.minor version (e.g., "1.0") |
-| `redis.max_memory` | `^\d+[kmgtKMGT][bB]$` | Number followed by size unit |
-| `*.version` | `^[a-zA-Z0-9._-]+$` | Alphanumeric, dots, hyphens, underscores |
+| Field                | Pattern                   | Description                                        |
+| -------------------- | ------------------------- | -------------------------------------------------- |
+| `project_name`       | `^[a-zA-Z0-9_-]+$`        | Alphanumeric, hyphens, underscores                 |
+| `postgres.database`  | `^[a-zA-Z][a-zA-Z0-9_]*$` | Start with letter, then alphanumeric + underscores |
+| `temporal.namespace` | `^[a-zA-Z0-9_-]+$`        | Alphanumeric, hyphens, underscores                 |
+| `version`            | `^\d+\.\d+$`              | Major.minor version (e.g., "1.0")                  |
+| `redis.max_memory`   | `^\d+[kmgtKMGT][bB]$`     | Number followed by size unit                       |
+| `*.version`          | `^[a-zA-Z0-9._-]+$`       | Alphanumeric, dots, hyphens, underscores           |
 
 #### Numeric Range Validation
 
-| Field | Minimum | Maximum | Default |
-|-------|---------|---------|---------|
-| `redis.port` | 1 | 65535 | 6379 |
-| `postgres.port` | 1 | 65535 | 5432 |
-| `postgres.max_connections` | 1 | 10000 | 100 |
-| `temporal.ui_port` | 1 | 65535 | 8080 |
-| `temporal.frontend_port` | 1 | 65535 | 7233 |
-| `deployment.healthcheck_timeout` | 10 | 300 | 60 |
+| Field                            | Minimum | Maximum | Default |
+| -------------------------------- | ------- | ------- | ------- |
+| `redis.port`                     | 1       | 65535   | 6379    |
+| `postgres.port`                  | 1       | 65535   | 5432    |
+| `postgres.max_connections`       | 1       | 10000   | 100     |
+| `temporal.ui_port`               | 1       | 65535   | 8080    |
+| `temporal.frontend_port`         | 1       | 65535   | 7233    |
+| `deployment.healthcheck_timeout` | 10      | 300     | 60      |
 
 #### String Length Validation
 
-| Field | Minimum | Maximum | Default Length |
-|-------|---------|---------|----------------|
-| `project_name` | 1 | 100 | 8 ("mycelium") |
-| `postgres.database` | 1 | 63 | 8 ("mycelium") |
-| `temporal.namespace` | 1 | 255 | 7 ("default") |
+| Field                | Minimum | Maximum | Default Length |
+| -------------------- | ------- | ------- | -------------- |
+| `project_name`       | 1       | 100     | 8 ("mycelium") |
+| `postgres.database`  | 1       | 63      | 8 ("mycelium") |
+| `temporal.namespace` | 1       | 255     | 7 ("default")  |
 
 ### Validation Error Messages
 
@@ -574,9 +589,9 @@ services:
 Configurations are searched and loaded in order:
 
 1. **Explicit path** (if `ConfigManager(config_path=...)` used)
-2. **Project-local**: `.mycelium/config.yaml` (in current directory)
-3. **User-global**: `~/.config/mycelium/config.yaml`
-4. **Defaults**: Built-in default `MyceliumConfig()`
+1. **Project-local**: `.mycelium/config.yaml` (in current directory)
+1. **User-global**: `~/.config/mycelium/config.yaml`
+1. **Defaults**: Built-in default `MyceliumConfig()`
 
 **First match wins** - no merging is performed.
 
@@ -597,11 +612,12 @@ export MYCELIUM_DEPLOYMENT_METHOD="kubernetes"
 ```
 
 **Precedence** (planned):
+
 1. Environment variables (highest)
-2. Explicit config path
-3. Project-local config
-4. User-global config
-5. Defaults (lowest)
+1. Explicit config path
+1. Project-local config
+1. User-global config
+1. Defaults (lowest)
 
 ## File Locations
 
@@ -614,11 +630,13 @@ Mycelium follows the XDG Base Directory specification for configuration files.
 **Location**: `~/.config/mycelium/config.yaml`
 
 **Expands to**:
+
 - Linux: `/home/<user>/.config/mycelium/config.yaml`
 - macOS: `/Users/<user>/.config/mycelium/config.yaml`
 - Windows: `C:\Users\<user>\.config\mycelium\config.yaml`
 
 **Environment variable**: Respects `$XDG_CONFIG_HOME` if set:
+
 ```bash
 export XDG_CONFIG_HOME=/custom/config
 # Config will be at: /custom/config/mycelium/config.yaml
@@ -629,14 +647,16 @@ export XDG_CONFIG_HOME=/custom/config
 **Location**: `.mycelium/config.yaml` (in current directory)
 
 **Determination**:
+
 1. If `$MYCELIUM_PROJECT_DIR` is set: `$MYCELIUM_PROJECT_DIR/config.yaml`
-2. Otherwise: `.mycelium/config.yaml` (relative to current directory)
+1. Otherwise: `.mycelium/config.yaml` (relative to current directory)
 
 **Use case**: Project-specific configuration, committed to version control.
 
 ### File Permissions
 
 **Recommended permissions**:
+
 ```bash
 # Config directory
 chmod 700 ~/.config/mycelium/
@@ -654,6 +674,7 @@ When configuration is saved, a backup is automatically created:
 **Backup location**: `<config_path>.backup`
 
 **Example**:
+
 - Config: `~/.config/mycelium/config.yaml`
 - Backup: `~/.config/mycelium/config.yaml.backup`
 
@@ -681,6 +702,7 @@ services:
 ```
 
 **Features**:
+
 - Human-readable and editable
 - Comments supported
 - Hierarchical structure
@@ -710,6 +732,7 @@ Machine-readable format for APIs and tools:
 ```
 
 **CLI Usage**:
+
 ```bash
 # Export as JSON
 mycelium config show --format json

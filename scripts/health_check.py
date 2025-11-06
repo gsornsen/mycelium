@@ -38,12 +38,10 @@ def format_duration(ms: float) -> str:
         return f"{ms:.2f}ms"
     if ms < 1000:
         return f"{ms:.1f}ms"
-    return f"{ms/1000:.2f}s"
+    return f"{ms / 1000:.2f}s"
 
 
-def status_icon(
-    value: float, target: float, lower_is_better: bool = True
-) -> str:
+def status_icon(value: float, target: float, lower_is_better: bool = True) -> str:
     """Get status icon based on value vs target.
 
     Args:
@@ -103,16 +101,10 @@ def generate_health_report(days: int = 7) -> str:
     lines = []
 
     # Header
-    lines.append(
-        "╔═══════════════════════════════════════════════════════════╗"
-    )
-    lines.append(
-        "║        🔍 Mycelium Performance Health Check               ║"
-    )
+    lines.append("╔═══════════════════════════════════════════════════════════╗")
+    lines.append("║        🔍 Mycelium Performance Health Check               ║")
     lines.append(f"║        Last {days} Days{' ' * (45 - len(str(days)))}║")
-    lines.append(
-        "╚═══════════════════════════════════════════════════════════╝"
-    )
+    lines.append("╚═══════════════════════════════════════════════════════════╝")
     lines.append("")
 
     # Discovery Performance
@@ -121,11 +113,7 @@ def generate_health_report(days: int = 7) -> str:
 
     if discovery.get("by_operation"):
         # Column headers
-        col_headers = (
-            f"{'Operation':<15} {'Count':>6}   "
-            f"{'p50':>8}  {'p95':>8}  {'p99':>8}  "
-            f"{'Target':>8}  Status"
-        )
+        col_headers = f"{'Operation':<15} {'Count':>6}   {'p50':>8}  {'p95':>8}  {'p99':>8}  {'Target':>8}  Status"
         lines.append(col_headers)
 
         targets = {"list_agents": 20, "get_agent": 5, "search": 10}
@@ -163,18 +151,11 @@ def generate_health_report(days: int = 7) -> str:
         hit_rate = cache["hit_rate_percentage"]
         hit_status = status_icon(hit_rate, 80, lower_is_better=False)
 
-        speedup = (
-            cache["avg_miss_latency_ms"] / cache["avg_hit_latency_ms"]
-            if cache["avg_hit_latency_ms"] > 0
-            else 0
-        )
+        speedup = cache["avg_miss_latency_ms"] / cache["avg_hit_latency_ms"] if cache["avg_hit_latency_ms"] > 0 else 0
 
+        lines.append(f"Hit Rate:       {hit_rate:.1f}% {hit_status} (target: >80%)")
         lines.append(
-            f"Hit Rate:       {hit_rate:.1f}% {hit_status} (target: >80%)"
-        )
-        lines.append(
-            f"Cache Hits:     {cache['cache_hits']:,} operations "
-            f"(avg: {format_duration(cache['avg_hit_latency_ms'])})"
+            f"Cache Hits:     {cache['cache_hits']:,} operations (avg: {format_duration(cache['avg_hit_latency_ms'])})"
         )
         lines.append(
             f"Cache Misses:   {cache['cache_misses']:,} operations "
@@ -192,23 +173,13 @@ def generate_health_report(days: int = 7) -> str:
 
     if tokens["total_agents_loaded"] > 0:
         pct_loaded = (tokens["total_agents_loaded"] / 119) * 100
-        savings_status = status_icon(
-            tokens["savings_percentage"], 40, lower_is_better=False
-        )
+        savings_status = status_icon(tokens["savings_percentage"], 40, lower_is_better=False)
 
-        agents_line = (
-            f"Agents Loaded:       "
-            f"{tokens['total_agents_loaded']} / 119 "
-            f"({pct_loaded:.1f}%)"
-        )
+        agents_line = f"Agents Loaded:       {tokens['total_agents_loaded']} / 119 ({pct_loaded:.1f}%)"
         lines.append(agents_line)
-        lines.append(
-            f"Tokens Loaded:       {tokens['total_tokens_loaded']:,} tokens"
-        )
+        lines.append(f"Tokens Loaded:       {tokens['total_tokens_loaded']:,} tokens")
         baseline_line = (
-            f"Baseline (pre-P1):   "
-            f"{tokens['estimated_baseline_tokens']:,} tokens "
-            f"(all 119 agents @ 450 tokens)"
+            f"Baseline (pre-P1):   {tokens['estimated_baseline_tokens']:,} tokens (all 119 agents @ 450 tokens)"
         )
         lines.append(baseline_line)
         savings_line = (
@@ -228,19 +199,9 @@ def generate_health_report(days: int = 7) -> str:
     lines.append("━" * 63)
 
     trend = trends.get("trend", "stable").upper()
-    trend_icon_val = (
-        "✅" if trend == "IMPROVING" else "⚠️" if trend == "STABLE" else "❌"
-    )
-    trend_desc = (
-        "decreasing"
-        if trend == "IMPROVING"
-        else "stable"
-        if trend == "STABLE"
-        else "increasing"
-    )
-    lines.append(
-        f"Trend: {trend} {trend_icon_val} (latency {trend_desc} over time)"
-    )
+    trend_icon_val = "✅" if trend == "IMPROVING" else "⚠️" if trend == "STABLE" else "❌"
+    trend_desc = "decreasing" if trend == "IMPROVING" else "stable" if trend == "STABLE" else "increasing"
+    lines.append(f"Trend: {trend} {trend_icon_val} (latency {trend_desc} over time)")
 
     lines.append("")
 
@@ -298,10 +259,7 @@ def generate_health_report(days: int = 7) -> str:
         lines.append(f"  • Cache hit rate is excellent ({hit_pct:.1f}%)")
     if tokens.get("savings_percentage", 0) > 40:
         savings_pct = tokens["savings_percentage"]
-        tip_line = (
-            f"  • Phase 1 lazy loading saving "
-            f"{savings_pct:.1f}% of tokens"
-        )
+        tip_line = f"  • Phase 1 lazy loading saving {savings_pct:.1f}% of tokens"
         lines.append(tip_line)
     if discovery.get("overall", {}).get("p95_ms", 0) < 10:
         lines.append("  • All operations meeting performance targets")

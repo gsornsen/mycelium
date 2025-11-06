@@ -2,28 +2,31 @@
 
 ## Overview
 
-The Agent Discovery Skill enables Claude Code to intelligently discover and select Mycelium agents based on natural language task descriptions. This foundational skill eliminates the need for manual agent navigation and enables dynamic agent selection based on capabilities and requirements.
+The Agent Discovery Skill enables Claude Code to intelligently discover and select Mycelium agents based on natural
+language task descriptions. This foundational skill eliminates the need for manual agent navigation and enables dynamic
+agent selection based on capabilities and requirements.
 
-**Status:** Implemented (M01 - Week 3)
-**Version:** 1.0.0
-**Dependencies:** Task 1.1 (Agent Registry), Task 1.2 (Discovery API)
-**Future Enhancement:** Task 1.3 (NLP Matching Engine) will improve matching accuracy
+**Status:** Implemented (M01 - Week 3) **Version:** 1.0.0 **Dependencies:** Task 1.1 (Agent Registry), Task 1.2
+(Discovery API) **Future Enhancement:** Task 1.3 (NLP Matching Engine) will improve matching accuracy
 
 ## Capabilities
 
 ### Core Functions
 
 1. **Natural Language Agent Discovery**
+
    - Query agents using plain English descriptions
    - Returns ranked list of matching agents with confidence scores
    - Filters results by minimum confidence threshold
 
-2. **Agent Metadata Retrieval**
+1. **Agent Metadata Retrieval**
+
    - Get comprehensive information about specific agents
    - Access capabilities, tools, performance metrics, and usage statistics
    - Retrieve agent dependencies and example workflows
 
-3. **Intelligent Recommendations**
+1. **Intelligent Recommendations**
+
    - Confidence scoring (0.0-1.0) for each match
    - Match reason explanations
    - Fallback recommendations for ambiguous queries
@@ -35,6 +38,7 @@ The Agent Discovery Skill enables Claude Code to intelligently discover and sele
 Discover agents using natural language query.
 
 **Signature:**
+
 ```python
 async def discover_agents(
     query: str,
@@ -44,12 +48,14 @@ async def discover_agents(
 ```
 
 **Parameters:**
+
 - `query` (string, required): Natural language description of desired capabilities
   - Examples: "Python backend development", "database optimization", "security audit"
 - `limit` (integer, optional): Maximum number of agents to return (1-20, default: 5)
 - `threshold` (float, optional): Minimum confidence threshold (0.0-1.0, default: 0.6)
 
 **Returns:**
+
 ```json
 {
   "success": true,
@@ -77,6 +83,7 @@ async def discover_agents(
 ```
 
 **Error Handling:**
+
 - `ValueError`: Invalid parameters (empty query, invalid limit/threshold)
 - `DiscoveryAPIError`: API errors (server error, invalid request)
 - `DiscoveryTimeoutError`: Request timeout (default: 30s)
@@ -107,6 +114,7 @@ result = await discover_agents(
 Get detailed information about a specific agent.
 
 **Signature:**
+
 ```python
 async def get_agent_details(
     agent_id: str,
@@ -114,10 +122,12 @@ async def get_agent_details(
 ```
 
 **Parameters:**
+
 - `agent_id` (string, required): Agent ID or agent type
   - Examples: "backend-developer", "python-pro", "01-core-backend-developer"
 
 **Returns:**
+
 ```json
 {
   "success": true,
@@ -148,6 +158,7 @@ async def get_agent_details(
 ```
 
 **Error Handling:**
+
 - `ValueError`: Invalid parameters (empty agent_id)
 - `DiscoveryAPIError`: Agent not found or API error
 - `DiscoveryTimeoutError`: Request timeout
@@ -243,19 +254,22 @@ for agent in team:
 
 ### Latency Targets
 
-- **discover_agents**: <500ms end-to-end (P95)
-  - API processing: <100ms (P95)
+- **discover_agents**: \<500ms end-to-end (P95)
+
+  - API processing: \<100ms (P95)
   - Network overhead: ~50ms
   - Client processing: ~50ms
 
-- **get_agent_details**: <200ms end-to-end (P95)
-  - API processing: <50ms (P95)
+- **get_agent_details**: \<200ms end-to-end (P95)
+
+  - API processing: \<50ms (P95)
   - Network overhead: ~50ms
   - Client processing: ~25ms
 
 ### Retry Behavior
 
 Both tools implement automatic retry logic:
+
 - **Max retries**: 2 attempts (3 total tries)
 - **Backoff strategy**: Exponential (0.5s, 1.0s)
 - **Retry conditions**: Timeout, HTTP errors
@@ -263,7 +277,7 @@ Both tools implement automatic retry logic:
 
 ### Resource Usage
 
-- **Memory**: <10MB per request
+- **Memory**: \<10MB per request
 - **Network**: ~5KB request, ~50KB response (typical)
 - **Database**: Minimal impact due to API caching
 
@@ -300,17 +314,20 @@ await coordinate_workflow(
 ### Query Design
 
 **Good queries are specific but flexible:**
+
 - ✅ "PostgreSQL query optimization and indexing"
 - ✅ "React frontend with TypeScript and hooks"
 - ✅ "security audit for authentication flows"
 
 **Avoid overly vague or narrow queries:**
+
 - ❌ "development" (too vague)
 - ❌ "PostgreSQL 15.3 pg_stat_statements analysis" (too specific)
 
 ### Confidence Thresholds
 
 Choose threshold based on use case:
+
 - **High confidence (0.8-1.0)**: Critical tasks requiring exact match
 - **Medium confidence (0.6-0.8)**: General tasks with flexibility
 - **Low confidence (0.4-0.6)**: Exploration and discovery
@@ -318,6 +335,7 @@ Choose threshold based on use case:
 ### Result Limits
 
 Balance between options and decision paralysis:
+
 - **3-5 agents**: Good for quick decisions
 - **5-10 agents**: Exploration and team building
 - **10-20 agents**: Comprehensive analysis
@@ -347,32 +365,39 @@ except DiscoveryAPIError as e:
 ### Current Implementation (v1.0.0)
 
 1. **Text Matching Only**: Uses simple keyword matching
+
    - **Mitigation**: Task 1.3 will add NLP semantic matching
    - **Impact**: May miss relevant agents with different terminology
 
-2. **English Only**: No multi-language support
+1. **English Only**: No multi-language support
+
    - **Mitigation**: Query in English for now
    - **Future**: Multi-language support in M02
 
-3. **No Context Awareness**: Doesn't consider conversation history
+1. **No Context Awareness**: Doesn't consider conversation history
+
    - **Mitigation**: Include context in query explicitly
    - **Future**: Context integration in M03
 
-4. **Static Capabilities**: Agent capabilities manually defined
+1. **Static Capabilities**: Agent capabilities manually defined
+
    - **Mitigation**: Regular agent description updates
    - **Future**: Dynamic capability learning in M04
 
 ### Known Edge Cases
 
 1. **Ambiguous Queries**: May return diverse results
+
    - Example: "backend" could match Python, Java, Go, etc.
    - Solution: Use more specific queries
 
-2. **No Exact Match**: May return low-confidence results
+1. **No Exact Match**: May return low-confidence results
+
    - Example: Very specialized query with no matching agent
    - Solution: Review match_reason and consider alternatives
 
-3. **Category Overlap**: Agents may fit multiple categories
+1. **Category Overlap**: Agents may fit multiple categories
+
    - Example: "fullstack-developer" matches both frontend and backend
    - Solution: Review all top results, not just first match
 
@@ -381,6 +406,7 @@ except DiscoveryAPIError as e:
 ### Common Issues
 
 **Issue**: No agents found for valid query
+
 ```
 Symptom: Empty agents list with success=true
 Diagnosis: Threshold too high or query too specific
@@ -388,6 +414,7 @@ Solution: Lower threshold to 0.5 or broaden query
 ```
 
 **Issue**: Discovery timeout
+
 ```
 Symptom: DiscoveryTimeoutError after 30 seconds
 Diagnosis: API slow or unavailable
@@ -395,6 +422,7 @@ Solution: Check API health, retry with longer timeout
 ```
 
 **Issue**: Low confidence scores
+
 ```
 Symptom: All results below 0.7 confidence
 Diagnosis: Query doesn't match agent descriptions well
@@ -402,6 +430,7 @@ Solution: Refine query with different keywords or check agent registry
 ```
 
 **Issue**: Agent not found by ID
+
 ```
 Symptom: DiscoveryAPIError "Agent not found"
 Diagnosis: Invalid agent_id or agent doesn't exist
@@ -456,6 +485,7 @@ Configuration is stored in `plugins/mycelium-core/mcp/config/discovery.json`:
 ### Usage Metrics
 
 Track these metrics for optimization:
+
 - Discovery query frequency
 - Average confidence scores
 - Most common query patterns
@@ -464,6 +494,7 @@ Track these metrics for optimization:
 ### Performance Metrics
 
 Monitor for SLA compliance:
+
 - Request latency (P50, P95, P99)
 - Success rate
 - Timeout rate
@@ -472,6 +503,7 @@ Monitor for SLA compliance:
 ### Quality Metrics
 
 Measure effectiveness:
+
 - User satisfaction with results
 - Result refinement rate (queries repeated with changes)
 - Agent usage correlation (discovered → used)
@@ -479,6 +511,7 @@ Measure effectiveness:
 ## Version History
 
 ### v1.0.0 (2025-10-21)
+
 - Initial implementation
 - MCP tools: `discover_agents`, `get_agent_details`
 - Text-based matching with confidence scoring
@@ -488,11 +521,13 @@ Measure effectiveness:
 ### Planned Enhancements
 
 **v1.1.0 (M01 Week 4-5)**
+
 - NLP semantic matching (Task 1.3 integration)
 - Improved confidence scoring algorithm
 - Match reason explanations enhanced
 
 **v2.0.0 (M02)**
+
 - Context-aware discovery
 - Multi-language support
 - Caching optimization
@@ -508,16 +543,13 @@ Measure effectiveness:
 ## Support
 
 For issues or questions:
+
 1. Check troubleshooting section above
-2. Review integration tests for examples
-3. Check API health status
-4. Consult technical documentation
-5. Report issues with reproduction steps
+1. Review integration tests for examples
+1. Check API health status
+1. Consult technical documentation
+1. Report issues with reproduction steps
 
----
+______________________________________________________________________
 
-**Skill ID**: S1
-**Category**: Discovery
-**Maturity**: Stable
-**Test Coverage**: 95%
-**Last Updated**: 2025-10-21
+**Skill ID**: S1 **Category**: Discovery **Maturity**: Stable **Test Coverage**: 95% **Last Updated**: 2025-10-21

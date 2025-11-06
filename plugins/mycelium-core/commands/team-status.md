@@ -13,9 +13,10 @@ Check current workload and coordination status of Claude Code subagents.
 **Command arguments**: $ARGS
 
 **Coordination Methods** (auto-detect in order):
+
 1. Redis MCP (preferred) - Real-time distributed coordination
-2. TaskQueue MCP (preferred) - Task-centric coordination
-3. Markdown files (fallback) - Zero-dependency coordination in `.claude/coordination/`
+1. TaskQueue MCP (preferred) - Task-centric coordination
+1. Markdown files (fallback) - Zero-dependency coordination in `.claude/coordination/`
 
 ## Your Task
 
@@ -48,6 +49,7 @@ const heartbeats = await mcp__RedisMCPServer__hgetall({
 ```
 
 **Output format**:
+
 ```
 === Multi-Agent Team Status ===
 Coordination Method: Redis MCP
@@ -88,6 +90,7 @@ for (const project of projects) {
 ```
 
 **Output format**:
+
 ```
 === Multi-Agent Team Status ===
 Coordination Method: TaskQueue MCP
@@ -134,6 +137,7 @@ done
 ```
 
 **Markdown file format** (`.claude/coordination/agent-ai-engineer.md`):
+
 ```markdown
 # Agent: ai-engineer
 
@@ -163,6 +167,7 @@ done
 ```
 
 **Output format**:
+
 ```
 === Multi-Agent Team Status ===
 Coordination Method: Markdown files (fallback)
@@ -196,11 +201,12 @@ ml-engineer: BUSY (updated 2m ago)
 If user specifies an agent type (e.g., `/team-status ai-engineer`):
 
 1. Filter results to only show that agent
-2. Include detailed task breakdown
-3. Show historical performance metrics
-4. Display recent errors or warnings
+1. Include detailed task breakdown
+1. Show historical performance metrics
+1. Display recent errors or warnings
 
 Example:
+
 ```
 === Agent Status: ai-engineer ===
 
@@ -231,6 +237,7 @@ Last Heartbeat: 2m ago
 ## Error Scenarios
 
 **No coordination infrastructure**:
+
 ```
 ⚠️  No coordination infrastructure detected
 
@@ -248,6 +255,7 @@ Option 3 (Fallback): Create coordination directory
 ```
 
 **Stale coordination data**:
+
 ```
 ⚠️  Warning: Some agent status files are stale (>1h old)
 
@@ -280,6 +288,7 @@ find .claude/coordination/ -name "task-*.md" -type f -mtime +1 \
 ## Integration with Other Commands
 
 This command integrates with:
+
 - `/infra-check` - Validates coordination infrastructure health
 - `/workflow-status` - Shows Temporal workflow progress
 - Project-specific commands - Can query task status
@@ -287,9 +296,9 @@ This command integrates with:
 ## Best Practices
 
 1. **Prefer Redis/TaskQueue over markdown** for real-time coordination
-2. **Update agent status regularly** (every 5-10 minutes during active work)
-3. **Clean up stale coordination files** to avoid confusion
-4. **Use structured formats** (JSON in Redis, YAML in markdown) for consistency
-5. **Implement heartbeat mechanisms** to detect silent agent failures
-6. **Set TTLs on Redis keys** to auto-expire old status data
-7. **Version coordination schemas** to enable evolution over time
+1. **Update agent status regularly** (every 5-10 minutes during active work)
+1. **Clean up stale coordination files** to avoid confusion
+1. **Use structured formats** (JSON in Redis, YAML in markdown) for consistency
+1. **Implement heartbeat mechanisms** to detect silent agent failures
+1. **Set TTLs on Redis keys** to auto-expire old status data
+1. **Version coordination schemas** to enable evolution over time

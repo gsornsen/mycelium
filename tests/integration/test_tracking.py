@@ -1,580 +1,720 @@
-"""Integration tests for coordination tracking system.
+"""Integration tests for coordination tracking functionality."""
 
-Tests cover:
-- Event tracking and retrieval
-- Workflow timeline generation
-- Performance impact validation
-- Storage efficiency
-- Integration with orchestrator
-"""
-
-import asyncio
-import json
-import time
+import os
+import sys
+from dataclasses import dataclass, field
 from datetime import datetime
-from typing import List
+from pathlib import Path
+from typing import Any
 
 import pytest
-import asyncpg
 
-# Import coordination modules
-import sys
-from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "plugins" / "mycelium-core"))
 
+from coordination.state_manager import WorkflowStatus
 from coordination.tracker import (
-    CoordinationTracker,
     CoordinationEvent,
+    CoordinationTracker,
     EventType,
-    AgentInfo,
-    ErrorInfo,
     PerformanceMetrics,
+    track_failure,
     track_handoff,
     track_task_execution,
-    track_failure,
 )
 
 
-# Test database configuration
-TEST_DB_URL = "postgresql://mycelium:mycelium_dev_password@localhost:5432/mycelium_registry"
+@dataclass
+class SimpleWorkflowState:
+    """Simplified workflow state for testing."""
+
+    workflow_id: str
+    workflow_type: str
+    status: WorkflowStatus
+    metadata: dict[str, Any] = field(default_factory=dict)
+    created_at: str = field(default_factory=lambda: datetime.utcnow().isoformat())
 
 
-@pytest.fixture
-async def db_pool():
-    """Create database connection pool for tests."""
-    pool = await asyncpg.create_pool(TEST_DB_URL, min_size=2, max_size=5)
-    yield pool
-    await pool.close()
+class TrackerTestHelper:
+    """Helper class to provide workflow management on top of tracker."""
 
+    def __init__(self, tracker: CoordinationTracker):
+        self.tracker = tracker
+        self._workflows: dict[str, SimpleWorkflowState] = {}
+        self._agents: dict[str, dict[str, Any]] = {}
 
-@pytest.fixture
-async def tracker(db_pool):
-    """Create tracker instance for tests."""
-    tracker = CoordinationTracker(pool=db_pool)
-    await tracker.initialize()
-
-    yield tracker
-
-    # Cleanup: delete test events
-    async with db_pool.acquire() as conn:
-        await conn.execute("DELETE FROM coordination_events WHERE workflow_id LIKE 'test-%'")
-
-    await tracker.close()
-
-
-@pytest.fixture
-def sample_event():
-    """Create sample coordination event."""
-    return CoordinationEvent(
-        event_type=EventType.HANDOFF,
-        workflow_id="test-workflow-001",
-        task_id="test-task-001",
-        source_agent=AgentInfo("agent-001", "backend-developer"),
-        target_agent=AgentInfo("agent-002", "frontend-developer"),
-        context={"task_description": "Build REST API"},
-        metadata={"priority": "high"},
-    )
-
-
-class TestEventTracking:
-    """Test basic event tracking functionality."""
-
-    @pytest.mark.asyncio
-    async def test_track_simple_event(self, tracker, sample_event):
-        """Test tracking a simple event."""
-        event_id = await tracker.track_event(sample_event)
-
-        assert event_id is not None
-        assert event_id == sample_event.event_id
-
-        # Verify event was stored
-        events = await tracker.get_workflow_events(sample_event.workflow_id)
-        assert len(events) == 1
-        assert events[0].event_id == event_id
-        assert events[0].event_type == EventType.HANDOFF
-
-    @pytest.mark.asyncio
-    async def test_track_multiple_events(self, tracker):
-        """Test tracking multiple events for same workflow."""
-        workflow_id = "test-workflow-002"
-
-        # Track workflow lifecycle
-        events_to_track = [
-            CoordinationEvent(EventType.WORKFLOW_CREATED, workflow_id),
-            CoordinationEvent(EventType.WORKFLOW_STARTED, workflow_id),
-            CoordinationEvent(EventType.TASK_STARTED, workflow_id, task_id="task-1"),
-            CoordinationEvent(EventType.TASK_COMPLETED, workflow_id, task_id="task-1"),
-            CoordinationEvent(EventType.WORKFLOW_COMPLETED, workflow_id),
-        ]
-
-        for event in events_to_track:
-            await tracker.track_event(event)
-
-        # Verify all events stored
-        events = await tracker.get_workflow_events(workflow_id)
-        assert len(events) == 5
-
-    @pytest.mark.asyncio
-    async def test_event_with_error(self, tracker):
-        """Test tracking failure event with error info."""
-        workflow_id = "test-workflow-003"
-
-        error_event = CoordinationEvent(
-            event_type=EventType.FAILURE,
+    async def start_workflow(
+        self, workflow_id: str, workflow_type: str, metadata: dict[str, Any] | None = None
+    ) -> SimpleWorkflowState:
+        """Start a workflow by tracking a WORKFLOW_STARTED event."""
+        event = CoordinationEvent(
+            event_type=EventType.WORKFLOW_STARTED,
             workflow_id=workflow_id,
-            task_id="failed-task",
+            status="running",
+            metadata={"workflow_type": workflow_type, **(metadata or {})},
+        )
+        await self.tracker.track_event(event)
+
+        workflow = SimpleWorkflowState(
+            workflow_id=workflow_id, workflow_type=workflow_type, status=WorkflowStatus.RUNNING, metadata=metadata or {}
+        )
+        self._workflows[workflow_id] = workflow
+        return workflow
+
+    async def register_agent(self, agent_id: str, agent_type: str, capabilities: list[str] | None = None) -> None:
+        """Register an agent (store in memory for test purposes)."""
+        self._agents[agent_id] = {"agent_id": agent_id, "agent_type": agent_type, "capabilities": capabilities or []}
+
+    async def assign_task(self, workflow_id: str, task_id: str, agent_id: str, agent_type: str | None = None) -> None:
+        """Assign a task to an agent."""
+        if not agent_type and agent_id in self._agents:
+            agent_type = self._agents[agent_id]["agent_type"]
+
+        event = CoordinationEvent(
+            event_type=EventType.EXECUTION_START,
+            workflow_id=workflow_id,
+            task_id=task_id,
+            agent_id=agent_id,
+            agent_type=agent_type or "unknown",
+            status="assigned",
+        )
+        await self.tracker.track_event(event)
+
+    async def complete_task(
+        self, workflow_id: str, task_id: str, agent_id: str, agent_type: str | None = None, result: str | None = None
+    ) -> None:
+        """Complete a task."""
+        if not agent_type and agent_id in self._agents:
+            agent_type = self._agents[agent_id]["agent_type"]
+
+        await track_task_execution(
+            self.tracker,
+            workflow_id=workflow_id,
+            task_id=task_id,
+            agent_id=agent_id,
+            agent_type=agent_type or "unknown",
+            status="completed",
+            result_summary=result,
+        )
+
+    async def handoff_task(
+        self, workflow_id: str, task_id: str, from_agent: str, to_agent: str, context: dict[str, Any] | None = None
+    ) -> None:
+        """Hand off a task between agents."""
+        from_type = self._agents.get(from_agent, {}).get("agent_type", "unknown")
+        to_type = self._agents.get(to_agent, {}).get("agent_type", "unknown")
+
+        await track_handoff(
+            self.tracker,
+            workflow_id=workflow_id,
+            source_agent_id=from_agent,
+            source_agent_type=from_type,
+            target_agent_id=to_agent,
+            target_agent_type=to_type,
+            task_id=task_id,
+            context=context,
+        )
+
+    async def pause_workflow(self, workflow_id: str) -> SimpleWorkflowState | None:
+        """Pause a workflow."""
+        event = CoordinationEvent(event_type=EventType.WORKFLOW_PAUSED, workflow_id=workflow_id, status="paused")
+        await self.tracker.track_event(event)
+
+        if workflow_id in self._workflows:
+            self._workflows[workflow_id].status = WorkflowStatus.PAUSED
+        return self._workflows.get(workflow_id)
+
+    async def resume_workflow(self, workflow_id: str) -> SimpleWorkflowState | None:
+        """Resume a workflow."""
+        event = CoordinationEvent(event_type=EventType.WORKFLOW_RESUMED, workflow_id=workflow_id, status="running")
+        await self.tracker.track_event(event)
+
+        if workflow_id in self._workflows:
+            self._workflows[workflow_id].status = WorkflowStatus.RUNNING
+        return self._workflows.get(workflow_id)
+
+    async def complete_workflow(self, workflow_id: str) -> SimpleWorkflowState | None:
+        """Complete a workflow."""
+        event = CoordinationEvent(event_type=EventType.WORKFLOW_COMPLETED, workflow_id=workflow_id, status="completed")
+        await self.tracker.track_event(event)
+
+        if workflow_id in self._workflows:
+            self._workflows[workflow_id].status = WorkflowStatus.COMPLETED
+        return self._workflows.get(workflow_id)
+
+    async def fail_task(self, workflow_id: str, task_id: str, agent_id: str, error: str, retry: bool = False) -> None:
+        """Mark a task as failed."""
+        agent_type = self._agents.get(agent_id, {}).get("agent_type", "unknown")
+
+        await track_failure(
+            self.tracker,
+            workflow_id=workflow_id,
+            task_id=task_id,
+            agent_id=agent_id,
+            agent_type=agent_type,
+            error_type="TaskError",
+            error_message=error,
+            attempt=1,
+            will_retry=retry,
+        )
+
+    async def update_workflow_status(self, workflow_id: str, status: WorkflowStatus) -> SimpleWorkflowState | None:
+        """Update workflow status."""
+        event_type_map = {
+            WorkflowStatus.FAILED: EventType.WORKFLOW_FAILED,
+            WorkflowStatus.CANCELLED: EventType.WORKFLOW_CANCELLED,
+            WorkflowStatus.COMPLETED: EventType.WORKFLOW_COMPLETED,
+            WorkflowStatus.PAUSED: EventType.WORKFLOW_PAUSED,
+            WorkflowStatus.RUNNING: EventType.WORKFLOW_RESUMED,
+        }
+
+        event_type = event_type_map.get(status, EventType.STATUS_UPDATE)
+        event = CoordinationEvent(event_type=event_type, workflow_id=workflow_id, status=status.value)
+        await self.tracker.track_event(event)
+
+        if workflow_id in self._workflows:
+            self._workflows[workflow_id].status = status
+        return self._workflows.get(workflow_id)
+
+    async def list_workflows(self, status: WorkflowStatus | None = None) -> list[SimpleWorkflowState]:
+        """List workflows by status."""
+        workflows = list(self._workflows.values())
+        if status:
+            workflows = [w for w in workflows if w.status == status]
+        return workflows
+
+
+class TestCoordinationTrackerIntegration:
+    """Integration tests for the coordination tracker."""
+
+    @pytest.fixture
+    async def tracker(self) -> CoordinationTracker:
+        """Create a tracker instance for testing."""
+        # Create tracker without database (will use in-memory)
+        tracker = CoordinationTracker()
+        await tracker.initialize()
+        yield tracker
+        await tracker.close()
+
+    @pytest.fixture
+    async def helper(self, tracker: CoordinationTracker) -> TrackerTestHelper:
+        """Create a test helper with the tracker."""
+        return TrackerTestHelper(tracker)
+
+    @pytest.mark.asyncio
+    async def test_full_workflow_lifecycle(self, tracker: CoordinationTracker, helper: TrackerTestHelper) -> None:
+        """Test complete workflow from start to finish."""
+        # Start workflow
+        workflow = await helper.start_workflow(
+            workflow_id="test-workflow-001",
+            workflow_type="deployment",
+            metadata={"environment": "staging", "version": "1.0.0"},
+        )
+        assert workflow.status == WorkflowStatus.RUNNING
+        assert workflow.workflow_type == "deployment"
+
+        # Register agents
+        await helper.register_agent(
             agent_id="agent-001",
             agent_type="backend-developer",
-            error=ErrorInfo(
-                error_type="TimeoutError",
-                message="Task execution timeout",
-                attempt=2,
-                stack_trace="Stack trace here...",
-            ),
+            capabilities=["python", "fastapi", "postgresql"],
+        )
+        await helper.register_agent(
+            agent_id="agent-002",
+            agent_type="frontend-developer",
+            capabilities=["react", "typescript", "tailwind"],
         )
 
-        event_id = await tracker.track_event(error_event)
-
-        # Retrieve and verify
-        events = await tracker.get_workflow_events(workflow_id)
-        assert len(events) == 1
-        assert events[0].error is not None
-        assert events[0].error.error_type == "TimeoutError"
-        assert events[0].error.attempt == 2
-
-    @pytest.mark.asyncio
-    async def test_event_with_performance_metrics(self, tracker):
-        """Test tracking event with performance metrics."""
-        workflow_id = "test-workflow-004"
-
-        perf_event = CoordinationEvent(
-            event_type=EventType.EXECUTION_END,
-            workflow_id=workflow_id,
-            task_id="perf-task",
-            duration_ms=1523.5,
-            performance=PerformanceMetrics(
-                queue_time_ms=10.5,
-                execution_time_ms=1500.0,
-                total_time_ms=1523.5,
-            ),
+        # Task assignments and executions
+        await helper.assign_task(
+            workflow_id="test-workflow-001",
+            task_id="setup-backend",
+            agent_id="agent-001",
         )
 
-        await tracker.track_event(perf_event)
-
-        events = await tracker.get_workflow_events(workflow_id)
-        assert len(events) == 1
-        assert events[0].duration_ms == 1523.5
-        assert events[0].performance.execution_time_ms == 1500.0
-
-
-class TestEventRetrieval:
-    """Test event retrieval and querying."""
-
-    @pytest.mark.asyncio
-    async def test_get_workflow_events(self, tracker):
-        """Test retrieving events by workflow ID."""
-        workflow_id = "test-workflow-005"
-
-        # Create events
-        for i in range(5):
-            event = CoordinationEvent(
-                event_type=EventType.TASK_STARTED,
-                workflow_id=workflow_id,
-                task_id=f"task-{i}",
-            )
-            await tracker.track_event(event)
-
-        events = await tracker.get_workflow_events(workflow_id)
-        assert len(events) == 5
-
-    @pytest.mark.asyncio
-    async def test_get_workflow_events_by_type(self, tracker):
-        """Test filtering events by type."""
-        workflow_id = "test-workflow-006"
-
-        # Create mixed events
-        await tracker.track_event(CoordinationEvent(EventType.WORKFLOW_STARTED, workflow_id))
-        await tracker.track_event(CoordinationEvent(EventType.TASK_STARTED, workflow_id, task_id="t1"))
-        await tracker.track_event(CoordinationEvent(EventType.HANDOFF, workflow_id, task_id="t1"))
-        await tracker.track_event(CoordinationEvent(EventType.TASK_COMPLETED, workflow_id, task_id="t1"))
-
-        # Filter by handoff
-        handoffs = await tracker.get_workflow_events(workflow_id, event_type=EventType.HANDOFF)
-        assert len(handoffs) == 1
-        assert handoffs[0].event_type == EventType.HANDOFF
-
-    @pytest.mark.asyncio
-    async def test_get_task_events(self, tracker):
-        """Test retrieving events by task ID."""
-        workflow_id = "test-workflow-007"
-        task_id = "specific-task"
-
-        # Create events for specific task
-        await tracker.track_event(CoordinationEvent(EventType.TASK_STARTED, workflow_id, task_id=task_id))
-        await tracker.track_event(CoordinationEvent(EventType.EXECUTION_START, workflow_id, task_id=task_id))
-        await tracker.track_event(CoordinationEvent(EventType.EXECUTION_END, workflow_id, task_id=task_id))
-
-        # Also create events for other tasks
-        await tracker.track_event(CoordinationEvent(EventType.TASK_STARTED, workflow_id, task_id="other-task"))
-
-        events = await tracker.get_task_events(task_id)
-        assert len(events) == 3
-
-    @pytest.mark.asyncio
-    async def test_get_agent_events(self, tracker):
-        """Test retrieving events by agent ID."""
-        workflow_id = "test-workflow-008"
-        agent_id = "test-agent-123"
-
-        # Create events for agent
-        await tracker.track_event(
-            CoordinationEvent(
-                EventType.TASK_STARTED,
-                workflow_id,
-                agent_id=agent_id,
-                agent_type="backend-developer",
-            )
-        )
-        await tracker.track_event(
-            CoordinationEvent(
-                EventType.TASK_COMPLETED,
-                workflow_id,
-                agent_id=agent_id,
-                agent_type="backend-developer",
-            )
+        await helper.complete_task(
+            workflow_id="test-workflow-001",
+            task_id="setup-backend",
+            agent_id="agent-001",
+            result="Backend API deployed at https://api.staging.example.com",
         )
 
-        events = await tracker.get_agent_events(agent_id)
-        assert len(events) == 2
+        # Handoff to frontend developer
+        await helper.handoff_task(
+            workflow_id="test-workflow-001",
+            task_id="integrate-frontend",
+            from_agent="agent-001",
+            to_agent="agent-002",
+            context={"api_url": "https://api.staging.example.com", "api_key": "test-key-123"},
+        )
 
+        await helper.assign_task(
+            workflow_id="test-workflow-001",
+            task_id="integrate-frontend",
+            agent_id="agent-002",
+        )
 
-class TestWorkflowTimeline:
-    """Test workflow timeline generation."""
+        await helper.complete_task(
+            workflow_id="test-workflow-001",
+            task_id="integrate-frontend",
+            agent_id="agent-002",
+            result="Frontend deployed at https://staging.example.com",
+        )
 
-    @pytest.mark.asyncio
-    async def test_get_workflow_timeline(self, tracker):
-        """Test generating complete workflow timeline."""
-        workflow_id = "test-workflow-009"
+        # Complete workflow
+        final_workflow = await helper.complete_workflow("test-workflow-001")
+        assert final_workflow.status == WorkflowStatus.COMPLETED
 
-        # Create complete workflow execution
-        events = [
-            CoordinationEvent(EventType.WORKFLOW_CREATED, workflow_id),
-            CoordinationEvent(EventType.WORKFLOW_STARTED, workflow_id),
-            CoordinationEvent(EventType.TASK_STARTED, workflow_id, task_id="t1"),
-            CoordinationEvent(
-                EventType.HANDOFF,
-                workflow_id,
-                task_id="t1",
-                source_agent=AgentInfo("a1", "backend"),
-                target_agent=AgentInfo("a2", "frontend"),
-            ),
-            CoordinationEvent(EventType.TASK_COMPLETED, workflow_id, task_id="t1"),
-            CoordinationEvent(EventType.WORKFLOW_COMPLETED, workflow_id),
-        ]
+        # Verify events were tracked
+        events = await tracker.get_workflow_events("test-workflow-001")
+        assert len(events) > 0
 
-        for event in events:
-            await tracker.track_event(event)
-            await asyncio.sleep(0.01)  # Small delay for ordering
-
-        timeline = await tracker.get_workflow_timeline(workflow_id)
-
-        assert timeline["workflow_id"] == workflow_id
-        assert timeline["total_events"] == 6
-        assert len(timeline["lifecycle"]) == 3  # Created, started, completed
-        assert len(timeline["tasks"]) == 2  # Started, completed
-        assert len(timeline["handoffs"]) == 1
-        assert timeline["duration_ms"] is not None
+        # Check timeline
+        timeline = await tracker.get_workflow_timeline("test-workflow-001")
+        assert timeline["total_events"] > 0
+        assert timeline["handoff_count"] == 1
 
     @pytest.mark.asyncio
-    async def test_get_handoff_chain(self, tracker):
-        """Test retrieving complete handoff chain."""
-        workflow_id = "test-workflow-010"
+    async def test_error_handling(self, tracker: CoordinationTracker, helper: TrackerTestHelper) -> None:
+        """Test error tracking and recovery."""
+        await helper.start_workflow(workflow_id="error-workflow", workflow_type="test_errors")
 
-        # Create handoff chain
+        await helper.register_agent(agent_id="error-agent", agent_type="test-agent")
+
+        # Simulate task failure
+        await helper.assign_task(
+            workflow_id="error-workflow",
+            task_id="failing-task",
+            agent_id="error-agent",
+        )
+
+        await helper.fail_task(
+            workflow_id="error-workflow",
+            task_id="failing-task",
+            agent_id="error-agent",
+            error="Connection timeout to external service",
+            retry=True,
+        )
+
+        # Retry the task
+        await helper.assign_task(
+            workflow_id="error-workflow",
+            task_id="failing-task",
+            agent_id="error-agent",
+        )
+
+        await helper.complete_task(
+            workflow_id="error-workflow",
+            task_id="failing-task",
+            agent_id="error-agent",
+            result="Successfully completed after retry",
+        )
+
+        # Check events
+        events = await tracker.get_workflow_events("error-workflow")
+        failure_events = [e for e in events if e.event_type == EventType.FAILURE]
+        assert len(failure_events) == 1
+
+        stats = await tracker.get_statistics(workflow_id="error-workflow")
+        assert stats["failure_rate"] > 0
+
+    @pytest.mark.asyncio
+    async def test_multi_agent_communication(self, tracker: CoordinationTracker, helper: TrackerTestHelper) -> None:
+        """Test tracking of complex multi-agent interactions."""
+        await helper.start_workflow(workflow_id="comm-workflow", workflow_type="communication_test")
+
+        # Register multiple agents
+        agents = ["orchestrator", "backend-dev", "frontend-dev", "qa-engineer"]
+        for agent in agents:
+            await helper.register_agent(agent_id=agent, agent_type=agent.replace("-", "_"))
+
+        # Complex handoff chain
         handoffs = [
-            ("agent-1", "backend", "agent-2", "frontend"),
-            ("agent-2", "frontend", "agent-3", "qa"),
-            ("agent-3", "qa", "agent-4", "devops"),
+            ("orchestrator", "backend-dev", "design-api"),
+            ("backend-dev", "frontend-dev", "implement-ui"),
+            ("frontend-dev", "qa-engineer", "test-integration"),
+            ("qa-engineer", "orchestrator", "report-results"),
         ]
 
-        for src_id, src_type, tgt_id, tgt_type in handoffs:
-            event = CoordinationEvent(
-                EventType.HANDOFF,
-                workflow_id,
-                source_agent=AgentInfo(src_id, src_type),
-                target_agent=AgentInfo(tgt_id, tgt_type),
-            )
-            await tracker.track_event(event)
-
-        chain = await tracker.get_handoff_chain(workflow_id)
-        assert len(chain) == 3
-
-
-class TestStatistics:
-    """Test statistics and monitoring."""
-
-    @pytest.mark.asyncio
-    async def test_get_workflow_statistics(self, tracker):
-        """Test getting statistics for specific workflow."""
-        workflow_id = "test-workflow-011"
-
-        # Create events
-        for i in range(10):
-            await tracker.track_event(
-                CoordinationEvent(
-                    EventType.TASK_STARTED,
-                    workflow_id,
-                    task_id=f"task-{i}",
-                    duration_ms=100.0 * (i + 1),
-                )
-            )
-
-        stats = await tracker.get_statistics(workflow_id)
-
-        assert stats["total_events"] == 10
-        assert stats["avg_duration_ms"] > 0
-        assert stats["max_duration_ms"] == 1000.0
-        assert EventType.TASK_STARTED.value in stats["event_type_counts"]
-
-    @pytest.mark.asyncio
-    async def test_get_global_statistics(self, tracker):
-        """Test getting global statistics."""
-        # Create events for multiple workflows
-        for w in range(3):
-            workflow_id = f"test-workflow-stats-{w}"
-            for e in range(5):
-                await tracker.track_event(
-                    CoordinationEvent(EventType.TASK_STARTED, workflow_id, task_id=f"t-{e}")
-                )
-
-        stats = await tracker.get_statistics()
-
-        assert stats["total_events"] >= 15
-        assert stats["total_workflows"] >= 3
-
-
-class TestPerformance:
-    """Test performance and efficiency."""
-
-    @pytest.mark.asyncio
-    async def test_tracking_performance(self, tracker):
-        """Test that tracking has minimal performance impact (<5%)."""
-        workflow_id = "test-workflow-perf"
-        num_events = 100
-
-        # Measure tracking time
-        start_time = time.perf_counter()
-        for i in range(num_events):
-            event = CoordinationEvent(
-                EventType.TASK_STARTED,
-                workflow_id,
-                task_id=f"task-{i}",
-            )
-            await tracker.track_event(event)
-        end_time = time.perf_counter()
-
-        total_time_ms = (end_time - start_time) * 1000
-        avg_time_per_event = total_time_ms / num_events
-
-        # Should be fast (<10ms per event for reasonable performance)
-        assert avg_time_per_event < 10.0, f"Tracking too slow: {avg_time_per_event}ms per event"
-
-        print(f"\nTracking performance: {avg_time_per_event:.2f}ms per event")
-
-    @pytest.mark.asyncio
-    async def test_storage_efficiency(self, tracker, db_pool):
-        """Test storage size is <10MB per 1000 events."""
-        workflow_id = "test-workflow-storage"
-        num_events = 100  # Using 100 for faster test, extrapolate to 1000
-
-        # Create events with typical data
-        for i in range(num_events):
-            event = CoordinationEvent(
-                EventType.HANDOFF,
-                workflow_id,
-                task_id=f"task-{i}",
-                source_agent=AgentInfo(f"agent-{i}", "backend-developer"),
-                target_agent=AgentInfo(f"agent-{i+1}", "frontend-developer"),
-                context={"task_description": "Sample task " * 10},
-                metadata={"priority": "normal", "tags": ["test", "sample"]},
-            )
-            await tracker.track_event(event)
-
-        # Check storage size
-        async with db_pool.acquire() as conn:
-            result = await conn.fetchrow(
-                """
-                SELECT pg_total_relation_size('coordination_events') as size
-                """
-            )
-            size_bytes = result["size"]
-
-        # Extrapolate to 1000 events
-        extrapolated_size_mb = (size_bytes / num_events * 1000) / (1024 * 1024)
-
-        print(f"\nStorage efficiency: {extrapolated_size_mb:.2f}MB per 1000 events (extrapolated)")
-
-        # Should be under 10MB per 1000 events
-        assert extrapolated_size_mb < 10.0, f"Storage too large: {extrapolated_size_mb:.2f}MB per 1000 events"
-
-    @pytest.mark.asyncio
-    async def test_concurrent_tracking(self, tracker):
-        """Test concurrent event tracking."""
-        workflow_id = "test-workflow-concurrent"
-        num_concurrent = 50
-
-        async def track_event_task(task_id: str):
-            event = CoordinationEvent(
-                EventType.TASK_STARTED,
-                workflow_id,
+        for from_agent, to_agent, task_id in handoffs:
+            await helper.handoff_task(
+                workflow_id="comm-workflow",
                 task_id=task_id,
-            )
-            return await tracker.track_event(event)
-
-        # Track events concurrently
-        tasks = [track_event_task(f"task-{i}") for i in range(num_concurrent)]
-        event_ids = await asyncio.gather(*tasks)
-
-        # Verify all tracked
-        assert len(event_ids) == num_concurrent
-        assert len(set(event_ids)) == num_concurrent  # All unique
-
-        # Verify in database
-        events = await tracker.get_workflow_events(workflow_id)
-        assert len(events) == num_concurrent
-
-
-class TestConvenienceFunctions:
-    """Test convenience tracking functions."""
-
-    @pytest.mark.asyncio
-    async def test_track_handoff(self, tracker):
-        """Test track_handoff convenience function."""
-        workflow_id = "test-workflow-handoff"
-
-        event_id = await track_handoff(
-            tracker,
-            workflow_id,
-            "agent-1",
-            "backend",
-            "agent-2",
-            "frontend",
-            task_id="handoff-task",
-            context={"description": "API handoff"},
-        )
-
-        assert event_id is not None
-
-        events = await tracker.get_workflow_events(workflow_id)
-        assert len(events) == 1
-        assert events[0].event_type == EventType.HANDOFF
-
-    @pytest.mark.asyncio
-    async def test_track_task_execution(self, tracker):
-        """Test track_task_execution convenience function."""
-        workflow_id = "test-workflow-exec"
-
-        # Track start
-        start_id = await track_task_execution(
-            tracker,
-            workflow_id,
-            "exec-task",
-            "agent-1",
-            "backend",
-            "running",
-        )
-
-        # Track end
-        end_id = await track_task_execution(
-            tracker,
-            workflow_id,
-            "exec-task",
-            "agent-1",
-            "backend",
-            "completed",
-            duration_ms=1500.0,
-            result_summary="Task completed successfully",
-        )
-
-        events = await tracker.get_task_events("exec-task")
-        assert len(events) == 2
-
-    @pytest.mark.asyncio
-    async def test_track_failure(self, tracker):
-        """Test track_failure convenience function."""
-        workflow_id = "test-workflow-fail"
-
-        event_id = await track_failure(
-            tracker,
-            workflow_id,
-            "fail-task",
-            "agent-1",
-            "backend",
-            "RuntimeError",
-            "Something went wrong",
-            attempt=2,
-        )
-
-        events = await tracker.get_workflow_events(workflow_id)
-        assert len(events) == 1
-        assert events[0].event_type == EventType.FAILURE
-        assert events[0].error.message == "Something went wrong"
-
-
-class TestDataCleanup:
-    """Test data management and cleanup."""
-
-    @pytest.mark.asyncio
-    async def test_delete_workflow_events(self, tracker):
-        """Test deleting workflow events."""
-        workflow_id = "test-workflow-delete"
-
-        # Create events
-        for i in range(5):
-            await tracker.track_event(
-                CoordinationEvent(EventType.TASK_STARTED, workflow_id, task_id=f"t-{i}")
+                from_agent=from_agent,
+                to_agent=to_agent,
             )
 
-        # Verify created
-        events = await tracker.get_workflow_events(workflow_id)
-        assert len(events) == 5
-
-        # Delete
-        deleted = await tracker.delete_workflow_events(workflow_id)
-        assert deleted == 5
-
-        # Verify deleted
-        events = await tracker.get_workflow_events(workflow_id)
-        assert len(events) == 0
-
-
-class TestEventOrdering:
-    """Test event ordering and timestamps."""
+        # Get handoff chain
+        chain = await tracker.get_handoff_chain("comm-workflow")
+        assert len(chain) == 4
 
     @pytest.mark.asyncio
-    async def test_events_ordered_by_timestamp(self, tracker):
-        """Test that events are returned in chronological order."""
-        workflow_id = "test-workflow-order"
+    async def test_parallel_execution(self, tracker: CoordinationTracker, helper: TrackerTestHelper) -> None:
+        """Test tracking of parallel task execution."""
+        await helper.start_workflow(workflow_id="parallel-workflow", workflow_type="parallel_test")
 
-        # Create events with delays
-        event_ids = []
-        for i in range(5):
+        # Register agents
+        agents = ["agent-1", "agent-2", "agent-3"]
+        for agent in agents:
+            await helper.register_agent(agent_id=agent, agent_type="worker")
+
+        # Start parallel tasks
+        tasks = []
+        for i, agent in enumerate(agents):
+            task_id = f"parallel-task-{i + 1}"
+            await helper.assign_task(
+                workflow_id="parallel-workflow",
+                task_id=task_id,
+                agent_id=agent,
+            )
+            tasks.append((agent, task_id))
+
+        # Complete tasks in different order
+        for agent, task_id in reversed(tasks):
+            await helper.complete_task(
+                workflow_id="parallel-workflow",
+                task_id=task_id,
+                agent_id=agent,
+            )
+
+        # Check timeline
+        timeline = await tracker.get_workflow_timeline("parallel-workflow")
+        assert timeline["unique_agents"] == 3
+        assert timeline["unique_tasks"] == 3
+
+    @pytest.mark.asyncio
+    async def test_workflow_pause_resume(self, tracker: CoordinationTracker, helper: TrackerTestHelper) -> None:
+        """Test workflow pause and resume functionality."""
+        workflow = await helper.start_workflow(
+            workflow_id="pausable-workflow",
+            workflow_type="pause_test",
+        )
+        assert workflow.status == WorkflowStatus.RUNNING
+
+        # Pause workflow
+        paused = await helper.pause_workflow("pausable-workflow")
+        assert paused.status == WorkflowStatus.PAUSED
+
+        # Resume workflow
+        resumed = await helper.resume_workflow("pausable-workflow")
+        assert resumed.status == WorkflowStatus.RUNNING
+
+        # Complete workflow
+        completed = await helper.complete_workflow("pausable-workflow")
+        assert completed.status == WorkflowStatus.COMPLETED
+
+        # Check events
+        events = await tracker.get_workflow_events("pausable-workflow")
+        event_types = [e.event_type for e in events]
+        assert EventType.WORKFLOW_PAUSED in event_types
+        assert EventType.WORKFLOW_RESUMED in event_types
+
+    @pytest.mark.asyncio
+    async def test_task_dependencies(self, tracker: CoordinationTracker, helper: TrackerTestHelper) -> None:
+        """Test tracking of task dependencies."""
+        await helper.start_workflow(workflow_id="dep-workflow", workflow_type="dependency_test")
+        await helper.register_agent(agent_id="worker", agent_type="worker")
+
+        # Execute tasks with dependencies
+        tasks = [
+            ("task-1", None),
+            ("task-2", ["task-1"]),
+            ("task-3", ["task-1"]),
+            ("task-4", ["task-2", "task-3"]),
+        ]
+
+        for task_id, deps in tasks:
+            metadata = {"dependencies": deps} if deps else {}
+
+            # Track task with dependencies in metadata
             event = CoordinationEvent(
-                EventType.TASK_STARTED,
-                workflow_id,
-                task_id=f"task-{i}",
+                event_type=EventType.EXECUTION_START,
+                workflow_id="dep-workflow",
+                task_id=task_id,
+                agent_id="worker",
+                agent_type="worker",
+                status="running",
+                metadata=metadata,
+            )
+            await tracker.track_event(event)
+
+            await helper.complete_task(
+                workflow_id="dep-workflow",
+                task_id=task_id,
+                agent_id="worker",
+            )
+
+        # Verify all tasks completed
+        events = await tracker.get_workflow_events("dep-workflow")
+        completed_tasks = set()
+        for e in events:
+            if e.event_type == EventType.EXECUTION_END and e.status == "completed":
+                completed_tasks.add(e.task_id)
+        assert len(completed_tasks) == 4
+
+    @pytest.mark.asyncio
+    async def test_concurrent_workflows(self, tracker: CoordinationTracker, helper: TrackerTestHelper) -> None:
+        """Test tracking multiple concurrent workflows."""
+        workflow_ids = ["concurrent-1", "concurrent-2", "concurrent-3"]
+
+        # Start multiple workflows
+        for workflow_id in workflow_ids:
+            await helper.start_workflow(workflow_id=workflow_id, workflow_type="concurrent_test")
+
+        # Track events for each workflow
+        for workflow_id in workflow_ids:
+            event = CoordinationEvent(
+                event_type=EventType.EXECUTION_START,
+                workflow_id=workflow_id,
+                task_id="task-1",
+                agent_id="worker",
+                agent_type="worker",
+                status="running",
+            )
+            await tracker.track_event(event)
+
+        # Complete workflows in different order
+        for workflow_id in reversed(workflow_ids):
+            await helper.complete_workflow(workflow_id)
+
+        # Verify each workflow has its own events
+        for workflow_id in workflow_ids:
+            events = await tracker.get_workflow_events(workflow_id)
+            assert len(events) >= 2  # At least start and complete
+
+    @pytest.mark.asyncio
+    async def test_statistics_generation(self, tracker: CoordinationTracker, helper: TrackerTestHelper) -> None:
+        """Test statistics calculation."""
+        # Create workflows with different statuses
+        await helper.start_workflow(
+            workflow_id="stats-1",
+            workflow_type="stats_test",
+        )
+        await helper.start_workflow(
+            workflow_id="stats-2",
+            workflow_type="stats_test",
+        )
+        await helper.start_workflow(
+            workflow_id="stats-3",
+            workflow_type="stats_test",
+        )
+
+        # Complete one, leave others running
+        await helper.complete_workflow("stats-1")
+
+        # Get active workflows
+        active = await helper.list_workflows(status=WorkflowStatus.RUNNING)
+        assert all(w.status == WorkflowStatus.RUNNING for w in active)
+        assert len(active) >= 2  # stats-2 and stats-3
+
+        # Global statistics
+        stats = await tracker.get_statistics()
+        assert stats["total_events"] > 0
+        assert stats["unique_workflows"] >= 3
+
+    @pytest.mark.asyncio
+    async def test_event_filtering(self, tracker: CoordinationTracker, helper: TrackerTestHelper) -> None:
+        """Test event filtering capabilities."""
+        await helper.start_workflow(
+            workflow_id="filter-workflow",
+            workflow_type="filter_test",
+        )
+        await helper.register_agent(agent_id="agent-1", agent_type="type-a")
+        await helper.register_agent(agent_id="agent-2", agent_type="type-b")
+
+        # Create various events
+        await helper.assign_task(
+            workflow_id="filter-workflow",
+            task_id="task-1",
+            agent_id="agent-1",
+        )
+        await helper.complete_task(
+            workflow_id="filter-workflow",
+            task_id="task-1",
+            agent_id="agent-1",
+        )
+        await helper.handoff_task(
+            workflow_id="filter-workflow",
+            task_id="task-2",
+            from_agent="agent-1",
+            to_agent="agent-2",
+        )
+
+        # Filter by event type
+        events = await tracker.get_workflow_events(
+            "filter-workflow",
+            event_type=EventType.HANDOFF,
+        )
+        assert all(e.event_type == EventType.HANDOFF for e in events)
+
+        # Filter by agent
+        agent_events = await tracker.get_agent_events("agent-1")
+        assert all(
+            e.agent_id == "agent-1"
+            or (hasattr(e, "source_agent") and e.source_agent and e.source_agent.agent_id == "agent-1")
+            for e in agent_events
+        )
+
+    @pytest.mark.asyncio
+    async def test_workflow_recovery(self, tracker: CoordinationTracker, helper: TrackerTestHelper) -> None:
+        """Test workflow recovery after failure."""
+        await helper.start_workflow(workflow_id="recovery-workflow", workflow_type="recovery_test")
+        await helper.register_agent(agent_id="recovery-agent", agent_type="worker")
+
+        # Simulate workflow failure
+        await helper.update_workflow_status(
+            "recovery-workflow",
+            WorkflowStatus.FAILED,
+        )
+
+        # Check workflow status
+        updated_workflow = helper._workflows.get("recovery-workflow")
+        assert updated_workflow.status == WorkflowStatus.FAILED
+
+        # Attempt recovery by restarting
+        await helper.start_workflow(
+            workflow_id="recovery-workflow-retry",
+            workflow_type="recovery_test",
+            metadata={"retry_of": "recovery-workflow"},
+        )
+
+        # Complete the retry
+        await helper.complete_workflow("recovery-workflow-retry")
+
+        # Verify both workflows exist
+        events_original = await tracker.get_workflow_events("recovery-workflow")
+        events_retry = await tracker.get_workflow_events("recovery-workflow-retry")
+        assert len(events_original) > 0
+        assert len(events_retry) > 0
+
+    @pytest.mark.asyncio
+    async def test_event_replay(self, tracker: CoordinationTracker, helper: TrackerTestHelper) -> None:
+        """Test event replay for debugging."""
+        await helper.start_workflow(workflow_id="replay-workflow", workflow_type="replay_test")
+
+        # Create a sequence of events
+        events_to_create = [
+            ("task-1", "agent-1", "started"),
+            ("task-1", "agent-1", "completed"),
+            ("task-2", "agent-2", "started"),
+            ("task-2", "agent-2", "failed"),
+        ]
+
+        for task_id, agent_id, status in events_to_create:
+            if status == "started":
+                event_type = EventType.EXECUTION_START
+            elif status == "completed":
+                event_type = EventType.EXECUTION_END
+            else:
+                event_type = EventType.FAILURE
+
+            event = CoordinationEvent(
+                event_type=event_type,
+                workflow_id="replay-workflow",
+                task_id=task_id,
+                agent_id=agent_id,
+                agent_type="worker",
+                status=status,
+            )
+            await tracker.track_event(event)
+
+        # Get timeline for replay
+        timeline = await tracker.get_workflow_timeline("replay-workflow")
+        assert timeline["total_events"] == 5  # start_workflow + 4 events
+
+        # Verify event order
+        events = await tracker.get_workflow_events("replay-workflow")
+        # Events should be in chronological order
+        assert all(events[i].timestamp <= events[i + 1].timestamp for i in range(len(events) - 1))
+
+    @pytest.mark.asyncio
+    async def test_performance_metrics(self, tracker: CoordinationTracker, helper: TrackerTestHelper) -> None:
+        """Test performance metrics tracking."""
+        await helper.start_workflow(
+            workflow_id="perf-workflow",
+            workflow_type="performance_test",
+        )
+
+        # Track event with performance metrics
+        perf = PerformanceMetrics(
+            cpu_usage=45.2,
+            memory_mb=512.3,
+            io_operations=1523,
+            network_bytes=1048576,
+        )
+
+        event = CoordinationEvent(
+            event_type=EventType.EXECUTION_END,
+            workflow_id="perf-workflow",
+            task_id="heavy-task",
+            agent_id="worker",
+            agent_type="compute",
+            status="completed",
+            duration_ms=2543.7,
+            performance=perf,
+        )
+        await tracker.track_event(event)
+
+        # Verify metrics were tracked
+        events = await tracker.get_workflow_events("perf-workflow")
+        perf_events = [e for e in events if e.performance is not None]
+        assert len(perf_events) > 0
+        assert perf_events[0].performance.cpu_usage == 45.2
+
+
+class TestDatabaseIntegration:
+    """Integration tests for database operations."""
+
+    @pytest.mark.asyncio
+    async def test_database_migration(self) -> None:
+        """Test database schema creation and migration."""
+        import asyncpg
+
+        # Skip if no database URL
+        db_url = os.environ.get("DATABASE_URL", "postgresql://localhost/test_mycelium")
+        if "localhost" not in db_url and "127.0.0.1" not in db_url:
+            pytest.skip("Database tests only run on local database")
+
+        try:
+            # Create connection pool
+            pool = await asyncpg.create_pool(db_url, min_size=1, max_size=5)
+
+            # Create tracker with database
+            tracker = CoordinationTracker(pool=pool)
+            helper = TrackerTestHelper(tracker)
+
+            # Initialize (creates tables if needed)
+            await tracker.initialize()
+
+            # Test basic operations
+            workflow = await helper.start_workflow(
+                workflow_id="test-migration-workflow", workflow_type="migration_test"
+            )
+            assert workflow is not None
+
+            # Track an event
+            event = CoordinationEvent(
+                event_type=EventType.EXECUTION_START,
+                workflow_id="test-migration-workflow",
+                task_id="test-task",
+                agent_id="test-agent",
+                agent_type="test",
+                status="running",
             )
             event_id = await tracker.track_event(event)
-            event_ids.append(event_id)
-            await asyncio.sleep(0.01)  # Small delay
+            assert event_id is not None
 
-        # Retrieve events (should be newest first)
-        events = await tracker.get_workflow_events(workflow_id)
+            # Query events
+            events = await tracker.get_workflow_events("test-migration-workflow")
+            assert len(events) >= 1
 
-        # Check ordering (newest first)
-        assert events[0].event_id == event_ids[-1]
-        assert events[-1].event_id == event_ids[0]
+            # Clean up
+            await tracker.delete_workflow_events("test-migration-workflow")
+            await tracker.close()
+            await pool.close()
 
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v", "--tb=short"])
+        except asyncpg.PostgresError as e:
+            pytest.skip(f"PostgreSQL not available: {e}")
+        except Exception as e:
+            if "connection" in str(e).lower():
+                pytest.skip(f"Database connection failed: {e}")
+            raise

@@ -3,8 +3,7 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import Mock, patch
 
 import pytest
 from click.testing import CliRunner
@@ -213,9 +212,7 @@ def test_deploy_generate_custom_output(runner, mock_config, tmp_path, mock_secre
         mock_secrets_mgr.generate_secrets.return_value = mock_secrets
         mock_secrets_cls.return_value = mock_secrets_mgr
 
-        result = runner.invoke(
-            cli, ["deploy", "generate", "--output", str(custom_dir)]
-        )
+        result = runner.invoke(cli, ["deploy", "generate", "--output", str(custom_dir)])
 
         assert result.exit_code == 0
         assert "docker-compose.yml" in result.output
@@ -501,11 +498,13 @@ def test_deploy_status_docker_compose(runner, mock_config):
         mock_manager_cls.return_value = mock_manager
 
         # Mock docker-compose ps output
-        container_json = json.dumps({
-            "Service": "redis",
-            "State": "running",
-            "Status": "Up 10 minutes",
-        })
+        container_json = json.dumps(
+            {
+                "Service": "redis",
+                "State": "running",
+                "Status": "Up 10 minutes",
+            }
+        )
         mock_run.return_value = Mock(stdout=container_json, stderr="")
 
         result = runner.invoke(cli, ["deploy", "status"])
@@ -549,17 +548,19 @@ def test_deploy_status_kubernetes(runner):
         mock_manager_cls.return_value = mock_manager
 
         # Mock kubectl get pods output
-        pods_json = json.dumps({
-            "items": [
-                {
-                    "metadata": {"name": "redis-pod"},
-                    "status": {
-                        "phase": "Running",
-                        "containerStatuses": [{"ready": True}],
-                    },
-                }
-            ]
-        })
+        pods_json = json.dumps(
+            {
+                "items": [
+                    {
+                        "metadata": {"name": "redis-pod"},
+                        "status": {
+                            "phase": "Running",
+                            "containerStatuses": [{"ready": True}],
+                        },
+                    }
+                ]
+            }
+        )
         mock_run.return_value = Mock(stdout=pods_json, stderr="")
 
         result = runner.invoke(cli, ["deploy", "status"])
@@ -685,7 +686,7 @@ def test_deploy_secrets_rotate_no_type(runner, mock_config):
     """Test rotate without specifying secret type."""
     with (
         patch("mycelium_onboarding.cli.ConfigManager") as mock_manager_cls,
-        patch("mycelium_onboarding.deployment.secrets.SecretsManager") as mock_secrets_cls,
+        patch("mycelium_onboarding.deployment.secrets.SecretsManager"),
     ):
         mock_manager = Mock()
         mock_manager.load.return_value = mock_config
@@ -882,7 +883,7 @@ def test_deploy_status_json_parse_error(runner, mock_config):
         # Invalid JSON
         mock_run.return_value = Mock(stdout="invalid json{]", stderr="")
 
-        result = runner.invoke(cli, ["deploy", "status"])
+        runner.invoke(cli, ["deploy", "status"])
 
         # Should handle gracefully - either show error or no containers
         # Should handle gracefully
@@ -900,10 +901,12 @@ def test_deploy_status_multiline_json(runner, mock_config):
         mock_manager_cls.return_value = mock_manager
 
         # Multiple containers as separate JSON objects
-        json_lines = '\n'.join([
-            json.dumps({"Service": "redis", "State": "running", "Status": "Up"}),
-            json.dumps({"Service": "postgres", "State": "running", "Status": "Up"}),
-        ])
+        json_lines = "\n".join(
+            [
+                json.dumps({"Service": "redis", "State": "running", "Status": "Up"}),
+                json.dumps({"Service": "postgres", "State": "running", "Status": "Up"}),
+            ]
+        )
         mock_run.return_value = Mock(stdout=json_lines, stderr="")
 
         result = runner.invoke(cli, ["deploy", "status"])

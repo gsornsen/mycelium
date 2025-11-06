@@ -7,6 +7,7 @@ FastMCP for protocol handling, and focused business logic.
 
 import asyncio
 import os
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from typing import Any
 
@@ -52,7 +53,7 @@ _http_client: httpx.AsyncClient | None = None
 
 
 @asynccontextmanager
-async def get_http_client():
+async def get_http_client() -> AsyncIterator[httpx.AsyncClient]:
     """Get or create the HTTP client with retry logic."""
     global _http_client
     if _http_client is None:
@@ -70,7 +71,7 @@ async def get_http_client():
         raise
 
 
-async def close_http_client():
+async def close_http_client() -> None:
     """Close the HTTP client."""
     global _http_client
     if _http_client is not None:
@@ -107,7 +108,7 @@ async def discover_agents(
     request = DiscoverAgentsRequest(query=query, limit=limit, threshold=threshold)
 
     # Execute with retry logic
-    last_error = None
+    last_error: DiscoveryTimeoutError | DiscoveryAPIError | None = None
     for attempt in range(MAX_RETRIES + 1):
         try:
             async with get_http_client() as client:
@@ -119,16 +120,12 @@ async def discover_agents(
                 # Handle error responses
                 if response.status_code == 400:
                     error_data = response.json()
-                    raise DiscoveryAPIError(
-                        f"Invalid request: {error_data.get('message', 'Unknown error')}"
-                    )
+                    raise DiscoveryAPIError(f"Invalid request: {error_data.get('message', 'Unknown error')}")
                 if response.status_code == 404:
                     raise DiscoveryAPIError("Discovery API endpoint not found")
                 if response.status_code == 500:
                     error_data = response.json()
-                    raise DiscoveryAPIError(
-                        f"Server error: {error_data.get('message', 'Unknown error')}"
-                    )
+                    raise DiscoveryAPIError(f"Server error: {error_data.get('message', 'Unknown error')}")
 
                 response.raise_for_status()
 
@@ -162,9 +159,7 @@ async def discover_agents(
                 )
 
         except httpx.TimeoutException:
-            last_error = DiscoveryTimeoutError(
-                f"Request timed out after {DEFAULT_TIMEOUT}s"
-            )
+            last_error = DiscoveryTimeoutError(f"Request timed out after {DEFAULT_TIMEOUT}s")
             if attempt < MAX_RETRIES:
                 await asyncio.sleep(0.5 * (attempt + 1))
                 continue
@@ -203,7 +198,7 @@ async def get_agent_details(agent_id: str) -> GetAgentDetailsResponse:
     request = GetAgentDetailsRequest(agent_id=agent_id)
 
     # Execute with retry logic
-    last_error = None
+    last_error: DiscoveryTimeoutError | DiscoveryAPIError | None = None
     for attempt in range(MAX_RETRIES + 1):
         try:
             async with get_http_client() as client:
@@ -212,19 +207,14 @@ async def get_agent_details(agent_id: str) -> GetAgentDetailsResponse:
                 # Handle error responses
                 if response.status_code == 404:
                     raise DiscoveryAPIError(
-                        f"Agent '{agent_id}' not found. "
-                        "Try using discover_agents to find available agents."
+                        f"Agent '{agent_id}' not found. Try using discover_agents to find available agents."
                     )
                 if response.status_code == 400:
                     error_data = response.json()
-                    raise DiscoveryAPIError(
-                        f"Invalid request: {error_data.get('message', 'Unknown error')}"
-                    )
+                    raise DiscoveryAPIError(f"Invalid request: {error_data.get('message', 'Unknown error')}")
                 if response.status_code == 500:
                     error_data = response.json()
-                    raise DiscoveryAPIError(
-                        f"Server error: {error_data.get('message', 'Unknown error')}"
-                    )
+                    raise DiscoveryAPIError(f"Server error: {error_data.get('message', 'Unknown error')}")
 
                 response.raise_for_status()
 
@@ -257,9 +247,7 @@ async def get_agent_details(agent_id: str) -> GetAgentDetailsResponse:
                 )
 
         except httpx.TimeoutException:
-            last_error = DiscoveryTimeoutError(
-                f"Request timed out after {DEFAULT_TIMEOUT}s"
-            )
+            last_error = DiscoveryTimeoutError(f"Request timed out after {DEFAULT_TIMEOUT}s")
             if attempt < MAX_RETRIES:
                 await asyncio.sleep(0.5 * (attempt + 1))
                 continue
@@ -312,15 +300,11 @@ async def check_discovery_health() -> HealthCheckResponse:
             )
 
     except httpx.TimeoutException:
-        raise DiscoveryTimeoutError(
-            f"Health check timed out after {DEFAULT_TIMEOUT}s"
-        ) from None
+        raise DiscoveryTimeoutError(f"Health check timed out after {DEFAULT_TIMEOUT}s") from None
     except httpx.HTTPError as e:
         raise DiscoveryAPIError(f"Health check failed: {str(e)}") from e
     except Exception as e:
-        raise DiscoveryToolError(
-            f"Unexpected error during health check: {str(e)}"
-        ) from e
+        raise DiscoveryToolError(f"Unexpected error during health check: {str(e)}") from e
 
 
 # FastMCP integration - register functions as MCP tools

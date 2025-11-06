@@ -2,13 +2,12 @@
 
 ## Overview
 
-This checklist guides the transformation of Mycelium from a single-purpose plugin to a dual-purpose plugin + marketplace repository.
+This checklist guides the transformation of Mycelium from a single-purpose plugin to a dual-purpose plugin + marketplace
+repository.
 
-**Estimated Time:** 2-4 hours
-**Risk Level:** Low (non-breaking, incremental)
-**Testing Required:** Yes
+**Estimated Time:** 2-4 hours **Risk Level:** Low (non-breaking, incremental) **Testing Required:** Yes
 
----
+______________________________________________________________________
 
 ## Phase 1: Create Marketplace Structure
 
@@ -20,6 +19,7 @@ This checklist guides the transformation of Mycelium from a single-purpose plugi
 - [ ] Create `plugins/mycelium-core/.claude-plugin/` directory
 
 **Commands:**
+
 ```bash
 cd /home/gerald/git/mycelium
 mkdir -p .claude-plugin
@@ -84,7 +84,7 @@ mkdir -p plugins/mycelium-core/.claude-plugin
 }
 ```
 
----
+______________________________________________________________________
 
 ## Phase 2: Restructure as Plugin
 
@@ -96,6 +96,7 @@ mkdir -p plugins/mycelium-core/.claude-plugin
 - [ ] Move `lib/` to `plugins/mycelium-core/lib/`
 
 **Commands:**
+
 ```bash
 cd /home/gerald/git/mycelium
 
@@ -162,6 +163,7 @@ ls -la plugins/mycelium-core/
 - [ ] Add warning messages to deprecated paths
 
 **Commands:**
+
 ```bash
 cd /home/gerald/git/mycelium
 
@@ -176,7 +178,7 @@ ln -s plugins/mycelium-core/lib lib
 
 **Decision Point:** Do you want a transition period with symlinks, or clean migration?
 
----
+______________________________________________________________________
 
 ## Phase 3: Update Documentation
 
@@ -192,7 +194,7 @@ ln -s plugins/mycelium-core/lib lib
 
 1. **Add after line 7** (after badges):
 
-```markdown
+````markdown
 ## Dual-Purpose Repository
 
 This repository serves two purposes:
@@ -215,7 +217,7 @@ Get access to the core plugin and all community plugins:
 
 # Install core Mycelium plugin
 /plugin install mycelium-core@mycelium
-```
+````
 
 ### Installation: Core Plugin Only
 
@@ -229,7 +231,8 @@ claude plugin install git+https://github.com/gsornsen/mycelium.git#plugins/mycel
 git clone https://github.com/gsornsen/mycelium.git
 ln -s /path/to/mycelium/plugins/mycelium-core ~/.claude/plugins/mycelium-core
 ```
-```
+
+````
 
 2. **Update line 323-350** (Installation section):
 
@@ -249,7 +252,7 @@ Best for users who want to explore community plugins:
 
 # Verify installation
 /infra-check
-```
+````
 
 ### Option 2: Direct Git Install
 
@@ -279,7 +282,8 @@ ln -s $(pwd)/plugins/mycelium-core ~/.claude/plugins/mycelium-core
 /infra-check
 /team-status
 ```
-```
+
+````
 
 - [ ] Complete these README.md updates
 
@@ -347,20 +351,13 @@ Your plugin must:
 
 ### 4. Plugin Structure
 
-```
-plugins/your-plugin-name/
-├── .claude-plugin/
-│   └── plugin.json          # Required metadata
-├── agents/                  # Optional: specialized agents
-│   └── specialist.md
-├── commands/                # Optional: slash commands
-│   └── command.md
-├── hooks/                   # Optional: event hooks
-│   └── hooks.json
-├── lib/                     # Optional: libraries
-│   └── utils.js
-└── README.md               # Required documentation
-```
+````
+
+plugins/your-plugin-name/ ├── .claude-plugin/ │ └── plugin.json # Required metadata ├── agents/ # Optional: specialized
+agents │ └── specialist.md ├── commands/ # Optional: slash commands │ └── command.md ├── hooks/ # Optional: event hooks
+│ └── hooks.json ├── lib/ # Optional: libraries │ └── utils.js └── README.md # Required documentation
+
+````
 
 ### 5. Example Plugin
 
@@ -389,7 +386,7 @@ await client.publishEvent('my-plugin:events', {
   event: 'task_completed',
   result: 'success'
 });
-```
+````
 
 ### Creating Mycelium Agents
 
@@ -426,10 +423,11 @@ Report progress to multi-agent-coordinator:
 
 All plugins must specify their license. The marketplace itself is MIT licensed.
 
----
+______________________________________________________________________
 
 **Grow the mycelial network** - One plugin at a time 🍄
-```
+
+````
 
 - [ ] Complete MARKETPLACE_README.md
 
@@ -463,7 +461,7 @@ Choose the method that best fits your needs.
 
 ```bash
 /plugin marketplace add gsornsen/mycelium
-```
+````
 
 This adds the Mycelium marketplace to your Claude Code installation.
 
@@ -490,7 +488,7 @@ Browse available Mycelium plugins (core + community).
 
 You should see infrastructure health checks and agent status.
 
----
+______________________________________________________________________
 
 ## Method 2: Direct Plugin Installation
 
@@ -507,12 +505,13 @@ claude plugin list | grep mycelium
 /infra-check
 ```
 
----
+______________________________________________________________________
 
 ## Method 3: Development Installation
 
-[Keep existing development installation instructions but update paths]
-```
+\[Keep existing development installation instructions but update paths\]
+
+````
 
 - [ ] Complete INSTALL.md updates
 
@@ -526,17 +525,17 @@ claude plugin list | grep mycelium
 **Commands:**
 ```bash
 mkdir -p docs/marketplace
-```
+````
 
 **Files to create:**
 
 1. `docs/marketplace/SUBMISSION_GUIDE.md` - Detailed submission process
-2. `docs/marketplace/PLUGIN_DEVELOPMENT.md` - Plugin development best practices
-3. `docs/marketplace/QUALITY_STANDARDS.md` - Quality requirements
+1. `docs/marketplace/PLUGIN_DEVELOPMENT.md` - Plugin development best practices
+1. `docs/marketplace/QUALITY_STANDARDS.md` - Quality requirements
 
 - [ ] Create these files (templates provided in appendix)
 
----
+______________________________________________________________________
 
 ## Phase 4: Testing & Validation
 
@@ -548,6 +547,7 @@ mkdir -p docs/marketplace
 - [ ] Validate file paths in plugin.json
 
 **Commands:**
+
 ```bash
 cd /home/gerald/git/mycelium
 
@@ -570,6 +570,7 @@ ls -la agents commands hooks lib
 - [ ] Test plugin installation from marketplace
 
 **Commands:**
+
 ```bash
 # Add marketplace
 /plugin marketplace add gsornsen/mycelium
@@ -592,6 +593,7 @@ ls -la agents commands hooks lib
 - [ ] Test agent invocation
 
 **Commands:**
+
 ```bash
 # Clean install
 rm -rf ~/.claude/plugins/mycelium-core
@@ -615,6 +617,7 @@ claude plugin list | grep mycelium
 - [ ] Verify all commands work
 
 **Commands:**
+
 ```bash
 # Create development symlink
 ln -s /home/gerald/git/mycelium/plugins/mycelium-core ~/.claude/plugins/mycelium-core
@@ -636,6 +639,7 @@ ln -s /home/gerald/git/mycelium/plugins/mycelium-core ~/.claude/plugins/mycelium
 **Test Cases:**
 
 1. **Slash Commands**
+
    ```bash
    /infra-check
    /infra-check --verbose
@@ -644,24 +648,27 @@ ln -s /home/gerald/git/mycelium/plugins/mycelium-core ~/.claude/plugins/mycelium
    /pipeline-status
    ```
 
-2. **Agent Invocation**
+1. **Agent Invocation**
+
    - Invoke python-pro
    - Invoke ai-engineer
    - Invoke multi-agent-coordinator
 
-3. **Coordination Library**
+1. **Coordination Library**
+
    ```javascript
    import { CoordinationClient } from 'mycelium-core/lib/coordination.js';
    // Test client initialization and operations
    ```
 
-4. **Hooks**
+1. **Hooks**
+
    - Trigger pre-test validation
    - Verify hook execution
 
 - [ ] All functionality tests pass
 
----
+______________________________________________________________________
 
 ## Phase 5: Git & Version Control
 
@@ -671,6 +678,7 @@ ln -s /home/gerald/git/mycelium/plugins/mycelium-core ~/.claude/plugins/mycelium
 - [ ] Add any new patterns if needed
 
 **Check:**
+
 ```bash
 cat .gitignore
 # Should already cover everything needed
@@ -684,6 +692,7 @@ cat .gitignore
 - [ ] Push to remote
 
 **Commands:**
+
 ```bash
 cd /home/gerald/git/mycelium
 
@@ -714,6 +723,7 @@ git push -u origin feature/dual-purpose-structure
 - [ ] Publish release
 
 **Commands:**
+
 ```bash
 git tag -a v1.1.0 -m "Version 1.1.0: Dual-purpose plugin + marketplace"
 git push origin v1.1.0
@@ -721,7 +731,7 @@ git push origin v1.1.0
 
 **Release Notes Template:**
 
-```markdown
+````markdown
 # Mycelium v1.1.0 - Dual-Purpose Release
 
 ## Overview
@@ -743,9 +753,10 @@ Mycelium is now a dual-purpose repository serving as both:
 ```bash
 /plugin marketplace add gsornsen/mycelium
 /plugin install mycelium-core@mycelium
-```
+````
 
 ### Direct Install
+
 ```bash
 claude plugin install git+https://github.com/gsornsen/mycelium.git#plugins/mycelium-core
 ```
@@ -757,6 +768,7 @@ None - fully backwards compatible
 ## Migration Guide
 
 Existing users: Update your symlink to point to `plugins/mycelium-core/`:
+
 ```bash
 ln -sf /path/to/mycelium/plugins/mycelium-core ~/.claude/plugins/mycelium-core
 ```
@@ -768,7 +780,8 @@ ln -sf /path/to/mycelium/plugins/mycelium-core ~/.claude/plugins/mycelium-core
 - Additional core plugins
 
 Full changelog: [CHANGELOG.md](CHANGELOG.md)
-```
+
+````
 
 ---
 
@@ -816,7 +829,7 @@ assignees: ''
 ## Additional Context
 
 <!-- Add any additional context about the plugin -->
-```
+````
 
 - [ ] Create this file
 
@@ -901,7 +914,7 @@ jobs:
 
 - [ ] Create this file (optional)
 
----
+______________________________________________________________________
 
 ## Phase 7: Announcement & Marketing
 
@@ -912,8 +925,11 @@ jobs:
 - [ ] Update social preview
 
 **GitHub Settings:**
-- Description: "Distributed intelligence for Claude Code - 130+ expert agents, marketplace for community plugins, dual-mode coordination (Redis/TaskQueue/Markdown)"
-- Topics: `claude-code`, `plugins`, `marketplace`, `agents`, `coordination`, `orchestration`, `redis`, `temporal`, `distributed-intelligence`
+
+- Description: "Distributed intelligence for Claude Code - 130+ expert agents, marketplace for community plugins,
+  dual-mode coordination (Redis/TaskQueue/Markdown)"
+- Topics: `claude-code`, `plugins`, `marketplace`, `agents`, `coordination`, `orchestration`, `redis`, `temporal`,
+  `distributed-intelligence`
 
 ### 7.2 Create Announcement
 
@@ -923,7 +939,7 @@ jobs:
 
 **Announcement Template:**
 
-```markdown
+````markdown
 # Mycelium v1.1.0 - Now a Plugin Marketplace!
 
 We're excited to announce that Mycelium is now a dual-purpose repository:
@@ -950,11 +966,12 @@ Find plugins that fit your workflow through the marketplace
 
 # Install core plugin
 /plugin install mycelium-core@mycelium
-```
+````
 
 ## For Plugin Developers
 
 Want to contribute? Check out:
+
 - MARKETPLACE_README.md - Submission guidelines
 - docs/marketplace/ - Development guides
 - Submit via GitHub PR
@@ -966,7 +983,8 @@ Want to contribute? Check out:
 - Additional coordination capabilities
 
 Questions? Open a discussion!
-```
+
+````
 
 ---
 
@@ -979,9 +997,10 @@ If issues arise, rollback is straightforward:
 1. **Revert Git Commits**
    ```bash
    git revert <commit-range>
-   ```
+````
 
 2. **Move Files Back**
+
    ```bash
    mv plugins/mycelium-core/agents/ agents/
    mv plugins/mycelium-core/commands/ commands/
@@ -990,7 +1009,8 @@ If issues arise, rollback is straightforward:
    rm -rf .claude-plugin plugins/
    ```
 
-3. **Restore Documentation**
+1. **Restore Documentation**
+
    ```bash
    git checkout main README.md INSTALL.md
    ```
@@ -1002,7 +1022,7 @@ If issues arise, rollback is straightforward:
 - Maintain compatibility symlinks during transition
 - Clear migration documentation for users
 
----
+______________________________________________________________________
 
 ## Post-Implementation
 
@@ -1027,7 +1047,7 @@ If issues arise, rollback is straightforward:
 - [ ] Collect user feedback
 - [ ] Iterate on process
 
----
+______________________________________________________________________
 
 ## Appendix: File Templates
 
@@ -1061,13 +1081,15 @@ Standards and requirements for marketplace plugins.
 [Content to be created based on community needs]
 ```
 
----
+______________________________________________________________________
 
 ## Summary
 
-This checklist provides a comprehensive guide to transforming Mycelium into a dual-purpose repository. Follow each phase sequentially, test thoroughly, and document everything for the community.
+This checklist provides a comprehensive guide to transforming Mycelium into a dual-purpose repository. Follow each phase
+sequentially, test thoroughly, and document everything for the community.
 
 **Estimated Timeline:**
+
 - Phase 1: 30 minutes
 - Phase 2: 30 minutes
 - Phase 3: 1 hour

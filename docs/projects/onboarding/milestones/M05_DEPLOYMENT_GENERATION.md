@@ -2,17 +2,18 @@
 
 ## Overview
 
-**Duration**: 2 days
-**Dependencies**: M02 (configuration system), M03 (service detection), M04 (interactive onboarding)
-**Blocks**: M06 (coordination testing)
-**Lead Agent**: devops-engineer
-**Support Agents**: python-pro, platform-engineer
+**Duration**: 2 days **Dependencies**: M02 (configuration system), M03 (service detection), M04 (interactive onboarding)
+**Blocks**: M06 (coordination testing) **Lead Agent**: devops-engineer **Support Agents**: python-pro, platform-engineer
 
 ## Why This Milestone
 
-Deployment generation transforms abstract user selections into concrete, executable infrastructure configurations. This milestone bridges the gap between "what services do I want" (M04) and "how do I run them" (M06), generating production-ready Docker Compose files or Justfiles with proper dependency ordering, healthchecks, volume management, and secrets handling.
+Deployment generation transforms abstract user selections into concrete, executable infrastructure configurations. This
+milestone bridges the gap between "what services do I want" (M04) and "how do I run them" (M06), generating
+production-ready Docker Compose files or Justfiles with proper dependency ordering, healthchecks, volume management, and
+secrets handling.
 
 Well-generated deployments:
+
 - Start services in correct dependency order
 - Include healthchecks for coordination reliability
 - Persist data appropriately
@@ -56,10 +57,10 @@ Well-generated deployments:
 
 ### Task 5.1: Design Deployment Templates
 
-**Agent**: devops-engineer (lead), platform-engineer (review)
-**Effort**: 4 hours
+**Agent**: devops-engineer (lead), platform-engineer (review) **Effort**: 4 hours
 
-**Description**: Design Jinja2 templates for Docker Compose and Justfile with proper structure, comments, and extensibility points.
+**Description**: Design Jinja2 templates for Docker Compose and Justfile with proper structure, comments, and
+extensibility points.
 
 **Implementation**:
 
@@ -236,6 +237,7 @@ logs service:
 ```
 
 **Acceptance Criteria**:
+
 - [ ] Templates use Jinja2 syntax correctly
 - [ ] All configuration options from MyceliumConfig supported
 - [ ] Comments explain each section
@@ -243,10 +245,10 @@ logs service:
 
 ### Task 5.2: Implement Docker Compose Generator
 
-**Agent**: devops-engineer, python-pro
-**Effort**: 6 hours
+**Agent**: devops-engineer, python-pro **Effort**: 6 hours
 
-**Description**: Create generator that renders Docker Compose template with proper dependency ordering, healthchecks, and volume management.
+**Description**: Create generator that renders Docker Compose template with proper dependency ordering, healthchecks,
+and volume management.
 
 **Implementation**:
 
@@ -487,6 +489,7 @@ def test_env_example_generation():
 ```
 
 **Acceptance Criteria**:
+
 - [ ] Generates syntactically valid Docker Compose v2 files
 - [ ] Includes healthchecks with appropriate timeouts
 - [ ] Uses depends_on with condition: service_healthy
@@ -496,8 +499,7 @@ def test_env_example_generation():
 
 ### Task 5.3: Implement Justfile Generator
 
-**Agent**: devops-engineer, platform-engineer
-**Effort**: 4 hours
+**Agent**: devops-engineer, platform-engineer **Effort**: 4 hours
 
 **Description**: Create generator for Justfile with sequential service startup, status checks, and operation commands.
 
@@ -674,6 +676,7 @@ fi
 ```
 
 **Acceptance Criteria**:
+
 - [ ] Generates valid Justfile syntax
 - [ ] Includes recipes for up, down, status, logs
 - [ ] Services start in dependency order
@@ -682,8 +685,7 @@ fi
 
 ### Task 5.4: Implement Secrets Management
 
-**Agent**: devops-engineer, python-pro
-**Effort**: 3 hours
+**Agent**: devops-engineer, python-pro **Effort**: 3 hours
 
 **Description**: Create secure secrets generation and management for passwords, API keys, and sensitive configuration.
 
@@ -825,6 +827,7 @@ def update_env_var(env_path: Path, key: str, value: str) -> None:
 ```
 
 **Acceptance Criteria**:
+
 - [ ] Generates cryptographically secure passwords
 - [ ] Creates .env file with restrictive permissions (0o600)
 - [ ] Supports loading and updating environment variables
@@ -832,8 +835,7 @@ def update_env_var(env_path: Path, key: str, value: str) -> None:
 
 ### Task 5.5: Create /mycelium-generate Command
 
-**Agent**: claude-code-developer, devops-engineer
-**Effort**: 3 hours
+**Agent**: claude-code-developer, devops-engineer **Effort**: 3 hours
 
 **Description**: Integrate generators as `/mycelium-generate` command with options for Docker Compose or Justfile.
 
@@ -849,8 +851,10 @@ Generate deployment files (Docker Compose or Justfile) from configuration.
 ## Usage
 
 ```
-/mycelium-generate [--method METHOD] [--output DIR] [--force]
-```
+
+/mycelium-generate \[--method METHOD\] \[--output DIR\] \[--force\]
+
+````
 
 ## Options
 
@@ -873,26 +877,28 @@ Generate deployment files (Docker Compose or Justfile) from configuration.
 
 # Overwrite existing files
 /mycelium-generate --force
-```
+````
 
 ## What This Command Does
 
 1. Loads configuration from `/mycelium-configuration`
-2. Generates deployment files based on selected method:
+1. Generates deployment files based on selected method:
    - **Docker Compose**: `docker-compose.yml`, `.env`, `.env.example`
    - **Justfile**: `Justfile`, service scripts, `.env`
-3. Validates generated files
-4. Shows next steps for deployment
+1. Validates generated files
+1. Shows next steps for deployment
 
 ## Generated Files
 
 ### Docker Compose Mode
+
 - `docker-compose.yml` - Service definitions
 - `.env` - Secrets and configuration (gitignored)
 - `.env.example` - Template for other users
 - `README.md` - Setup and operation instructions
 
 ### Justfile Mode
+
 - `Justfile` - Service management recipes
 - `bin/start-*.sh` - Service startup scripts
 - `.env` - Secrets and configuration
@@ -901,6 +907,7 @@ Generate deployment files (Docker Compose or Justfile) from configuration.
 ## After Generation
 
 ### Docker Compose
+
 ```bash
 # Start services
 docker-compose up -d
@@ -913,6 +920,7 @@ docker-compose logs -f
 ```
 
 ### Justfile
+
 ```bash
 # Start services
 just up
@@ -927,17 +935,20 @@ just logs redis
 ## Troubleshooting
 
 ### File Already Exists
+
 ```bash
 # Use --force to overwrite
 /mycelium-generate --force
 ```
 
 ### Invalid Configuration
+
 ```bash
 # Validate configuration first
 /mycelium-configuration validate
 ```
-```
+
+````
 
 ```python
 # mycelium_onboarding/cli/generate.py
@@ -1041,9 +1052,10 @@ def generate(method: str, output: str, force: bool, no_secrets: bool):
 
 if __name__ == '__main__':
     generate()
-```
+````
 
 **Acceptance Criteria**:
+
 - [ ] Command generates correct files based on method
 - [ ] Validates configuration before generating
 - [ ] Shows clear success/error messages
@@ -1065,49 +1077,52 @@ if __name__ == '__main__':
 ## Deliverables
 
 1. **Templates**:
+
    - `mycelium_onboarding/templates/docker-compose.yml.j2`
    - `mycelium_onboarding/templates/Justfile.j2`
 
-2. **Generators**:
+1. **Generators**:
+
    - `mycelium_onboarding/generators/docker_compose.py`
    - `mycelium_onboarding/generators/justfile.py`
    - `mycelium_onboarding/generators/secrets.py`
 
-3. **CLI**:
+1. **CLI**:
+
    - `mycelium_onboarding/cli/generate.py`
    - `~/.claude/plugins/mycelium-core/commands/mycelium-generate.md`
 
-4. **Tests**:
+1. **Tests**:
+
    - `tests/unit/test_docker_compose_generator.py`
    - `tests/unit/test_justfile_generator.py`
    - `tests/unit/test_secrets_generation.py`
    - `tests/integration/test_generate_command.py`
 
-5. **Documentation**:
+1. **Documentation**:
+
    - `docs/guides/deployment-generation.md`
    - Example generated files in `examples/`
 
 ## Risk Assessment
 
-| Risk | Probability | Impact | Mitigation |
-|------|------------|--------|------------|
-| Docker Compose v1/v2 compatibility | Low | Medium | Use version: '3.8', test both CLIs |
-| Template syntax errors | Low | High | Comprehensive validation, test suite |
-| Insecure secret generation | Low | High | Use secrets module, set file permissions |
-| Service startup race conditions | Medium | High | Proper depends_on with healthchecks |
+| Risk                               | Probability | Impact | Mitigation                               |
+| ---------------------------------- | ----------- | ------ | ---------------------------------------- |
+| Docker Compose v1/v2 compatibility | Low         | Medium | Use version: '3.8', test both CLIs       |
+| Template syntax errors             | Low         | High   | Comprehensive validation, test suite     |
+| Insecure secret generation         | Low         | High   | Use secrets module, set file permissions |
+| Service startup race conditions    | Medium      | High   | Proper depends_on with healthchecks      |
 
 ## Dependencies for Next Milestones
 
 **M06 (Coordination Testing)** requires:
+
 - Generated Docker Compose or Justfile
 - Services deployable and healthy
 - Configuration accessible for test orchestrator
 - Deployment method known for test environment setup
 
----
+______________________________________________________________________
 
-**Milestone Owner**: devops-engineer
-**Reviewers**: platform-engineer, code-reviewer
-**Status**: Ready for Implementation
-**Created**: 2025-10-13
-**Target Completion**: Day 13 (2 days after M04)
+**Milestone Owner**: devops-engineer **Reviewers**: platform-engineer, code-reviewer **Status**: Ready for
+Implementation **Created**: 2025-10-13 **Target Completion**: Day 13 (2 days after M04)

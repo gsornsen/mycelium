@@ -17,9 +17,11 @@ Comprehensive guide for integrating Mycelium's service detection system into you
 
 ## Overview
 
-The Mycelium detection system provides flexible APIs for integrating service discovery into various application contexts, from simple scripts to complex async applications.
+The Mycelium detection system provides flexible APIs for integrating service discovery into various application
+contexts, from simple scripts to complex async applications.
 
 **Key Integration Points:**
+
 - Python applications (sync and async)
 - CLI scripts and automation
 - Web frameworks (FastAPI, Flask, Django)
@@ -1061,6 +1063,6 @@ app.run()
 - [Configuration Guide](configuration-guide.md) - Config system integration
 - [Troubleshooting](troubleshooting-environment.md) - Common issues and solutions
 
----
+______________________________________________________________________
 
 For issues or contributions, visit: https://github.com/gsornsen/mycelium

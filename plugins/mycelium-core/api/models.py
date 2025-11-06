@@ -1,10 +1,10 @@
 """Pydantic models for Discovery API request/response validation."""
 
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 from uuid import UUID
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class DiscoverRequest(BaseModel):
@@ -49,32 +49,20 @@ class AgentMetadata(BaseModel):
     display_name: str = Field(description="Display name for UI")
     category: str = Field(description="Agent category")
     description: str = Field(description="Agent description")
-    capabilities: List[str] = Field(
-        default_factory=list, description="List of agent capabilities"
-    )
-    tools: List[str] = Field(default_factory=list, description="Available tools")
-    keywords: List[str] = Field(default_factory=list, description="Search keywords")
+    capabilities: list[str] = Field(default_factory=list, description="List of agent capabilities")
+    tools: list[str] = Field(default_factory=list, description="Available tools")
+    keywords: list[str] = Field(default_factory=list, description="Search keywords")
     file_path: str = Field(description="Path to agent definition file")
-    estimated_tokens: Optional[int] = Field(
-        default=None, description="Estimated token count"
-    )
-    avg_response_time_ms: Optional[float] = Field(
-        default=None, description="Average response time in milliseconds"
-    )
-    success_rate: Optional[float] = Field(
-        default=None, description="Success rate (0.0-1.0)"
-    )
+    estimated_tokens: int | None = Field(default=None, description="Estimated token count")
+    avg_response_time_ms: float | None = Field(default=None, description="Average response time in milliseconds")
+    success_rate: float | None = Field(default=None, description="Success rate (0.0-1.0)")
     usage_count: int = Field(default=0, description="Usage count")
     created_at: datetime = Field(description="Creation timestamp")
     updated_at: datetime = Field(description="Last update timestamp")
-    last_used_at: Optional[datetime] = Field(
-        default=None, description="Last usage timestamp"
-    )
+    last_used_at: datetime | None = Field(default=None, description="Last usage timestamp")
 
-    class Config:
-        """Pydantic configuration."""
-
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "id": "123e4567-e89b-12d3-a456-426614174000",
                 "agent_id": "01-core-backend-developer",
@@ -100,36 +88,27 @@ class AgentMetadata(BaseModel):
                 "last_used_at": "2025-10-21T14:00:00Z",
             }
         }
+    )
 
 
 class AgentMatch(BaseModel):
     """Agent match with confidence score."""
 
     agent: AgentMetadata
-    confidence: float = Field(
-        ge=0.0, le=1.0, description="Confidence score for this match (0.0-1.0)"
-    )
-    match_reason: Optional[str] = Field(
-        default=None, description="Explanation of why this agent was matched"
-    )
+    confidence: float = Field(ge=0.0, le=1.0, description="Confidence score for this match (0.0-1.0)")
+    match_reason: str | None = Field(default=None, description="Explanation of why this agent was matched")
 
 
 class DiscoverResponse(BaseModel):
     """Response model for agent discovery endpoint."""
 
     query: str = Field(description="Original query")
-    matches: List[AgentMatch] = Field(
-        description="List of matching agents with confidence scores"
-    )
+    matches: list[AgentMatch] = Field(description="List of matching agents with confidence scores")
     total_count: int = Field(description="Total number of matches found")
-    processing_time_ms: float = Field(
-        description="Processing time in milliseconds"
-    )
+    processing_time_ms: float = Field(description="Processing time in milliseconds")
 
-    class Config:
-        """Pydantic configuration."""
-
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "query": "python backend development",
                 "matches": [
@@ -162,20 +141,17 @@ class DiscoverResponse(BaseModel):
                 "processing_time_ms": 45.3,
             }
         }
+    )
 
 
 class AgentDetailResponse(BaseModel):
     """Response model for agent detail endpoint."""
 
     agent: AgentMetadata
-    metadata: Optional[Dict[str, Any]] = Field(
-        default=None, description="Additional metadata"
-    )
+    metadata: dict[str, Any] | None = Field(default=None, description="Additional metadata")
 
-    class Config:
-        """Pydantic configuration."""
-
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "agent": {
                     "id": "123e4567-e89b-12d3-a456-426614174000",
@@ -196,22 +172,19 @@ class AgentDetailResponse(BaseModel):
                 "metadata": {"version": "1.0.0"},
             }
         }
+    )
 
 
 class AgentSearchResponse(BaseModel):
     """Response model for agent search endpoint."""
 
     query: str = Field(description="Search query")
-    agents: List[AgentMetadata] = Field(description="List of matching agents")
+    agents: list[AgentMetadata] = Field(description="List of matching agents")
     total_count: int = Field(description="Total number of results")
-    processing_time_ms: float = Field(
-        description="Processing time in milliseconds"
-    )
+    processing_time_ms: float = Field(description="Processing time in milliseconds")
 
-    class Config:
-        """Pydantic configuration."""
-
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "query": "security",
                 "agents": [
@@ -236,6 +209,7 @@ class AgentSearchResponse(BaseModel):
                 "processing_time_ms": 35.2,
             }
         }
+    )
 
 
 class ErrorResponse(BaseModel):
@@ -243,20 +217,17 @@ class ErrorResponse(BaseModel):
 
     error: str = Field(description="Error type")
     message: str = Field(description="Human-readable error message")
-    details: Optional[Dict[str, Any]] = Field(
-        default=None, description="Additional error details"
-    )
+    details: dict[str, Any] | None = Field(default=None, description="Additional error details")
 
-    class Config:
-        """Pydantic configuration."""
-
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "error": "ValidationError",
                 "message": "Query must be at least 1 character long",
                 "details": {"field": "query", "constraint": "min_length"},
             }
         }
+    )
 
 
 class HealthResponse(BaseModel):
@@ -269,10 +240,8 @@ class HealthResponse(BaseModel):
     timestamp: str = Field(description="Health check timestamp")
     version: str = Field(default="1.0.0", description="API version")
 
-    class Config:
-        """Pydantic configuration."""
-
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "status": "healthy",
                 "pgvector_installed": True,
@@ -282,3 +251,4 @@ class HealthResponse(BaseModel):
                 "version": "1.0.0",
             }
         }
+    )

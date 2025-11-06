@@ -7,14 +7,13 @@ atomic writes and proper error handling.
 from __future__ import annotations
 
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 import pytest
 
 from mycelium_onboarding.wizard.flow import WizardState, WizardStep
 from mycelium_onboarding.wizard.persistence import (
-    PersistenceError,
     WizardStatePersistence,
 )
 
@@ -110,7 +109,11 @@ class TestSaveAndLoad:
         assert loaded is not None
         assert loaded.current_step == WizardStep.REVIEW
         assert loaded.project_name == "complete-project"
-        assert loaded.services_enabled == {"redis": True, "postgres": True, "temporal": True}
+        assert loaded.services_enabled == {
+            "redis": True,
+            "postgres": True,
+            "temporal": True,
+        }
         assert loaded.deployment_method == "kubernetes"
         assert loaded.redis_port == 6380
         assert loaded.postgres_port == 5433
@@ -308,7 +311,7 @@ class TestBackupAndRestore:
         assert backup_path is not None
 
         # Load from backup file
-        with open(backup_path, "r") as f:
+        with Path(backup_path).open() as f:
             backup_data = json.load(f)
 
         assert backup_data["project_name"] == "backup-test"
@@ -390,7 +393,7 @@ class TestSerializationDeserialization:
 
         state_dict = {
             "current_step": "services",
-            "started_at": datetime.now().isoformat(),
+            "started_at": datetime.now(timezone.utc).isoformat(),
             "project_name": "test",
             "services_enabled": {"redis": True},
             "deployment_method": "docker-compose",

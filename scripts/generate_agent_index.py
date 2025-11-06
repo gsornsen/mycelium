@@ -57,11 +57,43 @@ class AgentIndexGenerator:
 
     # Common words to exclude from keywords
     STOP_WORDS = {
-        "a", "an", "and", "are", "as", "at", "be", "by", "for", "from",
-        "has", "he", "in", "is", "it", "its", "of", "on", "that", "the",
-        "to", "was", "will", "with", "you", "your", "when", "working",
-        "invoke", "expert", "specialist", "senior", "agent", "mycelium",
-        "focus", "ensuring", "emphasis"
+        "a",
+        "an",
+        "and",
+        "are",
+        "as",
+        "at",
+        "be",
+        "by",
+        "for",
+        "from",
+        "has",
+        "he",
+        "in",
+        "is",
+        "it",
+        "its",
+        "of",
+        "on",
+        "that",
+        "the",
+        "to",
+        "was",
+        "will",
+        "with",
+        "you",
+        "your",
+        "when",
+        "working",
+        "invoke",
+        "expert",
+        "specialist",
+        "senior",
+        "agent",
+        "mycelium",
+        "focus",
+        "ensuring",
+        "emphasis",
     }
 
     def __init__(self, agents_dir: Path, output_path: Path):
@@ -85,26 +117,22 @@ class AgentIndexGenerator:
             AgentMetadata or None if parsing fails
         """
         try:
-            content = file_path.read_text(encoding='utf-8')
+            content = file_path.read_text(encoding="utf-8")
 
             # Extract YAML frontmatter
-            frontmatter_match = re.search(
-                r'^---\s*\n(.*?)\n---\s*\n',
-                content,
-                re.MULTILINE | re.DOTALL
-            )
+            frontmatter_match = re.search(r"^---\s*\n(.*?)\n---\s*\n", content, re.MULTILINE | re.DOTALL)
 
             if not frontmatter_match:
                 print(f"Warning: No frontmatter in {file_path}", file=sys.stderr)
                 return None
 
             frontmatter = frontmatter_match.group(1)
-            body = content[frontmatter_match.end():]
+            body = content[frontmatter_match.end() :]
 
             # Parse frontmatter fields
-            name = self._extract_field(frontmatter, 'name')
-            description = self._extract_field(frontmatter, 'description')
-            tools_str = self._extract_field(frontmatter, 'tools')
+            name = self._extract_field(frontmatter, "name")
+            description = self._extract_field(frontmatter, "description")
+            tools_str = self._extract_field(frontmatter, "tools")
 
             if not name or not description:
                 print(f"Warning: Missing name or description in {file_path}", file=sys.stderr)
@@ -146,7 +174,7 @@ class AgentIndexGenerator:
                 tools=tools,
                 keywords=keywords,
                 file_path=relative_path,
-                estimated_tokens=token_count
+                estimated_tokens=token_count,
             )
 
         except Exception as e:
@@ -155,16 +183,16 @@ class AgentIndexGenerator:
 
     def _extract_field(self, frontmatter: str, field: str) -> str | None:
         """Extract a field from YAML frontmatter."""
-        pattern = rf'^{field}:\s*(.+)$'
+        pattern = rf"^{field}:\s*(.+)$"
         match = re.search(pattern, frontmatter, re.MULTILINE)
         return match.group(1).strip() if match else None
 
     def _parse_tools(self, tools_str: str) -> list[str]:
         """Parse tools string into list."""
         # Handle both comma-separated and other formats
-        tools = [t.strip() for t in re.split(r'[,\s]+', tools_str)]
+        tools = [t.strip() for t in re.split(r"[,\s]+", tools_str)]
         # Remove empty strings and normalize
-        tools = [t for t in tools if t and t != '-']
+        tools = [t for t in tools if t and t != "-"]
         return sorted(set(tools))
 
     def _extract_category_from_filename(self, filename: str) -> str:
@@ -173,7 +201,7 @@ class AgentIndexGenerator:
         Example: '09-meta-multi-agent-coordinator.md' -> 'Meta-Orchestration'
         """
         # Extract prefix (e.g., '09-meta' from '09-meta-multi-agent-coordinator.md')
-        match = re.match(r'^(\d{2}-\w+)-', filename)
+        match = re.match(r"^(\d{2}-\w+)-", filename)
         if not match:
             return "Unknown"
 
@@ -183,16 +211,16 @@ class AgentIndexGenerator:
     def _generate_display_name(self, name: str) -> str:
         """Generate display name from agent name."""
         # Convert kebab-case to Title Case
-        words = name.replace('-', ' ').split()
-        return ' '.join(word.capitalize() for word in words)
+        words = name.replace("-", " ").split()
+        return " ".join(word.capitalize() for word in words)
 
     def _extract_keywords(self, description: str, body: str) -> list[str]:
         """Extract keywords from description and body."""
         # Combine description and first 500 chars of body
-        text = description + ' ' + body[:500]
+        text = description + " " + body[:500]
 
         # Convert to lowercase and extract words
-        words = re.findall(r'\b[a-z]{3,}\b', text.lower())
+        words = re.findall(r"\b[a-z]{3,}\b", text.lower())
 
         # Filter out stop words and get unique keywords
         keywords = {w for w in words if w not in self.STOP_WORDS}
@@ -207,13 +235,11 @@ class AgentIndexGenerator:
 
         # Rough approximation: 1 token ≈ 0.75 words
         # Add overhead for markdown formatting
-        estimated_tokens = int(word_count / 0.75) + 50
-
-        return estimated_tokens
+        return int(word_count / 0.75) + 50
 
     def scan_agents(self) -> None:
         """Scan all agent markdown files."""
-        agent_files = sorted(self.agents_dir.glob('*.md'))
+        agent_files = sorted(self.agents_dir.glob("*.md"))
 
         print(f"Scanning {len(agent_files)} agent files in {self.agents_dir}...")
 
@@ -227,14 +253,14 @@ class AgentIndexGenerator:
     def generate_index(self) -> dict[str, Any]:
         """Generate index structure."""
         # Group agents by category
-        categories = sorted(set(agent.category for agent in self.agents))
+        categories = sorted({agent.category for agent in self.agents})
 
         return {
             "version": "1.0.0",
             "generated": datetime.now(timezone.utc).isoformat(),
             "agent_count": len(self.agents),
             "categories": categories,
-            "agents": [asdict(agent) for agent in sorted(self.agents, key=lambda a: a.id)]
+            "agents": [asdict(agent) for agent in sorted(self.agents, key=lambda a: a.id)],
         }
 
     def validate_index(self, index: dict[str, Any]) -> bool:
@@ -284,7 +310,7 @@ class AgentIndexGenerator:
         """Write index to JSON file."""
         self.output_path.parent.mkdir(parents=True, exist_ok=True)
 
-        with open(self.output_path, 'w', encoding='utf-8') as f:
+        with self.output_path.open("w", encoding="utf-8") as f:
             json.dump(index, f, indent=2, ensure_ascii=False)
 
         print(f"Index written to {self.output_path}")
@@ -305,7 +331,7 @@ class AgentIndexGenerator:
                 print(f"Error: Index file not found: {self.output_path}", file=sys.stderr)
                 return False
 
-            with open(self.output_path, encoding='utf-8') as f:
+            with self.output_path.open(encoding="utf-8") as f:
                 index = json.load(f)
 
             # Still need to scan agents for validation
@@ -325,26 +351,20 @@ class AgentIndexGenerator:
 
 def main() -> None:
     """Main entry point."""
-    parser = argparse.ArgumentParser(
-        description="Generate agent metadata index from markdown files"
-    )
+    parser = argparse.ArgumentParser(description="Generate agent metadata index from markdown files")
     parser.add_argument(
-        '--output',
+        "--output",
         type=Path,
-        default=Path('plugins/mycelium-core/agents/index.json'),
-        help='Output path for index.json (default: plugins/mycelium-core/agents/index.json)'
+        default=Path("plugins/mycelium-core/agents/index.json"),
+        help="Output path for index.json (default: plugins/mycelium-core/agents/index.json)",
     )
     parser.add_argument(
-        '--agents-dir',
+        "--agents-dir",
         type=Path,
-        default=Path('plugins/mycelium-core/agents'),
-        help='Path to agents directory (default: plugins/mycelium-core/agents/)'
+        default=Path("plugins/mycelium-core/agents"),
+        help="Path to agents directory (default: plugins/mycelium-core/agents/)",
     )
-    parser.add_argument(
-        '--validate-only',
-        action='store_true',
-        help='Only validate existing index, do not regenerate'
-    )
+    parser.add_argument("--validate-only", action="store_true", help="Only validate existing index, do not regenerate")
 
     args = parser.parse_args()
 
@@ -363,5 +383,5 @@ def main() -> None:
     sys.exit(0 if success else 1)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

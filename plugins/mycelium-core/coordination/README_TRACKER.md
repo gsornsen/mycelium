@@ -1,19 +1,19 @@
 # Coordination Tracking System
 
-**Status**: ✅ Task 1.7 Complete
-**Version**: 1.0.0
-**Dependencies**: Task 1.6 (Orchestration Engine)
+**Status**: ✅ Task 1.7 Complete **Version**: 1.0.0 **Dependencies**: Task 1.6 (Orchestration Engine)
 
 ## Overview
 
-The Coordination Tracking System provides comprehensive logging and monitoring of all inter-agent communications and coordination events in the Mycelium multi-agent system. It captures complete workflow execution history for debugging, analytics, and operational insights.
+The Coordination Tracking System provides comprehensive logging and monitoring of all inter-agent communications and
+coordination events in the Mycelium multi-agent system. It captures complete workflow execution history for debugging,
+analytics, and operational insights.
 
 ## Key Features
 
 - **Complete Event History**: Track all coordination events (handoffs, executions, failures)
 - **Structured Logging**: JSON-based event schema with validation
-- **High Performance**: <5% overhead on coordination operations
-- **Efficient Storage**: <10MB per 1000 events in PostgreSQL
+- **High Performance**: \<5% overhead on coordination operations
+- **Efficient Storage**: \<10MB per 1000 events in PostgreSQL
 - **Rich Query API**: Flexible retrieval by workflow, task, agent, or event type
 - **Timeline Generation**: Reconstruct complete workflow execution history
 - **Real-time Statistics**: Monitor event rates, failures, and performance
@@ -112,17 +112,21 @@ print(f"Event breakdown: {stats['event_type_counts']}")
 The system tracks these event types:
 
 ### Handoff Events
+
 - `handoff`: Agent-to-agent state transfer
 
 ### Task Execution Events
+
 - `execution_start`: Task execution begins
 - `execution_end`: Task execution completes
 
 ### Failure Events
+
 - `failure`: Task or operation failure
 - `retry`: Retry attempt after failure
 
 ### Workflow Lifecycle Events
+
 - `workflow_created`: New workflow created
 - `workflow_started`: Workflow execution begins
 - `workflow_completed`: Workflow completes successfully
@@ -132,6 +136,7 @@ The system tracks these event types:
 - `workflow_resumed`: Workflow resumed
 
 ### Task Lifecycle Events
+
 - `task_created`: New task added
 - `task_started`: Task begins execution
 - `task_completed`: Task completes successfully
@@ -210,60 +215,56 @@ Main tracking class.
 
 #### Methods
 
-**`async initialize()`**
-Initialize database connection and schema.
+**`async initialize()`** Initialize database connection and schema.
 
-**`async track_event(event: CoordinationEvent) -> str`**
-Track a coordination event. Returns event ID.
+**`async track_event(event: CoordinationEvent) -> str`** Track a coordination event. Returns event ID.
 
 **`async get_workflow_events(workflow_id: str, event_type: Optional[EventType] = None, limit: int = 1000) -> List[CoordinationEvent]`**
 Retrieve events for a workflow, optionally filtered by type.
 
-**`async get_task_events(task_id: str, limit: int = 100) -> List[CoordinationEvent]`**
-Retrieve events for a specific task.
+**`async get_task_events(task_id: str, limit: int = 100) -> List[CoordinationEvent]`** Retrieve events for a specific
+task.
 
 **`async get_agent_events(agent_id: str, event_type: Optional[EventType] = None, limit: int = 100) -> List[CoordinationEvent]`**
 Retrieve events for a specific agent.
 
-**`async get_handoff_chain(workflow_id: str) -> List[CoordinationEvent]`**
-Get complete handoff chain for workflow.
+**`async get_handoff_chain(workflow_id: str) -> List[CoordinationEvent]`** Get complete handoff chain for workflow.
 
-**`async get_workflow_timeline(workflow_id: str) -> Dict[str, Any]`**
-Get complete timeline with events grouped by phase.
+**`async get_workflow_timeline(workflow_id: str) -> Dict[str, Any]`** Get complete timeline with events grouped by
+phase.
 
-**`async get_statistics(workflow_id: Optional[str] = None) -> Dict[str, Any]`**
-Get tracking statistics (workflow-specific or global).
+**`async get_statistics(workflow_id: Optional[str] = None) -> Dict[str, Any]`** Get tracking statistics
+(workflow-specific or global).
 
-**`async delete_workflow_events(workflow_id: str) -> int`**
-Delete all events for a workflow. Returns count deleted.
+**`async delete_workflow_events(workflow_id: str) -> int`** Delete all events for a workflow. Returns count deleted.
 
 ### Convenience Functions
 
-**`track_handoff(...)`**
-Quick function to track handoff events.
+**`track_handoff(...)`** Quick function to track handoff events.
 
-**`track_task_execution(...)`**
-Quick function to track task execution start/end.
+**`track_task_execution(...)`** Quick function to track task execution start/end.
 
-**`track_failure(...)`**
-Quick function to track failure events.
+**`track_failure(...)`** Quick function to track failure events.
 
 ## Performance Characteristics
 
 ### Tracking Overhead
+
 - **Measured**: 2-3% overhead on coordination operations
-- **Target**: <5% performance impact
+- **Target**: \<5% performance impact
 - **Method**: Async non-blocking persistence
 
 ### Storage Efficiency
+
 - **Measured**: 6-8MB per 1000 events (with JSONB compression)
-- **Target**: <10MB per 1000 events
+- **Target**: \<10MB per 1000 events
 - **Retention**: Configurable (default: 90 days)
 
 ### Query Performance
-- **Workflow events**: <10ms for typical workflow (100-500 events)
-- **Agent events**: <20ms for active agent (1000+ events)
-- **Timeline generation**: <50ms for complex workflow
+
+- **Workflow events**: \<10ms for typical workflow (100-500 events)
+- **Agent events**: \<20ms for active agent (1000+ events)
+- **Timeline generation**: \<50ms for complex workflow
 
 ## Integration with Orchestrator
 
@@ -323,9 +324,9 @@ Test coverage: **>85%**
 Key metrics to monitor:
 
 1. **Event Rate**: Events per second
-2. **Failure Rate**: Percentage of failure events
-3. **Storage Growth**: Database size over time
-4. **Query Performance**: Average query time
+1. **Failure Rate**: Percentage of failure events
+1. **Storage Growth**: Database size over time
+1. **Query Performance**: Average query time
 
 Example monitoring:
 
@@ -402,6 +403,7 @@ docs/operations/
 ## Support
 
 For issues or questions:
+
 - **Code**: `plugins/mycelium-core/coordination/tracker.py`
 - **Tests**: `tests/integration/test_tracking.py`
 - **Docs**: `docs/operations/coordination-tracking.md`

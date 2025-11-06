@@ -129,18 +129,10 @@ def test_detection_summary_properties_unavailable():
 async def test_detect_all_async_performance(mock_detection_results):
     """Test that parallel detection completes in <5 seconds."""
     with (
-        patch(
-            "mycelium_onboarding.detection.orchestrator.detect_docker"
-        ) as mock_docker,
-        patch(
-            "mycelium_onboarding.detection.orchestrator.scan_common_redis_ports"
-        ) as mock_redis,
-        patch(
-            "mycelium_onboarding.detection.orchestrator.scan_common_postgres_ports"
-        ) as mock_postgres,
-        patch(
-            "mycelium_onboarding.detection.orchestrator.detect_temporal"
-        ) as mock_temporal,
+        patch("mycelium_onboarding.detection.orchestrator.detect_docker") as mock_docker,
+        patch("mycelium_onboarding.detection.orchestrator.scan_common_redis_ports") as mock_redis,
+        patch("mycelium_onboarding.detection.orchestrator.scan_common_postgres_ports") as mock_postgres,
+        patch("mycelium_onboarding.detection.orchestrator.detect_temporal") as mock_temporal,
         patch("mycelium_onboarding.detection.orchestrator.detect_gpus") as mock_gpu,
     ):
         # Configure mocks
@@ -167,18 +159,10 @@ async def test_detect_all_async_performance(mock_detection_results):
 def test_detect_all_sync(mock_detection_results):
     """Test synchronous wrapper."""
     with (
-        patch(
-            "mycelium_onboarding.detection.orchestrator.detect_docker"
-        ) as mock_docker,
-        patch(
-            "mycelium_onboarding.detection.orchestrator.scan_common_redis_ports"
-        ) as mock_redis,
-        patch(
-            "mycelium_onboarding.detection.orchestrator.scan_common_postgres_ports"
-        ) as mock_postgres,
-        patch(
-            "mycelium_onboarding.detection.orchestrator.detect_temporal"
-        ) as mock_temporal,
+        patch("mycelium_onboarding.detection.orchestrator.detect_docker") as mock_docker,
+        patch("mycelium_onboarding.detection.orchestrator.scan_common_redis_ports") as mock_redis,
+        patch("mycelium_onboarding.detection.orchestrator.scan_common_postgres_ports") as mock_postgres,
+        patch("mycelium_onboarding.detection.orchestrator.detect_temporal") as mock_temporal,
         patch("mycelium_onboarding.detection.orchestrator.detect_gpus") as mock_gpu,
     ):
         # Configure mocks
@@ -243,9 +227,7 @@ def test_update_config_from_detection_with_base_config(detection_summary):
     base_config.services.redis.max_memory = "512mb"
     base_config.services.postgres.database = "custom_db"
 
-    config = update_config_from_detection(
-        summary=detection_summary, base_config=base_config
-    )
+    config = update_config_from_detection(summary=detection_summary, base_config=base_config)
 
     # Verify base config values are preserved
     assert config.project_name == "test-project"
@@ -261,12 +243,8 @@ def test_update_config_from_detection_multiple_instances(mock_detection_results)
     """Test config update uses first instance when multiple are detected."""
     # Add second Redis instance
     redis_instances = [
-        RedisDetectionResult(
-            available=True, host="localhost", port=6379, version="7.2.3"
-        ),
-        RedisDetectionResult(
-            available=True, host="localhost", port=6380, version="7.0.0"
-        ),
+        RedisDetectionResult(available=True, host="localhost", port=6379, version="7.2.3"),
+        RedisDetectionResult(available=True, host="localhost", port=6380, version="7.0.0"),
     ]
 
     summary = DetectionSummary(
@@ -370,14 +348,10 @@ def test_generate_detection_report_invalid_format(detection_summary):
 def test_generate_detection_report_unavailable_services():
     """Test report generation when services are unavailable."""
     summary = DetectionSummary(
-        docker=DockerDetectionResult(
-            available=False, error_message="Docker not installed"
-        ),
+        docker=DockerDetectionResult(available=False, error_message="Docker not installed"),
         redis=[],
         postgres=[],
-        temporal=TemporalDetectionResult(
-            available=False, error_message="Temporal not running"
-        ),
+        temporal=TemporalDetectionResult(available=False, error_message="Temporal not running"),
         gpu=GPUDetectionResult(available=False, error_message="No GPUs detected"),
         detection_time=1.0,
     )

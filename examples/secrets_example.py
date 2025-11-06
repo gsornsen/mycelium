@@ -25,11 +25,7 @@ def main() -> None:
     manager = SecretsManager("my-temporal-app")
 
     # Generate secrets for PostgreSQL, Redis, and Temporal
-    secrets = manager.generate_secrets(
-        postgres=True,
-        redis=True,
-        temporal=True
-    )
+    secrets = manager.generate_secrets(postgres=True, redis=True, temporal=True)
 
     print(f"Project: {secrets.project_name}")
     print(f"PostgreSQL password: {secrets.postgres_password[:8]}... (hidden)")
@@ -43,8 +39,8 @@ def main() -> None:
 
     manager.save_secrets(secrets)
     print(f"Secrets saved to: {manager.secrets_file}")
-    print(f"File permissions: 0o600 (owner read/write only)")
-    print(f"Directory permissions: 0o700 (owner rwx only)")
+    print("File permissions: 0o600 (owner read/write only)")
+    print("Directory permissions: 0o700 (owner rwx only)")
     print()
 
     # Example 3: Load existing secrets
@@ -66,7 +62,7 @@ def main() -> None:
     env_file = Path("/tmp/my-temporal-app.env")
     generate_env_file(secrets, env_file)
     print(f".env file created at: {env_file}")
-    print(f"File permissions: 0o600 (secure)")
+    print("File permissions: 0o600 (secure)")
     print("\nFile contents:")
     print(env_file.read_text())
     print()
@@ -86,12 +82,7 @@ def main() -> None:
     print("Example 6: Overwriting existing secrets")
     print("-" * 50)
 
-    new_secrets = manager.generate_secrets(
-        postgres=True,
-        redis=True,
-        temporal=True,
-        overwrite=True
-    )
+    new_secrets = manager.generate_secrets(postgres=True, redis=True, temporal=True, overwrite=True)
     print("All secrets regenerated with new values")
     print(f"New PostgreSQL password: {new_secrets.postgres_password[:8]}... (hidden)")
     print()

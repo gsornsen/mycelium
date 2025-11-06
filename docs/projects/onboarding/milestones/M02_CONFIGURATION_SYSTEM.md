@@ -2,38 +2,40 @@
 
 ## Overview
 
-**Duration**: 2 days
-**Dependencies**: M01 (Environment Isolation)
-**Blocks**: M04 (Interactive Onboarding), M05 (Deployment Generation)
-**Lead Agent**: python-pro
-**Support Agents**: platform-engineer
+**Duration**: 2 days **Dependencies**: M01 (Environment Isolation) **Blocks**: M04 (Interactive Onboarding), M05
+(Deployment Generation) **Lead Agent**: python-pro **Support Agents**: platform-engineer
 
 ## Why This Milestone
 
 The configuration system is the central nervous system of the onboarding process. It must:
+
 - Provide type-safe validation to catch errors early
 - Support schema evolution as features are added
 - Enable hierarchical configuration (project → user → defaults)
 - Serialize cleanly to YAML for human readability
 - Support programmatic access and validation
 
-Without a robust configuration system, the onboarding wizard would have nowhere to persist user choices, and deployment generation would lack necessary parameters.
+Without a robust configuration system, the onboarding wizard would have nowhere to persist user choices, and deployment
+generation would lack necessary parameters.
 
 ## Requirements
 
 ### Functional Requirements (FR)
 
 **FR-1**: Type-safe configuration schema
+
 - All configuration values must have defined types
 - Invalid values must be caught at load time, not runtime
 - Support for optional fields with sensible defaults
 
 **FR-2**: Human-readable configuration format
+
 - Primary format: YAML (human-editable)
 - Secondary format: JSON (machine-readable)
 - Clear structure with comments and examples
 
 **FR-3**: Schema migration support
+
 - Detect configuration schema version
 - Automatically migrate old schemas to current
 - Preserve user customizations during migration
@@ -42,16 +44,19 @@ Without a robust configuration system, the onboarding wizard would have nowhere 
 ### Technical Requirements (TR)
 
 **TR-1**: Use Pydantic v2 for validation
+
 - BaseModel for all configuration schemas
 - Field validators for complex constraints
 - Serialization/deserialization built-in
 
 **TR-2**: Support for hierarchical loading
+
 - Load from project-local, user-global, or defaults
 - Merge configurations with correct precedence
 - Allow overrides at each level
 
 **TR-3**: Validation on load and save
+
 - Validate immediately on load, fail fast
 - Validate before save, prevent corruption
 - Provide detailed error messages with field paths
@@ -59,11 +64,13 @@ Without a robust configuration system, the onboarding wizard would have nowhere 
 ### Integration Requirements (IR)
 
 **IR-1**: Integration with M01 environment isolation
+
 - Use XDG config directory for storage
 - Respect MYCELIUM_PROJECT_DIR for project-local config
 - Follow hierarchical loading from config_loader.py
 
 **IR-2**: Integration with M04 interactive onboarding
+
 - Wizard saves to configuration schema
 - Configuration drives wizard defaults on re-run
 - Support partial configurations (incomplete wizard runs)
@@ -71,11 +78,13 @@ Without a robust configuration system, the onboarding wizard would have nowhere 
 ### Constraints (CR)
 
 **CR-1**: Configuration must be version-controlled friendly
+
 - YAML format with consistent ordering
 - No generated timestamps or UUIDs in default config
 - Deterministic serialization
 
 **CR-2**: No secrets in configuration files
+
 - Passwords, tokens, API keys stored separately
 - Configuration references secret locations, not values
 - Clear documentation on secret management
@@ -84,9 +93,7 @@ Without a robust configuration system, the onboarding wizard would have nowhere 
 
 ### Task 2.1: Design Configuration Schema
 
-**Agent**: python-pro
-**Effort**: 6 hours
-**Dependencies**: M01 complete
+**Agent**: python-pro **Effort**: 6 hours **Dependencies**: M01 complete
 
 **Description**: Design complete configuration schema covering all onboarding options.
 
@@ -181,6 +188,7 @@ class MyceliumConfig(BaseModel):
 ```
 
 **Acceptance Criteria**:
+
 - [ ] Complete schema covers all configuration options
 - [ ] All fields have appropriate types and constraints
 - [ ] Validators ensure data integrity (port ranges, name format)
@@ -189,16 +197,15 @@ class MyceliumConfig(BaseModel):
 - [ ] Documented with docstrings and examples
 
 **Deliverables**:
+
 - `mycelium_onboarding/config/schema.py`
 - Design document with field descriptions
 
----
+______________________________________________________________________
 
 ### Task 2.2: Configuration Loading & Saving
 
-**Agent**: python-pro
-**Effort**: 6 hours
-**Dependencies**: Task 2.1
+**Agent**: python-pro **Effort**: 6 hours **Dependencies**: Task 2.1
 
 **Description**: Implement configuration loading/saving with validation and error handling.
 
@@ -385,6 +392,7 @@ ConfigManager.save(config, project_local=True)
 ```
 
 **Acceptance Criteria**:
+
 - [ ] load() finds and loads config from hierarchical locations
 - [ ] load() returns defaults if no config file exists
 - [ ] save() validates before writing
@@ -394,16 +402,15 @@ ConfigManager.save(config, project_local=True)
 - [ ] Handles empty/corrupt config files gracefully
 
 **Deliverables**:
+
 - `mycelium_onboarding/config/manager.py`
 - `tests/test_config_manager.py`
 
----
+______________________________________________________________________
 
 ### Task 2.3: Schema Migration Framework
 
-**Agent**: python-pro
-**Effort**: 8 hours
-**Dependencies**: Task 2.1, Task 2.2
+**Agent**: python-pro **Effort**: 8 hours **Dependencies**: Task 2.1, Task 2.2
 
 **Description**: Implement schema migration system to handle configuration upgrades.
 
@@ -561,6 +568,7 @@ class ConfigManager:
 ```
 
 **Acceptance Criteria**:
+
 - [ ] Migration framework supports version detection
 - [ ] Migrations registered via decorator pattern
 - [ ] Migrations applied automatically on load
@@ -570,17 +578,16 @@ class ConfigManager:
 - [ ] Failed migrations raise clear errors
 
 **Deliverables**:
+
 - `mycelium_onboarding/config/migrations.py`
 - `tests/test_migrations.py`
 - Migration guide in documentation
 
----
+______________________________________________________________________
 
 ### Task 2.4: Configuration CLI Commands
 
-**Agent**: python-pro
-**Effort**: 4 hours
-**Dependencies**: Task 2.2
+**Agent**: python-pro **Effort**: 4 hours **Dependencies**: Task 2.2
 
 **Description**: Create CLI commands for viewing and validating configuration.
 
@@ -714,6 +721,7 @@ def init_config(project_local: bool, force: bool):
 ```
 
 **Acceptance Criteria**:
+
 - [ ] `mycelium config show` displays current configuration
 - [ ] `mycelium config validate` checks configuration validity
 - [ ] `mycelium config location` shows where config is stored
@@ -723,16 +731,15 @@ def init_config(project_local: bool, force: bool):
 - [ ] Help text for all commands
 
 **Deliverables**:
+
 - `mycelium_onboarding/cli/config_commands.py`
 - CLI integration tests
 
----
+______________________________________________________________________
 
 ### Task 2.5: Configuration Documentation & Examples
 
-**Agent**: platform-engineer (support from technical-writer)
-**Effort**: 4 hours
-**Dependencies**: Tasks 2.1-2.4
+**Agent**: platform-engineer (support from technical-writer) **Effort**: 4 hours **Dependencies**: Tasks 2.1-2.4
 
 **Description**: Create comprehensive configuration documentation with examples.
 
@@ -931,6 +938,7 @@ python -c "import yaml; yaml.safe_load(open('config.yaml'))"
 ````
 
 **Acceptance Criteria**:
+
 - [ ] Complete reference documentation with all fields
 - [ ] Examples cover common use cases
 - [ ] CLI usage documented with examples
@@ -938,14 +946,16 @@ python -c "import yaml; yaml.safe_load(open('config.yaml'))"
 - [ ] Troubleshooting guide addresses common issues
 
 **Deliverables**:
+
 - `docs/configuration-reference.md`
 - `docs/examples/` directory with example configs
 
----
+______________________________________________________________________
 
 ## Exit Criteria
 
 - [ ] **Configuration Schema**
+
   - [ ] Complete Pydantic schema with all fields
   - [ ] Type validation for all fields
   - [ ] Sensible defaults for optional fields
@@ -953,29 +963,34 @@ python -c "import yaml; yaml.safe_load(open('config.yaml'))"
   - [ ] Schema version for migration support
 
 - [ ] **Configuration Manager**
+
   - [ ] load() finds and loads config from hierarchical locations
   - [ ] save() validates before writing
   - [ ] Clean YAML serialization
   - [ ] Clear error messages on validation failure
 
 - [ ] **Schema Migrations**
+
   - [ ] Migration framework implemented
   - [ ] Migrations applied automatically on load
   - [ ] Migration actions logged
   - [ ] User customizations preserved
 
 - [ ] **CLI Commands**
+
   - [ ] show, validate, location, init commands working
   - [ ] Support for --project-local flag
   - [ ] Helpful error messages
 
 - [ ] **Testing**
+
   - [ ] Unit tests for all schema fields (≥85% coverage)
   - [ ] Tests for loading/saving configurations
   - [ ] Tests for migration framework
   - [ ] Tests for CLI commands
 
 - [ ] **Documentation**
+
   - [ ] Complete configuration reference
   - [ ] Examples for common scenarios
   - [ ] Migration guide
@@ -1008,22 +1023,26 @@ python -c "import yaml; yaml.safe_load(open('config.yaml'))"
 ### High Risk
 
 **Schema evolution breaks existing configs**: Changes to schema structure may invalidate user configurations
+
 - **Mitigation**: Comprehensive migration framework from day 1
 - **Contingency**: Manual migration instructions as fallback
 
 ### Medium Risk
 
 **YAML parsing edge cases**: Complex YAML may parse unexpectedly
+
 - **Mitigation**: Use yaml.safe_load, comprehensive tests
 - **Contingency**: Provide JSON format as alternative
 
 **Validation errors too strict**: Over-validation may reject valid configs
+
 - **Mitigation**: Reasonable validators, allow customization
 - **Contingency**: Disable specific validators via config flag
 
 ### Low Risk
 
 **File I/O errors**: Permission issues, disk full
+
 - **Mitigation**: Clear error messages, check permissions early
 - **Contingency**: None needed (standard file operations)
 
@@ -1032,11 +1051,13 @@ python -c "import yaml; yaml.safe_load(open('config.yaml'))"
 ### M04: Interactive Onboarding
 
 **Depends on**:
+
 - Configuration schema for storing user selections
 - ConfigManager for saving wizard results
 - Validation for ensuring user input valid
 
 **Will use**:
+
 - `MyceliumConfig` schema for type-safe storage
 - `ConfigManager.save()` to persist wizard results
 - Field validators to check user input
@@ -1044,16 +1065,16 @@ python -c "import yaml; yaml.safe_load(open('config.yaml'))"
 ### M05: Deployment Generation
 
 **Depends on**:
+
 - Configuration schema for deployment parameters
 - ConfigManager for loading user preferences
 
 **Will use**:
+
 - `config.deployment.method` to choose Docker Compose vs Justfile
 - `config.services` to determine which services to deploy
 - Port numbers and other service-specific config
 
----
+______________________________________________________________________
 
-**Milestone Version**: 1.0
-**Last Updated**: 2025-10-13
-**Status**: Ready for Implementation
+**Milestone Version**: 1.0 **Last Updated**: 2025-10-13 **Status**: Ready for Implementation

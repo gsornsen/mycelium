@@ -16,9 +16,6 @@ import yaml
 from mycelium_onboarding.config.schema import (
     DeploymentMethod,
     MyceliumConfig,
-    PostgresConfig,
-    RedisConfig,
-    TemporalConfig,
 )
 from mycelium_onboarding.deployment import TemplateRenderer
 
@@ -575,9 +572,7 @@ class TestRendererMethods:
     def test_render_for_method_docker_compose(self, test_config):
         """Test render_for_method with Docker Compose."""
         renderer = TemplateRenderer()
-        result = renderer.render_for_method(
-            test_config, DeploymentMethod.DOCKER_COMPOSE
-        )
+        result = renderer.render_for_method(test_config, DeploymentMethod.DOCKER_COMPOSE)
 
         assert isinstance(result, str)
         assert "version:" in result
@@ -596,7 +591,7 @@ class TestRendererMethods:
         result = renderer.render_for_method(test_config, DeploymentMethod.SYSTEMD)
 
         assert isinstance(result, dict)
-        assert any("redis.service" in key for key in result.keys())
+        assert any("redis.service" in key for key in result)
 
     def test_render_for_method_manual(self, test_config):
         """Test render_for_method with manual deployment."""

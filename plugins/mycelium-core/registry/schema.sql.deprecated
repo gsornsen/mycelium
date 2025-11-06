@@ -162,12 +162,18 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Trigger to update agent metrics on usage completion
-CREATE TRIGGER update_agent_metrics_on_usage
-    AFTER INSERT OR UPDATE ON agent_usage
+-- Trigger for INSERT operations (no OLD reference)
+CREATE TRIGGER update_agent_metrics_on_insert
+    AFTER INSERT ON agent_usage
     FOR EACH ROW
-    WHEN (NEW.status IN ('completed', 'failed') AND
-          (OLD IS NULL OR OLD.status = 'in_progress'))
+    WHEN (NEW.status IN ('completed', 'failed'))
+    EXECUTE FUNCTION update_agent_metrics();
+
+-- Trigger for UPDATE operations (can reference OLD)
+CREATE TRIGGER update_agent_metrics_on_update
+    AFTER UPDATE ON agent_usage
+    FOR EACH ROW
+    WHEN (NEW.status IN ('completed', 'failed') AND OLD.status = 'in_progress')
     EXECUTE FUNCTION update_agent_metrics();
 
 -- Insert initial schema version

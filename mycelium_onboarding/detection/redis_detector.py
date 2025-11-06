@@ -31,9 +31,7 @@ class RedisDetectionResult:
     error_message: str | None = None
 
 
-def detect_redis(
-    host: str = "localhost", port: int = 6379, timeout: float = 2.0
-) -> RedisDetectionResult:
+def detect_redis(host: str = "localhost", port: int = 6379, timeout: float = 2.0) -> RedisDetectionResult:
     """Detect Redis server availability.
 
     Args:
@@ -99,14 +97,19 @@ def detect_redis(
             available=False,
             host=host,
             port=port,
-            error_message=f"Connection to Redis at {host}:{port} timed out after {timeout}s. Check if Redis is running and accessible.",
+            error_message=(
+                f"Connection to Redis at {host}:{port} timed out after {timeout}s. "
+                "Check if Redis is running and accessible."
+            ),
         )
     except ConnectionRefusedError:
         return RedisDetectionResult(
             available=False,
             host=host,
             port=port,
-            error_message=f"Connection refused to Redis at {host}:{port}. Redis is not running on this port. Start Redis: redis-server",
+            error_message=(
+                f"Could not connect to {host}:{port}. Redis is not running on this port. Start Redis: redis-server"
+            ),
         )
     except socket.gaierror:
         return RedisDetectionResult(
@@ -168,7 +171,6 @@ def _parse_redis_version(info_response: str) -> str | None:
     for line in info_response.split("\n"):
         line = line.strip()
         if line.startswith("redis_version:"):
-            version = line.split(":", 1)[1].strip()
-            return version
+            return line.split(":", 1)[1].strip()
 
     return None

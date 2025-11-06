@@ -7,11 +7,10 @@ from CLI commands to config updates.
 
 from __future__ import annotations
 
-import asyncio
 import json
 import time
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 import yaml
@@ -21,7 +20,11 @@ from mycelium_onboarding.cli import cli
 from mycelium_onboarding.config.manager import ConfigManager
 from mycelium_onboarding.config.schema import MyceliumConfig
 from mycelium_onboarding.detection.docker_detector import DockerDetectionResult
-from mycelium_onboarding.detection.gpu_detector import GPUInfo, GPUDetectionResult, GPUVendor
+from mycelium_onboarding.detection.gpu_detector import (
+    GPUDetectionResult,
+    GPUInfo,
+    GPUVendor,
+)
 from mycelium_onboarding.detection.orchestrator import (
     DetectionSummary,
     detect_all,
@@ -33,7 +36,6 @@ from mycelium_onboarding.detection.postgres_detector import PostgresDetectionRes
 from mycelium_onboarding.detection.redis_detector import RedisDetectionResult
 from mycelium_onboarding.detection.temporal_detector import TemporalDetectionResult
 
-
 # ============================================================================
 # Fixtures
 # ============================================================================
@@ -43,21 +45,11 @@ from mycelium_onboarding.detection.temporal_detector import TemporalDetectionRes
 def mock_all_services_available():
     """Mock all services as available for testing."""
     with (
-        patch(
-            "mycelium_onboarding.detection.orchestrator.detect_docker"
-        ) as mock_docker,
-        patch(
-            "mycelium_onboarding.detection.orchestrator.scan_common_redis_ports"
-        ) as mock_redis,
-        patch(
-            "mycelium_onboarding.detection.orchestrator.scan_common_postgres_ports"
-        ) as mock_postgres,
-        patch(
-            "mycelium_onboarding.detection.orchestrator.detect_temporal"
-        ) as mock_temporal,
-        patch(
-            "mycelium_onboarding.detection.orchestrator.detect_gpus"
-        ) as mock_gpu,
+        patch("mycelium_onboarding.detection.orchestrator.detect_docker") as mock_docker,
+        patch("mycelium_onboarding.detection.orchestrator.scan_common_redis_ports") as mock_redis,
+        patch("mycelium_onboarding.detection.orchestrator.scan_common_postgres_ports") as mock_postgres,
+        patch("mycelium_onboarding.detection.orchestrator.detect_temporal") as mock_temporal,
+        patch("mycelium_onboarding.detection.orchestrator.detect_gpus") as mock_gpu,
     ):
         # Mock Docker
         mock_docker.return_value = DockerDetectionResult(
@@ -131,21 +123,11 @@ def mock_all_services_available():
 def mock_no_services_available():
     """Mock all services as unavailable for testing."""
     with (
-        patch(
-            "mycelium_onboarding.detection.orchestrator.detect_docker"
-        ) as mock_docker,
-        patch(
-            "mycelium_onboarding.detection.orchestrator.scan_common_redis_ports"
-        ) as mock_redis,
-        patch(
-            "mycelium_onboarding.detection.orchestrator.scan_common_postgres_ports"
-        ) as mock_postgres,
-        patch(
-            "mycelium_onboarding.detection.orchestrator.detect_temporal"
-        ) as mock_temporal,
-        patch(
-            "mycelium_onboarding.detection.orchestrator.detect_gpus"
-        ) as mock_gpu,
+        patch("mycelium_onboarding.detection.orchestrator.detect_docker") as mock_docker,
+        patch("mycelium_onboarding.detection.orchestrator.scan_common_redis_ports") as mock_redis,
+        patch("mycelium_onboarding.detection.orchestrator.scan_common_postgres_ports") as mock_postgres,
+        patch("mycelium_onboarding.detection.orchestrator.detect_temporal") as mock_temporal,
+        patch("mycelium_onboarding.detection.orchestrator.detect_gpus") as mock_gpu,
     ):
         # Mock Docker unavailable
         mock_docker.return_value = DockerDetectionResult(
@@ -406,8 +388,9 @@ def test_detection_with_partial_failures(mock_all_services_available):
         side_effect=Exception("Docker detection failed"),
     ):
         # Detection should handle the error gracefully
-        with pytest.raises(Exception):
+        with pytest.raises(Exception) as exc_info:
             detect_all()
+        assert exc_info.value  # Verify exception was raised
 
 
 def test_cli_error_handling_invalid_format():
@@ -471,7 +454,7 @@ def test_detection_concurrency_performance(mock_all_services_available):
         return True
 
     start = time.time()
-    summary = detect_all()
+    detect_all()
     parallel_time = time.time() - start
 
     # Even with 5 detectors at 0.1s each, parallel should be much faster than 0.5s
@@ -539,9 +522,7 @@ def test_config_update_with_no_services(mock_no_services_available):
 
 def test_multiple_redis_instances():
     """Test detection of multiple Redis instances on different ports."""
-    with patch(
-        "mycelium_onboarding.detection.orchestrator.scan_common_redis_ports"
-    ) as mock_redis:
+    with patch("mycelium_onboarding.detection.orchestrator.scan_common_redis_ports") as mock_redis:
         mock_redis.return_value = [
             RedisDetectionResult(
                 available=True,
@@ -561,24 +542,24 @@ def test_multiple_redis_instances():
             ),
         ]
 
-        with patch("mycelium_onboarding.detection.orchestrator.detect_docker"):
-            with patch("mycelium_onboarding.detection.orchestrator.scan_common_postgres_ports"):
-                with patch("mycelium_onboarding.detection.orchestrator.detect_temporal"):
-                    with patch("mycelium_onboarding.detection.orchestrator.detect_gpus"):
-                        summary = detect_all()
+        with (
+            patch("mycelium_onboarding.detection.orchestrator.detect_docker"),
+            patch("mycelium_onboarding.detection.orchestrator.scan_common_postgres_ports"),
+            patch("mycelium_onboarding.detection.orchestrator.detect_temporal"),
+            patch("mycelium_onboarding.detection.orchestrator.detect_gpus"),
+        ):
+            summary = detect_all()
 
-                        assert summary.has_redis is True
-                        assert len(summary.redis) == 2
-                        assert summary.redis[0].port == 6379
-                        assert summary.redis[1].port == 6380
-                        assert summary.redis[1].password_required is True
+            assert summary.has_redis is True
+            assert len(summary.redis) == 2
+            assert summary.redis[0].port == 6379
+            assert summary.redis[1].port == 6380
+            assert summary.redis[1].password_required is True
 
 
 def test_multiple_postgres_instances():
     """Test detection of multiple PostgreSQL instances on different ports."""
-    with patch(
-        "mycelium_onboarding.detection.orchestrator.scan_common_postgres_ports"
-    ) as mock_postgres:
+    with patch("mycelium_onboarding.detection.orchestrator.scan_common_postgres_ports") as mock_postgres:
         mock_postgres.return_value = [
             PostgresDetectionResult(
                 available=True,
@@ -598,16 +579,18 @@ def test_multiple_postgres_instances():
             ),
         ]
 
-        with patch("mycelium_onboarding.detection.orchestrator.detect_docker"):
-            with patch("mycelium_onboarding.detection.orchestrator.scan_common_redis_ports"):
-                with patch("mycelium_onboarding.detection.orchestrator.detect_temporal"):
-                    with patch("mycelium_onboarding.detection.orchestrator.detect_gpus"):
-                        summary = detect_all()
+        with (
+            patch("mycelium_onboarding.detection.orchestrator.detect_docker"),
+            patch("mycelium_onboarding.detection.orchestrator.scan_common_redis_ports"),
+            patch("mycelium_onboarding.detection.orchestrator.detect_temporal"),
+            patch("mycelium_onboarding.detection.orchestrator.detect_gpus"),
+        ):
+            summary = detect_all()
 
-                        assert summary.has_postgres is True
-                        assert len(summary.postgres) == 2
-                        assert summary.postgres[0].port == 5432
-                        assert summary.postgres[1].port == 5433
+            assert summary.has_postgres is True
+            assert len(summary.postgres) == 2
+            assert summary.postgres[0].port == 5432
+            assert summary.postgres[1].port == 5433
 
 
 # ============================================================================
@@ -617,9 +600,7 @@ def test_multiple_postgres_instances():
 
 def test_gpu_multi_vendor_scenarios():
     """Test GPU detection with multiple vendors."""
-    with patch(
-        "mycelium_onboarding.detection.orchestrator.detect_gpus"
-    ) as mock_gpu:
+    with patch("mycelium_onboarding.detection.orchestrator.detect_gpus") as mock_gpu:
         mock_gpu.return_value = GPUDetectionResult(
             available=True,
             gpus=[
@@ -646,17 +627,19 @@ def test_gpu_multi_vendor_scenarios():
             error_message=None,
         )
 
-        with patch("mycelium_onboarding.detection.orchestrator.detect_docker"):
-            with patch("mycelium_onboarding.detection.orchestrator.scan_common_redis_ports"):
-                with patch("mycelium_onboarding.detection.orchestrator.scan_common_postgres_ports"):
-                    with patch("mycelium_onboarding.detection.orchestrator.detect_temporal"):
-                        summary = detect_all()
+        with (
+            patch("mycelium_onboarding.detection.orchestrator.detect_docker"),
+            patch("mycelium_onboarding.detection.orchestrator.scan_common_redis_ports"),
+            patch("mycelium_onboarding.detection.orchestrator.scan_common_postgres_ports"),
+            patch("mycelium_onboarding.detection.orchestrator.detect_temporal"),
+        ):
+            summary = detect_all()
 
-                        assert summary.has_gpu is True
-                        assert len(summary.gpu.gpus) == 2
-                        assert summary.gpu.gpus[0].vendor == GPUVendor.NVIDIA
-                        assert summary.gpu.gpus[1].vendor == GPUVendor.AMD
-                        assert summary.gpu.total_memory_mb == 49152
+            assert summary.has_gpu is True
+            assert len(summary.gpu.gpus) == 2
+            assert summary.gpu.gpus[0].vendor == GPUVendor.NVIDIA
+            assert summary.gpu.gpus[1].vendor == GPUVendor.AMD
+            assert summary.gpu.total_memory_mb == 49152
 
 
 # ============================================================================
@@ -790,25 +773,26 @@ def test_full_workflow_init_detect_save(mock_all_services_available, temp_config
     runner = CliRunner()
     config_path = temp_config_dir / "mycelium.yaml"
 
-    with runner.isolated_filesystem():
-        # Step 1: Initialize config
-        with patch(
+    with (
+        runner.isolated_filesystem(),
+        patch(
             "mycelium_onboarding.cli.get_config_path",
             return_value=config_path,
-        ):
-            result = runner.invoke(cli, ["config", "init"])
-            assert result.exit_code == 0
+        ),
+    ):
+        result = runner.invoke(cli, ["config", "init"])
+        assert result.exit_code == 0
 
-            # Step 2: Run detection with save
-            result = runner.invoke(cli, ["detect", "services", "--save-config"])
-            assert result.exit_code == 0
-            assert "Configuration updated" in result.output
+        # Step 2: Run detection with save
+        result = runner.invoke(cli, ["detect", "services", "--save-config"])
+        assert result.exit_code == 0
+        assert "Configuration updated" in result.output
 
-            # Step 3: Verify config contains detected values
-            if config_path.exists():
-                manager = ConfigManager(config_path=config_path)
-                config = manager.load()
-                assert config.services.redis.enabled is True
+        # Step 3: Verify config contains detected values
+        if config_path.exists():
+            manager = ConfigManager(config_path=config_path)
+            config = manager.load()
+            assert config.services.redis.enabled is True
 
 
 # ============================================================================
@@ -853,9 +837,7 @@ def test_detection_with_empty_results():
     with (
         patch(
             "mycelium_onboarding.detection.orchestrator.detect_docker",
-            return_value=DockerDetectionResult(
-                available=False, version=None, socket_path=None, error_message=None
-            ),
+            return_value=DockerDetectionResult(available=False, version=None, socket_path=None, error_message=None),
         ),
         patch(
             "mycelium_onboarding.detection.orchestrator.scan_common_redis_ports",
@@ -877,9 +859,7 @@ def test_detection_with_empty_results():
         ),
         patch(
             "mycelium_onboarding.detection.orchestrator.detect_gpus",
-            return_value=GPUDetectionResult(
-                available=False, gpus=[], total_memory_mb=0, error_message=None
-            ),
+            return_value=GPUDetectionResult(available=False, gpus=[], total_memory_mb=0, error_message=None),
         ),
     ):
         summary = detect_all()

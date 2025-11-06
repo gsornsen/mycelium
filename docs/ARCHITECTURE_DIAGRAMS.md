@@ -3,12 +3,12 @@
 ## Table of Contents
 
 1. [Overall Structure](#overall-structure)
-2. [Installation Flows](#installation-flows)
-3. [User Interaction Models](#user-interaction-models)
-4. [Plugin Relationships](#plugin-relationships)
-5. [Community Ecosystem](#community-ecosystem)
+1. [Installation Flows](#installation-flows)
+1. [User Interaction Models](#user-interaction-models)
+1. [Plugin Relationships](#plugin-relationships)
+1. [Community Ecosystem](#community-ecosystem)
 
----
+______________________________________________________________________
 
 ## Overall Structure
 
@@ -81,7 +81,7 @@ Purpose: Plugin marketplace + core plugin
 Installation: Via marketplace OR direct plugin install
 ```
 
----
+______________________________________________________________________
 
 ## Installation Flows
 
@@ -194,7 +194,7 @@ Installation: Via marketplace OR direct plugin install
 └─────────────────────────────────────────────────────────────┘
 ```
 
----
+______________________________________________________________________
 
 ## User Interaction Models
 
@@ -331,7 +331,7 @@ Installation: Via marketplace OR direct plugin install
 └─────────────────────────────────────────────────────────────┘
 ```
 
----
+______________________________________________________________________
 
 ## Plugin Relationships
 
@@ -405,7 +405,7 @@ Example: Voice Kit Plugin
 └────────────────────────────────┘
 ```
 
----
+______________________________________________________________________
 
 ## Community Ecosystem
 
@@ -520,7 +520,7 @@ Mycelium Marketplace
                          └──────→ Back to top
 ```
 
----
+______________________________________________________________________
 
 ## Comparison: Single vs Dual Purpose
 
@@ -543,6 +543,7 @@ Fork if customization needed
 ```
 
 **Limitations:**
+
 - No plugin discovery mechanism
 - Customizations remain private
 - No community ecosystem
@@ -587,6 +588,7 @@ Satisfied Create
 ```
 
 **Benefits:**
+
 - Multiple installation paths
 - Plugin discovery built-in
 - Community contributions
@@ -594,7 +596,7 @@ Satisfied Create
 - Specialized solutions
 - Network effects
 
----
+______________________________________________________________________
 
 ## Technical Architecture
 
@@ -667,7 +669,7 @@ User: /plugin
 └───────────────────────────────────────┘
 ```
 
----
+______________________________________________________________________
 
 ## Summary Diagram: Complete System
 
@@ -733,16 +735,17 @@ User: /plugin
            └────────────────────────┘
 ```
 
----
+______________________________________________________________________
 
 ## Conclusion
 
 This dual-purpose architecture provides:
 
 1. **Flexibility** - Multiple installation methods for different user needs
-2. **Scalability** - Easy to add community plugins
-3. **Maintainability** - Clear separation of concerns
-4. **Discoverability** - Built-in marketplace for plugin discovery
-5. **Community** - Enables ecosystem growth through contributions
+1. **Scalability** - Easy to add community plugins
+1. **Maintainability** - Clear separation of concerns
+1. **Discoverability** - Built-in marketplace for plugin discovery
+1. **Community** - Enables ecosystem growth through contributions
 
-The structure follows established Claude Code patterns while extending them to support the Mycelium philosophy of distributed intelligence.
+The structure follows established Claude Code patterns while extending them to support the Mycelium philosophy of
+distributed intelligence.

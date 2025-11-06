@@ -199,7 +199,7 @@ def detect_nvidia_gpus() -> list[GPUInfo]:
     """
     try:
         # Query GPU information in CSV format
-        result = subprocess.run(
+        result = subprocess.run(  # nosec B603 B607 - Safe execution of system tools
             [
                 NVIDIA_SMI_CMD,
                 "--query-gpu=index,name,memory.total,driver_version",
@@ -276,7 +276,7 @@ def detect_amd_gpus() -> list[GPUInfo]:
     """
     try:
         # Get list of GPU devices
-        result = subprocess.run(
+        result = subprocess.run(  # nosec B603 B607 - Safe execution of system tools
             [ROCM_SMI_CMD, "--showproductname"],
             capture_output=True,
             text=True,
@@ -340,7 +340,7 @@ def _get_amd_gpu_memory(gpu_index: int) -> int | None:
         Memory in MB, or None if unavailable
     """
     try:
-        result = subprocess.run(
+        result = subprocess.run(  # nosec B603 B607 - Safe execution of system tools
             [ROCM_SMI_CMD, "--showmeminfo", "vram", "-d", str(gpu_index)],
             capture_output=True,
             text=True,
@@ -392,7 +392,7 @@ def detect_intel_gpus() -> list[GPUInfo]:
 def _detect_intel_gpus_linux() -> list[GPUInfo]:
     """Detect Intel GPUs on Linux using lspci."""
     try:
-        result = subprocess.run(
+        result = subprocess.run(  # nosec B603 B607 - Safe execution of system tools
             ["lspci"],
             capture_output=True,
             text=True,
@@ -409,10 +409,7 @@ def _detect_intel_gpus_linux() -> list[GPUInfo]:
         # Look for VGA/3D/Display controllers with Intel
         for line in result.stdout.split("\n"):
             line_lower = line.lower()
-            has_intel = (
-                ("vga" in line_lower or "3d" in line_lower or
-                 "display" in line_lower) and "intel" in line_lower
-            )
+            has_intel = ("vga" in line_lower or "3d" in line_lower or "display" in line_lower) and "intel" in line_lower
             if has_intel:
                 # Extract model name
                 # Format: 00:02.0 VGA compatible controller: Intel...
@@ -441,7 +438,7 @@ def _detect_intel_gpus_linux() -> list[GPUInfo]:
 def _detect_intel_gpus_macos() -> list[GPUInfo]:
     """Detect Intel GPUs on macOS using system_profiler."""
     try:
-        result = subprocess.run(
+        result = subprocess.run(  # nosec B603 B607 - Safe execution of system tools
             ["system_profiler", "SPDisplaysDataType"],
             capture_output=True,
             text=True,
@@ -488,10 +485,7 @@ def _detect_intel_gpus_macos() -> list[GPUInfo]:
                 if vram_match:
                     vram_value = int(vram_match.group(1))
                     vram_unit = vram_match.group(2).upper()
-                    current_vram = (
-                        vram_value * 1024 if vram_unit == "GB"
-                        else vram_value
-                    )
+                    current_vram = vram_value * 1024 if vram_unit == "GB" else vram_value
 
         # Handle last GPU
         if current_gpu and "intel" in current_gpu.lower():
@@ -517,7 +511,7 @@ def _detect_intel_gpus_macos() -> list[GPUInfo]:
 def _detect_intel_gpus_windows() -> list[GPUInfo]:
     """Detect Intel GPUs on Windows using wmic."""
     try:
-        result = subprocess.run(
+        result = subprocess.run(  # nosec B603 B607 - Safe execution of system tools
             ["wmic", "path", "win32_VideoController", "get", "name"],
             capture_output=True,
             text=True,
@@ -567,7 +561,7 @@ def get_cuda_version() -> str | None:
     """
     # Try nvcc first (CUDA Toolkit version)
     try:
-        result = subprocess.run(
+        result = subprocess.run(  # nosec B603 B607 - Safe execution of system tools
             [NVCC_CMD, "--version"],
             capture_output=True,
             text=True,
@@ -590,7 +584,7 @@ def get_cuda_version() -> str | None:
 
     # Try nvidia-smi as fallback
     try:
-        result = subprocess.run(
+        result = subprocess.run(  # nosec B603 B607 - Safe execution of system tools
             [NVIDIA_SMI_CMD, "--query-gpu=driver_version", "--format=csv,noheader"],
             capture_output=True,
             text=True,
@@ -646,7 +640,7 @@ def get_rocm_version() -> str | None:
 
     # Try rocm-smi --version
     try:
-        result = subprocess.run(
+        result = subprocess.run(  # nosec B603 B607 - Safe execution of system tools
             [ROCM_SMI_CMD, "--version"],
             capture_output=True,
             text=True,

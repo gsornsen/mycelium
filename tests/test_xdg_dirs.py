@@ -10,7 +10,7 @@ import os
 import sys
 from pathlib import Path
 from typing import Any
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 import pytest
 
@@ -37,8 +37,18 @@ def mock_home(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     home = tmp_path / "home"
     home.mkdir()
 
-    # Set HOME to temp directory
-    monkeypatch.setenv("HOME", str(home))
+    if sys.platform == "win32":
+        # On Windows, mock LOCALAPPDATA and APPDATA for XDG functions
+        local_appdata = home / "AppData" / "Local"
+        local_appdata.mkdir(parents=True)
+        monkeypatch.setenv("LOCALAPPDATA", str(local_appdata))
+
+        appdata = home / "AppData" / "Roaming"
+        appdata.mkdir(parents=True)
+        monkeypatch.setenv("APPDATA", str(appdata))
+    else:
+        # On Unix, mock HOME
+        monkeypatch.setenv("HOME", str(home))
 
     # Clear all XDG variables to test defaults
     for var in ["XDG_CONFIG_HOME", "XDG_DATA_HOME", "XDG_CACHE_HOME", "XDG_STATE_HOME"]:
@@ -83,10 +93,15 @@ class TestConfigDir:
     """Tests for get_config_dir()."""
 
     def test_default_location(self, mock_home: Path) -> None:
-        """Should use ~/.config/mycelium by default."""
+        """Should use platform-appropriate default location."""
         config_dir = get_config_dir()
 
-        expected = mock_home / ".config" / "mycelium"
+        if sys.platform == "win32":
+            # On Windows, config goes in a subdirectory
+            expected = mock_home / "AppData" / "Local" / "mycelium" / "config"
+        else:
+            expected = mock_home / ".config" / "mycelium"
+
         assert config_dir == expected
         assert config_dir.exists()
         assert config_dir.is_dir()
@@ -103,14 +118,23 @@ class TestConfigDir:
         """Should accept custom project names."""
         config_dir = get_config_dir("custom_project")
 
-        expected = mock_home / ".config" / "custom_project"
+        if sys.platform == "win32":
+            # On Windows, config goes in a subdirectory
+            expected = mock_home / "AppData" / "Local" / "custom_project" / "config"
+        else:
+            expected = mock_home / ".config" / "custom_project"
+
         assert config_dir == expected
         assert config_dir.exists()
 
     def test_creates_parent_directories(self, mock_home: Path) -> None:
         """Should create parent directories if missing."""
-        # Remove .config directory
-        config_parent = mock_home / ".config"
+        # Remove config parent directory
+        if sys.platform == "win32":
+            config_parent = mock_home / "AppData" / "Local"
+        else:
+            config_parent = mock_home / ".config"
+
         if config_parent.exists():
             import shutil
 
@@ -121,6 +145,7 @@ class TestConfigDir:
         assert config_dir.exists()
         assert config_parent.exists()
 
+    @pytest.mark.skipif(sys.platform == "win32", reason="Unix file permissions not supported on Windows")
     def test_permissions(self, mock_home: Path) -> None:
         """Should set restrictive permissions (0700)."""
         config_dir = get_config_dir()
@@ -139,9 +164,8 @@ class TestConfigDir:
         # Should return same object (cached)
         assert dir1 is dir2
 
-    def test_not_writable_raises_error(
-        self, mock_home: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    @pytest.mark.skipif(sys.platform == "win32", reason="Unix file permissions not supported on Windows")
+    def test_not_writable_raises_error(self, mock_home: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         """Should raise error if directory is not writable."""
         config_dir = mock_home / ".config" / "mycelium"
         config_dir.mkdir(parents=True)
@@ -159,6 +183,7 @@ class TestConfigDir:
             # Cleanup: restore permissions
             config_dir.chmod(0o755)
 
+    @pytest.mark.skipif(sys.platform == "win32", reason="Unix file permissions not supported on Windows")
     def test_mkdir_oserror(self, mock_home: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         """Should raise XDGDirectoryError when mkdir fails."""
         get_config_dir.cache_clear()
@@ -169,9 +194,11 @@ class TestConfigDir:
         def mock_mkdir(*args: Any, **kwargs: Any) -> None:
             raise OSError("Mock error")
 
-        with patch.object(Path, "mkdir", mock_mkdir):
-            with pytest.raises(XDGDirectoryError, match="Failed to create config directory"):
-                get_config_dir()
+        with (
+            patch.object(Path, "mkdir", mock_mkdir),
+            pytest.raises(XDGDirectoryError, match="Failed to create config directory"),
+        ):
+            get_config_dir()
 
         # Restore original
         Path.mkdir = original_mkdir
@@ -181,10 +208,15 @@ class TestDataDir:
     """Tests for get_data_dir()."""
 
     def test_default_location(self, mock_home: Path) -> None:
-        """Should use ~/.local/share/mycelium by default."""
+        """Should use platform-appropriate default location."""
         data_dir = get_data_dir()
 
-        expected = mock_home / ".local" / "share" / "mycelium"
+        if sys.platform == "win32":
+            # On Windows, data goes in a subdirectory
+            expected = mock_home / "AppData" / "Local" / "mycelium" / "data"
+        else:
+            expected = mock_home / ".local" / "share" / "mycelium"
+
         assert data_dir == expected
         assert data_dir.exists()
 
@@ -199,9 +231,15 @@ class TestDataDir:
         """Should accept custom project names."""
         data_dir = get_data_dir("custom_project")
 
-        expected = mock_home / ".local" / "share" / "custom_project"
+        if sys.platform == "win32":
+            # On Windows, data goes in a subdirectory
+            expected = mock_home / "AppData" / "Local" / "custom_project" / "data"
+        else:
+            expected = mock_home / ".local" / "share" / "custom_project"
+
         assert data_dir == expected
 
+    @pytest.mark.skipif(sys.platform == "win32", reason="Unix file permissions not supported on Windows")
     def test_permissions(self, mock_home: Path) -> None:
         """Should set permissions (0755)."""
         data_dir = get_data_dir()
@@ -212,9 +250,8 @@ class TestDataDir:
         # Should be rwxr-xr-x (0755)
         assert mode == 0o755
 
-    def test_not_writable_raises_error(
-        self, mock_home: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    @pytest.mark.skipif(sys.platform == "win32", reason="Unix file permissions not supported on Windows")
+    def test_not_writable_raises_error(self, mock_home: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         """Should raise error if directory is not writable."""
         data_dir = mock_home / ".local" / "share" / "mycelium"
         data_dir.mkdir(parents=True)
@@ -228,24 +265,32 @@ class TestDataDir:
         finally:
             data_dir.chmod(0o755)
 
+    @pytest.mark.skipif(sys.platform == "win32", reason="Unix file permissions not supported on Windows")
     def test_mkdir_oserror(self, mock_home: Path) -> None:
         """Should raise XDGDirectoryError when mkdir fails."""
         get_data_dir.cache_clear()
 
         # Mock to raise OSError
-        with patch.object(Path, "mkdir", side_effect=OSError("Mock error")):
-            with pytest.raises(XDGDirectoryError, match="Failed to create data directory"):
-                get_data_dir()
+        with (
+            patch.object(Path, "mkdir", side_effect=OSError("Mock error")),
+            pytest.raises(XDGDirectoryError, match="Failed to create data directory"),
+        ):
+            get_data_dir()
 
 
 class TestCacheDir:
     """Tests for get_cache_dir()."""
 
     def test_default_location(self, mock_home: Path) -> None:
-        """Should use ~/.cache/mycelium by default."""
+        """Should use platform-appropriate default location."""
         cache_dir = get_cache_dir()
 
-        expected = mock_home / ".cache" / "mycelium"
+        if sys.platform == "win32":
+            # On Windows, cache goes in a Cache subdirectory (capital C)
+            expected = mock_home / "AppData" / "Local" / "mycelium" / "Cache"
+        else:
+            expected = mock_home / ".cache" / "mycelium"
+
         assert cache_dir == expected
         assert cache_dir.exists()
 
@@ -260,9 +305,15 @@ class TestCacheDir:
         """Should accept custom project names."""
         cache_dir = get_cache_dir("custom_project")
 
-        expected = mock_home / ".cache" / "custom_project"
+        if sys.platform == "win32":
+            # On Windows, cache goes in a Cache subdirectory (capital C)
+            expected = mock_home / "AppData" / "Local" / "custom_project" / "Cache"
+        else:
+            expected = mock_home / ".cache" / "custom_project"
+
         assert cache_dir == expected
 
+    @pytest.mark.skipif(sys.platform == "win32", reason="Unix file permissions not supported on Windows")
     def test_permissions(self, mock_home: Path) -> None:
         """Should set permissions (0755)."""
         cache_dir = get_cache_dir()
@@ -273,9 +324,8 @@ class TestCacheDir:
         # Should be rwxr-xr-x (0755)
         assert mode == 0o755
 
-    def test_not_writable_raises_error(
-        self, mock_home: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    @pytest.mark.skipif(sys.platform == "win32", reason="Unix file permissions not supported on Windows")
+    def test_not_writable_raises_error(self, mock_home: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         """Should raise error if directory is not writable."""
         cache_dir = mock_home / ".cache" / "mycelium"
         cache_dir.mkdir(parents=True)
@@ -289,24 +339,32 @@ class TestCacheDir:
         finally:
             cache_dir.chmod(0o755)
 
+    @pytest.mark.skipif(sys.platform == "win32", reason="Unix file permissions not supported on Windows")
     def test_mkdir_oserror(self, mock_home: Path) -> None:
         """Should raise XDGDirectoryError when mkdir fails."""
         get_cache_dir.cache_clear()
 
         # Mock to raise OSError
-        with patch.object(Path, "mkdir", side_effect=OSError("Mock error")):
-            with pytest.raises(XDGDirectoryError, match="Failed to create cache directory"):
-                get_cache_dir()
+        with (
+            patch.object(Path, "mkdir", side_effect=OSError("Mock error")),
+            pytest.raises(XDGDirectoryError, match="Failed to create cache directory"),
+        ):
+            get_cache_dir()
 
 
 class TestStateDir:
     """Tests for get_state_dir()."""
 
     def test_default_location(self, mock_home: Path) -> None:
-        """Should use ~/.local/state/mycelium by default."""
+        """Should use platform-appropriate default location."""
         state_dir = get_state_dir()
 
-        expected = mock_home / ".local" / "state" / "mycelium"
+        if sys.platform == "win32":
+            # On Windows, state goes in a subdirectory
+            expected = mock_home / "AppData" / "Local" / "mycelium" / "state"
+        else:
+            expected = mock_home / ".local" / "state" / "mycelium"
+
         assert state_dir == expected
         assert state_dir.exists()
 
@@ -321,9 +379,15 @@ class TestStateDir:
         """Should accept custom project names."""
         state_dir = get_state_dir("custom_project")
 
-        expected = mock_home / ".local" / "state" / "custom_project"
+        if sys.platform == "win32":
+            # On Windows, state goes in a subdirectory
+            expected = mock_home / "AppData" / "Local" / "custom_project" / "state"
+        else:
+            expected = mock_home / ".local" / "state" / "custom_project"
+
         assert state_dir == expected
 
+    @pytest.mark.skipif(sys.platform == "win32", reason="Unix file permissions not supported on Windows")
     def test_permissions(self, mock_home: Path) -> None:
         """Should set restrictive permissions (0700)."""
         state_dir = get_state_dir()
@@ -334,9 +398,8 @@ class TestStateDir:
         # Should be rwx------ (0700)
         assert mode == 0o700
 
-    def test_not_writable_raises_error(
-        self, mock_home: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    @pytest.mark.skipif(sys.platform == "win32", reason="Unix file permissions not supported on Windows")
+    def test_not_writable_raises_error(self, mock_home: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         """Should raise error if directory is not writable."""
         state_dir = mock_home / ".local" / "state" / "mycelium"
         state_dir.mkdir(parents=True)
@@ -350,14 +413,17 @@ class TestStateDir:
         finally:
             state_dir.chmod(0o755)
 
+    @pytest.mark.skipif(sys.platform == "win32", reason="Unix file permissions not supported on Windows")
     def test_mkdir_oserror(self, mock_home: Path) -> None:
         """Should raise XDGDirectoryError when mkdir fails."""
         get_state_dir.cache_clear()
 
         # Mock to raise OSError
-        with patch.object(Path, "mkdir", side_effect=OSError("Mock error")):
-            with pytest.raises(XDGDirectoryError, match="Failed to create state directory"):
-                get_state_dir()
+        with (
+            patch.object(Path, "mkdir", side_effect=OSError("Mock error")),
+            pytest.raises(XDGDirectoryError, match="Failed to create state directory"),
+        ):
+            get_state_dir()
 
 
 class TestClearCache:
@@ -406,9 +472,11 @@ class TestClearCache:
         (cache_dir / "file.txt").write_text("data")
 
         # Mock unlink to raise OSError
-        with patch.object(Path, "unlink", side_effect=OSError("Mock error")):
-            with pytest.raises(XDGDirectoryError, match="Failed to clear cache directory"):
-                clear_cache()
+        with (
+            patch.object(Path, "unlink", side_effect=OSError("Mock error")),
+            pytest.raises(XDGDirectoryError, match="Failed to clear cache directory"),
+        ):
+            clear_cache()
 
     def test_clears_files_and_directories(self, mock_home: Path) -> None:
         """Should handle both files and directories."""
@@ -449,6 +517,7 @@ class TestGetAllDirs:
 
         assert all("custom" in str(p) for p in dirs.values())
 
+    @pytest.mark.skipif(sys.platform == "win32", reason="Unix file permissions not supported on Windows")
     def test_all_directories_writable(self, mock_home: Path) -> None:
         """Should ensure all directories are writable."""
         dirs = get_all_dirs()
@@ -460,9 +529,8 @@ class TestGetAllDirs:
 class TestErrorHandling:
     """Tests for error handling."""
 
-    def test_raises_on_permission_denied(
-        self, mock_home: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
+    @pytest.mark.skipif(sys.platform == "win32", reason="Unix file permissions not supported on Windows")
+    def test_raises_on_permission_denied(self, mock_home: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         """Should raise XDGDirectoryError on permission issues."""
         # Create a read-only parent directory
         readonly_dir = mock_home / "readonly"
@@ -479,6 +547,7 @@ class TestErrorHandling:
             # Cleanup
             readonly_dir.chmod(0o755)
 
+    @pytest.mark.skipif(sys.platform == "win32", reason="Unix file permissions not supported on Windows")
     def test_error_message_is_informative(self, mock_home: Path) -> None:
         """Should provide clear error messages."""
         config_dir = mock_home / ".config" / "mycelium"
@@ -582,6 +651,12 @@ class TestIntegration:
         """Should support full workflow of directory operations."""
         # Get all directories
         dirs = get_all_dirs()
+
+        # On Windows, directories should be separate subdirectories
+        # On Unix, they're in different parent paths
+        # All should be unique paths
+        unique_paths = {str(p) for p in dirs.values()}
+        assert len(unique_paths) == 4, f"Expected 4 unique paths, got: {unique_paths}"
 
         # Create files in each directory
         (dirs["config"] / "config.yaml").write_text("key: value")

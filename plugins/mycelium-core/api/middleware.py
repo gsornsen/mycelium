@@ -2,7 +2,8 @@
 
 import time
 from collections import defaultdict
-from typing import Callable, Dict, Tuple
+from collections.abc import Callable
+from typing import Any
 
 from fastapi import Request, Response
 from fastapi.responses import JSONResponse
@@ -17,7 +18,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 
     def __init__(
         self,
-        app,
+        app: Any,
         requests_per_minute: int = 100,
         burst_size: int = 10,
     ):
@@ -34,9 +35,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         self.rate_per_second = requests_per_minute / 60.0
 
         # Store token buckets per IP: {ip: (tokens, last_update_time)}
-        self._buckets: Dict[str, Tuple[float, float]] = defaultdict(
-            lambda: (float(burst_size), time.time())
-        )
+        self._buckets: dict[str, tuple[float, float]] = defaultdict(lambda: (float(burst_size), time.time()))
 
         # Cleanup old entries periodically
         self._last_cleanup = time.time()
@@ -75,17 +74,14 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
             # Remove buckets not updated in last 10 minutes
             cutoff_time = current_time - 600
 
-            old_ips = [
-                ip for ip, (_, last_update) in self._buckets.items()
-                if last_update < cutoff_time
-            ]
+            old_ips = [ip for ip, (_, last_update) in self._buckets.items() if last_update < cutoff_time]
 
             for ip in old_ips:
                 del self._buckets[ip]
 
             self._last_cleanup = current_time
 
-    def _check_rate_limit(self, client_ip: str) -> Tuple[bool, Dict[str, str]]:
+    def _check_rate_limit(self, client_ip: str) -> tuple[bool, dict[str, str]]:
         """Check if request should be rate limited.
 
         Args:
@@ -101,10 +97,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 
         # Add tokens based on time passed
         time_passed = current_time - last_update
-        tokens = min(
-            self.burst_size,
-            tokens + (time_passed * self.rate_per_second)
-        )
+        tokens = min(self.burst_size, tokens + (time_passed * self.rate_per_second))
 
         # Check if we have tokens available
         if tokens >= 1.0:
@@ -133,7 +126,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 
         return allowed, headers
 
-    async def dispatch(self, request: Request, call_next: Callable) -> Response:
+    async def dispatch(self, request: Request, call_next: Callable[..., Any]) -> Response:
         """Process request with rate limiting.
 
         Args:
@@ -168,7 +161,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
             )
 
         # Process request
-        response = await call_next(request)
+        response: Response = await call_next(request)
 
         # Add rate limit headers to response
         for key, value in headers.items():
@@ -180,7 +173,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 class RequestValidationMiddleware(BaseHTTPMiddleware):
     """Middleware for additional request validation and security."""
 
-    async def dispatch(self, request: Request, call_next: Callable) -> Response:
+    async def dispatch(self, request: Request, call_next: Callable[..., Any]) -> Response:
         """Process request with validation.
 
         Args:
@@ -208,7 +201,7 @@ class RequestValidationMiddleware(BaseHTTPMiddleware):
         request.state.request_id = f"{int(time.time() * 1000)}-{id(request)}"
 
         # Process request
-        response = await call_next(request)
+        response: Response = await call_next(request)
 
         # Add request ID to response
         response.headers["X-Request-ID"] = request.state.request_id
@@ -219,7 +212,7 @@ class RequestValidationMiddleware(BaseHTTPMiddleware):
 class PerformanceMonitoringMiddleware(BaseHTTPMiddleware):
     """Middleware for monitoring request performance."""
 
-    async def dispatch(self, request: Request, call_next: Callable) -> Response:
+    async def dispatch(self, request: Request, call_next: Callable[..., Any]) -> Response:
         """Process request with timing.
 
         Args:
@@ -232,7 +225,7 @@ class PerformanceMonitoringMiddleware(BaseHTTPMiddleware):
         start_time = time.time()
 
         # Process request
-        response = await call_next(request)
+        response: Response = await call_next(request)
 
         # Calculate processing time
         processing_time = (time.time() - start_time) * 1000  # Convert to ms

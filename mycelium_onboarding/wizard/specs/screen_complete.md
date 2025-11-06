@@ -1,9 +1,11 @@
 # Complete Screen Specification
 
 ## Purpose
+
 Show success message, generated files, and next steps after configuration is complete.
 
 ## Layout
+
 ```
 ╔══════════════════════════════════════════════════════════════╗
 ║                    🎉 Setup Complete! 🎉                     ║
@@ -81,37 +83,45 @@ Press Enter to exit...
 ## Display Sections
 
 ### Success Banner
+
 - Celebratory message with emojis
 - Confirmation that setup is complete
 - Welcoming tone
 
 ### Generated Files
+
 - List of all files created during wizard
 - Full paths to each file
 - Checkmarks to indicate success
 - File descriptions
 
 ### Next Steps
+
 Numbered list of immediate actions:
+
 1. Start services (deployment-specific command)
-2. Verify services are running
-3. Check service health
-4. View logs
-5. Read documentation
+1. Verify services are running
+1. Check service health
+1. View logs
+1. Read documentation
 
 ### Useful Commands
+
 Common commands the user will need:
+
 - Configuration management
 - Service management
 - Getting help
 - Re-running wizard
 
 ### Service URLs
+
 - Connection URLs for each enabled service
 - Web UI URLs where applicable
 - Ready to copy-paste
 
 ### Support Links
+
 - Documentation URL
 - GitHub repository
 - Issue tracker
@@ -120,6 +130,7 @@ Common commands the user will need:
 ## Deployment-Specific Next Steps
 
 ### Docker Compose
+
 ```
 Next Steps
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -138,6 +149,7 @@ Next Steps
 ```
 
 ### Kubernetes
+
 ```
 Next Steps
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -156,6 +168,7 @@ Next Steps
 ```
 
 ### systemd
+
 ```
 Next Steps
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -175,6 +188,7 @@ Next Steps
 ```
 
 ### Manual
+
 ```
 Next Steps
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -219,6 +233,7 @@ Waiting for health checks...
 ## Error Handling
 
 ### File Generation Errors
+
 ```
 ⚠️  Warning: Some files could not be created
 
@@ -230,6 +245,7 @@ Waiting for health checks...
 ```
 
 ### Auto-Start Errors
+
 ```
 ⚠️  Warning: Some services failed to start
 
@@ -245,6 +261,7 @@ Waiting for health checks...
 ## State Updates
 
 On this screen:
+
 - Set `completed` = True
 - Set `current_step` = COMPLETE
 - Save final state to disk (if save feature enabled)
@@ -252,12 +269,15 @@ On this screen:
 ## User Actions
 
 ### Exit
+
 - Press Enter to exit
 - No further navigation available
 - Wizard session ends
 
 ### Optional Actions
+
 If enabled in implementation:
+
 - View generated files
 - Start services now
 - Open documentation
@@ -477,10 +497,10 @@ def start_services_if_enabled(state: WizardState) -> dict[str, bool]:
 This screen provides closure and guidance:
 
 1. **Celebration**: Success message provides positive reinforcement
-2. **Transparency**: Shows exactly what was created
-3. **Actionable**: Provides concrete next steps
-4. **Educational**: Commands teach how to use the system
-5. **Support**: Easy access to help resources
-6. **Deployment-Aware**: Instructions match chosen method
-7. **URLs Ready**: Connection strings ready to use
-8. **Reference**: Can be used as future reference guide
+1. **Transparency**: Shows exactly what was created
+1. **Actionable**: Provides concrete next steps
+1. **Educational**: Commands teach how to use the system
+1. **Support**: Easy access to help resources
+1. **Deployment-Aware**: Instructions match chosen method
+1. **URLs Ready**: Connection strings ready to use
+1. **Reference**: Can be used as future reference guide

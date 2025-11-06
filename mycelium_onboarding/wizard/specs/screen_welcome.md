@@ -1,9 +1,11 @@
 # Welcome Screen Specification
 
 ## Purpose
+
 Introduce Mycelium, explain what the wizard does, and offer quick/custom setup options.
 
 ## Layout
+
 ```
 ╔══════════════════════════════════════════════════════════════╗
 ║                   Welcome to Mycelium! 🍄                    ║
@@ -30,6 +32,7 @@ Introduce Mycelium, explain what the wizard does, and offer quick/custom setup o
 ## User Inputs
 
 ### Setup Mode Selection
+
 - **Field**: `setup_mode`
 - **Type**: Single selection (radio)
 - **Options**:
@@ -42,18 +45,21 @@ Introduce Mycelium, explain what the wizard does, and offer quick/custom setup o
 ## Validation
 
 ### Setup Mode
+
 - Must select one option
 - If `exit` is selected, confirm with user before exiting
 
 ## Help Text
 
 ### Quick Setup
+
 ```
 Quick Setup uses smart defaults and skips advanced configuration.
 Perfect for getting started quickly. You can always reconfigure later.
 ```
 
 ### Custom Setup
+
 ```
 Custom Setup gives you full control over all configuration options,
 including service-specific settings, ports, and advanced features.
@@ -66,6 +72,7 @@ No validation errors expected on this screen.
 ## Exit Confirmation
 
 If user selects "Exit wizard":
+
 ```
 ? Are you sure you want to exit the wizard?
   > No, go back
@@ -75,6 +82,7 @@ If user selects "Exit wizard":
 ## State Updates
 
 On completion of this screen, update `WizardState`:
+
 - `setup_mode`: Set to "quick" or "custom" based on user selection
 - `current_step`: Advance to DETECTION
 
@@ -165,8 +173,8 @@ def welcome_screen(state: WizardState) -> str:
 This screen serves as the entry point and sets user expectations:
 
 1. **Clear Branding**: Mycelium name and mushroom emoji create memorable identity
-2. **Value Proposition**: Bullet points explain what the wizard does
-3. **Time Estimate**: Sets realistic expectations (2-5 minutes)
-4. **Choice Architecture**: Quick Setup as default reduces cognitive load
-5. **Safe Exit**: Confirmation prevents accidental exits
-6. **Inclusive Design**: Accessible to screen readers and keyboard-only users
+1. **Value Proposition**: Bullet points explain what the wizard does
+1. **Time Estimate**: Sets realistic expectations (2-5 minutes)
+1. **Choice Architecture**: Quick Setup as default reduces cognitive load
+1. **Safe Exit**: Confirmation prevents accidental exits
+1. **Inclusive Design**: Accessible to screen readers and keyboard-only users

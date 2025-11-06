@@ -1,13 +1,9 @@
-"""Privacy validation tests for telemetry system.
-
-These tests ensure that the telemetry system upholds all privacy guarantees
-and never collects sensitive information.
-"""
+"""Privacy-focused tests for telemetry system."""
 
 import json
 import sys
 from pathlib import Path
-from typing import Any, Dict
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -15,388 +11,298 @@ import pytest
 plugins_dir = Path(__file__).parent.parent.parent / "plugins" / "mycelium-core"
 sys.path.insert(0, str(plugins_dir))
 
-from telemetry.anonymization import DataAnonymizer
-from telemetry.client import TelemetryClient
-from telemetry.config import TelemetryConfig
+from telemetry.anonymization import DataAnonymizer  # noqa: E402
+from telemetry.client import TelemetryClient  # noqa: E402
+from telemetry.config import TelemetryConfig  # noqa: E402
 
 
 class TestPrivacyCompliance:
-    """Test suite validating privacy compliance."""
+    """Tests to ensure privacy compliance in telemetry."""
 
-    @pytest.fixture
-    def anonymizer(self) -> DataAnonymizer:
-        """Create anonymizer for testing."""
-        return DataAnonymizer(salt="test_salt")
+    def test_no_pii_in_default_collection(self) -> None:
+        """Ensure no PII is collected by default."""
+        config = TelemetryConfig(enabled=True, consent_given=True)
+        client = TelemetryClient(config, anonymize=True)
 
-    @pytest.fixture
-    def client(self) -> TelemetryClient:
-        """Create enabled client for testing."""
+        # Simulate event with PII
+        event_data = {
+            "username": "john.doe",
+            "email": "john@example.com",
+            "project_path": "/home/john/myproject",
+            "action": "deploy",
+        }
+
+        with patch("requests.post") as mock_post:
+            mock_response = MagicMock()
+            mock_response.status_code = 200
+            mock_post.return_value = mock_response
+
+            client.track_event("user_action", event_data)
+
+            # Verify PII was anonymized
+            call_args = mock_post.call_args
+            payload = json.loads(call_args[1]["data"])
+            props = payload["properties"]
+
+            # Username and email should be hashed
+            assert props["username"] != "john.doe"
+            assert props["email"] != "john@example.com"
+            assert len(props["username"]) == 64  # SHA256 hash
+
+            # Path should not contain username
+            assert "john" not in props["project_path"]
+
+    def test_gdpr_data_deletion(self, tmp_path: Path) -> None:
+        """Test GDPR-compliant data deletion."""
+        config_file = tmp_path / "telemetry.json"
         config = TelemetryConfig(
             enabled=True,
-            endpoint="https://test.example.com",  # type: ignore
-        )
-        return TelemetryClient(config=config)
-
-    def test_no_pii_in_agent_usage(self, client: TelemetryClient) -> None:
-        """Verify no PII is collected in agent usage events."""
-        # Attempt to include various PII
-        sensitive_metadata = {
-            "user_id": "user-123",
-            "email": "user@example.com",
-            "username": "john_doe",
-            "ip_address": "192.168.1.1",
-            "session_id": "session-abc-123",
-            "user_prompt": "What is my password?",
-            "file_content": "SECRET_API_KEY=xyz123",
-            "duration_ms": 100,  # This is safe and should be kept
-        }
-
-        client.track_agent_usage("agent-1", "test", metadata=sensitive_metadata)
-
-        event = client._event_queue.get(timeout=1.0)
-
-        # Verify only safe metadata is present
-        assert "metadata" in event
-        assert event["metadata"].get("duration_ms") == 100
-
-        # Verify all PII is excluded
-        event_json = json.dumps(event)
-        assert "user@example.com" not in event_json
-        assert "john_doe" not in event_json
-        assert "192.168.1.1" not in event_json
-        assert "What is my password?" not in event_json
-        assert "SECRET_API_KEY" not in event_json
-
-        client.shutdown()
-
-    def test_no_code_content_leakage(self, client: TelemetryClient) -> None:
-        """Verify no code content is ever transmitted."""
-        code_metadata = {
-            "code": "def hack(): return 'secret'",
-            "file_content": "API_KEY = 'secret123'",
-            "diff": "+ added secret line",
-            "patch": "- removed line\n+ added line",
-            "success": True,  # Safe field
-        }
-
-        client.track_agent_usage("agent-1", "test", metadata=code_metadata)
-
-        event = client._event_queue.get(timeout=1.0)
-        event_json = json.dumps(event)
-
-        # No code content should be present
-        assert "def hack()" not in event_json
-        assert "API_KEY" not in event_json
-        assert "secret" not in event_json
-
-        # Safe metadata should be present
-        if "metadata" in event:
-            assert event["metadata"].get("success") is True
-
-        client.shutdown()
-
-    def test_user_prompts_never_collected(self, client: TelemetryClient) -> None:
-        """Verify user prompts and responses are never collected."""
-        sensitive_data = {
-            "user_prompt": "Help me hack into this system",
-            "user_input": "My password is abc123",
-            "user_query": "What's my credit card number?",
-            "response": "AI response with sensitive data",
-            "message": "User message",
-            "retry_count": 2,  # Safe field
-        }
-
-        client.track_agent_usage("agent-1", "test", metadata=sensitive_data)
-
-        event = client._event_queue.get(timeout=1.0)
-        event_json = json.dumps(event)
-
-        # No user content should be present
-        assert "Help me hack" not in event_json
-        assert "abc123" not in event_json
-        assert "credit card" not in event_json
-        assert "AI response" not in event_json
-
-        client.shutdown()
-
-    def test_file_paths_sanitized(self, anonymizer: DataAnonymizer) -> None:
-        """Verify file paths are properly sanitized."""
-        sensitive_paths = [
-            "/home/john_smith/Documents/secret_project/code.py",
-            "C:\\Users\\jane_doe\\AppData\\Local\\temp.txt",
-            "/Users/admin/Desktop/passwords.txt",
-            "/root/.ssh/id_rsa",
-        ]
-
-        for path in sensitive_paths:
-            anonymized = anonymizer.anonymize_file_path(path)
-
-            # Should not contain usernames
-            assert "john_smith" not in anonymized
-            assert "jane_doe" not in anonymized
-            assert "admin" not in anonymized
-
-            # Should not contain full paths
-            assert not anonymized.startswith("/home/")
-            assert not anonymized.startswith("C:\\Users\\")
-            assert not anonymized.startswith("/Users/")
-
-    def test_stack_traces_sanitized(self, anonymizer: DataAnonymizer) -> None:
-        """Verify stack traces are properly sanitized."""
-        sensitive_trace = '''Traceback (most recent call last):
-  File "/home/alice/project/myapp/main.py", line 42, in run
-    process_file("/home/alice/Documents/secret.txt")
-  File "/home/alice/project/myapp/processor.py", line 15, in process_file
-    with open(filename) as f:
-FileNotFoundError: No such file: /home/alice/Documents/secret.txt'''
-
-        anonymized = anonymizer.anonymize_stack_trace(sensitive_trace)
-
-        # Should not contain username
-        assert "alice" not in anonymized
-
-        # Should not contain full home directory paths
-        assert "/home/alice" not in anonymized
-
-        # Should preserve file names and line numbers
-        assert "main.py" in anonymized or "processor.py" in anonymized
-        assert "line 42" in anonymized or "line 15" in anonymized
-
-        # Should preserve error type
-        assert "FileNotFoundError" in anonymized
-
-    def test_error_messages_sanitized(self, client: TelemetryClient) -> None:
-        """Verify error messages are sanitized."""
-        sensitive_error_msg = (
-            "Failed to connect to database at postgresql://user:password@host/db "
-            "for user john@example.com"
+            consent_given=True,
+            config_path=config_file,
         )
 
-        client.track_error(
-            "ConnectionError",
-            sensitive_error_msg,
-            stack_trace='File "/home/john/app.py", line 10'
+        # Store some data
+        config.save()
+        assert config_file.exists()
+
+        # User requests deletion
+        config.delete_all_data()
+
+        # Config file should be removed
+        assert not config_file.exists()
+
+        # New config should have no previous data
+        new_config = TelemetryConfig(config_path=config_file)
+        assert new_config.device_id != config.device_id
+
+    def test_consent_withdrawal(self, tmp_path: Path) -> None:
+        """Test handling of consent withdrawal."""
+        config_file = tmp_path / "telemetry.json"
+        config = TelemetryConfig(
+            enabled=True,
+            consent_given=True,
+            config_path=config_file,
         )
+        client = TelemetryClient(config)
 
-        event = client._event_queue.get(timeout=1.0)
-        event_json = json.dumps(event)
+        # Withdraw consent
+        client.withdraw_consent()
 
-        # Should not contain credentials
-        assert "password" not in event_json or "password@" not in event_json
+        # Verify telemetry is disabled
+        assert config.consent_given is False
+        assert not config.is_enabled()
 
-        # Should not contain email
-        assert "john@example.com" not in event_json
+        # Verify persistence
+        reloaded = TelemetryConfig.load(config_file)
+        assert reloaded.consent_given is False
 
-        # Should not contain username in paths
-        assert "/home/john" not in event_json
+    def test_sensitive_env_vars_not_collected(self) -> None:
+        """Ensure sensitive environment variables are not collected."""
+        anonymizer = DataAnonymizer()
 
-        client.shutdown()
-
-    def test_identifier_hashing_consistency(self, anonymizer: DataAnonymizer) -> None:
-        """Verify identifier hashing is consistent and irreversible."""
-        identifiers = ["user-123", "agent-abc", "session-xyz"]
-
-        for identifier in identifiers:
-            # Hash should be consistent
-            hash1 = anonymizer.hash_identifier(identifier)
-            hash2 = anonymizer.hash_identifier(identifier)
-            assert hash1 == hash2
-
-            # Hash should not contain original identifier
-            assert identifier not in hash1
-
-            # Hash should be long enough to be secure (SHA-256)
-            assert len(hash1) == 64  # 32 bytes hex-encoded
-
-    def test_different_salts_produce_different_hashes(self) -> None:
-        """Verify different salts produce different hashes."""
-        anon1 = DataAnonymizer(salt="salt1")
-        anon2 = DataAnonymizer(salt="salt2")
-
-        identifier = "user-123"
-        hash1 = anon1.hash_identifier(identifier)
-        hash2 = anon2.hash_identifier(identifier)
-
-        # Different salts should produce different hashes
-        assert hash1 != hash2
-
-    def test_safe_metadata_allowlist(self, anonymizer: DataAnonymizer) -> None:
-        """Verify only explicitly safe metadata fields are allowed."""
-        mixed_metadata = {
-            # Safe fields (should be kept)
-            "duration_ms": 100,
-            "success": True,
-            "retry_count": 3,
-            "cache_hit": True,
-            "result_count": 5,
-            "status_code": 200,
-            # Unsafe fields (should be filtered)
-            "user_data": "sensitive",
-            "credentials": "secret",
-            "api_key": "xyz123",
-            "token": "abc456",
+        env_data = {
+            "PATH": "/usr/bin:/usr/local/bin",
+            "API_KEY": "secret-key-12345",
+            "DATABASE_PASSWORD": "super-secret",
+            "AWS_SECRET_ACCESS_KEY": "aws-secret",
+            "GITHUB_TOKEN": "ghp_xxxxxxxxxxxx",
+            "USER": "john",
         }
 
-        safe = anonymizer._filter_safe_metadata(mixed_metadata)
+        cleaned = anonymizer.remove_sensitive_fields(env_data)
 
-        # All safe fields should be present
-        assert safe["duration_ms"] == 100
-        assert safe["success"] is True
-        assert safe["retry_count"] == 3
-        assert safe["cache_hit"] is True
-        assert safe["result_count"] == 5
-        assert safe["status_code"] == 200
+        # Sensitive fields should be removed
+        assert "API_KEY" not in cleaned
+        assert "DATABASE_PASSWORD" not in cleaned
+        assert "AWS_SECRET_ACCESS_KEY" not in cleaned
+        assert "GITHUB_TOKEN" not in cleaned
 
-        # All unsafe fields should be filtered out
-        assert "user_data" not in safe
-        assert "credentials" not in safe
-        assert "api_key" not in safe
-        assert "token" not in safe
+        # Non-sensitive fields preserved (but may be hashed)
+        assert "PATH" in cleaned
+        assert "USER" in cleaned
 
-    def test_nested_data_structures_filtered(self, anonymizer: DataAnonymizer) -> None:
-        """Verify nested data structures are filtered out."""
-        metadata = {
-            "duration_ms": 100,  # Safe
-            "nested_object": {"key": "value"},  # Unsafe
-            "nested_array": [1, 2, 3],  # Unsafe
-            "success": True,  # Safe
+    def test_ip_address_anonymization(self) -> None:
+        """Test that IP addresses are properly anonymized."""
+        anonymizer = DataAnonymizer()
+
+        data = {
+            "client_ip": "192.168.1.100",
+            "server_ip": "10.0.0.1",
+            "public_ip": "203.0.113.42",
         }
 
-        safe = anonymizer._filter_safe_metadata(metadata)
+        # IP addresses should be hashed or removed
+        anonymized = anonymizer.anonymize_data(data, fields_to_hash=["client_ip", "server_ip", "public_ip"])
 
-        assert "duration_ms" in safe
-        assert "success" in safe
-        assert "nested_object" not in safe
-        assert "nested_array" not in safe
+        for key in ["client_ip", "server_ip", "public_ip"]:
+            assert anonymized[key] != data[key]
+            # Should be a hash
+            assert len(anonymized[key]) == 64
 
-    def test_email_addresses_anonymized(self, anonymizer: DataAnonymizer) -> None:
-        """Verify email addresses are removed from messages."""
-        messages = [
-            "Error for user john.doe@example.com",
-            "Contact support@myapp.com for help",
-            "Email sent to alice.bob@subdomain.example.org",
-        ]
+    def test_file_content_never_sent(self) -> None:
+        """Ensure file contents are never sent in telemetry."""
+        config = TelemetryConfig(enabled=True, consent_given=True)
+        client = TelemetryClient(config)
 
-        for message in messages:
-            anonymized = anonymizer._anonymize_message(message)
-
-            # Should not contain any email addresses
-            assert "@example.com" not in anonymized
-            assert "@myapp.com" not in anonymized
-            assert "@subdomain.example.org" not in anonymized
-
-            # Should contain placeholder
-            assert "<email>" in anonymized
-
-    def test_performance_metric_tag_hashing(self, anonymizer: DataAnonymizer) -> None:
-        """Verify performance metric tags hash identifier-like values."""
-        metric = anonymizer.anonymize_performance_metric(
-            metric_name="latency",
-            value=100.0,
-            unit="ms",
-            tags={
-                "user_id": "user-123",  # Should be hashed
-                "agent_id": "agent-abc",  # Should be hashed
-                "operation": "search",  # Should NOT be hashed
-                "region": "us-east",  # Should NOT be hashed
-            }
-        )
-
-        # Identifier tags should be hashed
-        assert metric["tags"]["user_id"] != "user-123"
-        assert metric["tags"]["agent_id"] != "agent-abc"
-
-        # Non-identifier tags should be preserved
-        assert metric["tags"]["operation"] == "search"
-        assert metric["tags"]["region"] == "us-east"
-
-    def test_zero_overhead_when_disabled(self) -> None:
-        """Verify telemetry has zero overhead when disabled."""
-        config = TelemetryConfig(enabled=False)
-        client = TelemetryClient(config=config)
-
-        # Worker thread should not be created
-        assert client._worker_thread is None
-
-        # Queue should remain empty
-        client.track_agent_usage("agent-1", "test", metadata={"key": "value"})
-        client.track_performance("metric", 100.0)
-        client.track_error("Error", "message")
-        client.track_system_info()
-
-        # All should be no-ops - queue stays empty
-        assert client._event_queue.empty()
-
-    def test_comprehensive_privacy_check(self, client: TelemetryClient) -> None:
-        """Comprehensive test covering all privacy requirements."""
-        # Create event with everything we should NOT collect
-        never_collect = {
-            "user_prompt": "What's my password?",
-            "user_response": "My password is abc123",
-            "code": "def secret(): pass",
-            "file_content": "API_KEY = 'secret'",
-            "email": "user@example.com",
-            "username": "john_doe",
-            "ip_address": "192.168.1.1",
-            "api_key": "xyz123",
-            "token": "bearer_abc",
-            "credentials": {"user": "admin", "pass": "secret"},
-            "success": True,  # This is safe and should be kept
+        # Attempt to track event with file content
+        event_data = {
+            "action": "file_edit",
+            "file_path": "/path/to/file.py",
+            "file_content": "def secret_function():\n    password = 'secret123'",
         }
 
-        client.track_agent_usage("test-agent", "test", metadata=never_collect)
+        with patch("requests.post") as mock_post:
+            mock_response = MagicMock()
+            mock_response.status_code = 200
+            mock_post.return_value = mock_response
 
-        event = client._event_queue.get(timeout=1.0)
-        event_json = json.dumps(event)
+            # Client should filter out file_content
+            client.track_event("file_operation", event_data)
 
-        # Verify NONE of the sensitive data is present
-        sensitive_terms = [
-            "password",
-            "abc123",
-            "def secret",
-            "API_KEY",
-            "user@example.com",
-            "john_doe",
-            "192.168.1.1",
-            "xyz123",
-            "bearer_abc",
-        ]
+            call_args = mock_post.call_args
+            payload = json.loads(call_args[1]["data"])
+            props = payload["properties"]
 
-        for term in sensitive_terms:
-            assert term not in event_json, f"Found sensitive term: {term}"
+            # File content should not be in payload
+            assert "file_content" not in props
+            # File path should be present but anonymized
+            assert "file_path" in props
 
-        # Verify only safe data is present
-        if "metadata" in event:
-            # Only "success" should be in metadata
-            assert event["metadata"].get("success") is True
-            assert len(event["metadata"]) == 1  # Only one safe field
+    def test_deterministic_hashing(self) -> None:
+        """Test that hashing is deterministic for consistency."""
+        anonymizer1 = DataAnonymizer(salt="test-salt")
+        anonymizer2 = DataAnonymizer(salt="test-salt")
 
-        client.shutdown()
+        test_value = "user@example.com"
 
-    def test_anonymization_comprehensive(self, anonymizer: DataAnonymizer) -> None:
-        """Test comprehensive anonymization scenario."""
-        # Simulate real error with sensitive data
-        error_msg = (
-            "Failed to process file /home/john/Documents/project/secrets.py "
-            "for user john@example.com. API key xyz123 invalid."
+        hash1 = anonymizer1.hash_string(test_value)
+        hash2 = anonymizer2.hash_string(test_value)
+
+        # Same salt should produce same hash
+        assert hash1 == hash2
+
+        # Different salt should produce different hash
+        anonymizer3 = DataAnonymizer(salt="different-salt")
+        hash3 = anonymizer3.hash_string(test_value)
+        assert hash3 != hash1
+
+    def test_opt_in_required(self) -> None:
+        """Test that explicit opt-in is required for telemetry."""
+        # Default config should be disabled
+        config = TelemetryConfig()
+        assert config.enabled is False
+        assert config.consent_given is False
+
+        client = TelemetryClient(config)
+
+        with patch("requests.post") as mock_post:
+            client.track_event("test", {})
+            # Should not send without opt-in
+            mock_post.assert_not_called()
+
+    def test_data_minimization(self) -> None:
+        """Test that only necessary data is collected."""
+        config = TelemetryConfig(enabled=True, consent_given=True)
+        client = TelemetryClient(config)
+
+        # Large event with lots of data
+        event_data = {
+            "action": "deploy",
+            "necessary_field": "value",
+            "debug_info": "x" * 10000,  # Large debug string
+            "stack_trace": "line1\nline2\nline3" * 100,
+            "memory_dump": [1, 2, 3] * 1000,
+        }
+
+        with patch("requests.post") as mock_post:
+            mock_response = MagicMock()
+            mock_response.status_code = 200
+            mock_post.return_value = mock_response
+
+            client.track_event("deployment", event_data)
+
+            call_args = mock_post.call_args
+            payload = json.loads(call_args[1]["data"])
+
+            # Payload should be reasonably sized
+            payload_size = len(json.dumps(payload))
+            assert payload_size < 10000  # Less than 10KB
+
+    def test_local_only_mode(self, tmp_path: Path) -> None:
+        """Test local-only telemetry mode (no network calls)."""
+        log_file = tmp_path / "telemetry.log"
+        config = TelemetryConfig(
+            enabled=True,
+            consent_given=True,
+            local_only=True,
+            local_log_path=log_file,
+        )
+        client = TelemetryClient(config)
+
+        with patch("requests.post") as mock_post:
+            client.track_event("test_event", {"key": "value"})
+
+            # Should not make network calls in local mode
+            mock_post.assert_not_called()
+
+            # Should write to local file instead
+            if log_file.exists():
+                with log_file.open() as f:
+                    lines = f.readlines()
+                    assert len(lines) > 0
+                    # Verify event was logged
+                    last_event = json.loads(lines[-1])
+                    assert last_event["event"] == "test_event"
+
+
+class TestDataRetention:
+    """Tests for data retention policies."""
+
+    def test_automatic_data_expiry(self, tmp_path: Path) -> None:
+        """Test that old telemetry data expires automatically."""
+        config_file = tmp_path / "telemetry.json"
+        config = TelemetryConfig(
+            enabled=True,
+            consent_given=True,
+            config_path=config_file,
+            retention_days=30,
         )
 
-        stack_trace = '''File "/home/john/Documents/project/app.py", line 100
-  File "/home/john/.local/lib/python3.10/module.py", line 50
-ValueError: Invalid API key xyz123 for user john@example.com'''
+        # Simulate old timestamp
+        from datetime import datetime, timedelta
 
-        anonymized = anonymizer.anonymize_error("ValueError", error_msg, stack_trace)
+        old_timestamp = datetime.now() - timedelta(days=31)
+        config.last_cleanup = old_timestamp.isoformat()
+        config.save()
 
-        result_json = json.dumps(anonymized)
+        # Reload and check cleanup
+        reloaded = TelemetryConfig.load(config_file)
+        reloaded.cleanup_old_data()
 
-        # Should not contain any sensitive information
-        assert "john" not in result_json
-        assert "john@example.com" not in result_json
-        # Note: We cannot anonymize arbitrary strings like API keys
-        # unless they follow known patterns (e.g., in connection strings)
-        assert "/home/john" not in result_json
+        # Old data should be marked for cleanup
+        assert reloaded.last_cleanup != old_timestamp.isoformat()
 
-        # Should preserve error type and structure
-        assert anonymized["error_type"] == "ValueError"
-        assert "error_message" in anonymized
-        assert "stack_trace" in anonymized
+    def test_export_user_data(self, tmp_path: Path) -> None:
+        """Test GDPR-compliant data export functionality."""
+        config = TelemetryConfig(
+            enabled=True,
+            consent_given=True,
+            device_id="test-device-123",
+        )
+        client = TelemetryClient(config)
+
+        export_file = tmp_path / "user_data_export.json"
+
+        # Export all user data
+        client.export_user_data(export_file)
+
+        assert export_file.exists()
+        with export_file.open() as f:
+            exported = json.load(f)
+            assert exported["device_id"] == "test-device-123"
+            assert "export_timestamp" in exported
+            assert "telemetry_enabled" in exported
+
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

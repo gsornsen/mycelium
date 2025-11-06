@@ -6,9 +6,7 @@ ensuring data integrity throughout the onboarding process.
 
 from __future__ import annotations
 
-import pytest
-
-from mycelium_onboarding.wizard.flow import WizardState, WizardStep
+from mycelium_onboarding.wizard.flow import WizardState
 from mycelium_onboarding.wizard.validation import ValidationError, WizardValidator
 
 

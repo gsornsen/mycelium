@@ -65,6 +65,7 @@ uvicorn discovery:app --reload --host 0.0.0.0 --port 8000
 ```
 
 The API will be available at:
+
 - API: http://localhost:8000
 - Interactive docs: http://localhost:8000/api/v1/docs
 - ReDoc: http://localhost:8000/api/v1/redoc
@@ -87,6 +88,7 @@ curl http://localhost:8000/api/v1/health
 ```
 
 Response:
+
 ```json
 {
   "status": "healthy",
@@ -113,6 +115,7 @@ curl -X POST http://localhost:8000/api/v1/agents/discover \
 ```
 
 Response:
+
 ```json
 {
   "query": "python backend development",
@@ -275,6 +278,7 @@ curl -I http://localhost:8000/api/v1/health
 ```
 
 Headers include:
+
 - `X-Processing-Time-Ms`: Response time
 - `X-RateLimit-Remaining`: Rate limit status
 - `X-Request-ID`: Request tracing
@@ -374,6 +378,7 @@ POST /api/v1/agents/discover
 **Error**: `RuntimeError: Registry not initialized`
 
 **Solution**: Check database connection:
+
 ```bash
 psql $DATABASE_URL -c "SELECT 1"
 ```
@@ -383,9 +388,10 @@ psql $DATABASE_URL -c "SELECT 1"
 **Problem**: Discovery returns empty matches
 
 **Solutions**:
+
 1. Lower the confidence threshold: `"threshold": 0.5`
-2. Broaden your query: `"backend"` instead of `"backend-developer-python-async"`
-3. Verify agents are in registry:
+1. Broaden your query: `"backend"` instead of `"backend-developer-python-async"`
+1. Verify agents are in registry:
    ```bash
    curl http://localhost:8000/api/v1/health
    # Check agent_count
@@ -396,22 +402,24 @@ psql $DATABASE_URL -c "SELECT 1"
 **Error**: `429 Too Many Requests`
 
 **Solutions**:
+
 1. Check `Retry-After` header
-2. Implement exponential backoff
-3. Reduce request frequency
-4. Contact admin to increase limit
+1. Implement exponential backoff
+1. Reduce request frequency
+1. Contact admin to increase limit
 
 ### Slow Response Times
 
 **Problem**: `processing_time_ms > 100ms`
 
 **Solutions**:
+
 1. Check database indexes:
    ```sql
    SELECT * FROM pg_indexes WHERE tablename = 'agents';
    ```
-2. Reduce result limit
-3. Monitor database performance:
+1. Reduce result limit
+1. Monitor database performance:
    ```bash
    curl http://localhost:8000/api/v1/health
    # Check database_size
@@ -422,8 +430,9 @@ psql $DATABASE_URL -c "SELECT 1"
 **Error**: `404 Agent not found`
 
 **Solutions**:
+
 1. Use agent type instead: `backend-developer` vs `01-core-backend-developer`
-2. Search first to find valid IDs:
+1. Search first to find valid IDs:
    ```bash
    curl "http://localhost:8000/api/v1/agents/search?q=backend"
    ```
@@ -431,9 +440,9 @@ psql $DATABASE_URL -c "SELECT 1"
 ## Next Steps
 
 1. **Explore Interactive Docs**: Visit http://localhost:8000/api/v1/docs
-2. **Read Full API Spec**: See `discovery-api.yaml`
-3. **Integrate with MCP**: See Task 1.4 documentation
-4. **Enable NLP Matching**: See Task 1.3 for semantic search
+1. **Read Full API Spec**: See `discovery-api.yaml`
+1. **Integrate with MCP**: See Task 1.4 documentation
+1. **Enable NLP Matching**: See Task 1.3 for semantic search
 
 ## Additional Resources
 
@@ -445,6 +454,7 @@ psql $DATABASE_URL -c "SELECT 1"
 ## Support
 
 For issues or questions:
+
 - Check logs: `uvicorn.log`
 - Health check: `curl http://localhost:8000/api/v1/health`
 - GitHub Issues: [Mycelium Issues](https://github.com/mycelium/issues)
