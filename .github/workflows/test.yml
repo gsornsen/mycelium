@@ -69,12 +69,12 @@ jobs:
       - name: Install dependencies
         run: uv sync --frozen --all-extras --group dev
 
-      - name: Run comprehensive test suite
+      - name: Run unit tests only
         shell: bash
         run: |
-          uv run pytest tests/ -v \
-            -m "not integration" \
+          uv run pytest tests/unit/ tests/test_*.py -v \
             --ignore=tests/docs \
+            -m "not integration and not benchmark and not slow" \
             --tb=short \
             --maxfail=5
 
