@@ -2,6 +2,8 @@
 
 This module provides the TemplateRenderer class that generates deployment
 configurations from MyceliumConfig using Jinja2 templates.
+
+Now supports smart service reuse through deployment plans.
 """
 
 from __future__ import annotations
@@ -13,6 +15,8 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 from mycelium_onboarding.config.schema import DeploymentMethod, MyceliumConfig
 
+from .strategy import DeploymentPlanSummary, ServiceStrategy
+
 # Module exports
 __all__ = ["TemplateRenderer"]
 
@@ -22,6 +26,8 @@ class TemplateRenderer:
 
     This class provides methods to render Docker Compose, Kubernetes,
     and systemd configurations from a MyceliumConfig instance.
+
+    Supports smart service reuse through deployment plans.
 
     Attributes:
         template_dir: Directory containing Jinja2 templates
@@ -74,11 +80,14 @@ class TemplateRenderer:
         """
         return value.replace("_", "-").lower()
 
-    def render_docker_compose(self, config: MyceliumConfig) -> str:
+    def render_docker_compose(
+        self, config: MyceliumConfig, deployment_plan: DeploymentPlanSummary | None = None
+    ) -> str:
         """Render Docker Compose configuration.
 
         Args:
             config: MyceliumConfig instance to render
+            deployment_plan: Optional deployment plan for smart service reuse
 
         Returns:
             Rendered docker-compose.yml content
@@ -89,7 +98,43 @@ class TemplateRenderer:
             >>> yaml_content = renderer.render_docker_compose(config)
         """
         template = self.env.get_template("docker-compose.yml.j2")
-        return template.render(config=config)
+
+        # Build context with deployment plan information
+        context = {"config": config}
+
+        if deployment_plan:
+            # Determine which services should be included in docker-compose
+            context["deploy_redis"] = self._should_deploy_service(deployment_plan, "redis")
+            context["deploy_postgres"] = self._should_deploy_service(deployment_plan, "postgres")
+            context["deploy_temporal"] = self._should_deploy_service(deployment_plan, "temporal")
+
+            # Pass service plans for custom port handling
+            context["deployment_plan"] = deployment_plan
+        else:
+            # No plan, use config enabled flags
+            context["deploy_redis"] = config.services.redis.enabled
+            context["deploy_postgres"] = config.services.postgres.enabled
+            context["deploy_temporal"] = config.services.temporal.enabled
+            context["deployment_plan"] = None
+
+        return template.render(**context)
+
+    def _should_deploy_service(self, deployment_plan: DeploymentPlanSummary, service_name: str) -> bool:
+        """Determine if a service should be deployed in docker-compose.
+
+        Args:
+            deployment_plan: Deployment plan
+            service_name: Name of the service
+
+        Returns:
+            True if service should be deployed, False if reusing existing
+        """
+        service_plan = deployment_plan.get_service_plan(service_name)
+        if not service_plan:
+            return False
+
+        # Only deploy if strategy is CREATE or ALONGSIDE
+        return service_plan.strategy in [ServiceStrategy.CREATE, ServiceStrategy.ALONGSIDE]
 
     def render_kubernetes(self, config: MyceliumConfig) -> dict[str, str]:
         """Render Kubernetes manifests.

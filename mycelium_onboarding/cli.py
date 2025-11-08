@@ -1288,68 +1288,48 @@ def generate(method: str | None, output: str | None, generate_secrets: bool) -> 
     type=click.Choice(["docker-compose", "kubernetes", "systemd"]),
     help="Deployment method (defaults to config value)",
 )
-def start(method: str | None) -> None:
-    """Start deployed services.
+@click.option("--yes", "-y", is_flag=True, help="Skip confirmation prompts")
+@click.option("--services", "-s", multiple=True, help="Specific services to deploy")
+@click.option("--verbose", "-v", is_flag=True, help="Verbose output")
+@click.option("--dry-run", is_flag=True, help="Show what would be done without doing it")
+def start(method: str | None, yes: bool, services: tuple[str, ...], verbose: bool, dry_run: bool) -> None:
+    """Start deployed services with smart detection and reuse.
 
-    Starts the services using the specified deployment method.
+    This command will:
+    1. Detect existing services
+    2. Create an intelligent deployment plan
+    3. Generate configurations if needed
+    4. Start services
 
     Examples:
         mycelium deploy start
         mycelium deploy start --method docker-compose
+        mycelium deploy start --yes --services redis postgres
+        mycelium deploy start --dry-run
     """
-    from mycelium_onboarding.deployment.generator import DeploymentMethod
+    import asyncio
 
-    # Load config
-    manager = ConfigManager()
-    config = manager.load()
+    from mycelium_onboarding.deployment.commands.deploy import DeployCommand
 
-    deploy_method = DeploymentMethod(method) if method else DeploymentMethod(config.deployment.method)
+    # Create deployment command handler
+    deploy_cmd = DeployCommand(verbose=verbose, dry_run=dry_run, force=False)
 
-    console.print(f"[bold cyan]Starting {deploy_method.value} deployment...[/bold cyan]\n")
-
-    # Execute start command based on method
+    # Run async start operation
     try:
-        if deploy_method == DeploymentMethod.DOCKER_COMPOSE:
-            result = subprocess.run(  # nosec B603 B607 - Safe execution of system tools
-                ["docker-compose", "up", "-d"],
-                check=True,
-                capture_output=True,
-                text=True,
-            )
-            console.print("[green]✓[/green] Services started successfully")
-            if result.stdout:
-                console.print(result.stdout)
+        success = asyncio.run(
+            deploy_cmd.start(auto_approve=yes, services=list(services) if services else None, method=method)
+        )
 
-        elif deploy_method == DeploymentMethod.KUBERNETES:
-            result = subprocess.run(  # nosec B603 B607 - Safe execution of system tools
-                ["kubectl", "get", "pods", "-n", config.project_name],
-                check=True,
-                capture_output=True,
-                text=True,
-            )
-            console.print(result.stdout)
+        if not success:
+            raise SystemExit(1)
 
-        elif deploy_method == DeploymentMethod.SYSTEMD:
-            services = []
-            if config.services.redis.enabled:
-                services.append(f"{config.project_name}-redis")
-            if config.services.postgres.enabled:
-                services.append(f"{config.project_name}-postgres")
-            if config.services.temporal.enabled:
-                services.append(f"{config.project_name}-temporal")
-
-            for service in services:
-                subprocess.run(["sudo", "systemctl", "start", service], check=True)  # nosec B603 B607 - Safe execution of system tools
-            console.print(f"[green]✓[/green] Started {len(services)} service(s)")
-
-    except subprocess.CalledProcessError as e:
-        console.print(f"[red]Error starting services: {e}[/red]")
-        if e.stderr:
-            console.print(f"[red]{e.stderr}[/red]")
-        raise SystemExit(1) from e
-    except FileNotFoundError as e:
-        console.print(f"[red]Command not found: {e}[/red]")
-        console.print(f"[yellow]Ensure {deploy_method.value} tools are installed[/yellow]")
+    except KeyboardInterrupt:
+        console.print("\n[yellow]Deployment cancelled by user.[/yellow]")
+        raise SystemExit(130)
+    except Exception as e:
+        console.print(f"[bold red]✗ Deployment failed: {e}[/bold red]")
+        if verbose:
+            logger.exception("Deployment failed")
         raise SystemExit(1) from e
 
 
@@ -1359,7 +1339,9 @@ def start(method: str | None) -> None:
     type=click.Choice(["docker-compose", "kubernetes", "systemd"]),
     help="Deployment method (defaults to config value)",
 )
-def stop(method: str | None) -> None:
+@click.option("--remove-data", is_flag=True, help="Remove data volumes/directories")
+@click.option("--verbose", "-v", is_flag=True, help="Verbose output")
+def stop(method: str | None, remove_data: bool, verbose: bool) -> None:
     """Stop deployed services.
 
     Stops the services using the specified deployment method.
@@ -1367,62 +1349,29 @@ def stop(method: str | None) -> None:
     Examples:
         mycelium deploy stop
         mycelium deploy stop --method docker-compose
+        mycelium deploy stop --remove-data
     """
-    from mycelium_onboarding.deployment.generator import DeploymentMethod
+    import asyncio
 
-    # Load config
-    manager = ConfigManager()
-    config = manager.load()
+    from mycelium_onboarding.deployment.commands.deploy import DeployCommand
 
-    deploy_method = DeploymentMethod(method) if method else DeploymentMethod(config.deployment.method)
+    # Create deployment command handler
+    deploy_cmd = DeployCommand(verbose=verbose, dry_run=False, force=False)
 
-    console.print(f"[bold cyan]Stopping {deploy_method.value} deployment...[/bold cyan]\n")
-
-    # Execute stop command based on method
+    # Run async stop operation
     try:
-        if deploy_method == DeploymentMethod.DOCKER_COMPOSE:
-            result = subprocess.run(  # nosec B603 B607 - Safe execution of system tools
-                ["docker-compose", "down"],
-                check=True,
-                capture_output=True,
-                text=True,
-            )
-            console.print("[green]✓[/green] Services stopped successfully")
-            if result.stdout:
-                console.print(result.stdout)
+        success = asyncio.run(deploy_cmd.stop(method=method, remove_data=remove_data))
 
-        elif deploy_method == DeploymentMethod.KUBERNETES:
-            result = subprocess.run(  # nosec B603 B607 - Safe execution of system tools
-                ["kubectl", "delete", "all", "--all", "-n", config.project_name],
-                check=True,
-                capture_output=True,
-                text=True,
-            )
-            console.print("[green]✓[/green] Kubernetes resources deleted")
-            if result.stdout:
-                console.print(result.stdout)
+        if not success:
+            raise SystemExit(1)
 
-        elif deploy_method == DeploymentMethod.SYSTEMD:
-            services = []
-            if config.services.redis.enabled:
-                services.append(f"{config.project_name}-redis")
-            if config.services.postgres.enabled:
-                services.append(f"{config.project_name}-postgres")
-            if config.services.temporal.enabled:
-                services.append(f"{config.project_name}-temporal")
-
-            for service in services:
-                subprocess.run(["sudo", "systemctl", "stop", service], check=True)  # nosec B603 B607 - Safe execution of system tools
-            console.print(f"[green]✓[/green] Stopped {len(services)} service(s)")
-
-    except subprocess.CalledProcessError as e:
-        console.print(f"[red]Error stopping services: {e}[/red]")
-        if e.stderr:
-            console.print(f"[red]{e.stderr}[/red]")
-        raise SystemExit(1) from e
-    except FileNotFoundError as e:
-        console.print(f"[red]Command not found: {e}[/red]")
-        console.print(f"[yellow]Ensure {deploy_method.value} tools are installed[/yellow]")
+    except KeyboardInterrupt:
+        console.print("\n[yellow]Operation cancelled by user.[/yellow]")
+        raise SystemExit(130)
+    except Exception as e:
+        console.print(f"[bold red]✗ Stop failed: {e}[/bold red]")
+        if verbose:
+            logger.exception("Stop operation failed")
         raise SystemExit(1) from e
 
 
@@ -1433,27 +1382,47 @@ def stop(method: str | None) -> None:
     help="Deployment method (defaults to config value)",
 )
 @click.option("--watch", is_flag=True, help="Watch for changes")
-def status(method: str | None, watch: bool) -> None:
+@click.option("--format", type=click.Choice(["table", "json"]), default="table", help="Output format")
+@click.option("--verbose", "-v", is_flag=True, help="Verbose output")
+def status(method: str | None, watch: bool, format: str, verbose: bool) -> None:
     """Show status of deployed services.
 
     Examples:
         mycelium deploy status
         mycelium deploy status --watch
+        mycelium deploy status --format json
     """
-    from mycelium_onboarding.deployment.generator import DeploymentMethod
+    import asyncio
 
-    manager = ConfigManager()
-    config = manager.load()
+    from mycelium_onboarding.deployment.commands.deploy import DeployCommand
 
-    deploy_method = DeploymentMethod(method) if method else DeploymentMethod(config.deployment.method)
+    # Create deployment command handler
+    deploy_cmd = DeployCommand(verbose=verbose, dry_run=False, force=False)
 
+    # Run async status operation
+    try:
+        asyncio.run(deploy_cmd.status(method=method, watch=watch, format=format))
+
+    except KeyboardInterrupt:
+        console.print("\n[yellow]Status check cancelled by user.[/yellow]")
+        raise SystemExit(130)
+    except Exception as e:
+        console.print(f"[bold red]✗ Status check failed: {e}[/bold red]")
+        if verbose:
+            logger.exception("Status check failed")
+        raise SystemExit(1) from e
+
+
+# Keep legacy implementation for reference but unused
+def _legacy_status_implementation(deploy_method, config):
+    """Legacy status implementation - kept for reference."""
     # Create status table
     table = Table(title=f"{config.project_name} - Service Status", show_header=True)
     table.add_column("Service", style="cyan")
     table.add_column("Status", justify="center")
     table.add_column("Details")
 
-    if deploy_method == DeploymentMethod.DOCKER_COMPOSE:
+    if False:  # Disabled - using new implementation above
         try:
             result = subprocess.run(  # nosec B603 B607 - Safe execution of system tools
                 ["docker-compose", "ps", "--format", "json"],
@@ -1569,6 +1538,90 @@ def status(method: str | None, watch: bool) -> None:
 
     if watch:
         console.print("\n[yellow]Watch mode not yet implemented[/yellow]")
+
+
+@deploy.command()
+@click.option(
+    "--method",
+    type=click.Choice(["docker-compose", "kubernetes", "systemd"]),
+    help="Deployment method (defaults to config value)",
+)
+@click.option("--services", "-s", multiple=True, help="Specific services to restart")
+@click.option("--verbose", "-v", is_flag=True, help="Verbose output")
+def restart(method: str | None, services: tuple[str, ...], verbose: bool) -> None:
+    """Restart deployed services.
+
+    Examples:
+        mycelium deploy restart
+        mycelium deploy restart --services redis
+        mycelium deploy restart --method docker-compose
+    """
+    import asyncio
+
+    from mycelium_onboarding.deployment.commands.deploy import DeployCommand
+
+    # Create deployment command handler
+    deploy_cmd = DeployCommand(verbose=verbose, dry_run=False, force=False)
+
+    # Run async restart operation
+    try:
+        success = asyncio.run(deploy_cmd.restart(method=method, services=list(services) if services else None))
+
+        if not success:
+            raise SystemExit(1)
+
+    except KeyboardInterrupt:
+        console.print("\n[yellow]Restart cancelled by user.[/yellow]")
+        raise SystemExit(130)
+    except Exception as e:
+        console.print(f"[bold red]✗ Restart failed: {e}[/bold red]")
+        if verbose:
+            logger.exception("Restart operation failed")
+        raise SystemExit(1) from e
+
+
+@deploy.command()
+@click.option(
+    "--method",
+    type=click.Choice(["docker-compose", "kubernetes", "systemd"]),
+    help="Deployment method (defaults to config value)",
+)
+@click.option("--remove-configs", is_flag=True, help="Remove configuration files")
+@click.option("--remove-secrets", is_flag=True, help="Remove secrets")
+@click.option("--force", "-f", is_flag=True, help="Skip confirmation prompts")
+@click.option("--verbose", "-v", is_flag=True, help="Verbose output")
+def clean(method: str | None, remove_configs: bool, remove_secrets: bool, force: bool, verbose: bool) -> None:
+    """Clean up deployment artifacts.
+
+    Examples:
+        mycelium deploy clean
+        mycelium deploy clean --remove-configs --remove-secrets
+        mycelium deploy clean --force
+    """
+    import asyncio
+
+    from mycelium_onboarding.deployment.commands.deploy import DeployCommand
+
+    # Create deployment command handler
+    deploy_cmd = DeployCommand(verbose=verbose, dry_run=False, force=force)
+
+    # Run async clean operation
+    try:
+        success = asyncio.run(
+            deploy_cmd.clean(method=method, remove_configs=remove_configs, remove_secrets=remove_secrets)
+        )
+
+        if not success:
+            raise SystemExit(1)
+
+    except KeyboardInterrupt:
+        console.print("\n[yellow]Clean cancelled by user.[/yellow]")
+        raise SystemExit(130)
+    except Exception as e:
+        console.print(f"[bold red]✗ Clean failed: {e}[/bold red]")
+        if verbose:
+            logger.exception("Clean operation failed")
+        raise SystemExit(1) from e
 
 
 @deploy.command()
@@ -1833,3 +1886,28 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
+
+
+# ============================================================================
+# Additional Configuration Commands (added for global config management)
+# ============================================================================
+
+# Import additional config commands
+from mycelium_onboarding.config.cli_commands import (
+    list_configs as config_list,
+)
+from mycelium_onboarding.config.cli_commands import (
+    migrate_config as config_migrate_cmd,
+)
+from mycelium_onboarding.config.cli_commands import (
+    reset_config as config_reset,
+)
+from mycelium_onboarding.config.cli_commands import (
+    where as config_where,
+)
+
+# Register additional config commands
+config.add_command(config_where, name="where")
+config.add_command(config_list, name="list")
+config.add_command(config_migrate_cmd, name="migrate-scope")
+config.add_command(config_reset, name="reset")

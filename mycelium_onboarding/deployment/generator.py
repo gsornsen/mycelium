@@ -5,6 +5,8 @@ configurations from MyceliumConfig using Jinja2 templates. It supports Docker
 Compose, Kubernetes, and systemd deployment methods with comprehensive validation
 and error handling.
 
+Now includes smart service reuse logic through deployment plans.
+
 Example:
     >>> from mycelium_onboarding.config.schema import MyceliumConfig
     >>> from mycelium_onboarding.deployment.generator import (
@@ -26,6 +28,7 @@ from mycelium_onboarding.config.schema import DeploymentMethod, MyceliumConfig
 from mycelium_onboarding.xdg_dirs import get_data_dir
 
 from .renderer import TemplateRenderer
+from .strategy import DeploymentPlanSummary, ServiceStrategy
 
 # Module exports
 __all__ = ["DeploymentGenerator", "DeploymentMethod", "GenerationResult"]
@@ -60,10 +63,13 @@ class DeploymentGenerator:
     configuration, renders templates, and creates all necessary files
     including helper scripts and documentation.
 
+    Supports smart service reuse through deployment plans.
+
     Attributes:
         config: MyceliumConfig instance to generate from
         output_dir: Output directory for generated files
         renderer: TemplateRenderer instance for template rendering
+        deployment_plan: Optional deployment plan for smart service reuse
 
     Example:
         >>> config = MyceliumConfig(project_name="test")
@@ -73,13 +79,19 @@ class DeploymentGenerator:
         >>> assert len(result.files_generated) > 0
     """
 
-    def __init__(self, config: MyceliumConfig, output_dir: Path | None = None) -> None:
+    def __init__(
+        self,
+        config: MyceliumConfig,
+        output_dir: Path | None = None,
+        deployment_plan: DeploymentPlanSummary | None = None,
+    ) -> None:
         """Initialize deployment generator.
 
         Args:
             config: MyceliumConfig to generate from
             output_dir: Output directory
                 (defaults to XDG_DATA_HOME/deployments/<project>)
+            deployment_plan: Optional deployment plan for smart service reuse
 
         Example:
             >>> config = MyceliumConfig(project_name="my-project")
@@ -89,6 +101,7 @@ class DeploymentGenerator:
         self.config = config
         self.output_dir = output_dir or (get_data_dir() / "deployments" / config.project_name)
         self.renderer = TemplateRenderer()
+        self.deployment_plan = deployment_plan
 
     def generate(self, method: DeploymentMethod) -> GenerationResult:
         """Generate deployment configuration.
@@ -158,15 +171,20 @@ class DeploymentGenerator:
         """
         errors: list[str] = []
 
-        # Check at least one service is enabled
-        if not any(
-            [
-                self.config.services.redis.enabled,
-                self.config.services.postgres.enabled,
-                self.config.services.temporal.enabled,
-            ]
-        ):
-            errors.append("At least one service must be enabled")
+        # If we have a deployment plan, use it to validate
+        if self.deployment_plan:
+            if not self.deployment_plan.has_services_to_deploy and not self.deployment_plan.services_to_reuse:
+                errors.append("No services to deploy or reuse")
+        else:
+            # Check at least one service is enabled
+            if not any(
+                [
+                    self.config.services.redis.enabled,
+                    self.config.services.postgres.enabled,
+                    self.config.services.temporal.enabled,
+                ]
+            ):
+                errors.append("At least one service must be enabled")
 
         # Method-specific validation
         if method == DeploymentMethod.KUBERNETES:
@@ -192,7 +210,7 @@ class DeploymentGenerator:
         """Generate Docker Compose configuration.
 
         Creates docker-compose.yml, .env file, and README.md with
-        usage instructions.
+        usage instructions. Uses deployment plan to skip reused services.
 
         Returns:
             GenerationResult with generated files
@@ -203,9 +221,9 @@ class DeploymentGenerator:
         warnings: list[str] = []
 
         try:
-            # Render docker-compose.yml
+            # Render docker-compose.yml with deployment plan context
             compose_file = self.output_dir / "docker-compose.yml"
-            content = self.renderer.render_docker_compose(self.config)
+            content = self.renderer.render_docker_compose(self.config, deployment_plan=self.deployment_plan)
             compose_file.write_text(content)
             files_generated.append(compose_file)
 
@@ -214,6 +232,17 @@ class DeploymentGenerator:
             env_content = self._generate_env_file()
             env_file.write_text(env_content)
             files_generated.append(env_file)
+
+            # Add deployment plan warnings
+            if self.deployment_plan:
+                warnings.extend(self.deployment_plan.warnings)
+
+                # Add service-specific warnings
+                if self.deployment_plan.services_to_reuse:
+                    warnings.append(
+                        f"Reusing existing services: {', '.join(self.deployment_plan.services_to_reuse)}. "
+                        "Connection details in .env file."
+                    )
 
             # Add warning about default credentials
             if self.config.services.postgres.enabled:
@@ -226,6 +255,13 @@ class DeploymentGenerator:
             readme_content = self._generate_readme("docker-compose")
             readme_file.write_text(readme_content)
             files_generated.append(readme_file)
+
+            # Generate connection info file
+            if self.deployment_plan:
+                conn_file = self.output_dir / "CONNECTIONS.md"
+                conn_content = self._generate_connection_info()
+                conn_file.write_text(conn_content)
+                files_generated.append(conn_file)
 
             return GenerationResult(
                 success=True,
@@ -374,6 +410,7 @@ class DeploymentGenerator:
 
         Creates environment variable definitions for services,
         including database credentials and configuration.
+        Uses deployment plan to add connection info for reused services.
 
         Returns:
             Content for .env file
@@ -414,6 +451,75 @@ class DeploymentGenerator:
                 ]
             )
 
+        # Add connection strings from deployment plan
+        if self.deployment_plan:
+            lines.extend(["# Service connection strings", ""])
+            for service_name, plan in self.deployment_plan.service_plans.items():
+                if plan.strategy == ServiceStrategy.REUSE:
+                    lines.append(f"# {service_name.upper()} (using existing service on {plan.host}:{plan.port})")
+                lines.append(f"{service_name.upper()}_URL={plan.connection_string}")
+            lines.append("")
+
+        return "\n".join(lines)
+
+    def _generate_connection_info(self) -> str:
+        """Generate connection information file.
+
+        Creates a markdown file with detailed connection info for all services.
+
+        Returns:
+            CONNECTIONS.md content
+        """
+        if not self.deployment_plan:
+            return ""
+
+        lines = [
+            "# Service Connection Information",
+            "",
+            f"Project: {self.config.project_name}",
+            f"Generated: {self.deployment_plan.created_at.strftime('%Y-%m-%d %H:%M:%S')}",
+            "",
+            "## Service Status",
+            "",
+        ]
+
+        for service_name, plan in self.deployment_plan.service_plans.items():
+            strategy_emoji = {
+                ServiceStrategy.REUSE: "🔄",
+                ServiceStrategy.CREATE: "✨",
+                ServiceStrategy.ALONGSIDE: "🔀",
+                ServiceStrategy.SKIP: "⏭️",
+            }
+            emoji = strategy_emoji.get(plan.strategy, "❓")
+
+            lines.extend(
+                [
+                    f"### {emoji} {service_name.title()}",
+                    "",
+                    f"- **Strategy**: {plan.strategy.value}",
+                    f"- **Host**: {plan.host}",
+                    f"- **Port**: {plan.port}",
+                    f"- **Version**: {plan.version}",
+                    f"- **Connection**: `{plan.connection_string}`",
+                    f"- **Reason**: {plan.reason}",
+                    "",
+                ]
+            )
+
+        # Add recommendations
+        if self.deployment_plan.recommendations:
+            lines.extend(["## Recommendations", ""])
+            for rec in self.deployment_plan.recommendations:
+                lines.append(f"- {rec}")
+            lines.append("")
+
+        # Add warnings
+        if self.deployment_plan.warnings:
+            lines.extend(["## Warnings", ""])
+            for warn in self.deployment_plan.warnings:
+                lines.append(f"- {warn}")
+            lines.append("")
+
         return "\n".join(lines)
 
     def _generate_readme(self, method: str) -> str:
@@ -442,12 +548,27 @@ class DeploymentGenerator:
 
         services_section = "\n".join(enabled_services)
 
+        # Add deployment plan info if available
+        plan_section = ""
+        if self.deployment_plan:
+            reused = ", ".join(self.deployment_plan.services_to_reuse) or "None"
+            created = ", ".join(self.deployment_plan.services_to_create) or "None"
+            plan_section = f"""
+## Deployment Plan
+
+- **Reusing existing services**: {reused}
+- **Creating new services**: {created}
+
+See CONNECTIONS.md for detailed connection information.
+"""
+
         if method == "docker-compose":
             return f"""# {self.config.project_name} - Docker Compose Deployment
 
 ## Overview
 
 This deployment was generated automatically by Mycelium onboarding.
+{plan_section}
 
 ## Quick Start
 
