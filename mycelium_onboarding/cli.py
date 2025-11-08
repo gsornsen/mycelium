@@ -208,6 +208,8 @@ Configuration Commands:
   config set      Set configuration value
   config validate Validate current configuration
   config migrate  Migrate configuration to newer schema version
+  config where    Show configuration file locations
+  config edit     Open configuration file in editor
 
 Detection Commands:
   detect services Detect all available services
@@ -1892,7 +1894,16 @@ if __name__ == "__main__":
 # Additional Configuration Commands (added for global config management)
 # ============================================================================
 
-# Import additional config commands
+# Import additional config commands from legacy cli_commands
+# Import new Sprint 2 config commands
+from mycelium_onboarding.cli_commands.commands.config import (
+    edit_command,
+    get_command,
+    rollback_command,
+    set_command,
+    where_command,
+)
+from mycelium_onboarding.cli_commands.commands.config_migrate import migrate_command
 from mycelium_onboarding.config.cli_commands import (
     list_configs as config_list,
 )
@@ -1902,12 +1913,16 @@ from mycelium_onboarding.config.cli_commands import (
 from mycelium_onboarding.config.cli_commands import (
     reset_config as config_reset,
 )
-from mycelium_onboarding.config.cli_commands import (
-    where as config_where,
-)
 
-# Register additional config commands
-config.add_command(config_where, name="where")
+# Register legacy config commands (for backward compatibility)
 config.add_command(config_list, name="list")
 config.add_command(config_migrate_cmd, name="migrate-scope")
 config.add_command(config_reset, name="reset")
+
+# Register new Sprint 2 config commands
+config.add_command(where_command, name="where")
+config.add_command(get_command, name="get")
+config.add_command(set_command, name="set")
+config.add_command(edit_command, name="edit")
+config.add_command(migrate_command, name="migrate")
+config.add_command(rollback_command, name="rollback")
