@@ -6,6 +6,7 @@ services that can be reused and determining deployment requirements.
 
 from __future__ import annotations
 
+import contextlib
 import hashlib
 import json
 import logging
@@ -90,6 +91,7 @@ class DetectedService(BaseModel):
     data_path: Path | None = Field(default=None, description="Data directory path")
     fingerprint: ServiceFingerprint | None = Field(default=None, description="Service fingerprint")
     metadata: dict[str, Any] = Field(default_factory=dict, description="Additional metadata")
+    capabilities: dict[str, Any] | None = Field(default=None, description="Service capabilities")
 
     class Config:
         """Pydantic configuration."""
@@ -336,6 +338,11 @@ class ServiceDetector:
             except Exception as e:
                 logger.debug(f"Error checking Redis data path: {e}")
 
+            # Detect Redis capabilities if running
+            capabilities = None
+            if status == ServiceStatus.RUNNING:
+                capabilities = self.detect_redis_capabilities("localhost", port)
+
             # Create fingerprint (config_path and data_path can be None)
             fingerprint = ServiceFingerprint(
                 service_type=ServiceType.REDIS,
@@ -358,6 +365,7 @@ class ServiceDetector:
                 pid=pid,
                 config_path=config_path,
                 fingerprint=fingerprint,
+                capabilities=capabilities,
                 metadata={
                     "detection_method": "system",
                     "executable": result.stdout.strip(),
@@ -366,7 +374,9 @@ class ServiceDetector:
             )
 
             logger.info(
-                f"Detected Redis: status={status.value}, version={version}, port={port}, config_found={config_path is not None}"
+                f"Detected Redis: status={status.value}, version={version}, port={port}, "
+                f"config_found={config_path is not None}, "
+                f"has_json={capabilities.get('has_json_module', False) if capabilities else 'unknown'}"
             )
             return detected
 
@@ -374,6 +384,70 @@ class ServiceDetector:
             # Only fail if critical detection failed, not metadata collection
             logger.error(f"Critical error detecting Redis: {e}")
             return None
+
+    def detect_redis_capabilities(self, host: str, port: int) -> dict[str, Any]:
+        """Detect Redis version and available modules (especially RedisJSON).
+
+        Args:
+            host: Redis host address
+            port: Redis port number
+
+        Returns:
+            Dict containing version, modules, and recommendations
+        """
+        try:
+            import redis
+        except ImportError:
+            logger.warning("redis-py not installed, cannot detect Redis capabilities")
+            return {
+                "host": host,
+                "port": port,
+                "status": "unknown",
+                "error": "redis-py module not installed",
+            }
+
+        try:
+            client = redis.Redis(host=host, port=port, decode_responses=True, socket_timeout=5)
+
+            # Test connection
+            client.ping()
+
+            # Get version
+            info = client.info()
+            version = info.get("redis_version", "unknown")
+
+            # Check loaded modules
+            modules = []
+            has_json = False
+
+            try:
+                module_list = client.execute_command("MODULE", "LIST")
+                for module_info in module_list:
+                    if isinstance(module_info, (list, tuple)) and len(module_info) >= 2:
+                        module_name = (
+                            module_info[1].decode() if isinstance(module_info[1], bytes) else str(module_info[1])
+                        )
+                        modules.append(module_name)
+                        if "ReJSON" in module_name or "json" in module_name.lower():
+                            has_json = True
+            except redis.exceptions.ResponseError:
+                # MODULE LIST not available or no modules loaded
+                pass
+
+            return {
+                "host": host,
+                "port": port,
+                "version": version,
+                "modules": modules,
+                "has_json_module": has_json,
+                "status": "compatible" if has_json else "limited",
+                "recommendation": None if has_json else "Upgrade to Redis Stack for full coordination support",
+            }
+
+        except redis.exceptions.ConnectionError as e:
+            return {"host": host, "port": port, "status": "unreachable", "error": str(e)}
+        except Exception as e:
+            return {"host": host, "port": port, "status": "error", "error": str(e)}
 
     def _detect_docker_services(self) -> list[DetectedService]:
         """Detect services running in Docker containers."""
@@ -453,9 +527,9 @@ class ServiceDetector:
             # Parse port mapping like "0.0.0.0:5432->5432/tcp"
             parts = ports_str.split("->")[0].split(":")
             if len(parts) > 1:
-                try:
+                # Attempt to parse port, ignore if invalid
+                with contextlib.suppress(ValueError):
                     port = int(parts[-1])
-                except ValueError:
                     pass
 
         # Create fingerprint

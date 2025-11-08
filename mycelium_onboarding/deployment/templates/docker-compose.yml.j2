@@ -27,27 +27,14 @@ services:
 {%     set redis_port = config.services.redis.port %}
 {%   endif %}
   redis:
-    image: redis:{{ config.services.redis.version or 'latest' }}
+    image: redis/redis-stack-server:{{ config.services.redis.version or 'latest' }}
     container_name: {{ config.project_name }}-redis
     ports:
       - "{{ redis_port }}:6379"
-    {% if config.services.redis.persistence %}
+    environment:
+      - REDIS_ARGS=--save 60 1 --loglevel warning{% if config.services.redis.max_memory %} --maxmemory {{ config.services.redis.max_memory }} --maxmemory-policy allkeys-lru{% endif %}{% for key, value in (config.services.redis.custom_config or {}).items() %} --{{ key }} {{ value }}{% endfor %}
     volumes:
       - redis-data:/data
-    {% endif %}
-    {% if config.services.redis.custom_config or config.services.redis.max_memory %}
-    command:
-      {% if config.services.redis.max_memory %}
-      - --maxmemory
-      - "{{ config.services.redis.max_memory }}"
-      - --maxmemory-policy
-      - allkeys-lru
-      {% endif %}
-      {% for key, value in config.services.redis.custom_config.items() %}
-      - --{{ key }}
-      - "{{ value }}"
-      {% endfor %}
-    {% endif %}
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -152,9 +139,9 @@ networks:
     name: {{ config.project_name }}-network
     driver: bridge
 
-{% if (deploy_redis and config.services.redis.persistence) or deploy_postgres %}
+{% if deploy_redis or deploy_postgres %}
 volumes:
-  {% if deploy_redis and config.services.redis.persistence %}
+  {% if deploy_redis %}
   redis-data:
     name: {{ config.project_name }}-redis-data
   {% endif %}

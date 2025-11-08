@@ -129,7 +129,10 @@ class ServiceDeploymentPlanner:
                     port=detected_redis.port,
                     version=detected_redis.version,
                     connection_string=self._build_redis_connection(detected_redis.host, detected_redis.port),
-                    reason=f"Compatible Redis {detected_redis.version} already running on {detected_redis.host}:{detected_redis.port}",
+                    reason=(
+                        f"Compatible Redis {detected_redis.version} already running "
+                        f"on {detected_redis.host}:{detected_redis.port}"
+                    ),
                     detected_service_id=detected_redis.fingerprint.fingerprint_hash
                     if detected_redis.fingerprint
                     else None,
@@ -145,7 +148,9 @@ class ServiceDeploymentPlanner:
                     port=new_port,
                     version=config.version or "7.2",
                     connection_string=self._build_redis_connection("localhost", new_port),
-                    reason=f"Existing Redis {detected_redis.version} incompatible, running alongside on port {new_port}",
+                    reason=(
+                        f"Existing Redis {detected_redis.version} incompatible, running alongside on port {new_port}"
+                    ),
                     container_name=f"{self.config.project_name}-redis",
                     compatibility_level=compatibility,
                     metadata={"existing_service_port": detected_redis.port},
@@ -187,7 +192,10 @@ class ServiceDeploymentPlanner:
                     connection_string=self._build_postgres_connection(
                         detected_pg.host, detected_pg.port, config.database
                     ),
-                    reason=f"Compatible PostgreSQL {detected_pg.version} already running on {detected_pg.host}:{detected_pg.port}",
+                    reason=(
+                        f"Compatible PostgreSQL {detected_pg.version} already running "
+                        f"on {detected_pg.host}:{detected_pg.port}"
+                    ),
                     detected_service_id=detected_pg.fingerprint.fingerprint_hash if detected_pg.fingerprint else None,
                     compatibility_level=compatibility,
                     requires_configuration=True,
@@ -203,7 +211,9 @@ class ServiceDeploymentPlanner:
                     port=new_port,
                     version=config.version or "15",
                     connection_string=self._build_postgres_connection("localhost", new_port, config.database),
-                    reason=f"Existing PostgreSQL {detected_pg.version} incompatible, running alongside on port {new_port}",
+                    reason=(
+                        f"Existing PostgreSQL {detected_pg.version} incompatible, running alongside on port {new_port}"
+                    ),
                     container_name=f"{self.config.project_name}-postgres",
                     compatibility_level=compatibility,
                     metadata={"existing_service_port": detected_pg.port},
