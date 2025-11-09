@@ -79,14 +79,14 @@ class TestPostgreSQLValidationIntegration:
             support_level="active",
         )
 
-        with patch.object(deploy_command, "_load_or_find_config", return_value=mock_config):
-            with patch(
-                "mycelium_onboarding.deployment.commands.deploy.validate_postgres_for_temporal"
-            ) as mock_validate:
-                mock_validate.return_value = compatible_result
+        with (
+            patch.object(deploy_command, "_load_or_find_config", return_value=mock_config),
+            patch("mycelium_onboarding.deployment.commands.deploy.validate_postgres_for_temporal") as mock_validate,
+        ):
+            mock_validate.return_value = compatible_result
 
-                with patch("mycelium_onboarding.deployment.commands.deploy.WarningFormatter") as mock_fmt:
-                    result = deploy_command._validate_postgres_compatibility(detected_services_with_postgres)
+            with patch("mycelium_onboarding.deployment.commands.deploy.WarningFormatter") as mock_fmt:
+                result = deploy_command._validate_postgres_compatibility(detected_services_with_postgres)
 
         assert result is True
         mock_validate.assert_called_once()
@@ -108,15 +108,15 @@ class TestPostgreSQLValidationIntegration:
             requires_postgres_upgrade=True,
         )
 
-        with patch.object(deploy_command, "_load_or_find_config", return_value=mock_config):
-            with patch(
-                "mycelium_onboarding.deployment.commands.deploy.validate_postgres_for_temporal"
-            ) as mock_validate:
-                mock_validate.return_value = incompatible_result
+        with (
+            patch.object(deploy_command, "_load_or_find_config", return_value=mock_config),
+            patch("mycelium_onboarding.deployment.commands.deploy.validate_postgres_for_temporal") as mock_validate,
+        ):
+            mock_validate.return_value = incompatible_result
 
-                with patch("mycelium_onboarding.deployment.commands.deploy.WarningFormatter") as mock_fmt:
-                    with patch("mycelium_onboarding.deployment.commands.deploy.Confirm.ask", return_value=False):
-                        result = deploy_command._validate_postgres_compatibility(detected_services_with_postgres)
+            with patch("mycelium_onboarding.deployment.commands.deploy.WarningFormatter") as mock_fmt:
+                with patch("mycelium_onboarding.deployment.commands.deploy.Confirm.ask", return_value=False):
+                    result = deploy_command._validate_postgres_compatibility(detected_services_with_postgres)
 
         assert result is False
 
@@ -137,15 +137,15 @@ class TestPostgreSQLValidationIntegration:
             requires_postgres_upgrade=True,
         )
 
-        with patch.object(deploy_command, "_load_or_find_config", return_value=mock_config):
-            with patch(
-                "mycelium_onboarding.deployment.commands.deploy.validate_postgres_for_temporal"
-            ) as mock_validate:
-                mock_validate.return_value = incompatible_result
+        with (
+            patch.object(deploy_command, "_load_or_find_config", return_value=mock_config),
+            patch("mycelium_onboarding.deployment.commands.deploy.validate_postgres_for_temporal") as mock_validate,
+        ):
+            mock_validate.return_value = incompatible_result
 
-                with patch("mycelium_onboarding.deployment.commands.deploy.WarningFormatter") as mock_fmt:
-                    with patch("mycelium_onboarding.deployment.commands.deploy.Confirm.ask", return_value=True):
-                        result = deploy_command._validate_postgres_compatibility(detected_services_with_postgres)
+            with patch("mycelium_onboarding.deployment.commands.deploy.WarningFormatter") as mock_fmt:
+                with patch("mycelium_onboarding.deployment.commands.deploy.Confirm.ask", return_value=True):
+                    result = deploy_command._validate_postgres_compatibility(detected_services_with_postgres)
 
         assert result is True
 
@@ -165,14 +165,14 @@ class TestPostgreSQLValidationIntegration:
             requires_postgres_upgrade=True,
         )
 
-        with patch.object(deploy_command, "_load_or_find_config", return_value=mock_config):
-            with patch(
-                "mycelium_onboarding.deployment.commands.deploy.validate_postgres_for_temporal"
-            ) as mock_validate:
-                mock_validate.return_value = critical_result
+        with (
+            patch.object(deploy_command, "_load_or_find_config", return_value=mock_config),
+            patch("mycelium_onboarding.deployment.commands.deploy.validate_postgres_for_temporal") as mock_validate,
+        ):
+            mock_validate.return_value = critical_result
 
-                with patch("mycelium_onboarding.deployment.commands.deploy.WarningFormatter") as mock_fmt:
-                    result = deploy_command._validate_postgres_compatibility(detected_services_with_postgres)
+            with patch("mycelium_onboarding.deployment.commands.deploy.WarningFormatter") as mock_fmt:
+                result = deploy_command._validate_postgres_compatibility(detected_services_with_postgres)
 
         assert result is False
 
@@ -184,11 +184,11 @@ class TestPostgreSQLValidationIntegration:
         # Set force_version flag
         deploy_command.force_version = True
 
-        with patch.object(deploy_command, "_load_or_find_config", return_value=mock_config):
-            with patch(
-                "mycelium_onboarding.deployment.commands.deploy.validate_postgres_for_temporal"
-            ) as mock_validate:
-                result = deploy_command._validate_postgres_compatibility(detected_services_with_postgres)
+        with (
+            patch.object(deploy_command, "_load_or_find_config", return_value=mock_config),
+            patch("mycelium_onboarding.deployment.commands.deploy.validate_postgres_for_temporal") as mock_validate,
+        ):
+            result = deploy_command._validate_postgres_compatibility(detected_services_with_postgres)
 
         # Validation should be skipped
         assert result is True
@@ -209,14 +209,14 @@ class TestPostgreSQLValidationIntegration:
             can_proceed=True,
         )
 
-        with patch.object(deploy_command, "_load_or_find_config", return_value=mock_config):
-            with patch(
-                "mycelium_onboarding.deployment.commands.deploy.validate_postgres_for_temporal"
-            ) as mock_validate:
-                mock_validate.return_value = compatible_result
+        with (
+            patch.object(deploy_command, "_load_or_find_config", return_value=mock_config),
+            patch("mycelium_onboarding.deployment.commands.deploy.validate_postgres_for_temporal") as mock_validate,
+        ):
+            mock_validate.return_value = compatible_result
 
-                with patch("mycelium_onboarding.deployment.commands.deploy.WarningFormatter") as mock_fmt:
-                    result = deploy_command._validate_postgres_compatibility([])
+            with patch("mycelium_onboarding.deployment.commands.deploy.WarningFormatter") as mock_fmt:
+                result = deploy_command._validate_postgres_compatibility([])
 
         assert result is True
         # Should use explicit version
@@ -240,14 +240,14 @@ class TestPostgreSQLValidationIntegration:
             can_proceed=True,
         )
 
-        with patch.object(deploy_command, "_load_or_find_config", return_value=mock_config):
-            with patch(
-                "mycelium_onboarding.deployment.commands.deploy.validate_postgres_for_temporal"
-            ) as mock_validate:
-                mock_validate.return_value = compatible_result
+        with (
+            patch.object(deploy_command, "_load_or_find_config", return_value=mock_config),
+            patch("mycelium_onboarding.deployment.commands.deploy.validate_postgres_for_temporal") as mock_validate,
+        ):
+            mock_validate.return_value = compatible_result
 
-                with patch("mycelium_onboarding.deployment.commands.deploy.WarningFormatter") as mock_fmt:
-                    result = deploy_command._validate_postgres_compatibility(detected_services_with_postgres)
+            with patch("mycelium_onboarding.deployment.commands.deploy.WarningFormatter") as mock_fmt:
+                result = deploy_command._validate_postgres_compatibility(detected_services_with_postgres)
 
         assert result is True
         # Should use explicit Temporal version
@@ -260,11 +260,11 @@ class TestPostgreSQLValidationIntegration:
         # Empty detected services (no PostgreSQL)
         detected_services = []
 
-        with patch.object(deploy_command, "_load_or_find_config", return_value=mock_config):
-            with patch(
-                "mycelium_onboarding.deployment.commands.deploy.validate_postgres_for_temporal"
-            ) as mock_validate:
-                result = deploy_command._validate_postgres_compatibility(detected_services)
+        with (
+            patch.object(deploy_command, "_load_or_find_config", return_value=mock_config),
+            patch("mycelium_onboarding.deployment.commands.deploy.validate_postgres_for_temporal") as mock_validate,
+        ):
+            result = deploy_command._validate_postgres_compatibility(detected_services)
 
         # Should skip validation and return True
         assert result is True
@@ -273,14 +273,14 @@ class TestPostgreSQLValidationIntegration:
     @pytest.mark.asyncio
     async def test_validation_exception_handling(self, deploy_command, mock_config, detected_services_with_postgres):
         """Test graceful handling of validation exceptions."""
-        with patch.object(deploy_command, "_load_or_find_config", return_value=mock_config):
-            with patch(
-                "mycelium_onboarding.deployment.commands.deploy.validate_postgres_for_temporal"
-            ) as mock_validate:
-                mock_validate.side_effect = Exception("Validation error")
+        with (
+            patch.object(deploy_command, "_load_or_find_config", return_value=mock_config),
+            patch("mycelium_onboarding.deployment.commands.deploy.validate_postgres_for_temporal") as mock_validate,
+        ):
+            mock_validate.side_effect = Exception("Validation error")
 
-                # Should continue deployment despite exception
-                result = deploy_command._validate_postgres_compatibility(detected_services_with_postgres)
+            # Should continue deployment despite exception
+            result = deploy_command._validate_postgres_compatibility(detected_services_with_postgres)
 
         assert result is True  # Gracefully continues
 

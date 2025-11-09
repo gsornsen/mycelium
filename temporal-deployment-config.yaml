@@ -1,0 +1,39 @@
+# Sprint 4 Phase 2: Temporal + PostgreSQL Deployment Configuration
+# This configuration deploys both PostgreSQL and Temporal for workflow testing
+
+version: "1.0"
+
+# Project identifier
+project_name: sprint4-temporal-test
+
+# Docker Compose deployment
+deployment:
+  method: docker-compose
+  auto_start: true
+  healthcheck_timeout: 90  # Temporal takes longer to start
+
+# Services configuration
+services:
+  # Redis: Disabled for this sprint (focus on Temporal + PostgreSQL)
+  redis:
+    enabled: false
+
+  # PostgreSQL: Enabled with Temporal-compatible version
+  postgres:
+    enabled: true
+    version: "15.3"  # Temporal-compatible version (Sprint 3 validated)
+    port: 5432
+    database: temporal
+    max_connections: 100
+    custom_config:
+      shared_buffers: "256MB"
+      effective_cache_size: "1GB"
+      max_wal_size: "1GB"
+
+  # Temporal: Enabled for workflow orchestration
+  temporal:
+    enabled: true
+    version: "1.22.0"  # Stable version compatible with PostgreSQL 15.3
+    ui_port: 8080       # Web UI
+    frontend_port: 7233 # gRPC frontend
+    namespace: default  # Default workflow namespace
