@@ -8,8 +8,13 @@ for each service based on compatibility, availability, and user preferences.
 from __future__ import annotations
 
 import logging
+from pathlib import Path
 
 from mycelium_onboarding.config.schema import MyceliumConfig
+from mycelium_onboarding.deployment.postgres.validator import (
+    PostgresValidator,
+    ValidationResult,
+)
 
 from .detector import DetectedService, ServiceStatus, ServiceType
 from .service_strategy import (
@@ -45,19 +50,30 @@ class ServiceDeploymentPlanner:
         ServiceType.RABBITMQ: 100,  # 5672 -> 5772
     }
 
-    def __init__(self, config: MyceliumConfig, detected_services: list[DetectedService], prefer_reuse: bool = True):
+    def __init__(
+        self,
+        config: MyceliumConfig,
+        detected_services: list[DetectedService],
+        prefer_reuse: bool = True,
+        project_dir: Path | None = None,
+    ):
         """Initialize deployment planner.
 
         Args:
             config: Mycelium configuration
             detected_services: List of detected services
             prefer_reuse: Whether to prefer reusing existing services
+            project_dir: Project directory for Temporal version detection
         """
         self.config = config
         self.detected_services = detected_services
         self.prefer_reuse = prefer_reuse
+        self.project_dir = project_dir or Path.cwd()
         self._detected_by_type: dict[ServiceType, list[DetectedService]] = {}
         self._index_services()
+
+        # Initialize PostgreSQL validator
+        self._postgres_validator = PostgresValidator(self.project_dir)
 
     def _index_services(self):
         """Index detected services by type for quick lookup."""
@@ -100,6 +116,46 @@ class ServiceDeploymentPlanner:
         self._add_recommendations(plan)
 
         return plan
+
+    def validate_postgres_compatibility(self, postgres_version: str | None = None) -> ValidationResult:
+        """Validate PostgreSQL compatibility before deployment.
+
+        This should be called during the planning phase to ensure PostgreSQL
+        version compatibility with Temporal requirements.
+
+        Args:
+            postgres_version: Optional PostgreSQL version to validate.
+                            If None, attempts to detect from configuration or environment.
+
+        Returns:
+            ValidationResult with compatibility status and recommendations
+        """
+        # Determine PostgreSQL version to validate
+        if not postgres_version:
+            # Try to get from detected service
+            detected_pg = self._get_best_service(ServiceType.POSTGRESQL)
+            if detected_pg and detected_pg.version:
+                postgres_version = detected_pg.version
+            else:
+                # Fall back to configured version
+                postgres_version = self.config.services.postgres.version or "15.0"
+
+        logger.info(f"Validating PostgreSQL {postgres_version} for Temporal compatibility")
+
+        # Perform validation
+        result = self._postgres_validator.validate_deployment(postgres_version)
+
+        # Log validation result
+        if result.is_compatible:
+            logger.info(f"PostgreSQL {postgres_version} is compatible with Temporal {result.temporal_version}")
+            if result.warning_message:
+                logger.warning(result.warning_message)
+        else:
+            logger.error(f"PostgreSQL {postgres_version} is incompatible with Temporal {result.temporal_version}")
+            if result.error_message:
+                logger.error(result.error_message)
+
+        return result
 
     def _plan_redis(self) -> ServiceDeploymentPlan:
         """Plan Redis deployment strategy.
@@ -177,9 +233,48 @@ class ServiceDeploymentPlanner:
         detected_pg = self._get_best_service(ServiceType.POSTGRESQL)
         config = self.config.services.postgres
 
+        # Validate PostgreSQL compatibility with Temporal
+        postgres_version = detected_pg.version if detected_pg else (config.version or "15.0")
+        validation_result = self.validate_postgres_compatibility(postgres_version)
+
+        # Store validation result in metadata for later use
+        validation_metadata = {
+            "temporal_version": validation_result.temporal_version,
+            "is_compatible": validation_result.is_compatible,
+            "support_level": validation_result.support_level,
+            "validation_warning": validation_result.warning_message,
+        }
+
         if detected_pg and detected_pg.status == ServiceStatus.RUNNING:
             # PostgreSQL is running, check compatibility
             compatibility = self._check_compatibility(ServiceType.POSTGRESQL, detected_pg.version)
+
+            # Check Temporal compatibility as well
+            if not validation_result.is_compatible:
+                logger.warning(
+                    f"Detected PostgreSQL {detected_pg.version} is incompatible with Temporal. "
+                    f"Will create new instance."
+                )
+                # Force CREATE strategy due to Temporal incompatibility
+                new_port = self._calculate_alongside_port(ServiceType.POSTGRESQL, detected_pg.port)
+                return ServiceDeploymentPlan(
+                    service_name="postgres",
+                    strategy=ServiceStrategy.ALONGSIDE,
+                    host="localhost",
+                    port=new_port,
+                    version=config.version or "15",
+                    connection_string=self._build_postgres_connection("localhost", new_port, config.database),
+                    reason=(
+                        f"Existing PostgreSQL {detected_pg.version} incompatible with "
+                        f"Temporal {validation_result.temporal_version}, running alongside on port {new_port}"
+                    ),
+                    container_name=f"{self.config.project_name}-postgres",
+                    compatibility_level=CompatibilityLevel.MAJOR_MISMATCH,
+                    metadata={
+                        "existing_service_port": detected_pg.port,
+                        **validation_metadata,
+                    },
+                )
 
             if self.prefer_reuse and compatibility == CompatibilityLevel.COMPATIBLE:
                 # REUSE existing PostgreSQL
@@ -199,7 +294,7 @@ class ServiceDeploymentPlanner:
                     detected_service_id=detected_pg.fingerprint.fingerprint_hash if detected_pg.fingerprint else None,
                     compatibility_level=compatibility,
                     requires_configuration=True,
-                    metadata={"requires_database_creation": True},
+                    metadata={"requires_database_creation": True, **validation_metadata},
                 )
             if compatibility == CompatibilityLevel.MAJOR_MISMATCH:
                 # Version incompatible, run ALONGSIDE
@@ -216,7 +311,7 @@ class ServiceDeploymentPlanner:
                     ),
                     container_name=f"{self.config.project_name}-postgres",
                     compatibility_level=compatibility,
-                    metadata={"existing_service_port": detected_pg.port},
+                    metadata={"existing_service_port": detected_pg.port, **validation_metadata},
                 )
 
         # Check if detected but not running (e.g., stopped service with port still in use)
@@ -240,7 +335,11 @@ class ServiceDeploymentPlanner:
                     connection_string=self._build_postgres_connection("localhost", new_port, config.database),
                     reason=f"Port {config.port} in use by undetected service, running alongside on port {new_port}",
                     container_name=f"{self.config.project_name}-postgres",
-                    metadata={"original_port": config.port, "port_conflict_detected": True},
+                    metadata={
+                        "original_port": config.port,
+                        "port_conflict_detected": True,
+                        **validation_metadata,
+                    },
                 )
 
         # Check if CREATE port is available (no detected service, or detected service is not installed)
@@ -259,7 +358,7 @@ class ServiceDeploymentPlanner:
                     connection_string=self._build_postgres_connection("localhost", new_port, config.database),
                     reason=f"Creating new service on port {new_port} (port {config.port} in use)",
                     container_name=f"{self.config.project_name}-postgres",
-                    metadata={"port_conflict_avoided": True},
+                    metadata={"port_conflict_avoided": True, **validation_metadata},
                 )
 
         # No running PostgreSQL or not reusing, CREATE new on configured port
@@ -272,6 +371,7 @@ class ServiceDeploymentPlanner:
             connection_string=self._build_postgres_connection("localhost", config.port, config.database),
             reason="No compatible PostgreSQL instance detected, creating new service",
             container_name=f"{self.config.project_name}-postgres",
+            metadata=validation_metadata,
         )
 
     def _plan_temporal(self) -> ServiceDeploymentPlan:
@@ -433,3 +533,9 @@ class ServiceDeploymentPlanner:
                     f"PostgreSQL database '{self.config.services.postgres.database}' "
                     "may need to be created on the existing instance."
                 )
+
+            # Add PostgreSQL-Temporal compatibility warnings
+            if service_name == "postgres" and service_plan.metadata:
+                validation_warning = service_plan.metadata.get("validation_warning")
+                if validation_warning:
+                    plan.warnings.append(f"PostgreSQL Compatibility: {validation_warning}")

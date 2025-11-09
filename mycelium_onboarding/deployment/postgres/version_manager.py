@@ -6,12 +6,15 @@ and provides recommendations for version upgrades or downgrades.
 
 from __future__ import annotations
 
+import logging
 import re
 import subprocess
 from dataclasses import dataclass
 from enum import Enum
 
 from pydantic import BaseModel, Field
+
+logger = logging.getLogger(__name__)
 
 
 class PostgresVersion(str, Enum):
@@ -159,6 +162,56 @@ class FeatureCompatibility(BaseModel):
     migration_path: str | None = Field(default=None, description="Migration path if feature is deprecated/removed")
 
 
+def normalize_postgres_version(version_string: str) -> str:
+    """Normalize PostgreSQL version string to X.Y format.
+
+    Handles various input formats:
+    - "PostgreSQL 15.3 on x86_64..." -> "15.3"
+    - "psql (PostgreSQL) 16.0" -> "16.0"
+    - "15" -> "15.0"
+    - "15.3.1" -> "15.3"
+
+    Args:
+        version_string: Raw version string from various sources
+
+    Returns:
+        Normalized version in X.Y format (e.g., "15.3")
+
+    Raises:
+        ValueError: If version cannot be parsed
+    """
+    if not version_string:
+        raise ValueError("Version string cannot be empty")
+
+    version_string = version_string.strip()
+
+    # Extract version from "PostgreSQL X.Y..." format
+    if "PostgreSQL" in version_string or "postgresql" in version_string.lower():
+        match = re.search(r"PostgreSQL\s+([\d.]+)", version_string, re.IGNORECASE)
+        if match:
+            version_string = match.group(1)
+
+    # Extract version from "psql (PostgreSQL) X.Y" format
+    if "psql" in version_string.lower():
+        match = re.search(r"(\d+\.\d+(?:\.\d+)?)", version_string)
+        if match:
+            version_string = match.group(1)
+
+    # Clean version string - remove 'v' prefix
+    version_string = version_string.lstrip("vV")
+
+    # Parse version components
+    match = re.match(r"^(\d+)(?:\.(\d+))?(?:\.(\d+))?", version_string)
+    if not match:
+        raise ValueError(f"Cannot parse PostgreSQL version from: {version_string}")
+
+    major = match.group(1)
+    minor = match.group(2) if match.group(2) else "0"
+
+    # Return major.minor format (PostgreSQL standard)
+    return f"{major}.{minor}"
+
+
 class PostgresVersionManager:
     """Manages PostgreSQL version detection and compatibility."""
 
@@ -205,6 +258,126 @@ class PostgresVersionManager:
         self.compatibility_matrix = CompatibilityMatrix()
         self._version_cache: dict[str, VersionInfo] = {}
 
+    def detect_version_from_docker(self, container_name: str) -> str | None:
+        """Detect PostgreSQL version from Docker container.
+
+        Args:
+            container_name: Name or ID of Docker container
+
+        Returns:
+            Normalized version string (e.g., "15.3") or None if detection fails
+        """
+        try:
+            cmd = ["docker", "exec", container_name, "psql", "--version"]
+            result = subprocess.run(cmd, capture_output=True, text=True, check=False, timeout=5)
+
+            if result.returncode != 0:
+                logger.debug(f"Failed to detect PostgreSQL version from container {container_name}")
+                return None
+
+            version_output = result.stdout.strip()
+            logger.debug(f"Docker container {container_name} version output: {version_output}")
+
+            return normalize_postgres_version(version_output)
+
+        except subprocess.TimeoutExpired:
+            logger.warning(f"Timeout detecting PostgreSQL version from container {container_name}")
+            return None
+        except Exception as e:
+            logger.debug(f"Error detecting PostgreSQL version from Docker container: {e}")
+            return None
+
+    def detect_version_from_local(self) -> str | None:
+        """Detect PostgreSQL version from local installation.
+
+        Returns:
+            Normalized version string (e.g., "15.3") or None if detection fails
+        """
+        try:
+            cmd = ["psql", "--version"]
+            result = subprocess.run(cmd, capture_output=True, text=True, check=False, timeout=5)
+
+            if result.returncode != 0:
+                logger.debug("psql not found in PATH or failed to execute")
+                return None
+
+            version_output = result.stdout.strip()
+            logger.debug(f"Local psql version output: {version_output}")
+
+            return normalize_postgres_version(version_output)
+
+        except FileNotFoundError:
+            logger.debug("psql command not found")
+            return None
+        except subprocess.TimeoutExpired:
+            logger.warning("Timeout detecting local PostgreSQL version")
+            return None
+        except Exception as e:
+            logger.debug(f"Error detecting local PostgreSQL version: {e}")
+            return None
+
+    def detect_version_from_connection(self, connection_string: str) -> str | None:
+        """Detect PostgreSQL version from remote connection.
+
+        Executes SQL query: SELECT version()
+
+        Args:
+            connection_string: PostgreSQL connection string (e.g., "postgresql://user:pass@host:port/db")
+
+        Returns:
+            Normalized version string (e.g., "15.3") or None if detection fails
+        """
+        try:
+            cmd = ["psql", connection_string, "-t", "-c", "SELECT version();"]
+            result = subprocess.run(cmd, capture_output=True, text=True, check=False, timeout=10)
+
+            if result.returncode != 0:
+                logger.debug(f"Failed to connect to PostgreSQL: {result.stderr}")
+                return None
+
+            version_output = result.stdout.strip()
+            logger.debug(f"Remote connection version output: {version_output}")
+
+            # Extract version from "PostgreSQL X.Y.Z on ..." format
+            return normalize_postgres_version(version_output)
+
+        except subprocess.TimeoutExpired:
+            logger.warning("Timeout connecting to remote PostgreSQL")
+            return None
+        except Exception as e:
+            logger.debug(f"Error detecting PostgreSQL version from connection: {e}")
+            return None
+
+    def detect_version_from_kubernetes(self, pod_name: str, namespace: str = "default") -> str | None:
+        """Detect PostgreSQL version from Kubernetes pod.
+
+        Args:
+            pod_name: Name of Kubernetes pod
+            namespace: Kubernetes namespace (default: "default")
+
+        Returns:
+            Normalized version string (e.g., "15.3") or None if detection fails
+        """
+        try:
+            cmd = ["kubectl", "exec", "-n", namespace, pod_name, "--", "psql", "--version"]
+            result = subprocess.run(cmd, capture_output=True, text=True, check=False, timeout=10)
+
+            if result.returncode != 0:
+                logger.debug(f"Failed to detect PostgreSQL version from pod {pod_name}")
+                return None
+
+            version_output = result.stdout.strip()
+            logger.debug(f"Kubernetes pod {pod_name} version output: {version_output}")
+
+            return normalize_postgres_version(version_output)
+
+        except subprocess.TimeoutExpired:
+            logger.warning(f"Timeout detecting PostgreSQL version from pod {pod_name}")
+            return None
+        except Exception as e:
+            logger.debug(f"Error detecting PostgreSQL version from Kubernetes pod: {e}")
+            return None
+
     def detect_version(self, connection_string: str | None = None) -> VersionInfo | None:
         """Detect PostgreSQL version.
 
@@ -230,7 +403,7 @@ class PostgresVersionManager:
             version_str = result.stdout.strip()
 
             # Parse version
-            if "SELECT version()" in cmd:
+            if "SELECT version()" in " ".join(cmd):
                 # Parse from SELECT version() output
                 # Example: "PostgreSQL 14.5 on x86_64-pc-linux-gnu, compiled by..."
                 match = re.search(r"PostgreSQL\s+([\d.]+)", version_str)
@@ -246,7 +419,7 @@ class PostgresVersionManager:
             return VersionInfo.from_string(version_str)
 
         except Exception as e:
-            print(f"Error detecting PostgreSQL version: {e}")
+            logger.debug(f"Error detecting PostgreSQL version: {e}")
             return None
 
     def check_compatibility(self, source_version: VersionInfo, target_version: VersionInfo) -> dict[str, any]:

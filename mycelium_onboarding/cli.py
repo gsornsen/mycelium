@@ -1294,27 +1294,49 @@ def generate(method: str | None, output: str | None, generate_secrets: bool) -> 
 @click.option("--services", "-s", multiple=True, help="Specific services to deploy")
 @click.option("--verbose", "-v", is_flag=True, help="Verbose output")
 @click.option("--dry-run", is_flag=True, help="Show what would be done without doing it")
-def start(method: str | None, yes: bool, services: tuple[str, ...], verbose: bool, dry_run: bool) -> None:
+@click.option("--force-version", is_flag=True, help="Skip PostgreSQL-Temporal compatibility checks (not recommended)")
+@click.option("--postgres-version", help="Override detected PostgreSQL version")
+@click.option("--temporal-version", help="Override detected Temporal version")
+def start(
+    method: str | None,
+    yes: bool,
+    services: tuple[str, ...],
+    verbose: bool,
+    dry_run: bool,
+    force_version: bool,
+    postgres_version: str | None,
+    temporal_version: str | None,
+) -> None:
     """Start deployed services with smart detection and reuse.
 
     This command will:
     1. Detect existing services
-    2. Create an intelligent deployment plan
-    3. Generate configurations if needed
-    4. Start services
+    2. Validate PostgreSQL-Temporal compatibility
+    3. Create an intelligent deployment plan
+    4. Generate configurations if needed
+    5. Start services
 
     Examples:
         mycelium deploy start
         mycelium deploy start --method docker-compose
         mycelium deploy start --yes --services redis postgres
         mycelium deploy start --dry-run
+        mycelium deploy start --force-version
+        mycelium deploy start --postgres-version 15.3 --temporal-version 1.24.0
     """
     import asyncio
 
     from mycelium_onboarding.deployment.commands.deploy import DeployCommand
 
     # Create deployment command handler
-    deploy_cmd = DeployCommand(verbose=verbose, dry_run=dry_run, force=False)
+    deploy_cmd = DeployCommand(
+        verbose=verbose,
+        dry_run=dry_run,
+        force=False,
+        force_version=force_version,
+        postgres_version=postgres_version,
+        temporal_version=temporal_version,
+    )
 
     # Run async start operation
     try:

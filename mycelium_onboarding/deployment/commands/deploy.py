@@ -8,6 +8,7 @@ Features:
     - Smart service detection and reuse
     - Automatic deployment planning
     - Multi-method deployment (Docker, Kubernetes, systemd)
+    - PostgreSQL-Temporal compatibility validation
     - Dry-run mode for safe testing
     - Force mode for override scenarios
     - Rich progress indicators and error messages
@@ -31,11 +32,14 @@ import click
 from pydantic import BaseModel, Field
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
+from rich.prompt import Confirm
 from rich.table import Table
 
 from mycelium_onboarding.config.manager import ConfigManager
 from mycelium_onboarding.config.schema import DeploymentMethod, MyceliumConfig
 from mycelium_onboarding.deployment.generator import DeploymentGenerator
+from mycelium_onboarding.deployment.postgres.validator import validate_postgres_for_temporal
+from mycelium_onboarding.deployment.postgres.warning_formatter import WarningFormatter
 from mycelium_onboarding.deployment.secrets import SecretsManager
 from mycelium_onboarding.deployment.strategy import DeploymentPlanSummary
 from mycelium_onboarding.deployment.strategy.detector import (
@@ -54,8 +58,8 @@ class DeploymentPhase(str, Enum):
     """Phases of the deployment process."""
 
     DETECTION = "detection"
+    VALIDATION = "validation"  # PostgreSQL-Temporal compatibility validation
     PLANNING = "planning"
-    VALIDATION = "validation"
     GENERATION = "generation"
     DEPLOYMENT = "deployment"
     STARTUP = "startup"
@@ -183,7 +187,14 @@ class DeployCommand:
     """Unified deployment command handler with smart service management."""
 
     def __init__(
-        self, verbose: bool = False, dry_run: bool = False, force: bool = False, working_dir: Path | None = None
+        self,
+        verbose: bool = False,
+        dry_run: bool = False,
+        force: bool = False,
+        working_dir: Path | None = None,
+        force_version: bool = False,
+        postgres_version: str | None = None,
+        temporal_version: str | None = None,
     ):
         """Initialize deployment command.
 
@@ -192,10 +203,16 @@ class DeployCommand:
             dry_run: Perform dry run without actual deployment
             force: Force operations, override safety checks
             working_dir: Working directory context (auto-detected if None)
+            force_version: Skip PostgreSQL-Temporal compatibility checks
+            postgres_version: Override detected PostgreSQL version
+            temporal_version: Override detected Temporal version
         """
         self.verbose = verbose
         self.dry_run = dry_run
         self.force = force
+        self.force_version = force_version
+        self.postgres_version = postgres_version
+        self.temporal_version = temporal_version
         self.working_dir = working_dir or Path.cwd()
         self.detector = ServiceDetector()
         self.current_plan: DeploymentPlan | None = None
@@ -344,6 +361,79 @@ class DeployCommand:
             logger.warning(f"Failed to load deployment plan: {e}")
             return None
 
+    def _validate_postgres_compatibility(
+        self,
+        detected_services: list[DetectedService],
+    ) -> bool:
+        """Validate PostgreSQL-Temporal compatibility.
+
+        Args:
+            detected_services: List of detected services
+
+        Returns:
+            True if validation passes or user continues anyway, False if cancelled
+
+        Raises:
+            click.Abort: If validation fails and user cancels
+        """
+        # Skip validation if --force-version is set
+        if self.force_version:
+            console.print("[yellow]⚠️  Skipping PostgreSQL version validation (--force-version)[/yellow]\n")
+            return True
+
+        # Get PostgreSQL version from detected services or override
+        postgres_version = self.postgres_version
+        if not postgres_version:
+            # Find PostgreSQL in detected services
+            for service in detected_services:
+                if service.service_type.value == "postgresql" and service.version:
+                    postgres_version = service.version
+                    break
+
+        # If no PostgreSQL detected and not explicitly provided, skip validation
+        if not postgres_version:
+            if self.verbose:
+                console.print("[dim]No PostgreSQL version detected, skipping compatibility check[/dim]\n")
+            return True
+
+        # Validate PostgreSQL compatibility
+        try:
+            validation_result = validate_postgres_for_temporal(
+                postgres_version=postgres_version,
+                project_dir=self.working_dir,
+                temporal_version=self.temporal_version,
+            )
+
+            # Format and display warnings
+            formatter = WarningFormatter(console=console)
+            formatter.format_validation_result(validation_result)
+
+            # Handle validation result
+            if not validation_result.is_compatible:
+                if validation_result.can_proceed:
+                    # Warning - user can choose to continue
+                    console.print()
+                    if not Confirm.ask("Continue with deployment anyway?", default=False):
+                        console.print("[yellow]Deployment cancelled[/yellow]")
+                        return False
+                    console.print("[yellow]⚠️  Proceeding despite compatibility warning[/yellow]\n")
+                    return True
+                # Error - cannot proceed
+                console.print(f"\n[red]✗ {validation_result.error_message}[/red]")
+                console.print("[yellow]Tip: Use --force-version to bypass this check (not recommended)[/yellow]\n")
+                return False
+            # Compatible - show success message
+            console.print("[green]✓ PostgreSQL compatibility validated[/green]\n")
+            return True
+
+        except Exception as e:
+            # Validation error - log and continue if verbose, else skip silently
+            if self.verbose:
+                console.print(f"[yellow]⚠️  Compatibility validation warning: {e}[/yellow]")
+                console.print("[dim]Continuing with deployment...[/dim]\n")
+            logger.debug(f"PostgreSQL validation error: {e}")
+            return True
+
     async def start(
         self,
         auto_approve: bool = False,
@@ -355,9 +445,10 @@ class DeployCommand:
 
         This is the main "deploy start" command that:
         1. Detects existing services
-        2. Creates deployment plan
-        3. Generates configurations
-        4. Starts services
+        2. Validates PostgreSQL-Temporal compatibility
+        3. Creates deployment plan
+        4. Generates configurations
+        5. Starts services
 
         Args:
             auto_approve: Skip confirmation prompts
@@ -381,8 +472,14 @@ class DeployCommand:
         console.print(f"[cyan]Deployment Method:[/cyan] {deploy_method.value}")
         console.print(f"[cyan]Project:[/cyan] {config.project_name}\n")
 
+        # NEW Phase 2.5: PostgreSQL-Temporal Compatibility Validation
+        if config.services.temporal.enabled and config.services.postgres.enabled:
+            console.print("[yellow]Phase 2: PostgreSQL Compatibility Validation[/yellow]")
+            if not self._validate_postgres_compatibility(detected_services):
+                return False
+
         # Phase 3: Planning (NOW USING SMART PLANNER)
-        console.print("[yellow]Phase 2: Deployment Planning[/yellow]")
+        console.print("[yellow]Phase 3: Deployment Planning[/yellow]")
         plan = await self._create_deployment_plan(detected_services, services, config_file)
         self.current_plan = plan
 
@@ -400,13 +497,13 @@ class DeployCommand:
             return True
 
         # Phase 5: Generate configurations (NOW WITH SMART PLAN)
-        console.print("\n[yellow]Phase 3: Generating Configurations[/yellow]")
+        console.print("\n[yellow]Phase 4: Generating Configurations[/yellow]")
         if not await self._generate_configs(config, deploy_method):
             console.print("\n[bold red]Configuration generation failed.[/bold red]")
             return False
 
         # Phase 6: Execute deployment
-        console.print("\n[yellow]Phase 4: Starting Services[/yellow]")
+        console.print("\n[yellow]Phase 5: Starting Services[/yellow]")
         success = await self._execute_deployment(plan, deploy_method)
 
         if success:
@@ -715,21 +812,22 @@ class DeployCommand:
             )
         )
 
+        # Validation phase steps
+        plan.add_step(
+            DeploymentStep(
+                name="PostgreSQL Compatibility",
+                phase=DeploymentPhase.VALIDATION,
+                description="Validate PostgreSQL-Temporal compatibility",
+                status=DeploymentStatus.SUCCESS,
+            )
+        )
+
         # Planning phase steps
         plan.add_step(
             DeploymentStep(
                 name="Analyze Dependencies",
                 phase=DeploymentPhase.PLANNING,
                 description="Analyze service dependencies and requirements",
-            )
-        )
-
-        # Validation phase steps
-        plan.add_step(
-            DeploymentStep(
-                name="Validate Environment",
-                phase=DeploymentPhase.VALIDATION,
-                description="Validate deployment environment",
             )
         )
 

@@ -1,0 +1,12 @@
+[tool.poetry]
+name = "temporal-poetry-app"
+version = "0.1.0"
+description = "Temporal app using Poetry"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+temporalio = "^1.20.0"
+pydantic = "^2.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "^7.4.0"
