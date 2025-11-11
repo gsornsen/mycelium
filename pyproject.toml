@@ -246,4 +246,5 @@ dev = [
     "alembic>=1.17.1",
     "sqlalchemy>=2.0.44",
     "psycopg2-binary>=2.9.11",
+    "types-redis>=4.6.0.20241004",
 ]

@@ -100,7 +100,7 @@ class TemplateRenderer:
         template = self.env.get_template("docker-compose.yml.j2")
 
         # Build context with deployment plan information
-        context = {"config": config}
+        context: dict[str, Any] = {"config": config}
 
         if deployment_plan:
             # Determine which services should be included in docker-compose

@@ -235,6 +235,8 @@ async def validate_state_persistence_activity(workflow_id: str, test_value: int)
 async def test_error_handling_activity(should_fail: bool, attempt_limit: int) -> dict[str, Any]:
     """Test error handling and retry logic.
 
+    Note: This is a Temporal activity, not a pytest test.
+
     Args:
         should_fail: Whether this attempt should fail (for testing retries)
         attempt_limit: Maximum attempts before succeeding
@@ -265,6 +267,10 @@ async def test_error_handling_activity(should_fail: bool, attempt_limit: int) ->
 
     logger.info("Error handling validation successful")
     return result
+
+
+# Tell pytest not to collect this activity as a test
+test_error_handling_activity.__test__ = False
 
 
 @workflow.defn(name="TestWorkflow")

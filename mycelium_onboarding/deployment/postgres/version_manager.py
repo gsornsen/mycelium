@@ -105,7 +105,7 @@ class CompatibilityMatrix(BaseModel):
         super().__init__(**data)
         self._init_default_matrix()
 
-    def _init_default_matrix(self):
+    def _init_default_matrix(self) -> None:
         """Initialize default compatibility matrix."""
         versions = [v.value for v in PostgresVersion]
 
@@ -422,7 +422,7 @@ class PostgresVersionManager:
             logger.debug(f"Error detecting PostgreSQL version: {e}")
             return None
 
-    def check_compatibility(self, source_version: VersionInfo, target_version: VersionInfo) -> dict[str, any]:
+    def check_compatibility(self, source_version: VersionInfo, target_version: VersionInfo) -> dict[str, Any]:
         """Check compatibility between two PostgreSQL versions.
 
         Args:

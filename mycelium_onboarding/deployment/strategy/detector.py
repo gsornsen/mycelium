@@ -120,7 +120,7 @@ class ServiceDetector:
         Returns:
             List of detected services
         """
-        services = []
+        services: list[DetectedService] = []
 
         if self.scan_system:
             services.extend(self._detect_system_services())
@@ -151,7 +151,7 @@ class ServiceDetector:
 
     def _detect_system_services(self) -> list[DetectedService]:
         """Detect services running on the system."""
-        services = []
+        services: list[DetectedService] = []
 
         # Detect PostgreSQL
         pg_service = self._detect_postgresql()
@@ -451,7 +451,7 @@ class ServiceDetector:
 
     def _detect_docker_services(self) -> list[DetectedService]:
         """Detect services running in Docker containers."""
-        services = []
+        services: list[DetectedService] = []
 
         try:
             # Check if Docker is available

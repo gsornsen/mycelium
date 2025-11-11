@@ -75,7 +75,7 @@ class ServiceDeploymentPlanner:
         # Initialize PostgreSQL validator
         self._postgres_validator = PostgresValidator(self.project_dir)
 
-    def _index_services(self):
+    def _index_services(self) -> None:
         """Index detected services by type for quick lookup."""
         logger.debug(f"Indexing {len(self.detected_services)} detected services:")
         for service in self.detected_services:

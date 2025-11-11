@@ -28,7 +28,7 @@ console = Console()
 @click.option("--dry-run", is_flag=True, help="Simulate migration without changes")
 @click.option("--yes", "-y", is_flag=True, help="Skip confirmation prompt")
 @click.option("--backup-dir", type=click.Path(path_type=Path), help="Custom backup directory")
-def migrate_command(dry_run: bool, yes: bool, backup_dir: Path | None):
+def migrate_command(dry_run: bool, yes: bool, backup_dir: Path | None) -> None:
     """Migrate configuration to XDG-compliant locations.
 
     Migrates legacy mycelium-config.yaml files to new structure:

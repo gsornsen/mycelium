@@ -294,7 +294,7 @@ class DeployCommand:
             }
 
         # Save to file
-        with open(plan_file, "w") as f:
+        with Path(plan_file).open("w") as f:
             json.dump(plan_data, f, indent=2)
 
         logger.debug(f"Saved deployment plan to {plan_file}")
@@ -313,7 +313,7 @@ class DeployCommand:
                 logger.debug(f"No deployment plan found at {plan_file}")
                 return None
 
-            with open(plan_file) as f:
+            with Path(plan_file).open() as f:
                 plan_data = json.load(f)
 
             # Reconstruct smart plan if available
@@ -487,10 +487,9 @@ class DeployCommand:
         self._display_plan_summary(plan)
 
         # Phase 4: Confirmation
-        if not auto_approve and not self.dry_run:
-            if not self._confirm_deployment():
-                console.print("\n[yellow]Deployment cancelled by user.[/yellow]")
-                return False
+        if not auto_approve and not self.dry_run and not self._confirm_deployment():
+            console.print("\n[yellow]Deployment cancelled by user.[/yellow]")
+            return False
 
         if self.dry_run:
             console.print("\n[cyan]Dry run mode - no actual deployment will occur.[/cyan]")
@@ -534,10 +533,13 @@ class DeployCommand:
         console.print(f"[cyan]Method:[/cyan] {deploy_method.value}")
         console.print(f"[cyan]Project:[/cyan] {config.project_name}\n")
 
-        if remove_data and not self.force:
-            if not click.confirm("This will remove all data. Are you sure?", default=False):
-                console.print("[yellow]Operation cancelled.[/yellow]")
-                return False
+        if (
+            remove_data
+            and not self.force
+            and not click.confirm("This will remove all data. Are you sure?", default=False)
+        ):
+            console.print("[yellow]Operation cancelled.[/yellow]")
+            return False
 
         try:
             deployment_dir = self._get_deployment_dir()

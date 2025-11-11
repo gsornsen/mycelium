@@ -208,7 +208,7 @@ class PostgresValidator:
         self,
         temporal_version: str,
         postgres_version: str,
-        compatibility_report: dict,
+        compatibility_report: dict[str, Any],
     ) -> ValidationResult:
         """Build ValidationResult from compatibility report.
 
@@ -322,7 +322,7 @@ class PostgresValidator:
         is_compatible: bool,
         temporal_version: str,
         postgres_version: str,
-        requirements: dict,
+        requirements: dict[str, Any],
         support_level: str,
         existing_warning: str | None,
         requires_pg_upgrade: bool,

@@ -38,11 +38,14 @@ def __getattr__(name: str) -> Any:
     """
     if name == "DeploymentGenerator":
         from mycelium_onboarding.deployment.generator import DeploymentGenerator
+
         return DeploymentGenerator
     if name == "GenerationResult":
         from mycelium_onboarding.deployment.generator import GenerationResult
+
         return GenerationResult
     if name == "TemplateRenderer":
         from mycelium_onboarding.deployment.renderer import TemplateRenderer
+
         return TemplateRenderer
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

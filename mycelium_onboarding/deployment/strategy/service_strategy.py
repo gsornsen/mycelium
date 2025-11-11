@@ -199,7 +199,7 @@ class DeploymentPlanSummary(BaseModel):
         Returns:
             Dictionary with template context including strategy info
         """
-        context = {
+        context: dict[str, Any] = {
             "services_to_deploy": {},
             "services_reused": {},
             "connection_info": {},

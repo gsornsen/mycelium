@@ -28,7 +28,7 @@ console = Console()
 
 
 @click.group(name="config")
-def config_group():
+def config_group() -> None:
     """Manage Mycelium configuration."""
     pass
 
@@ -36,7 +36,7 @@ def config_group():
 @config_group.command(name="where")
 @click.option("--global", "show_global", is_flag=True, help="Show global config path only")
 @click.option("--project", "show_project", is_flag=True, help="Show project config path only")
-def where_command(show_global: bool, show_project: bool):
+def where_command(show_global: bool, show_project: bool) -> None:
     """Show configuration file locations.
 
     Displays the paths to global and project-local configuration files,
@@ -112,7 +112,7 @@ def where_command(show_global: bool, show_project: bool):
     help="Which config to show (default: merged)",
 )
 @click.option("--format", type=click.Choice(["yaml", "json"]), default="yaml", help="Output format (default: yaml)")
-def show_command(source: str, format: str):
+def show_command(source: str, format: str) -> None:
     """Display configuration.
 
     Shows the configuration from different sources with precedence applied.
@@ -182,7 +182,7 @@ def show_command(source: str, format: str):
 @config_group.command(name="get")
 @click.argument("key")
 @click.option("--default", help="Default value if key not found")
-def get_command(key: str, default: str | None):
+def get_command(key: str, default: str | None) -> None:
     """Get configuration value by key.
 
     Supports dot notation for nested values (e.g., 'services.postgres.port').
@@ -235,7 +235,7 @@ def get_command(key: str, default: str | None):
     default="string",
     help="Value type (default: string)",
 )
-def set_command(key: str, value: str, set_global: bool, type: str):
+def set_command(key: str, value: str, set_global: bool, type: str) -> None:
     """Set configuration value.
 
     Sets a configuration value in either global or project config.
@@ -302,7 +302,7 @@ def set_command(key: str, value: str, set_global: bool, type: str):
 @config_group.command(name="edit")
 @click.option("--global", "edit_global", is_flag=True, help="Edit global config")
 @click.option("--editor", help="Editor to use (default: $EDITOR)")
-def edit_command(edit_global: bool, editor: str | None):
+def edit_command(edit_global: bool, editor: str | None) -> None:
     """Open configuration file in editor.
 
     Opens the configuration file in your preferred text editor.
@@ -385,7 +385,7 @@ def edit_command(edit_global: bool, editor: str | None):
 @config_group.command(name="rollback")
 @click.argument("backup-dir", type=click.Path(exists=True, path_type=Path))
 @click.option("--yes", "-y", is_flag=True, help="Skip confirmation prompt")
-def rollback_command(backup_dir: Path, yes: bool):
+def rollback_command(backup_dir: Path, yes: bool) -> None:
     """Rollback configuration from backup.
 
     Restores configuration files from a backup directory created during migration.
@@ -456,7 +456,7 @@ def rollback_command(backup_dir: Path, yes: bool):
 # Helper functions
 
 
-def _display_config_location(scope: str, path: Path):
+def _display_config_location(scope: str, path: Path) -> None:
     """Display a single configuration location."""
     console.print(f"[bold]{scope} Configuration:[/bold]")
     console.print(f"  Path: {path}")

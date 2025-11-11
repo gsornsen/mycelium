@@ -159,7 +159,7 @@ class ValidationReport:
     def format_summary(self) -> str:
         """Format validation report as human-readable summary."""
         lines = []
-        lines.append(f"=== Deployment Validation Report ===")
+        lines.append("=== Deployment Validation Report ===")
         lines.append(f"Deployment ID: {self.deployment_id}")
         lines.append(f"Validated At: {self.validated_at.strftime('%Y-%m-%d %H:%M:%S')}")
         lines.append(f"Overall Status: {self.overall_status.value.upper()}")
@@ -170,8 +170,7 @@ class ValidationReport:
         for service_name, service_health in self.services.items():
             status_symbol = "✓" if service_health.is_healthy() else "✗"
             lines.append(
-                f"  {status_symbol} {service_name} ({service_health.service_type.value}): "
-                f"{service_health.status.value}"
+                f"  {status_symbol} {service_name} ({service_health.service_type.value}): {service_health.status.value}"
             )
             if service_health.version:
                 lines.append(f"    Version: {service_health.version}")
@@ -282,9 +281,7 @@ class DeploymentValidator:
         Returns:
             ValidationReport with complete validation results
         """
-        report = ValidationReport(
-            deployment_id=f"validation-{datetime.now().strftime('%Y%m%d-%H%M%S')}"
-        )
+        report = ValidationReport(deployment_id=f"validation-{datetime.now().strftime('%Y%m%d-%H%M%S')}")
 
         # Phase 1: PostgreSQL validation
         logger.info("Validating PostgreSQL service...")
@@ -331,9 +328,7 @@ class DeploymentValidator:
                 )
         else:
             report.add_error("PostgreSQL is not healthy, skipping Temporal validation")
-            report.add_recommendation(
-                "Fix PostgreSQL issues before proceeding with Temporal deployment"
-            )
+            report.add_recommendation("Fix PostgreSQL issues before proceeding with Temporal deployment")
 
         # Compute overall status
         report.overall_status = report.compute_overall_status()
@@ -395,24 +390,16 @@ class DeploymentValidator:
             # Try to import asyncpg for actual connection test
             import asyncpg
 
-            conn_check = await self._test_postgres_connection(
-                host, port, database, user, password
-            )
+            conn_check = await self._test_postgres_connection(host, port, database, user, password)
             health.add_check("Database Connection", conn_check, database)
 
             if conn_check:
                 # Check 4: Temporal schema validation
-                schema_check = await self._validate_temporal_schema(
-                    host, port, database, user, password
-                )
-                health.add_check(
-                    "Temporal Schema", schema_check, "Schema tables verified"
-                )
+                schema_check = await self._validate_temporal_schema(host, port, database, user, password)
+                health.add_check("Temporal Schema", schema_check, "Schema tables verified")
 
                 # Check 5: Connection pool
-                pool_check = await self._check_postgres_connections(
-                    host, port, database, user, password
-                )
+                pool_check = await self._check_postgres_connections(host, port, database, user, password)
                 health.add_check("Connection Pool", pool_check)
 
                 # All checks passed
@@ -578,26 +565,16 @@ class DeploymentValidator:
         if temporal_db_check:
             report.add_integration_check("Temporal can communicate with PostgreSQL")
         else:
-            report.add_warning(
-                "Could not verify Temporal → PostgreSQL communication"
-            )
+            report.add_warning("Could not verify Temporal → PostgreSQL communication")
 
         # Integration check 2: Default namespace registration
-        namespace_registered = await self._verify_namespace_registered(
-            temporal_host, temporal_port, temporal_namespace
-        )
+        namespace_registered = await self._verify_namespace_registered(temporal_host, temporal_port, temporal_namespace)
         if namespace_registered:
-            report.add_integration_check(
-                f"Namespace '{temporal_namespace}' is registered and active"
-            )
+            report.add_integration_check(f"Namespace '{temporal_namespace}' is registered and active")
         else:
-            report.add_warning(
-                f"Namespace '{temporal_namespace}' may not be fully initialized"
-            )
+            report.add_warning(f"Namespace '{temporal_namespace}' may not be fully initialized")
 
-    async def _check_port_connectivity(
-        self, host: str, port: int, timeout: float = 5.0
-    ) -> bool:
+    async def _check_port_connectivity(self, host: str, port: int, timeout: float = 5.0) -> bool:
         """Check if a port is reachable.
 
         Args:
@@ -619,18 +596,14 @@ class DeploymentValidator:
                 sock.close()
                 return True
 
-            except (socket.error, OSError) as e:
-                logger.debug(
-                    f"Port check attempt {attempt + 1}/{self.retry_attempts} failed: {e}"
-                )
+            except OSError as e:
+                logger.debug(f"Port check attempt {attempt + 1}/{self.retry_attempts} failed: {e}")
                 if attempt < self.retry_attempts - 1:
                     await asyncio.sleep(self.retry_delay)
 
         return False
 
-    async def _get_postgres_version(
-        self, host: str, port: int, user: str, password: str | None
-    ) -> str | None:
+    async def _get_postgres_version(self, host: str, port: int, user: str, password: str | None) -> str | None:
         """Get PostgreSQL version."""
         try:
             # Use psql if available
@@ -749,9 +722,7 @@ class DeploymentValidator:
             )
 
             # Check current connections
-            result = await conn.fetchval(
-                "SELECT count(*) FROM pg_stat_activity WHERE datname = $1", database
-            )
+            result = await conn.fetchval("SELECT count(*) FROM pg_stat_activity WHERE datname = $1", database)
 
             await conn.close()
 
@@ -788,15 +759,11 @@ class DeploymentValidator:
         # For now, use port connectivity as proxy
         return await self._check_port_connectivity(host, port)
 
-    async def _check_temporal_namespace(
-        self, host: str, port: int, namespace: str
-    ) -> bool:
+    async def _check_temporal_namespace(self, host: str, port: int, namespace: str) -> bool:
         """Check if Temporal namespace exists."""
         # This would require Temporal SDK
         # For now, assume default namespace exists if server is up
-        logger.debug(
-            f"Namespace check for '{namespace}' requires Temporal SDK integration"
-        )
+        logger.debug(f"Namespace check for '{namespace}' requires Temporal SDK integration")
         return True  # Optimistic assumption
 
     async def _check_temporal_frontend(self, host: str, port: int) -> bool:
@@ -823,43 +790,30 @@ class DeploymentValidator:
         logger.debug("Temporal → PostgreSQL connection check requires admin API")
         return True  # Optimistic assumption
 
-    async def _verify_namespace_registered(
-        self, temporal_host: str, temporal_port: int, namespace: str
-    ) -> bool:
+    async def _verify_namespace_registered(self, temporal_host: str, temporal_port: int, namespace: str) -> bool:
         """Verify namespace is registered in Temporal."""
         # This would require Temporal SDK
-        logger.debug(f"Namespace registration check requires Temporal SDK")
+        logger.debug("Namespace registration check requires Temporal SDK")
         return True  # Optimistic assumption
 
     def _add_final_recommendations(self, report: ValidationReport) -> None:
         """Add final recommendations based on validation results."""
         if report.is_healthy():
-            report.add_recommendation(
-                "All services are healthy. You can proceed with workflow development."
-            )
-            report.add_recommendation(
-                "Access Temporal UI at http://localhost:8080 to monitor workflows"
-            )
+            report.add_recommendation("All services are healthy. You can proceed with workflow development.")
+            report.add_recommendation("Access Temporal UI at http://localhost:8080 to monitor workflows")
         elif report.can_proceed():
             report.add_recommendation(
-                "Some issues detected but deployment can operate. "
-                "Review warnings and consider fixes."
+                "Some issues detected but deployment can operate. Review warnings and consider fixes."
             )
         else:
-            report.add_recommendation(
-                "Critical issues detected. Fix errors before proceeding with workflows."
-            )
+            report.add_recommendation("Critical issues detected. Fix errors before proceeding with workflows.")
 
         # Add specific recommendations based on service statuses
         for service_name, service_health in report.services.items():
             if service_health.status == HealthStatus.UNHEALTHY:
-                report.add_recommendation(
-                    f"Fix {service_name} health issues: {service_health.message}"
-                )
+                report.add_recommendation(f"Fix {service_name} health issues: {service_health.message}")
             elif service_health.status == HealthStatus.DEGRADED:
-                report.add_recommendation(
-                    f"Optimize {service_name}: {service_health.message}"
-                )
+                report.add_recommendation(f"Optimize {service_name}: {service_health.message}")
 
 
 async def validate_deployment(
