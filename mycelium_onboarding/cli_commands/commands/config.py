@@ -490,7 +490,7 @@ def _get_nested_value(data: dict[str, Any], key: str) -> Any:
                 raise KeyError(f"Cannot access key '{k}' in non-dict value")
         return value
     except (KeyError, TypeError):
-        raise KeyError(f"Key not found: {key}")
+        raise KeyError(f"Key not found: {key}") from None
 
 
 def _set_nested_value(data: dict[str, Any], key: str, value: Any) -> None:

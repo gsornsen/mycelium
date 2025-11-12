@@ -239,7 +239,7 @@ class DeployCommand:
         except Exception as e:
             if self.verbose:
                 console.print(f"[dim]Config load error: {e}[/dim]")
-            raise click.ClickException("Configuration not found. Run 'mycelium init' to create one.")
+            raise click.ClickException("Configuration not found. Run 'mycelium init' to create one.") from e
 
     def _get_deployment_dir(self) -> Path:
         """Get deployment directory based on config and context.
@@ -676,10 +676,9 @@ class DeployCommand:
         for item in items_to_clean:
             console.print(f"  • {item}")
 
-        if not self.force:
-            if not click.confirm("\nContinue?", default=False):
-                console.print("[yellow]Operation cancelled.[/yellow]")
-                return False
+        if not self.force and not click.confirm("\nContinue?", default=False):
+            console.print("[yellow]Operation cancelled.[/yellow]")
+            return False
 
         try:
             deployment_dir = self._get_deployment_dir()
@@ -752,7 +751,7 @@ class DeployCommand:
         return services
 
     async def _create_deployment_plan(
-        self, detected_services: list[DetectedService], requested_services: list[str] | None, config_file: Path | None
+        self, detected_services: list[DetectedService], requested_services: list[str] | None, _config_file: Path | None
     ) -> DeploymentPlan:
         """Create a deployment plan based on detected and requested services.
 
@@ -928,7 +927,7 @@ class DeployCommand:
                 logger.exception("Configuration generation failed")
             return False
 
-    async def _execute_deployment(self, plan: DeploymentPlan, deploy_method: DeploymentMethod) -> bool:
+    async def _execute_deployment(self, _plan: DeploymentPlan, deploy_method: DeploymentMethod) -> bool:
         """Execute the deployment plan.
 
         Args:
@@ -1021,7 +1020,7 @@ class DeployCommand:
             cmd.extend(services)
 
         with console.status("[bold yellow]Restarting services..."):
-            result = subprocess.run(cmd, cwd=deployment_dir, capture_output=True, text=True, check=True)
+            subprocess.run(cmd, cwd=deployment_dir, capture_output=True, text=True, check=True)
 
         console.print("[green]✓[/green] Services restarted")
 
@@ -1084,7 +1083,7 @@ class DeployCommand:
         }
 
     # Kubernetes operations
-    async def _start_kubernetes(self, k8s_dir: Path, namespace: str) -> bool:
+    async def _start_kubernetes(self, k8s_dir: Path, _namespace: str) -> bool:
         """Start Kubernetes deployment."""
         if not k8s_dir.exists():
             console.print(f"[red]Kubernetes directory not found: {k8s_dir}[/red]")
@@ -1158,7 +1157,10 @@ class DeployCommand:
                     {
                         "name": pod["metadata"]["name"],
                         "phase": pod["status"].get("phase", "Unknown"),
-                        "ready": f"{sum(1 for c in pod['status'].get('containerStatuses', []) if c.get('ready'))}/{len(pod['status'].get('containerStatuses', []))}",
+                        "ready": (
+                            f"{sum(1 for c in pod['status'].get('containerStatuses', []) if c.get('ready'))}/"
+                            f"{len(pod['status'].get('containerStatuses', []))}"
+                        ),
                     }
                     for pod in pods
                 ],
@@ -1182,7 +1184,7 @@ class DeployCommand:
         console.print(f"[green]✓[/green] Started {len(services)} service(s)")
         return True
 
-    async def _stop_systemd(self, config: MyceliumConfig, remove_data: bool) -> None:
+    async def _stop_systemd(self, config: MyceliumConfig, _remove_data: bool) -> None:
         """Stop systemd services."""
         services = self._get_systemd_services(config)
 

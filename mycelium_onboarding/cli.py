@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import json
 import logging
-import subprocess
 import sys
 from functools import reduce
 from pathlib import Path
@@ -19,6 +18,23 @@ import click
 from rich.console import Console
 from rich.table import Table
 
+from mycelium_onboarding.cli_commands.commands.config import (
+    edit_command,
+    get_command,
+    rollback_command,
+    set_command,
+    where_command,
+)
+from mycelium_onboarding.cli_commands.commands.config_migrate import migrate_command
+from mycelium_onboarding.config.cli_commands import (
+    list_configs as config_list,
+)
+from mycelium_onboarding.config.cli_commands import (
+    migrate_config as config_migrate_cmd,
+)
+from mycelium_onboarding.config.cli_commands import (
+    reset_config as config_reset,
+)
 from mycelium_onboarding.config.manager import (
     ConfigLoadError,
     ConfigManager,
@@ -1349,7 +1365,7 @@ def start(
 
     except KeyboardInterrupt:
         console.print("\n[yellow]Deployment cancelled by user.[/yellow]")
-        raise SystemExit(130)
+        raise SystemExit(130) from None
     except Exception as e:
         console.print(f"[bold red]✗ Deployment failed: {e}[/bold red]")
         if verbose:
@@ -1391,7 +1407,7 @@ def stop(method: str | None, remove_data: bool, verbose: bool) -> None:
 
     except KeyboardInterrupt:
         console.print("\n[yellow]Operation cancelled by user.[/yellow]")
-        raise SystemExit(130)
+        raise SystemExit(130) from None
     except Exception as e:
         console.print(f"[bold red]✗ Stop failed: {e}[/bold red]")
         if verbose:
@@ -1429,139 +1445,12 @@ def status(method: str | None, watch: bool, format: str, verbose: bool) -> None:
 
     except KeyboardInterrupt:
         console.print("\n[yellow]Status check cancelled by user.[/yellow]")
-        raise SystemExit(130)
+        raise SystemExit(130) from None
     except Exception as e:
         console.print(f"[bold red]✗ Status check failed: {e}[/bold red]")
         if verbose:
             logger.exception("Status check failed")
         raise SystemExit(1) from e
-
-
-# Keep legacy implementation for reference but unused
-def _legacy_status_implementation(deploy_method: Any, config: Any) -> None:  # noqa: F821, B904
-    """Legacy status implementation - kept for reference."""
-    # Create status table
-    table = Table(title=f"{config.project_name} - Service Status", show_header=True)
-    table.add_column("Service", style="cyan")
-    table.add_column("Status", justify="center")
-    table.add_column("Details")
-
-    if False:  # Disabled - using new implementation above
-        try:
-            result = subprocess.run(  # nosec B603 B607 - Safe execution of system tools
-                ["docker-compose", "ps", "--format", "json"],
-                capture_output=True,
-                text=True,
-                check=True,
-            )
-            # Parse and display container status
-            if result.stdout.strip():
-                import json
-
-                # Handle both single object and array of objects
-                try:
-                    containers = json.loads(result.stdout)
-                    if not isinstance(containers, list):
-                        containers = [containers]
-                except json.JSONDecodeError:
-                    # Try line-by-line JSON
-                    containers = []
-                    for line in result.stdout.strip().split("\n"):
-                        if line.strip():
-                            containers.append(json.loads(line))
-
-                for container in containers:
-                    status_str = (
-                        "[green]Running[/green]" if container.get("State") == "running" else "[red]Stopped[/red]"
-                    )
-                    table.add_row(
-                        container.get("Service", container.get("Name", "unknown")),
-                        status_str,
-                        container.get("Status", ""),
-                    )
-            else:
-                console.print("[yellow]No running containers found[/yellow]")
-                return
-        except subprocess.CalledProcessError:
-            console.print("[yellow]No running containers found[/yellow]")
-            return
-        except FileNotFoundError:
-            console.print("[red]docker-compose command not found[/red]")
-            raise SystemExit(1) from None
-
-    elif deploy_method == DeploymentMethod.KUBERNETES:  # type: ignore[name-defined]
-        try:
-            result = subprocess.run(  # nosec B603 B607 - Safe execution of system tools
-                [
-                    "kubectl",
-                    "get",
-                    "pods",
-                    "-n",
-                    config.project_name,
-                    "-o",
-                    "json",
-                ],
-                capture_output=True,
-                text=True,
-                check=True,
-            )
-            import json
-
-            pods_data = json.loads(result.stdout)
-            for pod in pods_data.get("items", []):
-                name = pod["metadata"]["name"]
-                status_str = pod["status"].get("phase", "Unknown")
-                if status_str == "Running":
-                    status_str = "[green]Running[/green]"
-                elif status_str == "Pending":
-                    status_str = "[yellow]Pending[/yellow]"
-                else:
-                    status_str = f"[red]{status_str}[/red]"
-
-                container_statuses = pod["status"].get("containerStatuses", [])
-                ready_count = sum(1 for c in container_statuses if c.get("ready"))
-                total_count = len(container_statuses)
-                ready = f"{ready_count}/{total_count}"
-                table.add_row(name, status_str, f"Ready: {ready}")
-        except subprocess.CalledProcessError:
-            console.print(f"[yellow]No pods found in namespace {config.project_name}[/yellow]")
-            return
-        except FileNotFoundError:
-            console.print("[red]kubectl command not found[/red]")
-            raise SystemExit(1) from None
-
-    elif deploy_method == DeploymentMethod.SYSTEMD:  # type: ignore[name-defined]
-        services = []
-        if config.services.redis.enabled:
-            services.append(f"{config.project_name}-redis")
-        if config.services.postgres.enabled:
-            services.append(f"{config.project_name}-postgres")
-        if config.services.temporal.enabled:
-            services.append(f"{config.project_name}-temporal")
-
-        for service in services:
-            try:
-                result = subprocess.run(  # nosec B603 B607 - Safe execution of system tools
-                    ["systemctl", "is-active", service],
-                    capture_output=True,
-                    text=True,
-                )
-                status_str = result.stdout.strip()
-                if status_str == "active":
-                    status_str = "[green]Active[/green]"
-                elif status_str == "inactive":
-                    status_str = "[yellow]Inactive[/yellow]"
-                else:
-                    status_str = f"[red]{status_str}[/red]"
-
-                table.add_row(service, status_str, "")
-            except subprocess.CalledProcessError:
-                table.add_row(service, "[red]Error[/red]", "")
-
-    console.print(table)
-
-    if watch:  # type: ignore[name-defined]
-        console.print("\n[yellow]Watch mode not yet implemented[/yellow]")
 
 
 @deploy.command()
@@ -1596,7 +1485,7 @@ def restart(method: str | None, services: tuple[str, ...], verbose: bool) -> Non
 
     except KeyboardInterrupt:
         console.print("\n[yellow]Restart cancelled by user.[/yellow]")
-        raise SystemExit(130)
+        raise SystemExit(130) from None
     except Exception as e:
         console.print(f"[bold red]✗ Restart failed: {e}[/bold red]")
         if verbose:
@@ -1640,7 +1529,7 @@ def clean(method: str | None, remove_configs: bool, remove_secrets: bool, force:
 
     except KeyboardInterrupt:
         console.print("\n[yellow]Clean cancelled by user.[/yellow]")
-        raise SystemExit(130)
+        raise SystemExit(130) from None
     except Exception as e:
         console.print(f"[bold red]✗ Clean failed: {e}[/bold red]")
         if verbose:
@@ -1915,26 +1804,6 @@ if __name__ == "__main__":
 # ============================================================================
 # Additional Configuration Commands (added for global config management)
 # ============================================================================
-
-# Import additional config commands from legacy cli_commands
-# Import new Sprint 2 config commands
-from mycelium_onboarding.cli_commands.commands.config import (
-    edit_command,
-    get_command,
-    rollback_command,
-    set_command,
-    where_command,
-)
-from mycelium_onboarding.cli_commands.commands.config_migrate import migrate_command
-from mycelium_onboarding.config.cli_commands import (
-    list_configs as config_list,
-)
-from mycelium_onboarding.config.cli_commands import (
-    migrate_config as config_migrate_cmd,
-)
-from mycelium_onboarding.config.cli_commands import (
-    reset_config as config_reset,
-)
 
 # Register legacy config commands (for backward compatibility)
 config.add_command(config_list, name="list")
