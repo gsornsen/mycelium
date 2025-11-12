@@ -9,7 +9,6 @@ These tests validate actual Temporal + PostgreSQL deployments, checking:
 
 import asyncio
 import os
-from pathlib import Path
 
 import pytest
 
@@ -19,7 +18,6 @@ from mycelium_onboarding.deployment.validation import (
     ServiceType,
     validate_deployment,
 )
-
 
 # Test configuration from environment or defaults
 POSTGRES_HOST = os.getenv("POSTGRES_HOST", "localhost")
@@ -439,6 +437,7 @@ class TestDeploymentValidationSync:
 
     def test_deployment_validation_sync(self):
         """Test synchronous execution of deployment validation."""
+
         async def run_validation():
             return await validate_deployment(
                 postgres_host=POSTGRES_HOST,

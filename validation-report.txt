@@ -1,0 +1,767 @@
+=== MYPY ERRORS ===
+mycelium_onboarding/tui/__init__.py:9: error: Skipping analyzing "mycelium_onboarding.tui.health_monitor": module is installed, but missing library stubs or py.typed marker  [import-untyped]
+mycelium_onboarding/tui/__init__.py:10: error: Skipping analyzing "mycelium_onboarding.tui.realtime_updates": module is installed, but missing library stubs or py.typed marker  [import-untyped]
+mycelium_onboarding/tui/__init__.py:11: error: Skipping analyzing "mycelium_onboarding.tui.status_display": module is installed, but missing library stubs or py.typed marker  [import-untyped]
+mycelium_onboarding/config/platform.py:49: error: Statement is unreachable  [unreachable]
+mycelium_onboarding/coordination/redis_helper.py:330: error: Returning Any from function declared to return "dict[str, Any] | None"  [no-any-return]
+mycelium_onboarding/deployment/postgres/compatibility.py:459: error: Returning Any from function declared to return "dict[str, Any] | None"  [no-any-return]
+mycelium_onboarding/deployment/postgres/compatibility.py:467: error: Returning Any from function declared to return "dict[str, Any] | None"  [no-any-return]
+mycelium_onboarding/config/path_utils.py:104: error: Item "str" of "Path | str" has no attribute "exists"  [union-attr]
+mycelium_onboarding/config/path_utils.py:104: error: Item "str" of "Path | str" has no attribute "is_dir"  [union-attr]
+mycelium_onboarding/config/path_utils.py:108: error: Unsupported left operand type for / ("str")  [operator]
+mycelium_onboarding/config/path_utils.py:108: note: Left operand is of type "Path | str"
+mycelium_onboarding/config/migration/rollback.py:145: error: Incompatible types in assignment (expression has type "TextIOWrapper[_WrappedBuffer]", variable has type "BufferedReader[_BufferedReaderStream]")  [assignment]
+mycelium_onboarding/config/migration/detector.py:138: error: Argument "search_paths" to "find_legacy_configs" has incompatible type "list[Path]"; expected "list[Path | str] | None"  [arg-type]
+mycelium_onboarding/config/migration/detector.py:138: note: "list" is invariant -- see https://mypy.readthedocs.io/en/stable/common_issues.html#variance
+mycelium_onboarding/config/migration/detector.py:138: note: Consider using "Sequence" instead, which is covariant
+mycelium_onboarding/deployment/postgres/temporal_detector.py:25: error: Cannot find implementation or library stub for module named "tomli"  [import-not-found]
+mycelium_onboarding/deployment/postgres/temporal_detector.py:25: note: See https://mypy.readthedocs.io/en/stable/running_mypy.html#missing-imports
+mycelium_onboarding/deployment/postgres/temporal_detector.py:27: error: Unused "type: ignore" comment  [unused-ignore]
+mycelium_onboarding/deployment/workflows/test_workflow.py:273: error: "Callable[[bool, int], Coroutine[Any, Any, dict[str, Any]]]" has no attribute "__test__"  [attr-defined]
+mycelium_onboarding/deployment/validation/deployment_validator.py:492: error: Statement is unreachable  [unreachable]
+mycelium_onboarding/deployment/validation/deployment_validator.py:694: error: Returning Any from function declared to return "bool"  [no-any-return]
+mycelium_onboarding/deployment/validation/deployment_validator.py:727: error: Returning Any from function declared to return "bool"  [no-any-return]
+mycelium_onboarding/deployment/validation/deployment_validator.py:806: error: Function is missing a type annotation for one or more arguments  [no-untyped-def]
+mycelium_onboarding/cli_commands/commands/config_migrate.py:59: error: Incompatible types in assignment (expression has type "list[Path]", variable has type "list[ConfigLocation]")  [assignment]
+mycelium_onboarding/cli_commands/commands/config_migrate.py:152: error: Missing type parameters for generic type "list"  [type-arg]
+mycelium_onboarding/cli_commands/commands/config_migrate.py:152: error: Missing type parameters for generic type "dict"  [type-arg]
+mycelium_onboarding/cli_commands/commands/config_migrate.py:191: error: Missing type parameters for generic type "dict"  [type-arg]
+mycelium_onboarding/cli_commands/commands/config_migrate.py:203: error: Missing type parameters for generic type "dict"  [type-arg]
+mycelium_onboarding/cli_commands/commands/config_migrate.py:248: error: Function is missing a return type annotation  [no-untyped-def]
+mycelium_onboarding/cli_commands/commands/config_migrate.py:289: error: Unexpected keyword argument "backup_dir" for "MigrationExecutor"  [call-arg]
+mycelium_onboarding/config/migration/executor.py:101: note: "MigrationExecutor" defined here
+mycelium_onboarding/cli_commands/commands/config_migrate.py:298: error: Function is missing a type annotation  [no-untyped-def]
+mycelium_onboarding/deployment/commands/deploy.py:409: error: Argument 1 to "format_validation_result" of "WarningFormatter" has incompatible type "ValidationResult"; expected "CompatibilityRequirement"  [arg-type]
+Found 28 errors in 12 files (checked 87 source files)
+
+=== RUFF ERRORS ===
+PTH123 `open()` should be replaced by `Path.open()`
+  --> tests/deployment/postgres/test_compatibility.py:48:10
+   |
+46 | def matrix_data(matrix_path: Path) -> dict[str, Any]:
+47 |     """Load raw matrix data from YAML."""
+48 |     with open(matrix_path, encoding="utf-8") as f:
+   |          ^^^^
+49 |         return yaml.safe_load(f)
+   |
+help: Replace with `Path.open()`
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> tests/integration/deployment/test_deployment_validation.py:10:1
+   |
+ 8 |   """
+ 9 |
+10 | / import asyncio
+11 | | import os
+12 | | from pathlib import Path
+13 | |
+14 | | import pytest
+15 | |
+16 | | from mycelium_onboarding.deployment.validation import (
+17 | |     DeploymentValidator,
+18 | |     HealthStatus,
+19 | |     ServiceType,
+20 | |     validate_deployment,
+21 | | )
+   | |_^
+   |
+help: Organize imports
+
+F401 [*] `pathlib.Path` imported but unused
+  --> tests/integration/deployment/test_deployment_validation.py:12:21
+   |
+10 | import asyncio
+11 | import os
+12 | from pathlib import Path
+   |                     ^^^^
+13 |
+14 | import pytest
+   |
+help: Remove unused import: `pathlib.Path`
+
+RET504 Unnecessary assignment to `worker` before `return` statement
+  --> tests/integration/deployment/workflows/test_workflow_integration.py:56:12
+   |
+54 |         ],
+55 |     )
+56 |     return worker
+   |            ^^^^^^
+   |
+help: Remove unnecessary assignment
+
+W293 [*] Blank line contains whitespace
+  --> tests/integration/deployment/workflows/test_workflow_integration.py:82:1
+   |
+80 |             namespace=TEMPORAL_NAMESPACE,
+81 |         )
+82 |
+   | ^^^^^^^^
+83 |         assert client.workflow_service is not None
+84 |         logger.info(f"Successfully connected to Temporal at {TEMPORAL_HOST}:{TEMPORAL_PORT}")
+   |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> tests/integration/deployment/workflows/test_workflow_integration.py:104:1
+    |
+102 |         """Test complete workflow execution with all 5 stages."""
+103 |         workflow_id = f"test-integration-{uuid.uuid4()}"
+104 |
+    | ^^^^^^^^
+105 |         worker_task = asyncio.create_task(temporal_worker.run())
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> tests/integration/deployment/workflows/test_workflow_integration.py:106:1
+    |
+105 |         worker_task = asyncio.create_task(temporal_worker.run())
+106 |
+    | ^^^^^^^^
+107 |         try:
+108 |             await asyncio.sleep(2)
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> tests/integration/deployment/workflows/test_workflow_integration.py:109:1
+    |
+107 |         try:
+108 |             await asyncio.sleep(2)
+109 |
+    | ^^^^^^^^^^^^
+110 |             handle = await temporal_client.start_workflow(
+111 |                 TestWorkflow.run,
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> tests/integration/deployment/workflows/test_workflow_integration.py:116:1
+    |
+114 |                 execution_timeout=timedelta(seconds=WORKFLOW_TIMEOUT),
+115 |             )
+116 |
+    | ^^^^^^^^^^^^
+117 |             logger.info(f"Started workflow: {workflow_id}")
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> tests/integration/deployment/workflows/test_workflow_integration.py:118:1
+    |
+117 |             logger.info(f"Started workflow: {workflow_id}")
+118 |
+    | ^^^^^^^^^^^^
+119 |             result = await handle.result()
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> tests/integration/deployment/workflows/test_workflow_integration.py:120:1
+    |
+119 |             result = await handle.result()
+120 |
+    | ^^^^^^^^^^^^
+121 |             # Check result structure
+122 |             assert result is not None
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> tests/integration/deployment/workflows/test_workflow_integration.py:126:1
+    |
+124 |             assert hasattr(result, 'stages')
+125 |             assert hasattr(result, 'summary')
+126 |
+    | ^^^^^^^^^^^^
+127 |             # Validate success
+128 |             assert result.success is True
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> tests/integration/deployment/workflows/test_workflow_integration.py:130:1
+    |
+128 |             assert result.success is True
+129 |             assert len(result.stages) == 5
+130 |
+    | ^^^^^^^^^^^^
+131 |             # Log stage results
+132 |             for i, stage_result in enumerate(result.stages):
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> tests/integration/deployment/workflows/test_workflow_integration.py:139:1
+    |
+137 |                 elif hasattr(status, 'value'):
+138 |                     status = status.value
+139 |
+    | ^^^^^^^^^^^^^^^^^^^^
+140 |                 logger.info(f"Stage {i+1}: status={status}, message={stage_result.message}")
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> tests/integration/deployment/workflows/test_workflow_integration.py:141:1
+    |
+140 |                 logger.info(f"Stage {i+1}: status={status}, message={stage_result.message}")
+141 |
+    | ^^^^^^^^^^^^^^^^
+142 |                 # Check that stage succeeded (status is 'success' as string or list)
+143 |                 if isinstance(stage_result.status, list):
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> tests/integration/deployment/workflows/test_workflow_integration.py:147:1
+    |
+145 |                 else:
+146 |                     assert stage_result.status == 'success' or stage_result.status.value == 'success'
+147 |
+    | ^^^^^^^^^^^^^^^^^^^^
+148 |                 assert stage_result.error is None
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> tests/integration/deployment/workflows/test_workflow_integration.py:149:1
+    |
+148 |                 assert stage_result.error is None
+149 |
+    | ^^^^^^^^^^^^
+150 |             assert result.total_duration_ms > 0
+151 |             logger.info(f"Workflow completed successfully in {result.total_duration_ms:.2f}ms")
+    |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+   --> tests/integration/deployment/workflows/test_workflow_integration.py:153:1
+    |
+151 |             logger.info(f"Workflow completed successfully in {result.total_duration_ms:.2f}ms")
+152 |             logger.info(f"Summary: {result.summary}")
+153 |
+    | ^^^^^^^^^^^^
+154 |         finally:
+155 |             worker_task.cancel()
+    |
+help: Remove whitespace from blank line
+
+SIM105 Use `contextlib.suppress(asyncio.CancelledError)` instead of `try`-`except`-`pass`
+   --> tests/integration/deployment/workflows/test_workflow_integration.py:156:13
+    |
+154 |           finally:
+155 |               worker_task.cancel()
+156 | /             try:
+157 | |                 await worker_task
+158 | |             except asyncio.CancelledError:
+159 | |                 pass
+    | |____________________^
+    |
+help: Replace `try`-`except`-`pass` with `with contextlib.suppress(asyncio.CancelledError): ...`
+
+F841 Local variable `result` is assigned to but never used
+   --> tests/integration/test_smart_deployment.py:151:9
+    |
+149 |         )
+150 |
+151 |         result = generator.generate(DeploymentMethod.DOCKER_COMPOSE)
+    |         ^^^^^^
+152 |
+153 |         # Verify all services in docker-compose
+    |
+help: Remove assignment to unused variable `result`
+
+F841 Local variable `result` is assigned to but never used
+   --> tests/integration/test_smart_deployment.py:215:9
+    |
+213 |         )
+214 |
+215 |         result = generator.generate(DeploymentMethod.DOCKER_COMPOSE)
+    |         ^^^^^^
+216 |
+217 |         # Check CONNECTIONS.md was generated
+    |
+help: Remove assignment to unused variable `result`
+
+F841 Local variable `result` is assigned to but never used
+   --> tests/integration/test_smart_deployment.py:249:9
+    |
+247 |         )
+248 |
+249 |         result = generator.generate(DeploymentMethod.DOCKER_COMPOSE)
+    |         ^^^^^^
+250 |
+251 |         # Check .env file
+    |
+help: Remove assignment to unused variable `result`
+
+F841 Local variable `result` is assigned to but never used
+   --> tests/integration/test_smart_deployment.py:281:9
+    |
+279 |         )
+280 |
+281 |         result = generator.generate(DeploymentMethod.DOCKER_COMPOSE)
+    |         ^^^^^^
+282 |
+283 |         # Check README
+    |
+help: Remove assignment to unused variable `result`
+
+F841 Local variable `planner` is assigned to but never used
+   --> tests/integration/test_smart_deployment.py:382:9
+    |
+380 |         """Test that ALONGSIDE mode uses custom ports to avoid conflicts."""
+381 |         # Create planner (normally it would detect incompatible version)
+382 |         planner = ServiceDeploymentPlanner(
+    |         ^^^^^^^
+383 |             config=config,
+384 |             detected_services=[],
+    |
+help: Remove assignment to unused variable `planner`
+
+SIM105 Use `contextlib.suppress(ImportError)` instead of `try`-`except`-`pass`
+  --> tests/integration/test_state_manager.py:20:1
+   |
+19 |   # Conditional imports - avoid import errors when module is skipped
+20 | / try:
+21 | |     from coordination.state_manager import (
+22 | |         StateManager,
+23 | |         StateNotFoundError,
+24 | |         TaskState,
+25 | |         TaskStatus,
+26 | |         WorkflowStatus,
+27 | |     )
+28 | | except ImportError:
+29 | |     # Module not yet implemented - tests will be skipped anyway
+30 | |     pass
+   | |________^
+   |
+help: Replace `try`-`except`-`pass` with `with contextlib.suppress(ImportError): ...`
+
+F841 Local variable `result` is assigned to but never used
+   --> tests/unit/cli_commands/test_config_commands.py:337:13
+    |
+335 |             mock_manager.return_value = mock_manager_instance
+336 |
+337 |             result = runner.invoke(edit_command, ["--global"])
+    |             ^^^^^^
+338 |
+339 |             assert mock_run.called
+    |
+help: Remove assignment to unused variable `result`
+
+F841 Local variable `config_path` is assigned to but never used
+   --> tests/unit/cli_commands/test_config_commands.py:474:9
+    |
+472 |     def test_permission_error(self, runner, temp_config_dir):
+473 |         """Test handling of permission errors."""
+474 |         config_path = temp_config_dir / "config.yaml"
+    |         ^^^^^^^^^^^
+475 |
+476 |         with patch("mycelium_onboarding.cli_commands.commands.config.ConfigManager") as mock_manager:
+    |
+help: Remove assignment to unused variable `config_path`
+
+F841 Local variable `config_path` is assigned to but never used
+   --> tests/unit/cli_commands/test_config_commands.py:491:9
+    |
+489 |     def test_full_config_workflow(self, runner, temp_config_dir):
+490 |         """Test complete workflow: show, set, get, edit."""
+491 |         config_path = temp_config_dir / "config.yaml"
+    |         ^^^^^^^^^^^
+492 |
+493 |         # This test would require full integration setup
+    |
+help: Remove assignment to unused variable `config_path`
+
+F841 Local variable `configs1` is assigned to but never used
+   --> tests/unit/config/migration/test_detector.py:173:9
+    |
+171 |         legacy_path = temp_project_dir / "mycelium-config.yaml"
+172 |         legacy_path.write_text("version: '1.0'\n")
+173 |         configs1 = detector.scan_for_legacy_configs()
+    |         ^^^^^^^^
+174 |
+175 |         # Clear cache and delete file
+    |
+help: Remove assignment to unused variable `configs1`
+
+F841 Local variable `has_conflict` is assigned to but never used
+   --> tests/unit/config/migration/test_detector.py:259:9
+    |
+257 |         assert len(configs) > 0
+258 |         # At least one should have a conflict
+259 |         has_conflict = any(c.conflicts_with is not None for c in configs)
+    |         ^^^^^^^^^^^^
+260 |         # Note: This depends on migration logic, may not always conflict
+    |
+help: Remove assignment to unused variable `has_conflict`
+
+F841 Local variable `result` is assigned to but never used
+   --> tests/unit/config/migration/test_executor.py:262:9
+    |
+261 |         # Execute with backup_dir
+262 |         result = executor.execute(steps)
+    |         ^^^^^^
+263 |
+264 |         # Note: Backup creation happens in executor's backup phase
+    |
+help: Remove assignment to unused variable `result`
+
+F841 Local variable `merge_steps` is assigned to but never used
+   --> tests/unit/config/migration/test_integration.py:168:9
+    |
+166 |         from mycelium_onboarding.config.migration.planner import MigrationAction
+167 |
+168 |         merge_steps = [s for s in plan if s.action == MigrationAction.MERGE]
+    |         ^^^^^^^^^^^
+169 |         # May or may not have merge step depending on implementation
+    |
+help: Remove assignment to unused variable `merge_steps`
+
+F841 Local variable `create_steps` is assigned to but never used
+   --> tests/unit/config/migration/test_planner.py:167:9
+    |
+165 |         plan = planner.create_plan([], create_global=True, backup_all=False)
+166 |         # Should have CREATE step for global config (if it doesn't exist)
+167 |         create_steps = [s for s in plan if s.action == MigrationAction.CREATE]
+    |         ^^^^^^^^^^^^
+168 |         # May or may not have create step depending on whether global config exists
+    |
+help: Remove assignment to unused variable `create_steps`
+
+F841 Local variable `plan` is assigned to but never used
+   --> tests/unit/config/migration/test_planner.py:182:9
+    |
+180 |         ]
+181 |
+182 |         plan = planner.create_plan(configs, create_global=False, backup_all=False)
+    |         ^^^^
+183 |         # Should not create steps for unreadable configs
+184 |         # Plan may be empty or only have other steps
+    |
+help: Remove assignment to unused variable `plan`
+
+F841 Local variable `skip_steps` is assigned to but never used
+   --> tests/unit/config/migration/test_planner.py:363:9
+    |
+362 |         # Should have SKIP action
+363 |         skip_steps = [s for s in plan if s.action == MigrationAction.SKIP]
+    |         ^^^^^^^^^^
+364 |         # May or may not skip depending on exact path resolution
+    |
+help: Remove assignment to unused variable `skip_steps`
+
+F841 Local variable `sep` is assigned to but never used
+   --> tests/unit/config/test_platform.py:142:9
+    |
+141 |         normalized = normalize_path(test_path)
+142 |         sep = get_path_separator()
+    |         ^^^
+143 |
+144 |         # The path should use the platform separator
+    |
+help: Remove assignment to unused variable `sep`
+
+F841 Local variable `sep` is assigned to but never used
+   --> tests/unit/config/test_platform.py:151:9
+    |
+149 |         """Test that home directory path uses correct separator."""
+150 |         home = get_home_directory()
+151 |         sep = get_path_separator()
+    |         ^^^
+152 |
+153 |         # The path should be valid for the current platform
+    |
+help: Remove assignment to unused variable `sep`
+
+F841 Local variable `mock_fmt` is assigned to but never used
+  --> tests/unit/deployment/commands/test_deploy_validation.py:88:94
+   |
+86 |             mock_validate.return_value = compatible_result
+87 |
+88 |             with patch("mycelium_onboarding.deployment.commands.deploy.WarningFormatter") as mock_fmt:
+   |                                                                                              ^^^^^^^^
+89 |                 result = deploy_command._validate_postgres_compatibility(detected_services_with_postgres)
+   |
+help: Remove assignment to unused variable `mock_fmt`
+
+SIM117 Use a single `with` statement with multiple contexts instead of nested `with` statements
+   --> tests/unit/deployment/commands/test_deploy_validation.py:117:13
+    |
+115 |               mock_validate.return_value = incompatible_result
+116 |
+117 | /             with patch("mycelium_onboarding.deployment.commands.deploy.WarningFormatter") as mock_fmt:
+118 | |                 with patch("mycelium_onboarding.deployment.commands.deploy.Confirm.ask", return_value=False):
+    | |_____________________________________________________________________________________________________________^
+119 |                       result = deploy_command._validate_postgres_compatibility(detected_services_with_postgres)
+    |
+help: Combine `with` statements
+
+F841 Local variable `mock_fmt` is assigned to but never used
+   --> tests/unit/deployment/commands/test_deploy_validation.py:117:94
+    |
+115 |             mock_validate.return_value = incompatible_result
+116 |
+117 |             with patch("mycelium_onboarding.deployment.commands.deploy.WarningFormatter") as mock_fmt:
+    |                                                                                              ^^^^^^^^
+118 |                 with patch("mycelium_onboarding.deployment.commands.deploy.Confirm.ask", return_value=False):
+119 |                     result = deploy_command._validate_postgres_compatibility(detected_services_with_postgres)
+    |
+help: Remove assignment to unused variable `mock_fmt`
+
+SIM117 Use a single `with` statement with multiple contexts instead of nested `with` statements
+   --> tests/unit/deployment/commands/test_deploy_validation.py:146:13
+    |
+144 |               mock_validate.return_value = incompatible_result
+145 |
+146 | /             with patch("mycelium_onboarding.deployment.commands.deploy.WarningFormatter") as mock_fmt:
+147 | |                 with patch("mycelium_onboarding.deployment.commands.deploy.Confirm.ask", return_value=True):
+    | |____________________________________________________________________________________________________________^
+148 |                       result = deploy_command._validate_postgres_compatibility(detected_services_with_postgres)
+    |
+help: Combine `with` statements
+
+F841 Local variable `mock_fmt` is assigned to but never used
+   --> tests/unit/deployment/commands/test_deploy_validation.py:146:94
+    |
+144 |             mock_validate.return_value = incompatible_result
+145 |
+146 |             with patch("mycelium_onboarding.deployment.commands.deploy.WarningFormatter") as mock_fmt:
+    |                                                                                              ^^^^^^^^
+147 |                 with patch("mycelium_onboarding.deployment.commands.deploy.Confirm.ask", return_value=True):
+148 |                     result = deploy_command._validate_postgres_compatibility(detected_services_with_postgres)
+    |
+help: Remove assignment to unused variable `mock_fmt`
+
+F841 Local variable `mock_fmt` is assigned to but never used
+   --> tests/unit/deployment/commands/test_deploy_validation.py:174:94
+    |
+172 |             mock_validate.return_value = critical_result
+173 |
+174 |             with patch("mycelium_onboarding.deployment.commands.deploy.WarningFormatter") as mock_fmt:
+    |                                                                                              ^^^^^^^^
+175 |                 result = deploy_command._validate_postgres_compatibility(detected_services_with_postgres)
+    |
+help: Remove assignment to unused variable `mock_fmt`
+
+F841 Local variable `mock_fmt` is assigned to but never used
+   --> tests/unit/deployment/commands/test_deploy_validation.py:218:94
+    |
+216 |             mock_validate.return_value = compatible_result
+217 |
+218 |             with patch("mycelium_onboarding.deployment.commands.deploy.WarningFormatter") as mock_fmt:
+    |                                                                                              ^^^^^^^^
+219 |                 result = deploy_command._validate_postgres_compatibility([])
+    |
+help: Remove assignment to unused variable `mock_fmt`
+
+F841 Local variable `mock_fmt` is assigned to but never used
+   --> tests/unit/deployment/commands/test_deploy_validation.py:249:94
+    |
+247 |             mock_validate.return_value = compatible_result
+248 |
+249 |             with patch("mycelium_onboarding.deployment.commands.deploy.WarningFormatter") as mock_fmt:
+    |                                                                                              ^^^^^^^^
+250 |                 result = deploy_command._validate_postgres_compatibility(detected_services_with_postgres)
+    |
+help: Remove assignment to unused variable `mock_fmt`
+
+SIM117 Use a single `with` statement with multiple contexts instead of nested `with` statements
+   --> tests/unit/deployment/commands/test_deploy_validation.py:309:9
+    |
+308 |           # Mock all dependencies
+309 | /         with patch.object(deploy_command, "_load_or_find_config", return_value=mock_config):
+310 | |             with patch.object(deploy_command, "_detect_services", new_callable=AsyncMock) as mock_detect:
+    | |_________________________________________________________________________________________________________^
+311 |                   mock_detect.return_value = detected_services_with_postgres
+    |
+help: Combine `with` statements
+
+SIM117 Use a single `with` statement with multiple contexts instead of nested `with` statements
+   --> tests/unit/deployment/commands/test_deploy_validation.py:318:21
+    |
+316 |                       mock_create_plan.return_value = mock_plan
+317 |
+318 | /                     with patch.object(deploy_command, "_confirm_deployment", return_value=False):
+319 | |                         with patch(
+320 | |                             "mycelium_onboarding.deployment.commands.deploy.validate_postgres_for_temporal"
+321 | |                         ) as mock_validate:
+    | |___________________________________________^
+322 |                               mock_validate.return_value = compatible_result
+    |
+help: Combine `with` statements
+
+F841 Local variable `mock_fmt` is assigned to but never used
+   --> tests/unit/deployment/commands/test_deploy_validation.py:324:110
+    |
+322 |                             mock_validate.return_value = compatible_result
+323 |
+324 |                             with patch("mycelium_onboarding.deployment.commands.deploy.WarningFormatter") as mock_fmt:
+    |                                                                                                              ^^^^^^^^
+325 |                                 # Run deployment (will be cancelled at confirmation)
+326 |                                 success = await deploy_command.start(auto_approve=False)
+    |
+help: Remove assignment to unused variable `mock_fmt`
+
+F841 Local variable `result` is assigned to but never used
+   --> tests/unit/deployment/commands/test_deploy_validation.py:412:17
+    |
+410 |             # Need to mock asyncio.run
+411 |             with patch("asyncio.run", return_value=True):
+412 |                 result = runner.invoke(cli, ["deploy", "start", "--force-version", "--dry-run"], catch_exceptions=False)
+    |                 ^^^^^^
+413 |
+414 |         # Check that DeployCommand was instantiated with force_version=True
+    |
+help: Remove assignment to unused variable `result`
+
+F841 Local variable `result` is assigned to but never used
+   --> tests/unit/deployment/commands/test_deploy_validation.py:430:17
+    |
+429 |             with patch("asyncio.run", return_value=True):
+430 |                 result = runner.invoke(
+    |                 ^^^^^^
+431 |                     cli, ["deploy", "start", "--postgres-version", "15.3", "--dry-run"], catch_exceptions=False
+432 |                 )
+    |
+help: Remove assignment to unused variable `result`
+
+F841 Local variable `result` is assigned to but never used
+   --> tests/unit/deployment/commands/test_deploy_validation.py:449:17
+    |
+448 |             with patch("asyncio.run", return_value=True):
+449 |                 result = runner.invoke(
+    |                 ^^^^^^
+450 |                     cli, ["deploy", "start", "--temporal-version", "1.24.0", "--dry-run"], catch_exceptions=False
+451 |                 )
+    |
+help: Remove assignment to unused variable `result`
+
+SIM117 Use a single `with` statement with multiple contexts instead of nested `with` statements
+   --> tests/unit/deployment/workflows/test_test_workflow.py:276:9
+    |
+274 |       async def test_workflow_successful_execution(self) -> None:
+275 |           """Test complete workflow execution with all stages passing."""
+276 | /         async with await WorkflowEnvironment.start_time_skipping() as env:
+277 | |             # Create worker
+278 | |             async with Worker(
+279 | |                 env.client,
+280 | |                 task_queue="test-queue",
+281 | |                 workflows=[TestWorkflow],
+282 | |                 activities=[
+283 | |                     validate_connection_activity,
+284 | |                     execute_test_activity,
+285 | |                     validate_state_persistence_activity,
+286 | |                     test_error_handling_activity,
+287 | |                 ],
+288 | |             ):
+    | |______________^
+289 |                   # Execute workflow
+290 |                   result = await env.client.execute_workflow(
+    |
+help: Combine `with` statements
+
+Found 52 errors.
+[*] 16 fixable with the `--fix` option (29 hidden fixes can be enabled with the `--unsafe-fixes` option).
+
+=== UNIT TEST SUMMARY ===
+============================= test session starts ==============================
+platform linux -- Python 3.13.6, pytest-8.4.2, pluggy-1.6.0
+rootdir: /home/gerald/git/mycelium
+configfile: pyproject.toml
+plugins: mock-3.15.1, cov-7.0.0, asyncio-1.2.0, anyio-4.11.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 1567 items / 90 deselected / 1477 selected
+
+tests/unit/analytics/test_metrics.py ...........................         [  1%]
+tests/unit/analytics/test_storage.py .................                   [  2%]
+tests/unit/analytics/test_telemetry.py ...................               [  4%]
+tests/unit/cli_commands/test_config_commands.py ...............s..ss.... [  5%]
+...                                                                      [  6%]
+tests/unit/config/migration/test_detector.py ....................        [  7%]
+tests/unit/config/migration/test_executor.py ...................         [  8%]
+tests/unit/config/migration/test_integration.py .......                  [  9%]
+tests/unit/config/migration/test_planner.py ....................         [ 10%]
+tests/unit/config/test_defaults.py ......................                [ 12%]
+tests/unit/config/test_loader.py ...................                     [ 13%]
+tests/unit/config/test_path_utils.py ................................... [ 15%]
+                                                                         [ 15%]
+tests/unit/config/test_paths.py ...................................      [ 18%]
+tests/unit/config/test_paths_integration.py ......                       [ 18%]
+tests/unit/config/test_platform.py .....................                 [ 19%]
+tests/unit/config/test_precedence.py ..............................      [ 21%]
+tests/unit/config/test_schema.py ..............................          [ 23%]
+tests/unit/deployment/commands/test_deploy_validation.py ............... [ 24%]
+.......                                                                  [ 25%]
+tests/unit/deployment/postgres/test_temporal_detector.py ............... [ 26%]
+.......................................                                  [ 29%]
+tests/unit/deployment/postgres/test_validator.py ....................... [ 30%]
+......                                                                   [ 31%]
+tests/unit/deployment/postgres/test_version_manager.py ................. [ 32%]
+....................                                                     [ 33%]
+tests/unit/deployment/postgres/test_warning_formatter.py ............... [ 34%]
+.............                                                            [ 35%]
+tests/unit/deployment/workflows/test_test_runner.py .................ss. [ 36%]
+....s....s.                                                              [ 37%]
+tests/unit/deployment/workflows/test_test_workflow.py ...............ss. [ 38%]
+...s                                                                     [ 39%]
+tests/unit/test_handoff_protocol.py sssssssssssssss                      [ 40%]
+tests/unit/test_health_check.py ..................                       [ 41%]
+tests/unit/test_telemetry.py sssssssssssssssss                           [ 42%]
+tests/test_activation.py .............s.s....s.....                      [ 44%]
+tests/test_agent_discovery.py ........................................   [ 46%]
+tests/test_agent_index.py ..................                             [ 48%]
+tests/test_cli_config.py ............FFFFF
+
+=============================== warnings summary ===============================
+mycelium_onboarding/deployment/strategy/detector.py:80
+  /home/gerald/git/mycelium/mycelium_onboarding/deployment/strategy/detector.py:80: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class DetectedService(BaseModel):
+
+mycelium_onboarding/deployment/postgres/version_manager.py:92
+  /home/gerald/git/mycelium/mycelium_onboarding/deployment/postgres/version_manager.py:92: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class CompatibilityMatrix(BaseModel):
+
+mycelium_onboarding/deployment/commands/deploy.py:124
+  /home/gerald/git/mycelium/mycelium_onboarding/deployment/commands/deploy.py:124: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class DeploymentPlan(BaseModel):
+
+mycelium_onboarding/deployment/workflows/test_runner.py:103
+  /home/gerald/git/mycelium/mycelium_onboarding/deployment/workflows/test_runner.py:103: PytestCollectionWarning: cannot collect test class 'TestRunner' because it has a __init__ constructor (from: tests/unit/deployment/workflows/test_test_runner.py)
+    class TestRunner:
+
+mycelium_onboarding/deployment/workflows/test_workflow.py:276
+  /home/gerald/git/mycelium/mycelium_onboarding/deployment/workflows/test_workflow.py:276: PytestCollectionWarning: cannot collect test class 'TestWorkflow' because it has a __init__ constructor (from: tests/unit/deployment/workflows/test_test_workflow.py)
+    @workflow.defn(name="TestWorkflow")
+
+tests/unit/deployment/postgres/test_temporal_detector.py::TestDetectTemporalVersion::test_detect_from_requirements_txt_with_comments
+  <frozen posixpath>:82: RuntimeWarning: coroutine 'AsyncMockMixin._execute_mock_call' was never awaited
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+SKIPPED [1] tests/unit/cli_commands/test_config_commands.py:309: TODO: Fix subprocess.run mocking - tracked in unified PR
+SKIPPED [1] tests/unit/cli_commands/test_config_commands.py:376: TODO: Fix migration_util.detect_migration_candidates mocking - tracked in unified PR
+SKIPPED [1] tests/unit/cli_commands/test_config_commands.py:392: TODO: Fix migration_util.detect_migration_candidates mocking - tracked in unified PR
+SKIPPED [1] tests/unit/deployment/workflows/test_test_runner.py:313: TODO: Fix AsyncMock await issue - pre-existing from Sprint 4
+SKIPPED [1] tests/unit/deployment/workflows/test_test_runner.py:350: TODO: Fix AsyncMock await issue - pre-existing from Sprint 4
+SKIPPED [1] tests/unit/deployment/workflows/test_test_runner.py:457: TODO: Fix AsyncMock await issue - pre-existing from Sprint 4
+SKIPPED [1] tests/unit/deployment/workflows/test_test_runner.py:555: TODO: Fix AsyncMock await issue - pre-existing from Sprint 4
+SKIPPED [1] tests/unit/deployment/workflows/test_test_workflow.py:273: TODO: Fix Temporal workflow testing issues - pre-existing from Sprint 4
+SKIPPED [1] tests/unit/deployment/workflows/test_test_workflow.py:304: TODO: Fix Temporal workflow testing issues - pre-existing from Sprint 4
+SKIPPED [1] tests/unit/deployment/workflows/test_test_workflow.py:462: TODO: Fix Temporal workflow testing issues - pre-existing from Sprint 4
+SKIPPED [15] tests/unit/test_handoff_protocol.py: Tests need updating to match current HandoffProtocol API
+SKIPPED [17] tests/unit/test_telemetry.py: Tests need updating to match current TelemetryClient API
+SKIPPED [1] tests/test_activation.py:326: diagnose command not yet implemented
+SKIPPED [1] tests/test_activation.py:357: diagnose command not yet implemented
+SKIPPED [1] tests/test_activation.py:453: zsh not available
+FAILED tests/test_cli_config.py::test_config_get_top_level - assert 2 == 0
+FAILED tests/test_cli_config.py::test_config_get_nested - assert 2 == 0
+FAILED tests/test_cli_config.py::test_config_get_deployment_method - assert 2...
+FAILED tests/test_cli_config.py::test_config_get_nonexistent_key - assert 'no...
+FAILED tests/test_cli_config.py::test_config_get_invalid_nested_key - assert ...
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 5 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!
+= 5 failed, 678 passed, 45 skipped, 90 deselected, 6 warnings in 61.03s (0:01:01) =
