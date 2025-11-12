@@ -73,7 +73,7 @@ def is_posix() -> bool:
 
 
 def get_path_separator() -> str:
-    """Get the platform-specific path separator.
+    r"""Get the platform-specific path separator.
 
     Returns:
         Path separator character ('/' for POSIX, '\\' for Windows)

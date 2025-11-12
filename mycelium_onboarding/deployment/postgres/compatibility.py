@@ -77,7 +77,7 @@ class CompatibilityMatrix:
             raise FileNotFoundError(f"Compatibility matrix not found: {self.matrix_path}")
 
         try:
-            with open(self.matrix_path, encoding="utf-8") as f:
+            with self.matrix_path.open(encoding="utf-8") as f:
                 self._data = yaml.safe_load(f)
             logger.info(f"Loaded compatibility matrix from {self.matrix_path}")
         except yaml.YAMLError as e:
@@ -198,7 +198,7 @@ class CompatibilityMatrix:
 
         # Check version ranges for patch versions
         version_ranges = self._data.get("version_ranges", {})
-        for range_key, range_data in version_ranges.items():
+        for _range_key, range_data in version_ranges.items():
             if temporal_ver in range_data.get("applies_to", []):
                 use_version = range_data["use_compatibility"]
                 if use_version in compatibility:

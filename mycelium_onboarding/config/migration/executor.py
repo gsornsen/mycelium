@@ -270,12 +270,12 @@ class MigrationExecutor:
         self.backup_manager.backup_file(step.source, backup_dir)
         logger.info("Backed up: %s", step.source)
 
-    def _execute_move(self, step: MigrationStep, backup_dir: Path | None) -> None:
+    def _execute_move(self, step: MigrationStep, _backup_dir: Path | None) -> None:
         """Execute move step.
 
         Args:
             step: Move step
-            backup_dir: Backup directory (unused, backup already done)
+            _backup_dir: Backup directory (unused, backup already done)
         """
         if step.source is None:
             raise MigrationExecutionError("Move step has no source")
@@ -299,12 +299,12 @@ class MigrationExecutor:
         except PathMigrationError as e:
             raise MigrationExecutionError(f"Failed to move file: {e}") from e
 
-    def _execute_copy(self, step: MigrationStep, backup_dir: Path | None) -> None:
+    def _execute_copy(self, step: MigrationStep, _backup_dir: Path | None) -> None:
         """Execute copy step.
 
         Args:
             step: Copy step
-            backup_dir: Backup directory (unused)
+            _backup_dir: Backup directory (unused)
         """
         if step.source is None:
             raise MigrationExecutionError("Copy step has no source")
@@ -323,14 +323,14 @@ class MigrationExecutor:
         except (OSError, shutil.Error) as e:
             raise MigrationExecutionError(f"Failed to copy file: {e}") from e
 
-    def _execute_merge(self, step: MigrationStep, backup_dir: Path | None) -> None:
+    def _execute_merge(self, step: MigrationStep, _backup_dir: Path | None) -> None:
         """Execute merge step.
 
         Merges source config with existing destination config.
 
         Args:
             step: Merge step
-            backup_dir: Backup directory (unused)
+            _backup_dir: Backup directory (unused)
         """
         if step.source is None:
             raise MigrationExecutionError("Merge step has no source")
@@ -362,14 +362,14 @@ class MigrationExecutor:
         except Exception as e:
             raise MigrationExecutionError(f"Failed to write merged config: {e}") from e
 
-    def _execute_create(self, step: MigrationStep, backup_dir: Path | None) -> None:
+    def _execute_create(self, step: MigrationStep, _backup_dir: Path | None) -> None:
         """Execute create step.
 
         Creates new config file with defaults.
 
         Args:
             step: Create step
-            backup_dir: Backup directory (unused)
+            _backup_dir: Backup directory (unused)
         """
         if self.dry_run:
             logger.info("DRY RUN: Would create %s", step.destination)

@@ -18,6 +18,7 @@ Example:
 
 from __future__ import annotations
 
+import contextlib
 from pathlib import Path
 
 import platformdirs
@@ -35,7 +36,7 @@ PROJECT_CONFIG_FILENAME = "config.yaml"
 
 
 def get_global_config_path() -> Path:
-    """Get the XDG-compliant global configuration file path.
+    r"""Get the XDG-compliant global configuration file path.
 
     Returns platform-appropriate paths:
         - Linux: ~/.config/mycelium/config.yaml
@@ -73,16 +74,13 @@ def get_project_config_path(project_root: Path | str | None = None) -> Path:
         >>> str(path)
         '/home/user/myproject/.mycelium/config.yaml'
     """
-    if project_root is None:
-        project_root = Path.cwd()
-    else:
-        project_root = Path(project_root)
+    project_root = Path.cwd() if project_root is None else Path(project_root)
 
     return project_root / PROJECT_CONFIG_DIRNAME / PROJECT_CONFIG_FILENAME
 
 
 def get_data_dir() -> Path:
-    """Get the XDG-compliant data directory.
+    r"""Get the XDG-compliant data directory.
 
     Returns platform-appropriate paths:
         - Linux: ~/.local/share/mycelium
@@ -101,7 +99,7 @@ def get_data_dir() -> Path:
 
 
 def get_state_dir() -> Path:
-    """Get the XDG-compliant state directory.
+    r"""Get the XDG-compliant state directory.
 
     Used for logs, history, and other state files.
 
@@ -122,7 +120,7 @@ def get_state_dir() -> Path:
 
 
 def get_cache_dir() -> Path:
-    """Get the XDG-compliant cache directory.
+    r"""Get the XDG-compliant cache directory.
 
     Returns platform-appropriate paths:
         - Linux: ~/.cache/mycelium
@@ -141,7 +139,7 @@ def get_cache_dir() -> Path:
 
 
 def get_log_dir() -> Path:
-    """Get the directory for application logs.
+    r"""Get the directory for application logs.
 
     Returns platform-appropriate paths:
         - Linux: ~/.local/state/mycelium/logs
@@ -198,11 +196,9 @@ def ensure_dir_exists(path: Path, mode: int = 0o755) -> Path:
     # On POSIX systems, explicitly set permissions (mkdir mode can be affected by umask)
     platform = get_platform()
     if platform in {Platform.LINUX, Platform.MACOS}:
-        try:
+        # If chmod fails, directory was still created, so continue
+        with contextlib.suppress(OSError):
             path.chmod(mode)
-        except OSError:
-            # If chmod fails, directory was still created, so continue
-            pass
 
     return path
 

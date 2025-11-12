@@ -347,10 +347,7 @@ def preview_migration(
         backup_path = destination_path.with_suffix(".yaml.backup")
 
     # Determine source scope
-    if get_config_dir() in source_path.parents:
-        source_scope = ConfigScope.GLOBAL
-    else:
-        source_scope = ConfigScope.PROJECT
+    source_scope = ConfigScope.GLOBAL if get_config_dir() in source_path.parents else ConfigScope.PROJECT
 
     return MigrationAction(
         source=source_path,

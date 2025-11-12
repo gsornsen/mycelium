@@ -350,7 +350,7 @@ def atomic_move(
 
 
 def safe_read_yaml(path: Path | str) -> dict[str, Any]:
-    """Safely read a YAML configuration file.
+    r"""Safely read a YAML configuration file.
 
     Args:
         path: Path to YAML file
