@@ -344,13 +344,12 @@ def edit_command(edit_global: bool, editor: str | None) -> None:
         # Determine editor
         if editor is None:
             editor = os.environ.get("EDITOR")
-
-        if editor is None:
-            # Try common editors
-            for fallback_editor in ["nano", "vi", "vim"]:
-                if subprocess.run(["which", fallback_editor], capture_output=True).returncode == 0:
-                    editor = fallback_editor
-                    break
+            if editor is None:
+                # Try common editors
+                for fallback_editor in ["nano", "vi", "vim"]:
+                    if subprocess.run(["which", fallback_editor], capture_output=True).returncode == 0:
+                        editor = fallback_editor
+                        break
 
         if editor is None:
             console.print("[red]✗ No editor found. Set $EDITOR or use --editor option[/red]")
@@ -415,10 +414,9 @@ def rollback_command(backup_dir: Path, yes: bool) -> None:
         console.print(f"\n[yellow]From backup: {backup_dir}[/yellow]")
 
         # Confirm rollback
-        if not yes:
-            if not click.confirm("\nProceed with rollback?", default=False):
-                console.print("[yellow]Rollback cancelled[/yellow]")
-                return
+        if not yes and not click.confirm("\nProceed with rollback?", default=False):
+            console.print("[yellow]Rollback cancelled[/yellow]")
+            return
 
         # Perform rollback
         restored_count = 0
@@ -524,14 +522,14 @@ def _parse_value_with_type(value: str, type_name: str) -> Any:
     if type_name == "int":
         try:
             return int(value)
-        except ValueError:
-            raise ValueError(f"Invalid integer value: {value}")
+        except ValueError as e:
+            raise ValueError(f"Invalid integer value: {value}") from e
 
     elif type_name == "float":
         try:
             return float(value)
-        except ValueError:
-            raise ValueError(f"Invalid float value: {value}")
+        except ValueError as e:
+            raise ValueError(f"Invalid float value: {value}") from e
 
     else:  # string
         return value
