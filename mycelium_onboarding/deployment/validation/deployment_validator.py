@@ -489,7 +489,8 @@ class DeploymentValidator:
             health.status = HealthStatus.DEGRADED
             health.message = "Temporal is starting up or partially available"
         else:
-            health.status = HealthStatus.UNHEALTHY
+            # Defensive fallback - unreachable due to early return if not port_check
+            health.status = HealthStatus.UNHEALTHY  # type: ignore[unreachable]
             health.message = "Temporal service is not responding correctly"
 
         health.response_time_ms = (time.time() - start_time) * 1000
