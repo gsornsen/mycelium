@@ -344,7 +344,6 @@ class MigrationPlanner:
                     errors.append(f"Step {step.order}: source is not a file: {step.source}")
 
             # Validate destination directory is writable
-            dest_parent = step.destination.parent
             if not check_write_permission(step.destination):
                 errors.append(f"Step {step.order}: no write permission for destination: {step.destination}")
 

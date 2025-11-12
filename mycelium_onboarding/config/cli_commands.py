@@ -402,10 +402,9 @@ def reset_config(scope: str, force: bool) -> None:
         console.print("All settings will be lost and replaced with defaults.\n")
 
         # Confirm reset
-        if not force:
-            if not click.confirm("Are you sure you want to reset these configurations?", default=False):
-                console.print("Reset cancelled")
-                return
+        if not force and not click.confirm("Are you sure you want to reset these configurations?", default=False):
+            console.print("Reset cancelled")
+            return
 
         # Perform reset
         for scope_name, path in configs_to_reset:

@@ -387,9 +387,6 @@ class DeploymentValidator:
 
         # Check 3: Database connectivity
         try:
-            # Try to import asyncpg for actual connection test
-            import asyncpg
-
             conn_check = await self._test_postgres_connection(host, port, database, user, password)
             health.add_check("Database Connection", conn_check, database)
 
@@ -548,11 +545,11 @@ class DeploymentValidator:
     async def _run_integration_checks(
         self,
         report: ValidationReport,
-        postgres_host: str,
-        postgres_port: int,
+        _postgres_host: str,
+        _postgres_port: int,
         postgres_database: str,
-        postgres_user: str,
-        postgres_password: str | None,
+        _postgres_user: str,
+        _postgres_password: str | None,
         temporal_host: str,
         temporal_port: int,
         temporal_namespace: str,
@@ -733,19 +730,9 @@ class DeploymentValidator:
             logger.debug(f"PostgreSQL connection pool check failed: {e}")
             return False
 
-    async def _get_temporal_version(self, host: str, port: int) -> str | None:
+    async def _get_temporal_version(self, _host: str, _port: int) -> str | None:
         """Get Temporal server version."""
         try:
-            # Use tctl if available
-            cmd = [
-                "docker",
-                "exec",
-                "-i",
-                "$(docker ps -q -f name=temporal)",
-                "tctl",
-                "cluster",
-                "health",
-            ]
             # This is simplified - in production would use Temporal SDK
             logger.debug("Temporal version detection requires Temporal SDK")
             return None
@@ -759,7 +746,7 @@ class DeploymentValidator:
         # For now, use port connectivity as proxy
         return await self._check_port_connectivity(host, port)
 
-    async def _check_temporal_namespace(self, host: str, port: int, namespace: str) -> bool:
+    async def _check_temporal_namespace(self, _host: str, _port: int, namespace: str) -> bool:
         """Check if Temporal namespace exists."""
         # This would require Temporal SDK
         # For now, assume default namespace exists if server is up
@@ -783,14 +770,14 @@ class DeploymentValidator:
             return False
 
     async def _check_temporal_postgres_connection(
-        self, temporal_host: str, temporal_port: int, postgres_database: str
+        self, _temporal_host: str, _temporal_port: int, _postgres_database: str
     ) -> bool:
         """Verify Temporal can connect to PostgreSQL."""
         # This would require inspecting Temporal logs or using admin API
         logger.debug("Temporal → PostgreSQL connection check requires admin API")
         return True  # Optimistic assumption
 
-    async def _verify_namespace_registered(self, temporal_host: str, temporal_port: int, namespace: str) -> bool:
+    async def _verify_namespace_registered(self, _temporal_host: str, _temporal_port: int, _namespace: str) -> bool:
         """Verify namespace is registered in Temporal."""
         # This would require Temporal SDK
         logger.debug("Namespace registration check requires Temporal SDK")

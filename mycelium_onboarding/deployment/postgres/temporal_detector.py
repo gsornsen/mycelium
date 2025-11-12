@@ -140,7 +140,7 @@ def _detect_from_pyproject_toml(file_path: Path) -> TemporalVersion | None:
         return None
 
     try:
-        with open(file_path, "rb") as f:
+        with file_path.open("rb") as f:
             data = tomllib.load(f)
     except Exception as e:
         raise TemporalDetectionError(f"Failed to parse pyproject.toml: {e}") from e
@@ -164,16 +164,13 @@ def _detect_from_pyproject_toml(file_path: Path) -> TemporalVersion | None:
                     else f"temporalio>={version_spec[1:]}"
                 )
                 return _parse_requirement_string(raw_spec, file_path)
-            if isinstance(version_spec, dict):
+            if isinstance(version_spec, dict) and "version" in version_spec:
                 # Poetry dict format: {version = "^1.5.0", extras = ["opentelemetry"]}
-                if "version" in version_spec:
-                    version_str = version_spec["version"]
-                    raw_spec = (
-                        f"temporalio{version_str}"
-                        if not version_str.startswith("^~")
-                        else f"temporalio>={version_str[1:]}"
-                    )
-                    return _parse_requirement_string(raw_spec, file_path)
+                version_str = version_spec["version"]
+                raw_spec = (
+                    f"temporalio{version_str}" if not version_str.startswith("^~") else f"temporalio>={version_str[1:]}"
+                )
+                return _parse_requirement_string(raw_spec, file_path)
 
     return None
 
@@ -229,7 +226,7 @@ def _detect_from_poetry_lock(file_path: Path) -> TemporalVersion | None:
         return None
 
     try:
-        with open(file_path, "rb") as f:
+        with file_path.open("rb") as f:
             data = tomllib.load(f)
     except Exception as e:
         raise TemporalDetectionError(f"Failed to parse poetry.lock: {e}") from e
@@ -316,9 +313,13 @@ def _detect_from_setup_cfg(file_path: Path) -> TemporalVersion | None:
         # Parse requirement lines in install_requires
         # Strip AFTER determining if we're in the right section
         stripped_line = line.strip()
-        if in_install_requires and stripped_line and not stripped_line.startswith("#"):
-            if stripped_line.lower().startswith("temporalio"):
-                return _parse_requirement_string(stripped_line, file_path)
+        if (
+            in_install_requires
+            and stripped_line
+            and not stripped_line.startswith("#")
+            and stripped_line.lower().startswith("temporalio")
+        ):
+            return _parse_requirement_string(stripped_line, file_path)
 
     return None
 

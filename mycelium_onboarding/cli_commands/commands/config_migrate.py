@@ -78,10 +78,9 @@ def migrate_command(dry_run: bool, yes: bool, backup_dir: Path | None) -> None:
             console.print(f"  {i}. {step['description']}")
 
         # Confirm (unless --yes or --dry-run)
-        if not yes and not dry_run:
-            if not Confirm.ask("\nProceed with migration?"):
-                console.print("[yellow]Migration cancelled[/yellow]")
-                return
+        if not yes and not dry_run and not Confirm.ask("\nProceed with migration?"):
+            console.print("[yellow]Migration cancelled[/yellow]")
+            return
 
         # Determine backup directory
         if backup_dir is None:
@@ -155,10 +154,7 @@ def _create_migration_plan(legacy_configs: list) -> list[dict]:
     steps = []
 
     for config in legacy_configs:
-        if hasattr(config, "path"):
-            config_path = config.path
-        else:
-            config_path = config
+        config_path = config.path if hasattr(config, "path") else config
 
         # Determine destination based on location
         if _is_in_home_directory(config_path):
@@ -272,7 +268,6 @@ def migrate_command_with_phase1_classes(dry_run: bool, yes: bool, backup_dir: Pa
             return
 
         # Step 2: Show migration summary
-        summary = detector.get_migration_summary()
         console.print(f"\nFound {len(legacy_configs)} legacy config file(s):")
         for config in legacy_configs:
             console.print(f"  • {config.path}")
@@ -286,10 +281,9 @@ def migrate_command_with_phase1_classes(dry_run: bool, yes: bool, backup_dir: Pa
             console.print(f"  {i}. {step.description}")
 
         # Step 4: Confirm (unless --yes)
-        if not yes and not dry_run:
-            if not Confirm.ask("\nProceed with migration?"):
-                console.print("[yellow]Migration cancelled[/yellow]")
-                return
+        if not yes and not dry_run and not Confirm.ask("\nProceed with migration?"):
+            console.print("[yellow]Migration cancelled[/yellow]")
+            return
 
         # Step 5: Execute migration
         executor = MigrationExecutor(dry_run=dry_run, backup_dir=backup_dir)
@@ -301,7 +295,7 @@ def migrate_command_with_phase1_classes(dry_run: bool, yes: bool, backup_dir: Pa
         ) as progress:
             task = progress.add_task("Migrating configuration...", total=len(steps))
 
-            def progress_callback(current, total, message):
+            def progress_callback(current, _total, message):
                 progress.update(task, completed=current, description=message)
 
             result = executor.execute(steps, progress_callback=progress_callback)
