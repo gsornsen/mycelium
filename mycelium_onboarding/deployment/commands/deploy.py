@@ -406,7 +406,7 @@ class DeployCommand:
 
             # Format and display warnings
             formatter = WarningFormatter(console=console)
-            formatter.format_validation_result(validation_result)
+            formatter.format_validation_result(validation_result)  # type: ignore[arg-type]
 
             # Handle validation result
             if not validation_result.is_compatible:

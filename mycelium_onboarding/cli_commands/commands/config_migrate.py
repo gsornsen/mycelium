@@ -56,7 +56,7 @@ def migrate_command(dry_run: bool, yes: bool, backup_dir: Path | None) -> None:
             legacy_configs = detect_migration_candidates()
         except Exception:
             # Fallback to manual detection if migration_util not available
-            legacy_configs = _detect_legacy_configs_fallback()
+            legacy_configs = _detect_legacy_configs_fallback()  # type: ignore[assignment]
 
         if not legacy_configs:
             console.print("[green]✓ No migration needed - already using new config structure[/green]")
@@ -245,7 +245,7 @@ def _execute_migration(steps: list[dict], backup_dir: Path) -> tuple[bool, list[
 
 
 # Alternative implementation using Phase 1 migration classes (if available)
-def migrate_command_with_phase1_classes(dry_run: bool, yes: bool, backup_dir: Path | None):
+def migrate_command_with_phase1_classes(dry_run: bool, yes: bool, backup_dir: Path | None) -> None:
     """Migration command using Phase 1 MigrationDetector/Planner/Executor classes.
 
     This is the ideal implementation that should be used once Phase 1 classes are available.
@@ -295,7 +295,7 @@ def migrate_command_with_phase1_classes(dry_run: bool, yes: bool, backup_dir: Pa
         ) as progress:
             task = progress.add_task("Migrating configuration...", total=len(steps))
 
-            def progress_callback(current, _total, message):
+            def progress_callback(current: int, _total: int, message: str) -> None:
                 progress.update(task, completed=current, description=message)
 
             result = executor.execute(steps, progress_callback=progress_callback)

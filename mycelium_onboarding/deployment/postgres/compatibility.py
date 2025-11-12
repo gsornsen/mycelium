@@ -456,7 +456,8 @@ class CompatibilityMatrix:
         # Try exact match first
         key = f"{temporal_version}-{postgres_version}"
         if key in configs:
-            return configs[key]
+            result = configs[key]
+            return dict(result) if isinstance(result, dict) else None
 
         # Try major version combinations
         try:
@@ -464,7 +465,8 @@ class CompatibilityMatrix:
             postgres_major = postgres_version.split(".")[0] + ".0"
             key = f"{temporal_major_minor}-{postgres_major}"
             if key in configs:
-                return configs[key]
+                result = configs[key]
+                return dict(result) if isinstance(result, dict) else None
         except (IndexError, AttributeError):
             pass
 
