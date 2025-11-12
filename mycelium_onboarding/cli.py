@@ -1438,7 +1438,7 @@ def status(method: str | None, watch: bool, format: str, verbose: bool) -> None:
 
 
 # Keep legacy implementation for reference but unused
-def _legacy_status_implementation(deploy_method, config):
+def _legacy_status_implementation(deploy_method: Any, config: Any) -> None:  # noqa: F821, B904
     """Legacy status implementation - kept for reference."""
     # Create status table
     table = Table(title=f"{config.project_name} - Service Status", show_header=True)
@@ -1489,7 +1489,7 @@ def _legacy_status_implementation(deploy_method, config):
             console.print("[red]docker-compose command not found[/red]")
             raise SystemExit(1) from None
 
-    elif deploy_method == DeploymentMethod.KUBERNETES:
+    elif deploy_method == DeploymentMethod.KUBERNETES:  # type: ignore[name-defined]
         try:
             result = subprocess.run(  # nosec B603 B607 - Safe execution of system tools
                 [
@@ -1530,7 +1530,7 @@ def _legacy_status_implementation(deploy_method, config):
             console.print("[red]kubectl command not found[/red]")
             raise SystemExit(1) from None
 
-    elif deploy_method == DeploymentMethod.SYSTEMD:
+    elif deploy_method == DeploymentMethod.SYSTEMD:  # type: ignore[name-defined]
         services = []
         if config.services.redis.enabled:
             services.append(f"{config.project_name}-redis")
@@ -1560,7 +1560,7 @@ def _legacy_status_implementation(deploy_method, config):
 
     console.print(table)
 
-    if watch:
+    if watch:  # type: ignore[name-defined]
         console.print("\n[yellow]Watch mode not yet implemented[/yellow]")
 
 

@@ -11,6 +11,7 @@ import re
 import subprocess
 from dataclasses import dataclass
 from enum import Enum
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -100,8 +101,12 @@ class CompatibilityMatrix(BaseModel):
 
         arbitrary_types_allowed = True
 
-    def __init__(self, **data):
-        """Initialize compatibility matrix with default rules."""
+    def __init__(self, **data: Any) -> None:
+        """Initialize compatibility matrix with default rules.
+
+        Args:
+            **data: Additional data for BaseModel initialization
+        """
         super().__init__(**data)
         self._init_default_matrix()
 
@@ -253,7 +258,7 @@ class PostgresVersionManager:
         ),
     ]
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize version manager."""
         self.compatibility_matrix = CompatibilityMatrix()
         self._version_cache: dict[str, VersionInfo] = {}
@@ -496,7 +501,7 @@ class PostgresVersionManager:
         source_version: VersionInfo,
         target_version: VersionInfo,
         compatibility_level: CompatibilityLevel,
-        feature_issues: list[dict],
+        feature_issues: list[dict[str, Any]],
     ) -> list[str]:
         """Generate migration recommendations.
 

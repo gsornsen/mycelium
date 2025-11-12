@@ -506,7 +506,7 @@ class ServiceDeploymentPlanner:
         # Use environment variables for credentials
         return f"postgresql://postgres:{{POSTGRES_PASSWORD}}@{host}:{port}/{database}"
 
-    def _add_recommendations(self, plan: DeploymentPlanSummary):
+    def _add_recommendations(self, plan: DeploymentPlanSummary) -> None:
         """Add recommendations to deployment plan.
 
         Args:

@@ -58,7 +58,7 @@ class ServiceFingerprint:
     data_path: Path | None = None
     fingerprint_hash: str | None = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Generate fingerprint hash after initialization."""
         if not self.fingerprint_hash:
             self.fingerprint_hash = self._generate_hash()

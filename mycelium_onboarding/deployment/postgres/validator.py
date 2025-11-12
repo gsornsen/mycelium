@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import NamedTuple
+from typing import Any, NamedTuple
 
 from mycelium_onboarding.deployment.postgres.compatibility import (
     PostgresCompatibilityChecker,
@@ -323,7 +323,7 @@ class PostgresValidator:
         temporal_version: str,
         postgres_version: str,
         requirements: dict[str, Any],
-        support_level: str,
+        support_level: str,  # noqa: ARG002
         existing_warning: str | None,
         requires_pg_upgrade: bool,
         requires_temporal_downgrade: bool,
@@ -374,7 +374,7 @@ class PostgresValidator:
         is_compatible: bool,
         temporal_version: str,
         postgres_version: str,
-        requirements: dict,
+        requirements: dict[str, Any],
         support_level: str,
         requires_pg_upgrade: bool,
         requires_temporal_downgrade: bool,
@@ -437,7 +437,7 @@ class PostgresValidator:
     def _can_force_proceed(
         self,
         is_compatible: bool,
-        support_level: str,
+        support_level: str,  # noqa: ARG002
         requires_pg_upgrade: bool,
         requires_temporal_downgrade: bool,
     ) -> bool:
@@ -458,12 +458,7 @@ class PostgresValidator:
 
         # Allow force for minor incompatibilities (e.g., slightly too new/old)
         # but not for critical incompatibilities
-        if requires_pg_upgrade or requires_temporal_downgrade:
-            # These are version mismatches - allow force with warning
-            return True
-
-        # Unknown incompatibility - don't allow force
-        return False
+        return requires_pg_upgrade or requires_temporal_downgrade
 
 
 def validate_postgres_for_temporal(

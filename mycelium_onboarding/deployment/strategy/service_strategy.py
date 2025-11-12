@@ -47,7 +47,7 @@ class VersionRequirement:
     max_version: str | None = None
     preferred_version: str | None = None
 
-    def is_compatible(self, version: str) -> CompatibilityLevel:
+    def is_compatible(self, version: str) -> CompatibilityLevel:  # noqa: ARG002
         """Check if version meets requirements.
 
         Args:
@@ -154,7 +154,7 @@ class DeploymentPlanSummary(BaseModel):
     warnings: list[str] = Field(default_factory=list, description="Warnings about the deployment")
     recommendations: list[str] = Field(default_factory=list, description="Recommendations for the user")
 
-    def add_service_plan(self, plan: ServiceDeploymentPlan):
+    def add_service_plan(self, plan: ServiceDeploymentPlan) -> None:
         """Add a service plan to the summary.
 
         Args:
