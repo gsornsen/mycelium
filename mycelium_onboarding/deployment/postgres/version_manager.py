@@ -13,7 +13,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 logger = logging.getLogger(__name__)
 
@@ -96,10 +96,7 @@ class CompatibilityMatrix(BaseModel):
     # Key: (source_version, target_version), Value: CompatibilityLevel
     matrix: dict[tuple[str, str], CompatibilityLevel] = Field(default_factory=dict)
 
-    class Config:
-        """Pydantic configuration."""
-
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     def __init__(self, **data: Any) -> None:
         """Initialize compatibility matrix with default rules.
