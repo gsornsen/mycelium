@@ -85,7 +85,7 @@ class TestPostgreSQLValidationIntegration:
         ):
             mock_validate.return_value = compatible_result
 
-            with patch("mycelium_onboarding.deployment.commands.deploy.WarningFormatter") as mock_fmt:
+            with patch("mycelium_onboarding.deployment.commands.deploy.WarningFormatter"):
                 result = deploy_command._validate_postgres_compatibility(detected_services_with_postgres)
 
         assert result is True
@@ -114,9 +114,11 @@ class TestPostgreSQLValidationIntegration:
         ):
             mock_validate.return_value = incompatible_result
 
-            with patch("mycelium_onboarding.deployment.commands.deploy.WarningFormatter") as mock_fmt:
-                with patch("mycelium_onboarding.deployment.commands.deploy.Confirm.ask", return_value=False):
-                    result = deploy_command._validate_postgres_compatibility(detected_services_with_postgres)
+            with (
+                patch("mycelium_onboarding.deployment.commands.deploy.WarningFormatter"),
+                patch("mycelium_onboarding.deployment.commands.deploy.Confirm.ask", return_value=False),
+            ):
+                result = deploy_command._validate_postgres_compatibility(detected_services_with_postgres)
 
         assert result is False
 
@@ -143,9 +145,11 @@ class TestPostgreSQLValidationIntegration:
         ):
             mock_validate.return_value = incompatible_result
 
-            with patch("mycelium_onboarding.deployment.commands.deploy.WarningFormatter") as mock_fmt:
-                with patch("mycelium_onboarding.deployment.commands.deploy.Confirm.ask", return_value=True):
-                    result = deploy_command._validate_postgres_compatibility(detected_services_with_postgres)
+            with (
+                patch("mycelium_onboarding.deployment.commands.deploy.WarningFormatter"),
+                patch("mycelium_onboarding.deployment.commands.deploy.Confirm.ask", return_value=True),
+            ):
+                result = deploy_command._validate_postgres_compatibility(detected_services_with_postgres)
 
         assert result is True
 
@@ -171,7 +175,7 @@ class TestPostgreSQLValidationIntegration:
         ):
             mock_validate.return_value = critical_result
 
-            with patch("mycelium_onboarding.deployment.commands.deploy.WarningFormatter") as mock_fmt:
+            with patch("mycelium_onboarding.deployment.commands.deploy.WarningFormatter"):
                 result = deploy_command._validate_postgres_compatibility(detected_services_with_postgres)
 
         assert result is False
@@ -215,7 +219,7 @@ class TestPostgreSQLValidationIntegration:
         ):
             mock_validate.return_value = compatible_result
 
-            with patch("mycelium_onboarding.deployment.commands.deploy.WarningFormatter") as mock_fmt:
+            with patch("mycelium_onboarding.deployment.commands.deploy.WarningFormatter"):
                 result = deploy_command._validate_postgres_compatibility([])
 
         assert result is True
@@ -246,7 +250,7 @@ class TestPostgreSQLValidationIntegration:
         ):
             mock_validate.return_value = compatible_result
 
-            with patch("mycelium_onboarding.deployment.commands.deploy.WarningFormatter") as mock_fmt:
+            with patch("mycelium_onboarding.deployment.commands.deploy.WarningFormatter"):
                 result = deploy_command._validate_postgres_compatibility(detected_services_with_postgres)
 
         assert result is True
@@ -306,24 +310,25 @@ class TestPostgreSQLValidationIntegration:
         )
 
         # Mock all dependencies
-        with patch.object(deploy_command, "_load_or_find_config", return_value=mock_config):
-            with patch.object(deploy_command, "_detect_services", new_callable=AsyncMock) as mock_detect:
-                mock_detect.return_value = detected_services_with_postgres
+        with (
+            patch.object(deploy_command, "_load_or_find_config", return_value=mock_config),
+            patch.object(deploy_command, "_detect_services", new_callable=AsyncMock) as mock_detect,
+        ):
+            mock_detect.return_value = detected_services_with_postgres
 
-                with patch.object(
-                    deploy_command, "_create_deployment_plan", new_callable=AsyncMock
-                ) as mock_create_plan:
-                    mock_create_plan.return_value = mock_plan
+            with patch.object(deploy_command, "_create_deployment_plan", new_callable=AsyncMock) as mock_create_plan:
+                mock_create_plan.return_value = mock_plan
 
-                    with patch.object(deploy_command, "_confirm_deployment", return_value=False):
-                        with patch(
-                            "mycelium_onboarding.deployment.commands.deploy.validate_postgres_for_temporal"
-                        ) as mock_validate:
-                            mock_validate.return_value = compatible_result
-
-                            with patch("mycelium_onboarding.deployment.commands.deploy.WarningFormatter") as mock_fmt:
-                                # Run deployment (will be cancelled at confirmation)
-                                success = await deploy_command.start(auto_approve=False)
+                with (
+                    patch.object(deploy_command, "_confirm_deployment", return_value=False),
+                    patch(
+                        "mycelium_onboarding.deployment.commands.deploy.validate_postgres_for_temporal"
+                    ) as mock_validate,
+                    patch("mycelium_onboarding.deployment.commands.deploy.WarningFormatter"),
+                ):
+                    mock_validate.return_value = compatible_result
+                    # Run deployment (will be cancelled at confirmation)
+                    success = await deploy_command.start(auto_approve=False)
 
         # Deployment cancelled at confirmation, but validation should have run
         assert success is False
@@ -409,7 +414,7 @@ class TestCLIIntegration:
 
             # Need to mock asyncio.run
             with patch("asyncio.run", return_value=True):
-                result = runner.invoke(cli, ["deploy", "start", "--force-version", "--dry-run"], catch_exceptions=False)
+                runner.invoke(cli, ["deploy", "start", "--force-version", "--dry-run"], catch_exceptions=False)
 
         # Check that DeployCommand was instantiated with force_version=True
         call_kwargs = mock_cmd_class.call_args[1]
@@ -427,7 +432,7 @@ class TestCLIIntegration:
             mock_cmd_class.return_value = mock_instance
 
             with patch("asyncio.run", return_value=True):
-                result = runner.invoke(
+                runner.invoke(
                     cli, ["deploy", "start", "--postgres-version", "15.3", "--dry-run"], catch_exceptions=False
                 )
 
@@ -446,7 +451,7 @@ class TestCLIIntegration:
             mock_cmd_class.return_value = mock_instance
 
             with patch("asyncio.run", return_value=True):
-                result = runner.invoke(
+                runner.invoke(
                     cli, ["deploy", "start", "--temporal-version", "1.24.0", "--dry-run"], catch_exceptions=False
                 )
 

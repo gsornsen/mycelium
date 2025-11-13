@@ -273,7 +273,7 @@ class TestWorkflowExecution:
     @pytest.mark.skip(reason="TODO: Fix Temporal workflow testing issues - pre-existing from Sprint 4")
     async def test_workflow_successful_execution(self) -> None:
         """Test complete workflow execution with all stages passing."""
-        async with await WorkflowEnvironment.start_time_skipping() as env:
+        async with await WorkflowEnvironment.start_time_skipping() as env:  # noqa: SIM117
             # Create worker
             async with Worker(
                 env.client,

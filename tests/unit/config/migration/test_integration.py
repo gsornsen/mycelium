@@ -165,7 +165,7 @@ class TestMigrationIntegration:
         # Plan should include MERGE action
         from mycelium_onboarding.config.migration.planner import MigrationAction
 
-        merge_steps = [s for s in plan if s.action == MigrationAction.MERGE]
+        [s for s in plan if s.action == MigrationAction.MERGE]
         # May or may not have merge step depending on implementation
 
     def test_migration_multiple_configs(self, temp_project_dir):

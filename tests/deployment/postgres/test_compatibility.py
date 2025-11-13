@@ -45,7 +45,7 @@ def compatibility_checker(matrix_path: Path) -> PostgresCompatibilityChecker:
 @pytest.fixture
 def matrix_data(matrix_path: Path) -> dict[str, Any]:
     """Load raw matrix data from YAML."""
-    with open(matrix_path, encoding="utf-8") as f:
+    with matrix_path.open(encoding="utf-8") as f:
         return yaml.safe_load(f)
 
 
