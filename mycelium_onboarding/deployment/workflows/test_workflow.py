@@ -270,7 +270,7 @@ async def test_error_handling_activity(should_fail: bool, attempt_limit: int) ->
 
 
 # Tell pytest not to collect this activity as a test
-test_error_handling_activity.__test__ = False
+test_error_handling_activity.__test__ = False  # type: ignore[attr-defined]
 
 
 @workflow.defn(name="TestWorkflow")

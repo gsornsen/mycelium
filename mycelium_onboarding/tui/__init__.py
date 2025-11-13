@@ -6,9 +6,9 @@ health indicators, and real-time updates.
 
 from __future__ import annotations
 
-from .health_monitor import HealthMonitor, HealthStatus
-from .realtime_updates import RealtimeUpdater, UpdateStream
-from .status_display import StatusDisplay, StatusPanel
+from .health_monitor import HealthMonitor, HealthStatus  # type: ignore[import-untyped]
+from .realtime_updates import RealtimeUpdater, UpdateStream  # type: ignore[import-untyped]
+from .status_display import StatusDisplay, StatusPanel  # type: ignore[import-untyped]
 
 __all__ = [
     "StatusDisplay",

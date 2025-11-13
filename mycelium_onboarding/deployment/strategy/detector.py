@@ -16,7 +16,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 logger = logging.getLogger(__name__)
 
@@ -93,10 +93,7 @@ class DetectedService(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict, description="Additional metadata")
     capabilities: dict[str, Any] | None = Field(default=None, description="Service capabilities")
 
-    class Config:
-        """Pydantic configuration."""
-
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 class ServiceDetector:

@@ -259,7 +259,7 @@ class TestMigrationExecutor:
         ]
 
         # Execute with backup_dir
-        result = executor.execute(steps)
+        executor.execute(steps)
 
         # Note: Backup creation happens in executor's backup phase
         # This test verifies the mechanism works

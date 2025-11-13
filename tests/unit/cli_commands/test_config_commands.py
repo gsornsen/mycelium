@@ -334,7 +334,7 @@ class TestEditCommand:
             mock_manager_instance.load.return_value = sample_config
             mock_manager.return_value = mock_manager_instance
 
-            result = runner.invoke(edit_command, ["--global"])
+            runner.invoke(edit_command, ["--global"])
 
             assert mock_run.called
             # Check that nano was called with the config path
@@ -471,7 +471,7 @@ class TestErrorHandling:
 
     def test_permission_error(self, runner, temp_config_dir):
         """Test handling of permission errors."""
-        config_path = temp_config_dir / "config.yaml"
+        temp_config_dir / "config.yaml"
 
         with patch("mycelium_onboarding.cli_commands.commands.config.ConfigManager") as mock_manager:
             mock_instance = Mock()
@@ -488,7 +488,7 @@ class TestIntegration:
 
     def test_full_config_workflow(self, runner, temp_config_dir):
         """Test complete workflow: show, set, get, edit."""
-        config_path = temp_config_dir / "config.yaml"
+        temp_config_dir / "config.yaml"
 
         # This test would require full integration setup
         # Skipped for unit tests, but shows expected workflow

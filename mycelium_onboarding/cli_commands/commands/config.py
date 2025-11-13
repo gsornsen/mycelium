@@ -182,7 +182,8 @@ def show_command(source: str, format: str) -> None:
 @config_group.command(name="get")
 @click.argument("key")
 @click.option("--default", help="Default value if key not found")
-def get_command(key: str, default: str | None) -> None:
+@click.option("--path", type=click.Path(exists=True), help="Path to specific config file")
+def get_command(key: str, default: str | None, path: str | None) -> None:
     """Get configuration value by key.
 
     Supports dot notation for nested values (e.g., 'services.postgres.port').
@@ -191,32 +192,43 @@ def get_command(key: str, default: str | None) -> None:
         mycelium config get postgres.port
         mycelium config get redis.host --default=localhost
         mycelium config get services.postgres.enabled
+        mycelium config get project_name --path=./custom-config.yaml
     """
     try:
         # Load merged configuration
-        loader = ConfigLoader()
-        config = loader.load()
-        config_dict = config.to_dict()
+        if path:
+            # Load from specific file
+            from pathlib import Path
+
+            config_path = Path(path)
+            loader = ConfigLoader()
+            config_dict = loader._load_yaml_file(config_path) or {}
+        else:
+            # Load merged configuration from default paths
+            loader = ConfigLoader()
+            config = loader.load()
+            config_dict = config.to_dict()
 
         # Navigate to nested value using dot notation
         value = _get_nested_value(config_dict, key)
 
         if value is None:
             if default is not None:
-                console.print(default)
+                console.print(f"{key}: {default}")
             else:
                 console.print(f"[red]✗ Key not found: {key}[/red]")
                 sys.exit(1)
         else:
             # Format output based on type
             if isinstance(value, (dict, list)):
+                console.print(f"{key}:")
                 console.print(yaml.dump(value, default_flow_style=False))
             else:
-                console.print(str(value))
+                console.print(f"{key}: {value}")
 
     except KeyError:
         if default is not None:
-            console.print(default)
+            console.print(f"{key}: {default}")
         else:
             console.print(f"[red]✗ Key not found: {key}[/red]")
             sys.exit(1)

@@ -22,9 +22,9 @@ if sys.version_info >= (3, 11):
     import tomllib
 else:
     try:
-        import tomli as tomllib
+        import tomli as tomllib  # type: ignore[import-not-found]
     except ImportError:
-        tomllib = None  # type: ignore[assignment]
+        tomllib = None
 
 logger = logging.getLogger(__name__)
 

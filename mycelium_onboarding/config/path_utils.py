@@ -88,19 +88,21 @@ def find_legacy_configs(
         >>> all(isinstance(p, Path) for p in legacy_files)
         True
     """
+    # Normalize search paths to Path objects
+    paths_to_search: list[Path]
     if search_paths is None:
         # Default search paths
-        search_paths = [
+        paths_to_search = [
             Path.cwd(),
             Path.home(),
             Path.cwd() / ".mycelium",
         ]
     else:
-        search_paths = [Path(p) for p in search_paths]
+        paths_to_search = [Path(p) for p in search_paths]
 
     found_configs: list[Path] = []
 
-    for search_path in search_paths:
+    for search_path in paths_to_search:
         if not search_path.exists() or not search_path.is_dir():
             continue
 

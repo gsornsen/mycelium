@@ -327,7 +327,8 @@ class RedisCoordinationHelper:
             json_match = re.search(r"```json\n(.*?)\n```", content, re.DOTALL)
 
             if json_match:
-                return json.loads(json_match.group(1))
+                result = json.loads(json_match.group(1))
+                return dict(result) if result is not None else None
 
             return None
 

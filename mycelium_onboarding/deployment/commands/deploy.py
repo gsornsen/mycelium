@@ -29,7 +29,7 @@ from pathlib import Path
 from typing import Any
 
 import click
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.prompt import Confirm
@@ -134,10 +134,7 @@ class DeploymentPlan(BaseModel):
     configuration: dict[str, Any] = Field(default_factory=dict, description="Deployment configuration")
     smart_plan: DeploymentPlanSummary | None = Field(default=None, description="Smart deployment plan with strategies")
 
-    class Config:
-        """Pydantic configuration."""
-
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     def add_step(self, step: DeploymentStep) -> None:
         """Add a deployment step to the plan."""
@@ -406,7 +403,7 @@ class DeployCommand:
 
             # Format and display warnings
             formatter = WarningFormatter(console=console)
-            formatter.format_validation_result(validation_result)
+            formatter.format_validation_result(validation_result)  # type: ignore[arg-type]
 
             # Handle validation result
             if not validation_result.is_compatible:

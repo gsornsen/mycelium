@@ -142,7 +142,7 @@ class RollbackManager:
                 try:
                     import yaml
 
-                    with file_path.open("r", encoding="utf-8") as f:
+                    with file_path.open("r", encoding="utf-8") as f:  # type: ignore[assignment]
                         yaml.safe_load(f)
                 except Exception as e:
                     logger.error("YAML file is corrupted: %s - %s", file_path, e)

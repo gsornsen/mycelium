@@ -164,7 +164,7 @@ class TestMigrationPlanner:
         """Test creating plan with global config creation."""
         plan = planner.create_plan([], create_global=True, backup_all=False)
         # Should have CREATE step for global config (if it doesn't exist)
-        create_steps = [s for s in plan if s.action == MigrationAction.CREATE]
+        [s for s in plan if s.action == MigrationAction.CREATE]
         # May or may not have create step depending on whether global config exists
 
     def test_create_plan_skips_unreadable(self, planner, temp_project_dir):
@@ -179,7 +179,7 @@ class TestMigrationPlanner:
             )
         ]
 
-        plan = planner.create_plan(configs, create_global=False, backup_all=False)
+        planner.create_plan(configs, create_global=False, backup_all=False)
         # Should not create steps for unreadable configs
         # Plan may be empty or only have other steps
 
@@ -360,5 +360,5 @@ class TestMigrationPlanner:
         plan = planner.create_plan(configs, create_global=False, backup_all=False)
 
         # Should have SKIP action
-        skip_steps = [s for s in plan if s.action == MigrationAction.SKIP]
+        [s for s in plan if s.action == MigrationAction.SKIP]
         # May or may not skip depending on exact path resolution

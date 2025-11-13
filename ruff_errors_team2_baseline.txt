@@ -1,0 +1,58 @@
+tests/deployment/postgres/test_compatibility.py:
+  48:10 PTH123 `open()` should be replaced by `Path.open()`
+
+tests/integration/test_smart_deployment.py:
+  151:9 F841 Local variable `result` is assigned to but never used
+  215:9 F841 Local variable `result` is assigned to but never used
+  249:9 F841 Local variable `result` is assigned to but never used
+  281:9 F841 Local variable `result` is assigned to but never used
+  382:9 F841 Local variable `planner` is assigned to but never used
+
+tests/integration/test_state_manager.py:
+  20:1 SIM105 Use `contextlib.suppress(ImportError)` instead of `try`-`except`-`pass`
+
+tests/unit/cli_commands/test_config_commands.py:
+  337:13 F841 Local variable `result` is assigned to but never used
+  474:9  F841 Local variable `config_path` is assigned to but never used
+  491:9  F841 Local variable `config_path` is assigned to but never used
+
+tests/unit/config/migration/test_detector.py:
+  173:9 F841 Local variable `configs1` is assigned to but never used
+  259:9 F841 Local variable `has_conflict` is assigned to but never used
+
+tests/unit/config/migration/test_executor.py:
+  262:9 F841 Local variable `result` is assigned to but never used
+
+tests/unit/config/migration/test_integration.py:
+  168:9 F841 Local variable `merge_steps` is assigned to but never used
+
+tests/unit/config/migration/test_planner.py:
+  167:9 F841 Local variable `create_steps` is assigned to but never used
+  182:9 F841 Local variable `plan` is assigned to but never used
+  363:9 F841 Local variable `skip_steps` is assigned to but never used
+
+tests/unit/config/test_platform.py:
+  142:9 F841 Local variable `sep` is assigned to but never used
+  151:9 F841 Local variable `sep` is assigned to but never used
+
+tests/unit/deployment/commands/test_deploy_validation.py:
+   88:94  F841 Local variable `mock_fmt` is assigned to but never used
+  117:13  SIM117 Use a single `with` statement with multiple contexts instead of nested `with` statements
+  117:94  F841 Local variable `mock_fmt` is assigned to but never used
+  146:13  SIM117 Use a single `with` statement with multiple contexts instead of nested `with` statements
+  146:94  F841 Local variable `mock_fmt` is assigned to but never used
+  174:94  F841 Local variable `mock_fmt` is assigned to but never used
+  218:94  F841 Local variable `mock_fmt` is assigned to but never used
+  249:94  F841 Local variable `mock_fmt` is assigned to but never used
+  309:9   SIM117 Use a single `with` statement with multiple contexts instead of nested `with` statements
+  318:21  SIM117 Use a single `with` statement with multiple contexts instead of nested `with` statements
+  324:110 F841 Local variable `mock_fmt` is assigned to but never used
+  412:17  F841 Local variable `result` is assigned to but never used
+  430:17  F841 Local variable `result` is assigned to but never used
+  449:17  F841 Local variable `result` is assigned to but never used
+
+tests/unit/deployment/workflows/test_test_workflow.py:
+  276:9 SIM117 Use a single `with` statement with multiple contexts instead of nested `with` statements
+
+Found 34 errors.
+No fixes available (27 hidden fixes can be enabled with the `--unsafe-fixes` option).

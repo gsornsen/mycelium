@@ -148,7 +148,7 @@ class TestSmartDeploymentIntegration:
             deployment_plan=plan,
         )
 
-        result = generator.generate(DeploymentMethod.DOCKER_COMPOSE)
+        generator.generate(DeploymentMethod.DOCKER_COMPOSE)
 
         # Verify all services in docker-compose
         compose_content = (temp_output_dir / "docker-compose.yml").read_text()
@@ -212,7 +212,7 @@ class TestSmartDeploymentIntegration:
             deployment_plan=plan,
         )
 
-        result = generator.generate(DeploymentMethod.DOCKER_COMPOSE)
+        generator.generate(DeploymentMethod.DOCKER_COMPOSE)
 
         # Check CONNECTIONS.md was generated
         conn_file = temp_output_dir / "CONNECTIONS.md"
@@ -246,7 +246,7 @@ class TestSmartDeploymentIntegration:
             deployment_plan=plan,
         )
 
-        result = generator.generate(DeploymentMethod.DOCKER_COMPOSE)
+        generator.generate(DeploymentMethod.DOCKER_COMPOSE)
 
         # Check .env file
         env_file = temp_output_dir / ".env"
@@ -278,7 +278,7 @@ class TestSmartDeploymentIntegration:
             deployment_plan=plan,
         )
 
-        result = generator.generate(DeploymentMethod.DOCKER_COMPOSE)
+        generator.generate(DeploymentMethod.DOCKER_COMPOSE)
 
         # Check README
         readme_file = temp_output_dir / "README.md"
@@ -379,7 +379,7 @@ class TestSmartDeploymentIntegration:
     def test_custom_ports_in_alongside_mode(self, config, temp_output_dir):
         """Test that ALONGSIDE mode uses custom ports to avoid conflicts."""
         # Create planner (normally it would detect incompatible version)
-        planner = ServiceDeploymentPlanner(
+        ServiceDeploymentPlanner(
             config=config,
             detected_services=[],
         )

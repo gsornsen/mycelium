@@ -170,7 +170,7 @@ class TestMigrationDetector:
         # Create and scan
         legacy_path = temp_project_dir / "mycelium-config.yaml"
         legacy_path.write_text("version: '1.0'\n")
-        configs1 = detector.scan_for_legacy_configs()
+        detector.scan_for_legacy_configs()
 
         # Clear cache and delete file
         detector.clear_cache()
@@ -256,5 +256,5 @@ class TestMigrationDetector:
         configs = detector.scan_for_legacy_configs()
         assert len(configs) > 0
         # At least one should have a conflict
-        has_conflict = any(c.conflicts_with is not None for c in configs)
+        any(c.conflicts_with is not None for c in configs)
         # Note: This depends on migration logic, may not always conflict

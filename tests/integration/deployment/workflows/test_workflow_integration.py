@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import logging
 import uuid
 from datetime import timedelta
@@ -42,7 +43,7 @@ async def temporal_client() -> Client:
 @pytest.fixture
 async def temporal_worker(temporal_client: Client) -> Worker:
     """Create Temporal worker with test workflow and activities."""
-    worker = Worker(
+    return Worker(
         temporal_client,
         task_queue=TEST_TASK_QUEUE,
         workflows=[TestWorkflow],
@@ -53,7 +54,6 @@ async def temporal_worker(temporal_client: Client) -> Worker:
             test_error_handling_activity,
         ],
     )
-    return worker
 
 
 @pytest.fixture
@@ -79,7 +79,7 @@ class TestTemporalConnection:
             f"{TEMPORAL_HOST}:{TEMPORAL_PORT}",
             namespace=TEMPORAL_NAMESPACE,
         )
-        
+
         assert client.workflow_service is not None
         logger.info(f"Successfully connected to Temporal at {TEMPORAL_HOST}:{TEMPORAL_PORT}")
 
@@ -96,64 +96,60 @@ class TestWorkflowExecution:
 
     @pytest.mark.integration
     @pytest.mark.asyncio
-    async def test_workflow_execution_end_to_end(
-        self, temporal_client: Client, temporal_worker: Worker
-    ) -> None:
+    async def test_workflow_execution_end_to_end(self, temporal_client: Client, temporal_worker: Worker) -> None:
         """Test complete workflow execution with all 5 stages."""
         workflow_id = f"test-integration-{uuid.uuid4()}"
-        
+
         worker_task = asyncio.create_task(temporal_worker.run())
-        
+
         try:
             await asyncio.sleep(2)
-            
+
             handle = await temporal_client.start_workflow(
                 TestWorkflow.run,
                 id=workflow_id,
                 task_queue=TEST_TASK_QUEUE,
                 execution_timeout=timedelta(seconds=WORKFLOW_TIMEOUT),
             )
-            
+
             logger.info(f"Started workflow: {workflow_id}")
-            
+
             result = await handle.result()
-            
+
             # Check result structure
             assert result is not None
-            assert hasattr(result, 'success')
-            assert hasattr(result, 'stages')
-            assert hasattr(result, 'summary')
-            
+            assert hasattr(result, "success")
+            assert hasattr(result, "stages")
+            assert hasattr(result, "summary")
+
             # Validate success
             assert result.success is True
             assert len(result.stages) == 5
-            
+
             # Log stage results
             for i, stage_result in enumerate(result.stages):
                 status = stage_result.status
                 # Handle both enum and string representations
                 if isinstance(status, list):
-                    status = ''.join(status)
-                elif hasattr(status, 'value'):
+                    status = "".join(status)
+                elif hasattr(status, "value"):
                     status = status.value
-                    
-                logger.info(f"Stage {i+1}: status={status}, message={stage_result.message}")
-                
+
+                logger.info(f"Stage {i + 1}: status={status}, message={stage_result.message}")
+
                 # Check that stage succeeded (status is 'success' as string or list)
                 if isinstance(stage_result.status, list):
-                    assert ''.join(stage_result.status) == 'success'
+                    assert "".join(stage_result.status) == "success"
                 else:
-                    assert stage_result.status == 'success' or stage_result.status.value == 'success'
-                    
+                    assert stage_result.status == "success" or stage_result.status.value == "success"
+
                 assert stage_result.error is None
-            
+
             assert result.total_duration_ms > 0
             logger.info(f"Workflow completed successfully in {result.total_duration_ms:.2f}ms")
             logger.info(f"Summary: {result.summary}")
-            
+
         finally:
             worker_task.cancel()
-            try:
+            with contextlib.suppress(asyncio.CancelledError):
                 await worker_task
-            except asyncio.CancelledError:
-                pass

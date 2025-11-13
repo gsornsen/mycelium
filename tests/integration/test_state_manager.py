@@ -4,6 +4,7 @@ NOTE: These tests are currently skipped because coordination.state_manager modul
 has not been implemented yet. They will be enabled once the module is complete.
 """
 
+import contextlib
 import os
 
 import pytest
@@ -17,7 +18,7 @@ os.environ["DATABASE_URL"] = os.getenv(
 )
 
 # Conditional imports - avoid import errors when module is skipped
-try:
+with contextlib.suppress(ImportError):
     from coordination.state_manager import (
         StateManager,
         StateNotFoundError,
@@ -25,9 +26,6 @@ try:
         TaskStatus,
         WorkflowStatus,
     )
-except ImportError:
-    # Module not yet implemented - tests will be skipped anyway
-    pass
 
 
 @pytest.fixture

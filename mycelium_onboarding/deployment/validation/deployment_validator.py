@@ -489,7 +489,8 @@ class DeploymentValidator:
             health.status = HealthStatus.DEGRADED
             health.message = "Temporal is starting up or partially available"
         else:
-            health.status = HealthStatus.UNHEALTHY
+            # Defensive fallback - unreachable due to early return if not port_check
+            health.status = HealthStatus.UNHEALTHY  # type: ignore[unreachable]
             health.message = "Temporal service is not responding correctly"
 
         health.response_time_ms = (time.time() - start_time) * 1000
@@ -691,7 +692,7 @@ class DeploymentValidator:
             await conn.close()
 
             # If we find some Temporal tables, schema is initialized
-            return result > 0
+            return bool(result > 0)
 
         except Exception as e:
             logger.debug(f"Temporal schema validation failed: {e}")
@@ -724,7 +725,7 @@ class DeploymentValidator:
             await conn.close()
 
             # Healthy if we have some connections but not too many
-            return 0 < result < 100
+            return bool(0 < result < 100)
 
         except Exception as e:
             logger.debug(f"PostgreSQL connection pool check failed: {e}")
@@ -809,7 +810,7 @@ async def validate_deployment(
     postgres_port: int = 5432,
     temporal_host: str = "localhost",
     temporal_port: int = 7233,
-    **kwargs,
+    **kwargs: Any,
 ) -> ValidationReport:
     """Convenience function to validate deployment.
 

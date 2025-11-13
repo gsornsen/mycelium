@@ -46,7 +46,7 @@ def get_platform() -> Platform:
     """
     if sys.platform.startswith("linux"):
         return Platform.LINUX
-    if sys.platform == "darwin":
+    if sys.platform == "darwin":  # type: ignore[unreachable]
         return Platform.MACOS
     if sys.platform == "win32":
         return Platform.WINDOWS

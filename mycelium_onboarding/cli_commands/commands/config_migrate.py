@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
+from typing import Any
 
 import click
 from rich.console import Console
@@ -56,7 +57,7 @@ def migrate_command(dry_run: bool, yes: bool, backup_dir: Path | None) -> None:
             legacy_configs = detect_migration_candidates()
         except Exception:
             # Fallback to manual detection if migration_util not available
-            legacy_configs = _detect_legacy_configs_fallback()
+            legacy_configs = _detect_legacy_configs_fallback()  # type: ignore[assignment]
 
         if not legacy_configs:
             console.print("[green]✓ No migration needed - already using new config structure[/green]")
@@ -71,7 +72,7 @@ def migrate_command(dry_run: bool, yes: bool, backup_dir: Path | None) -> None:
                 console.print(f"  • {config}")
 
         # Create migration plan
-        migration_steps = _create_migration_plan(legacy_configs)
+        migration_steps = _create_migration_plan(legacy_configs)  # type: ignore[arg-type]
 
         console.print(f"\nMigration plan ({len(migration_steps)} steps):")
         for i, step in enumerate(migration_steps, 1):
@@ -149,7 +150,7 @@ def _detect_legacy_configs_fallback() -> list[Path]:
     return legacy_configs
 
 
-def _create_migration_plan(legacy_configs: list) -> list[dict]:
+def _create_migration_plan(legacy_configs: list[Path]) -> list[dict[str, Any]]:
     """Create a migration plan from legacy configs."""
     steps = []
 
@@ -188,7 +189,7 @@ def _is_in_home_directory(path: Path) -> bool:
         return False
 
 
-def _simulate_migration(steps: list[dict]) -> None:
+def _simulate_migration(steps: list[dict[str, Any]]) -> None:
     """Simulate migration without making changes."""
     console.print("[bold]Migration Steps:[/bold]\n")
 
@@ -200,7 +201,7 @@ def _simulate_migration(steps: list[dict]) -> None:
         console.print()
 
 
-def _execute_migration(steps: list[dict], backup_dir: Path) -> tuple[bool, list[str]]:
+def _execute_migration(steps: list[dict[str, Any]], backup_dir: Path) -> tuple[bool, list[str]]:
     """Execute migration steps with progress tracking."""
     import shutil
     from datetime import datetime
@@ -245,7 +246,7 @@ def _execute_migration(steps: list[dict], backup_dir: Path) -> tuple[bool, list[
 
 
 # Alternative implementation using Phase 1 migration classes (if available)
-def migrate_command_with_phase1_classes(dry_run: bool, yes: bool, backup_dir: Path | None):
+def migrate_command_with_phase1_classes(dry_run: bool, yes: bool, backup_dir: Path | None) -> None:
     """Migration command using Phase 1 MigrationDetector/Planner/Executor classes.
 
     This is the ideal implementation that should be used once Phase 1 classes are available.
@@ -286,7 +287,7 @@ def migrate_command_with_phase1_classes(dry_run: bool, yes: bool, backup_dir: Pa
             return
 
         # Step 5: Execute migration
-        executor = MigrationExecutor(dry_run=dry_run, backup_dir=backup_dir)
+        executor = MigrationExecutor(dry_run=dry_run, backup_dir=backup_dir)  # type: ignore[call-arg]
 
         with Progress(
             SpinnerColumn(),
@@ -295,7 +296,7 @@ def migrate_command_with_phase1_classes(dry_run: bool, yes: bool, backup_dir: Pa
         ) as progress:
             task = progress.add_task("Migrating configuration...", total=len(steps))
 
-            def progress_callback(current, _total, message):
+            def progress_callback(current: int, _total: int, message: str) -> None:
                 progress.update(task, completed=current, description=message)
 
             result = executor.execute(steps, progress_callback=progress_callback)

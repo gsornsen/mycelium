@@ -135,7 +135,7 @@ class MigrationDetector:
 
         # Find legacy configs using path_utils
         found_paths = find_legacy_configs(
-            search_paths=search_paths,
+            search_paths=search_paths,  # type: ignore[arg-type]
             legacy_filename=self.legacy_filename,
         )
 

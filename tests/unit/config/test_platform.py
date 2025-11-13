@@ -139,7 +139,7 @@ class TestPlatformConsistency:
         test_path.touch()
 
         normalized = normalize_path(test_path)
-        sep = get_path_separator()
+        get_path_separator()
 
         # The path should use the platform separator
         # (though Path objects abstract this away)
@@ -148,7 +148,7 @@ class TestPlatformConsistency:
     def test_home_directory_uses_correct_separator(self) -> None:
         """Test that home directory path uses correct separator."""
         home = get_home_directory()
-        sep = get_path_separator()
+        get_path_separator()
 
         # The path should be valid for the current platform
         assert home.exists()
