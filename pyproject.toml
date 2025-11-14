@@ -49,6 +49,7 @@ test = [
     "pytest-asyncio>=0.21.0",
     "hypothesis>=6.82.0",
     "httpx>=0.25.0",  # For testing FastAPI endpoints
+    "redis>=7.0.0",  # For coordination integration tests
 ]
 dev = [
     "ruff>=0.1.0",
