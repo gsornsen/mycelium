@@ -27,15 +27,15 @@ services:
 {%     set redis_port = config.services.redis.port %}
 {%   endif %}
   redis:
-    image: redis/redis-stack-server:{{ config.services.redis.version or 'latest' }}
+    image: redis:{{ config.services.redis.version or 'latest' }}
     container_name: {{ config.project_name }}-redis
     ports:
       - "{{ redis_port }}:6379"
-    environment:
-      - REDIS_ARGS=--save 60 1 --loglevel warning{% if config.services.redis.max_memory %} --maxmemory {{ config.services.redis.max_memory }} --maxmemory-policy allkeys-lru{% endif %}{% for key, value in (config.services.redis.custom_config or {}).items() %} --{{ key }} {{ value }}{% endfor %}
-    volumes:
+{% if config.services.redis.max_memory %}    command: redis-server --maxmemory {{ config.services.redis.max_memory }} --maxmemory-policy allkeys-lru{% if config.services.redis.persistence %} --save 60 1{% endif %}
+
+{% endif %}{% if config.services.redis.persistence %}    volumes:
       - redis-data:/data
-    healthcheck:
+{% endif %}    healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 3s
@@ -60,20 +60,20 @@ services:
       POSTGRES_DB: {{ config.services.postgres.database }}
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Please set POSTGRES_PASSWORD in .env file}
-      {% if config.services.postgres.max_connections %}
+{%     if config.services.postgres.max_connections %}
       POSTGRES_MAX_CONNECTIONS: {{ config.services.postgres.max_connections }}
-      {% endif %}
+{%     endif %}
     ports:
       - "{{ postgres_port }}:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
-    {% if config.services.postgres.custom_config %}
+{%     if config.services.postgres.custom_config %}
     command:
-      {% for key, value in config.services.postgres.custom_config.items() %}
+{%       for key, value in config.services.postgres.custom_config.items() %}
       - -c
       - {{ key }}={{ value }}
-      {% endfor %}
-    {% endif %}
+{%       endfor %}
+{%     endif %}
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d {{ config.services.postgres.database }}"]
       interval: 10s
@@ -97,21 +97,21 @@ services:
   temporal:
     image: temporalio/auto-setup:{{ config.services.temporal.version or 'latest' }}
     container_name: {{ config.project_name }}-temporal
-    {% if deploy_postgres %}
+{%     if deploy_postgres %}
     depends_on:
       postgres:
         condition: service_healthy
-    {% endif %}
+{%     endif %}
     environment:
       - DB=postgresql
       - DB_PORT=5432
       - POSTGRES_USER=${POSTGRES_USER:-postgres}
       - POSTGRES_PWD=${POSTGRES_PASSWORD:?Please set POSTGRES_PASSWORD in .env file}
-      {% if deploy_postgres %}
+{%       if deploy_postgres %}
       - POSTGRES_SEEDS=postgres
-      {% else %}
+{%       else %}
       - POSTGRES_SEEDS=${TEMPORAL_POSTGRES_HOST:-localhost}
-      {% endif %}
+{%       endif %}
       - DYNAMIC_CONFIG_FILE_PATH=config/dynamicconfig/development-sql.yaml
       - ENABLE_ES=false
       - DEFAULT_NAMESPACE={{ config.services.temporal.namespace }}
@@ -119,10 +119,10 @@ services:
     ports:
       - "{{ temporal_frontend_port }}:7233"
       - "{{ temporal_ui_port }}:8080"
-    {% if config.services.temporal.custom_config %}
+{%     if config.services.temporal.custom_config %}
     volumes:
       - ./temporal-config.yaml:/etc/temporal/config/config.yaml:ro
-    {% endif %}
+{%     endif %}
     healthcheck:
       test: ["CMD", "tctl", "--address", "temporal:7233", "cluster", "health"]
       interval: 30s
@@ -139,14 +139,14 @@ networks:
     name: {{ config.project_name }}-network
     driver: bridge
 
-{% if deploy_redis or deploy_postgres %}
+{% if (deploy_redis and config.services.redis.persistence) or deploy_postgres %}
 volumes:
-  {% if deploy_redis %}
+{%   if deploy_redis and config.services.redis.persistence %}
   redis-data:
     name: {{ config.project_name }}-redis-data
-  {% endif %}
-  {% if deploy_postgres %}
+{%   endif %}
+{%   if deploy_postgres %}
   postgres-data:
     name: {{ config.project_name }}-postgres-data
-  {% endif %}
+{%   endif %}
 {% endif %}

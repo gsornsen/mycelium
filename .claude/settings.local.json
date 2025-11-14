@@ -61,7 +61,12 @@
       "Bash(then echo \"File found!\")",
       "Bash(break)",
       "Bash(else echo \"Attempt $i: Waiting...\")",
-      "Bash(/tmp/windows_fail.log)"
+      "Bash(/tmp/windows_fail.log)",
+      "Bash(redis-cli ping:*)",
+      "Bash(redis-cli:*)",
+      "Bash(claude mcp list:*)",
+      "Bash(claude mcp tools:*)",
+      "Bash(claude mcp:*)"
     ],
     "deny": [],
     "ask": []

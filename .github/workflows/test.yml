@@ -141,6 +141,7 @@ jobs:
         run: |
           PGPASSWORD=mycelium_test psql -h localhost -U mycelium -d mycelium_test -c "CREATE DATABASE mycelium_test;" 2>/dev/null || echo "Database mycelium_test already exists"
           PGPASSWORD=mycelium_test psql -h localhost -U mycelium -d mycelium_test -c "CREATE DATABASE mycelium_registry;" 2>/dev/null || echo "Database mycelium_registry already exists"
+          PGPASSWORD=mycelium_test psql -h localhost -U mycelium -d mycelium_test -c "CREATE DATABASE temporal;" 2>/dev/null || echo "Database temporal already exists"
 
       - name: Run database migrations with Alembic
         env:

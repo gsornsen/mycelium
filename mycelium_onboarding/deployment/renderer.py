@@ -61,7 +61,7 @@ class TemplateRenderer:
             loader=FileSystemLoader(str(self.template_dir)),
             autoescape=select_autoescape(enabled_extensions=("j2",)),
             trim_blocks=True,
-            lstrip_blocks=True,
+            lstrip_blocks=False,
             keep_trailing_newline=True,
         )
 
