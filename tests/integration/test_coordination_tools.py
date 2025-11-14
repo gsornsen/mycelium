@@ -13,7 +13,16 @@ import time
 from pathlib import Path
 
 import pytest
-import redis
+
+# Try to import redis, skip all tests if not available
+try:
+    import redis
+
+    REDIS_AVAILABLE = True
+except ImportError:
+    REDIS_AVAILABLE = False
+
+pytestmark = pytest.mark.skipif(not REDIS_AVAILABLE, reason="redis package not installed")
 
 
 @pytest.fixture
