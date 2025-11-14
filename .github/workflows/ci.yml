@@ -247,9 +247,10 @@ jobs:
       - name: Run integration tests
         shell: bash
         env:
+          CI: "true"
           PYTHONPATH: ${{ github.workspace }}
           POSTGRES_HOST: localhost
-          POSTGRES_PORT: 5432
+          POSTGRES_PORT: "5432"
           POSTGRES_USER: mycelium
           POSTGRES_PASSWORD: mycelium_test
           POSTGRES_DB: mycelium_test

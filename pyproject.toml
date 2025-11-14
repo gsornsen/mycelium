@@ -201,9 +201,12 @@ addopts = [
 testpaths = ["tests"]
 # REMOVED pythonpath line - causes sys.path issues
 markers = [
+    "unit: Unit tests (no external dependencies)",
+    "integration: Integration tests (may require external services)",
+    "postgres: Tests requiring PostgreSQL",
+    "temporal: Tests requiring Temporal",
     "benchmark: marks tests as benchmarks (deselect with '-m \"not benchmark\"')",
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
-    "integration: marks tests as integration tests",
     "asyncio: marks tests as async tests",
 ]
 asyncio_mode = "auto"
