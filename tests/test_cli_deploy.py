@@ -296,7 +296,7 @@ def test_deploy_start_docker_compose(runner, mock_config):
     """Test starting Docker Compose deployment."""
     with (
         patch("mycelium_onboarding.cli.ConfigManager") as mock_manager_cls,
-        patch("mycelium_onboarding.cli.subprocess.run") as mock_run,
+        patch("mycelium_onboarding.deployment.commands.deploy.subprocess.run") as mock_run,
     ):
         mock_manager = Mock()
         mock_manager.load.return_value = mock_config
@@ -323,7 +323,7 @@ def test_deploy_start_kubernetes(runner):
 
     with (
         patch("mycelium_onboarding.cli.ConfigManager") as mock_manager_cls,
-        patch("mycelium_onboarding.cli.subprocess.run") as mock_run,
+        patch("mycelium_onboarding.deployment.commands.deploy.subprocess.run") as mock_run,
     ):
         mock_manager = Mock()
         mock_manager.load.return_value = k8s_config
@@ -352,7 +352,7 @@ def test_deploy_start_systemd(runner, mock_config):
 
     with (
         patch("mycelium_onboarding.cli.ConfigManager") as mock_manager_cls,
-        patch("mycelium_onboarding.cli.subprocess.run") as mock_run,
+        patch("mycelium_onboarding.deployment.commands.deploy.subprocess.run") as mock_run,
     ):
         mock_manager = Mock()
         mock_manager.load.return_value = systemd_config
@@ -372,7 +372,7 @@ def test_deploy_start_error(runner, mock_config):
     """Test start command with subprocess error."""
     with (
         patch("mycelium_onboarding.cli.ConfigManager") as mock_manager_cls,
-        patch("mycelium_onboarding.cli.subprocess.run") as mock_run,
+        patch("mycelium_onboarding.deployment.commands.deploy.subprocess.run") as mock_run,
     ):
         mock_manager = Mock()
         mock_manager.load.return_value = mock_config
@@ -392,7 +392,7 @@ def test_deploy_start_command_not_found(runner, mock_config):
     """Test start command when deployment tool not found."""
     with (
         patch("mycelium_onboarding.cli.ConfigManager") as mock_manager_cls,
-        patch("mycelium_onboarding.cli.subprocess.run") as mock_run,
+        patch("mycelium_onboarding.deployment.commands.deploy.subprocess.run") as mock_run,
     ):
         mock_manager = Mock()
         mock_manager.load.return_value = mock_config
@@ -415,7 +415,7 @@ def test_deploy_stop_docker_compose(runner, mock_config):
     """Test stopping Docker Compose deployment."""
     with (
         patch("mycelium_onboarding.cli.ConfigManager") as mock_manager_cls,
-        patch("mycelium_onboarding.cli.subprocess.run") as mock_run,
+        patch("mycelium_onboarding.deployment.commands.deploy.subprocess.run") as mock_run,
     ):
         mock_manager = Mock()
         mock_manager.load.return_value = mock_config
@@ -441,7 +441,7 @@ def test_deploy_stop_kubernetes(runner):
 
     with (
         patch("mycelium_onboarding.cli.ConfigManager") as mock_manager_cls,
-        patch("mycelium_onboarding.cli.subprocess.run") as mock_run,
+        patch("mycelium_onboarding.deployment.commands.deploy.subprocess.run") as mock_run,
     ):
         mock_manager = Mock()
         mock_manager.load.return_value = k8s_config
@@ -468,7 +468,7 @@ def test_deploy_stop_systemd(runner):
 
     with (
         patch("mycelium_onboarding.cli.ConfigManager") as mock_manager_cls,
-        patch("mycelium_onboarding.cli.subprocess.run") as mock_run,
+        patch("mycelium_onboarding.deployment.commands.deploy.subprocess.run") as mock_run,
     ):
         mock_manager = Mock()
         mock_manager.load.return_value = systemd_config
@@ -491,7 +491,7 @@ def test_deploy_status_docker_compose(runner, mock_config):
     """Test status command for Docker Compose."""
     with (
         patch("mycelium_onboarding.cli.ConfigManager") as mock_manager_cls,
-        patch("mycelium_onboarding.cli.subprocess.run") as mock_run,
+        patch("mycelium_onboarding.deployment.commands.deploy.subprocess.run") as mock_run,
     ):
         mock_manager = Mock()
         mock_manager.load.return_value = mock_config
@@ -518,7 +518,7 @@ def test_deploy_status_no_containers(runner, mock_config):
     """Test status command with no running containers."""
     with (
         patch("mycelium_onboarding.cli.ConfigManager") as mock_manager_cls,
-        patch("mycelium_onboarding.cli.subprocess.run") as mock_run,
+        patch("mycelium_onboarding.deployment.commands.deploy.subprocess.run") as mock_run,
     ):
         mock_manager = Mock()
         mock_manager.load.return_value = mock_config
@@ -541,7 +541,7 @@ def test_deploy_status_kubernetes(runner):
 
     with (
         patch("mycelium_onboarding.cli.ConfigManager") as mock_manager_cls,
-        patch("mycelium_onboarding.cli.subprocess.run") as mock_run,
+        patch("mycelium_onboarding.deployment.commands.deploy.subprocess.run") as mock_run,
     ):
         mock_manager = Mock()
         mock_manager.load.return_value = k8s_config
@@ -581,7 +581,7 @@ def test_deploy_status_systemd(runner):
 
     with (
         patch("mycelium_onboarding.cli.ConfigManager") as mock_manager_cls,
-        patch("mycelium_onboarding.cli.subprocess.run") as mock_run,
+        patch("mycelium_onboarding.deployment.commands.deploy.subprocess.run") as mock_run,
     ):
         mock_manager = Mock()
         mock_manager.load.return_value = systemd_config
@@ -599,7 +599,7 @@ def test_deploy_status_watch_flag(runner, mock_config):
     """Test status command with --watch flag."""
     with (
         patch("mycelium_onboarding.cli.ConfigManager") as mock_manager_cls,
-        patch("mycelium_onboarding.cli.subprocess.run") as mock_run,
+        patch("mycelium_onboarding.deployment.commands.deploy.subprocess.run") as mock_run,
     ):
         mock_manager = Mock()
         mock_manager.load.return_value = mock_config
@@ -761,7 +761,7 @@ def test_deploy_start_method_override(runner, mock_config):
     """Test start command with method override."""
     with (
         patch("mycelium_onboarding.cli.ConfigManager") as mock_manager_cls,
-        patch("mycelium_onboarding.cli.subprocess.run") as mock_run,
+        patch("mycelium_onboarding.deployment.commands.deploy.subprocess.run") as mock_run,
     ):
         mock_manager = Mock()
         mock_manager.load.return_value = mock_config
@@ -787,7 +787,7 @@ def test_deploy_full_workflow(runner, mock_config, mock_generation_result, mock_
         patch("mycelium_onboarding.cli.ConfigManager") as mock_manager_cls,
         patch("mycelium_onboarding.deployment.generator.DeploymentGenerator") as mock_gen_cls,
         patch("mycelium_onboarding.deployment.secrets.SecretsManager") as mock_secrets_cls,
-        patch("mycelium_onboarding.cli.subprocess.run") as mock_run,
+        patch("mycelium_onboarding.deployment.commands.deploy.subprocess.run") as mock_run,
     ):
         mock_manager = Mock()
         mock_manager.load.return_value = mock_config
@@ -874,7 +874,7 @@ def test_deploy_status_json_parse_error(runner, mock_config):
     """Test status command with malformed JSON from docker-compose."""
     with (
         patch("mycelium_onboarding.cli.ConfigManager") as mock_manager_cls,
-        patch("mycelium_onboarding.cli.subprocess.run") as mock_run,
+        patch("mycelium_onboarding.deployment.commands.deploy.subprocess.run") as mock_run,
     ):
         mock_manager = Mock()
         mock_manager.load.return_value = mock_config
@@ -894,7 +894,7 @@ def test_deploy_status_multiline_json(runner, mock_config):
     """Test status command with multi-line JSON output."""
     with (
         patch("mycelium_onboarding.cli.ConfigManager") as mock_manager_cls,
-        patch("mycelium_onboarding.cli.subprocess.run") as mock_run,
+        patch("mycelium_onboarding.deployment.commands.deploy.subprocess.run") as mock_run,
     ):
         mock_manager = Mock()
         mock_manager.load.return_value = mock_config
