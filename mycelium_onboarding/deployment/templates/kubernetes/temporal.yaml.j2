@@ -17,10 +17,8 @@ data:
   DB_PORT: "5432"
   ENABLE_ES: "false"
   DYNAMIC_CONFIG_FILE_PATH: config/dynamicconfig/development-sql.yaml
-{% if config.services.postgres.enabled %}
-  POSTGRES_SEEDS: postgres.{{ config.project_name }}.svc.cluster.local
-{% else %}
-  POSTGRES_SEEDS: "postgres"  # External PostgreSQL
+{% if config.services.postgres.enabled %}  POSTGRES_SEEDS: postgres.{{ config.project_name }}.svc.cluster.local
+{% else %}  POSTGRES_SEEDS: "postgres"  # External PostgreSQL
 {% endif %}
 ---
 apiVersion: apps/v1
@@ -45,8 +43,7 @@ spec:
         component: workflow-engine
         project: {{ config.project_name }}
     spec:
-      {% if config.services.postgres.enabled %}
-      initContainers:
+      {% if config.services.postgres.enabled %}      initContainers:
       - name: wait-for-postgres
         image: busybox:latest
         command:

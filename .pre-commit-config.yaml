@@ -47,14 +47,14 @@ repos:
         stages: [pre-push]  # Only on push, not every commit
 
       - id: pytest-unit
-        name: Unit tests (matches CI unit test suite)
+        name: Unit tests only (fast, no external services)
         entry: bash -c
         language: system
         pass_filenames: false
         stages: [pre-push]
         args:
           - |
-            uv run pytest tests/unit/ tests/test_*.py -v \
+            uv run pytest tests/unit/ -v \
               -m "not integration and not benchmark and not slow" \
               --tb=short \
               --cov=plugins \
