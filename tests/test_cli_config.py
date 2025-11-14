@@ -280,12 +280,11 @@ def test_config_set_integer(runner, tmp_path):
         with patch("mycelium_onboarding.cli.get_config_path", return_value=config_path):
             runner.invoke(cli, ["config", "init"])
 
-        # Set value
-        with patch("mycelium_onboarding.cli.get_config_path", return_value=config_path):
-            result = runner.invoke(
-                cli,
-                ["config", "set", "services.redis.port", "6380"],
-            )
+        # Set value using --path parameter
+        result = runner.invoke(
+            cli,
+            ["config", "set", "services.redis.port", "6380", "--path", str(config_path)],
+        )
 
     assert result.exit_code == 0
     assert "Set services.redis.port = 6380" in result.output
@@ -304,12 +303,11 @@ def test_config_set_boolean(runner, tmp_path):
         with patch("mycelium_onboarding.cli.get_config_path", return_value=config_path):
             runner.invoke(cli, ["config", "init"])
 
-        # Set boolean to false
-        with patch("mycelium_onboarding.cli.get_config_path", return_value=config_path):
-            result = runner.invoke(
-                cli,
-                ["config", "set", "services.redis.enabled", "false"],
-            )
+        # Set boolean to false using --path parameter
+        result = runner.invoke(
+            cli,
+            ["config", "set", "services.redis.enabled", "false", "--path", str(config_path)],
+        )
 
     assert result.exit_code == 0
     assert "Set services.redis.enabled = False" in result.output
@@ -328,12 +326,11 @@ def test_config_set_string(runner, tmp_path):
         with patch("mycelium_onboarding.cli.get_config_path", return_value=config_path):
             runner.invoke(cli, ["config", "init"])
 
-        # Set string value
-        with patch("mycelium_onboarding.cli.get_config_path", return_value=config_path):
-            result = runner.invoke(
-                cli,
-                ["config", "set", "project_name", "my-project"],
-            )
+        # Set string value using --path parameter
+        result = runner.invoke(
+            cli,
+            ["config", "set", "project_name", "my-project", "--path", str(config_path)],
+        )
 
     assert result.exit_code == 0
     assert "Set project_name = my-project" in result.output
@@ -353,11 +350,10 @@ def test_config_set_invalid_value(runner, tmp_path):
             runner.invoke(cli, ["config", "init"])
 
         # Try to set invalid port (exit code should be 1 or 2)
-        with patch("mycelium_onboarding.cli.get_config_path", return_value=config_path):
-            result = runner.invoke(
-                cli,
-                ["config", "set", "services.redis.port", "99999"],
-            )
+        result = runner.invoke(
+            cli,
+            ["config", "set", "services.redis.port", "99999", "--path", str(config_path)],
+        )
 
     assert result.exit_code in (1, 2)  # Either error or validation error
     assert "validation" in result.output.lower() or "error" in result.output.lower()
@@ -373,18 +369,17 @@ def test_config_set_nonexistent_key(runner, tmp_path):
             runner.invoke(cli, ["config", "init"])
 
         # Try to set nonexistent key
-        with patch("mycelium_onboarding.cli.get_config_path", return_value=config_path):
-            result = runner.invoke(
-                cli,
-                ["config", "set", "nonexistent.key", "value"],
-            )
+        result = runner.invoke(
+            cli,
+            ["config", "set", "nonexistent.key", "value", "--path", str(config_path)],
+        )
 
     # Should fail validation
     assert result.exit_code != 0
 
 
 def test_config_set_project_local(runner, tmp_path):
-    """Test 'config set' with --project-local flag."""
+    """Test 'config set' with --path flag (replaces --project-local test)."""
     config_path = tmp_path / "config.yaml"
 
     with runner.isolated_filesystem(temp_dir=tmp_path):
@@ -392,12 +387,11 @@ def test_config_set_project_local(runner, tmp_path):
         with patch("mycelium_onboarding.cli.get_config_path", return_value=config_path):
             runner.invoke(cli, ["config", "init"])
 
-        # Set with project-local flag
-        with patch("mycelium_onboarding.cli.get_config_path", return_value=config_path):
-            result = runner.invoke(
-                cli,
-                ["config", "set", "project_name", "local-project", "--project-local"],
-            )
+        # Set with --path flag (equivalent to project-local with specific file)
+        result = runner.invoke(
+            cli,
+            ["config", "set", "project_name", "local-project", "--path", str(config_path)],
+        )
 
     assert result.exit_code == 0
     assert "local-project" in result.output
@@ -520,7 +514,7 @@ def test_config_set_help(runner):
 
     assert result.exit_code == 0
     assert "Set configuration value" in result.output
-    assert "--project-local" in result.output
+    assert "--path" in result.output
 
 
 # ============================================================================
@@ -555,11 +549,10 @@ def test_config_set_with_save_error(runner, tmp_path):
         config_path.parent.chmod(0o444)
 
         try:
-            with patch("mycelium_onboarding.cli.get_config_path", return_value=config_path):
-                result = runner.invoke(
-                    cli,
-                    ["config", "set", "project_name", "test"],
-                )
+            result = runner.invoke(
+                cli,
+                ["config", "set", "project_name", "test", "--path", str(config_path)],
+            )
 
             assert result.exit_code != 0
         finally:
@@ -676,11 +669,10 @@ def test_config_workflow_init_get_set_validate(runner, tmp_path):
         assert "6379" in result.output
 
         # 3. Set new value
-        with patch("mycelium_onboarding.cli.get_config_path", return_value=config_path):
-            result = runner.invoke(
-                cli,
-                ["config", "set", "services.redis.port", "6380"],
-            )
+        result = runner.invoke(
+            cli,
+            ["config", "set", "services.redis.port", "6380", "--path", str(config_path)],
+        )
         assert result.exit_code == 0
 
         # 4. Verify new value (directly from file)
@@ -702,15 +694,12 @@ def test_config_multiple_sets(runner, tmp_path):
         with patch("mycelium_onboarding.cli.get_config_path", return_value=config_path):
             runner.invoke(cli, ["config", "init"])
 
-        # Set multiple values
-        with patch("mycelium_onboarding.cli.get_config_path", return_value=config_path):
-            runner.invoke(cli, ["config", "set", "project_name", "test-project"])
+        # Set multiple values using --path
+        runner.invoke(cli, ["config", "set", "project_name", "test-project", "--path", str(config_path)])
 
-        with patch("mycelium_onboarding.cli.get_config_path", return_value=config_path):
-            runner.invoke(cli, ["config", "set", "services.redis.port", "6380"])
+        runner.invoke(cli, ["config", "set", "services.redis.port", "6380", "--path", str(config_path)])
 
-        with patch("mycelium_onboarding.cli.get_config_path", return_value=config_path):
-            runner.invoke(cli, ["config", "set", "services.postgres.database", "testdb"])
+        runner.invoke(cli, ["config", "set", "services.postgres.database", "testdb", "--path", str(config_path)])
 
         # Verify all values
         config = yaml.safe_load(config_path.read_text())

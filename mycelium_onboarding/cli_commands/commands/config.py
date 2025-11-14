@@ -241,26 +241,33 @@ def get_command(key: str, default: str | None, path: str | None) -> None:
 @click.argument("key")
 @click.argument("value")
 @click.option("--global", "set_global", is_flag=True, help="Set in global config")
+@click.option("--path", type=click.Path(), help="Path to specific config file")
 @click.option(
     "--type",
     type=click.Choice(["string", "int", "float", "bool"]),
-    default="string",
-    help="Value type (default: string)",
+    help="Value type (default: auto-detect)",
 )
-def set_command(key: str, value: str, set_global: bool, type: str) -> None:
+def set_command(key: str, value: str, set_global: bool, path: str | None, type: str | None) -> None:
     """Set configuration value.
 
     Sets a configuration value in either global or project config.
     By default, sets in project config (or global if no project exists).
 
+    Type is auto-detected unless explicitly specified with --type.
+
     Examples:
         mycelium config set services.postgres.port 5433
         mycelium config set services.redis.host localhost --global
         mycelium config set deployment.auto_start true --type=bool
+        mycelium config set project_name my-project --path=./config.yaml
     """
     try:
         # Determine target config file
-        if set_global:
+        if path:
+            # Use specific path provided
+            target_path = Path(path)
+            scope_name = "specified file"
+        elif set_global:
             target_path = get_global_config_path()
             scope_name = "global"
         else:
@@ -284,8 +291,8 @@ def set_command(key: str, value: str, set_global: bool, type: str) -> None:
             config = MyceliumConfig()
             config_dict = config.to_dict()
 
-        # Parse value based on type
-        parsed_value = _parse_value_with_type(value, type)
+        # Parse value based on type (auto-detect if not specified)
+        parsed_value = _parse_value_with_type(value, type) if type else _auto_parse_value(value)
 
         # Set nested value
         _set_nested_value(config_dict, key, parsed_value)
@@ -299,7 +306,10 @@ def set_command(key: str, value: str, set_global: bool, type: str) -> None:
         manager = ConfigManager(config_path=target_path)
         manager.save(new_config)
 
-        console.print(f"[green]✓ Set {key} = {parsed_value}[/green]")
+        # Format output value - use Python repr for booleans
+        display_value = repr(parsed_value) if isinstance(parsed_value, bool) else parsed_value
+
+        console.print(f"[green]✓ Set {key} = {display_value}[/green]")
         console.print(f"  Scope: {scope_name}")
         console.print(f"  File: {target_path}")
 
@@ -545,3 +555,30 @@ def _parse_value_with_type(value: str, type_name: str) -> Any:
 
     else:  # string
         return value
+
+
+def _auto_parse_value(value: str) -> Any:
+    """Auto-detect and parse value type.
+
+    Attempts to parse in order: bool, int, float, string.
+    """
+    # Try boolean first
+    if value.lower() in ("true", "yes", "1"):
+        return True
+    if value.lower() in ("false", "no", "0"):
+        return False
+
+    # Try integer
+    try:
+        return int(value)
+    except ValueError:
+        pass
+
+    # Try float
+    try:
+        return float(value)
+    except ValueError:
+        pass
+
+    # Default to string
+    return value
