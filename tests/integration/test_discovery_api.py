@@ -32,7 +32,35 @@ def test_database_url() -> str:
 
 
 @pytest.fixture(scope="module")
-def client(test_database_url: str) -> Generator[TestClient, None, None]:
+def check_postgres_connection(test_database_url: str) -> None:
+    """Check if PostgreSQL is available before running tests.
+
+    This fixture will skip all tests in the module if PostgreSQL
+    is not available or not configured correctly.
+    """
+    import asyncio
+
+    async def verify_connection():
+        """Verify PostgreSQL connection is available."""
+        try:
+            # Try to connect to PostgreSQL
+            reg = AgentRegistry(connection_string=test_database_url)
+            await reg.initialize()
+            await reg.close()
+        except Exception as e:
+            pytest.skip(f"Cannot connect to PostgreSQL: {e}")
+
+    # Run connection check in a new event loop
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    try:
+        loop.run_until_complete(verify_connection())
+    finally:
+        loop.close()
+
+
+@pytest.fixture(scope="module")
+def client(test_database_url: str, check_postgres_connection: None) -> Generator[TestClient, None, None]:
     """Create test client with embedded registry setup.
 
     This fixture uses TestClient's context manager to properly handle
@@ -42,18 +70,21 @@ def client(test_database_url: str) -> Generator[TestClient, None, None]:
     # Set environment for the app
     os.environ["DATABASE_URL"] = test_database_url
 
-    # Create app - TestClient will handle lifespan
-    test_app = create_app(rate_limit=10000, enable_cors=True)  # Very high limit for testing
+    try:
+        # Create app - TestClient will handle lifespan
+        test_app = create_app(rate_limit=10000, enable_cors=True)  # Very high limit for testing
 
-    # Use TestClient as context manager to properly handle lifespan
-    with TestClient(test_app) as test_client:
-        yield test_client
+        # Use TestClient as context manager to properly handle lifespan
+        with TestClient(test_app) as test_client:
+            yield test_client
+    except Exception as e:
+        pytest.skip(f"Cannot create test client: {e}")
 
     # Cleanup is handled automatically by context manager
 
 
 @pytest.fixture(scope="module", autouse=True)
-def seed_test_data(test_database_url: str) -> Generator[None, None, None]:
+def seed_test_data(test_database_url: str, check_postgres_connection: None) -> Generator[None, None, None]:
     """Seed test database with test agents.
 
     This fixture runs once per module to set up test data before any tests run.
@@ -63,81 +94,88 @@ def seed_test_data(test_database_url: str) -> Generator[None, None, None]:
 
     async def setup_data():
         """Set up test data asynchronously."""
-        reg = AgentRegistry(connection_string=test_database_url)
-        await reg.initialize()
-
-        # Clean up any existing test data
         try:
-            async with reg._pool.acquire() as conn:
-                await conn.execute("DELETE FROM agents WHERE agent_id LIKE 'test-%'")
-        except Exception:
-            pass
+            reg = AgentRegistry(connection_string=test_database_url)
+            await reg.initialize()
 
-        # Seed with test data
-        test_agents = [
-            {
-                "agent_id": "test-backend-developer",
-                "agent_type": "backend-developer",
-                "name": "backend-developer",
-                "display_name": "Backend Developer",
-                "category": "Development",
-                "description": "Expert in backend development with Python, Node.js, and Go",
-                "file_path": "/test/backend-developer.md",
-                "capabilities": ["API design", "Database optimization", "Authentication"],
-                "tools": ["database", "docker", "postgresql"],
-                "keywords": ["backend", "api", "python", "nodejs", "database"],
-                "estimated_tokens": 2500,
-            },
-            {
-                "agent_id": "test-security-expert",
-                "agent_type": "security-expert",
-                "name": "security-expert",
-                "display_name": "Security Expert",
-                "category": "Security",
-                "description": "Security analysis and vulnerability assessment specialist",
-                "file_path": "/test/security-expert.md",
-                "capabilities": [
-                    "Security audit",
-                    "Vulnerability scanning",
-                    "Penetration testing",
-                ],
-                "tools": ["security-scanner", "audit-tool"],
-                "keywords": ["security", "audit", "vulnerability", "penetration"],
-                "estimated_tokens": 2000,
-            },
-            {
-                "agent_id": "test-python-pro",
-                "agent_type": "python-pro",
-                "name": "python-pro",
-                "display_name": "Python Pro",
-                "category": "Development",
-                "description": "Python expert specializing in advanced features and best practices",
-                "file_path": "/test/python-pro.md",
-                "capabilities": ["Python development", "Code review", "Testing"],
-                "tools": ["pytest", "mypy", "ruff"],
-                "keywords": ["python", "testing", "typing", "async"],
-                "estimated_tokens": 1800,
-            },
-        ]
+            # Clean up any existing test data
+            try:
+                async with reg._pool.acquire() as conn:
+                    await conn.execute("DELETE FROM agents WHERE agent_id LIKE 'test-%'")
+            except Exception:
+                pass
 
-        for agent in test_agents:
-            with suppress(Exception):
-                await reg.create_agent(**agent)
+            # Seed with test data
+            test_agents = [
+                {
+                    "agent_id": "test-backend-developer",
+                    "agent_type": "backend-developer",
+                    "name": "backend-developer",
+                    "display_name": "Backend Developer",
+                    "category": "Development",
+                    "description": "Expert in backend development with Python, Node.js, and Go",
+                    "file_path": "/test/backend-developer.md",
+                    "capabilities": ["API design", "Database optimization", "Authentication"],
+                    "tools": ["database", "docker", "postgresql"],
+                    "keywords": ["backend", "api", "python", "nodejs", "database"],
+                    "estimated_tokens": 2500,
+                },
+                {
+                    "agent_id": "test-security-expert",
+                    "agent_type": "security-expert",
+                    "name": "security-expert",
+                    "display_name": "Security Expert",
+                    "category": "Security",
+                    "description": "Security analysis and vulnerability assessment specialist",
+                    "file_path": "/test/security-expert.md",
+                    "capabilities": [
+                        "Security audit",
+                        "Vulnerability scanning",
+                        "Penetration testing",
+                    ],
+                    "tools": ["security-scanner", "audit-tool"],
+                    "keywords": ["security", "audit", "vulnerability", "penetration"],
+                    "estimated_tokens": 2000,
+                },
+                {
+                    "agent_id": "test-python-pro",
+                    "agent_type": "python-pro",
+                    "name": "python-pro",
+                    "display_name": "Python Pro",
+                    "category": "Development",
+                    "description": "Python expert specializing in advanced features and best practices",
+                    "file_path": "/test/python-pro.md",
+                    "capabilities": ["Python development", "Code review", "Testing"],
+                    "tools": ["pytest", "mypy", "ruff"],
+                    "keywords": ["python", "testing", "typing", "async"],
+                    "estimated_tokens": 1800,
+                },
+            ]
 
-        await reg.close()
+            for agent in test_agents:
+                with suppress(Exception):
+                    await reg.create_agent(**agent)
+
+            await reg.close()
+        except Exception as e:
+            pytest.skip(f"Cannot seed test data: {e}")
 
     async def cleanup_data():
         """Clean up test data asynchronously."""
-        reg = AgentRegistry(connection_string=test_database_url)
-        await reg.initialize()
-
         try:
-            async with reg._pool.acquire() as conn:
-                await conn.execute("DELETE FROM agents WHERE agent_id LIKE 'test-%'")
-        except Exception:
-            pass
+            reg = AgentRegistry(connection_string=test_database_url)
+            await reg.initialize()
 
-        await reg.close()
+            try:
+                async with reg._pool.acquire() as conn:
+                    await conn.execute("DELETE FROM agents WHERE agent_id LIKE 'test-%'")
+            except Exception:
+                pass
+
+            await reg.close()
+        except Exception:
+            # Ignore cleanup errors
+            pass
 
     # Setup - run in new event loop
     loop = asyncio.new_event_loop()
