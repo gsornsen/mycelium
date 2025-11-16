@@ -2,34 +2,40 @@
 # Generated from MyceliumConfig
 # Project: {{ config.project_name }}
 # Generated: {{ config.created_at.strftime('%Y-%m-%d %H:%M:%S') }}
+{% if deployment_plan %}
+#
+# Smart Deployment Plan:
+{% if deployment_plan.services_to_reuse %}
+# Reusing existing services: {{ deployment_plan.services_to_reuse | join(', ') }}
+{% endif %}
+{% if deployment_plan.services_to_create %}
+# Creating new services: {{ deployment_plan.services_to_create | join(', ') }}
+{% endif %}
+{% if deployment_plan.services_alongside %}
+# Running alongside existing: {{ deployment_plan.services_alongside | join(', ') }}
+{% endif %}
+{% endif %}
 
 version: '3.8'
 
 services:
-{% if config.services.redis.enabled %}
+{% if deploy_redis %}
+{%   if deployment_plan %}
+{%     set redis_plan = deployment_plan.get_service_plan('redis') %}
+{%     set redis_port = redis_plan.port if redis_plan else config.services.redis.port %}
+{%   else %}
+{%     set redis_port = config.services.redis.port %}
+{%   endif %}
   redis:
     image: redis:{{ config.services.redis.version or 'latest' }}
     container_name: {{ config.project_name }}-redis
     ports:
-      - "{{ config.services.redis.port }}:6379"
-    {% if config.services.redis.persistence %}
-    volumes:
+      - "{{ redis_port }}:6379"
+{% if config.services.redis.max_memory %}    command: redis-server --maxmemory {{ config.services.redis.max_memory }} --maxmemory-policy allkeys-lru{% if config.services.redis.persistence %} --save 60 1{% endif %}
+
+{% endif %}{% if config.services.redis.persistence %}    volumes:
       - redis-data:/data
-    {% endif %}
-    {% if config.services.redis.custom_config or config.services.redis.max_memory %}
-    command:
-      {% if config.services.redis.max_memory %}
-      - --maxmemory
-      - "{{ config.services.redis.max_memory }}"
-      - --maxmemory-policy
-      - allkeys-lru
-      {% endif %}
-      {% for key, value in config.services.redis.custom_config.items() %}
-      - --{{ key }}
-      - "{{ value }}"
-      {% endfor %}
-    {% endif %}
-    healthcheck:
+{% endif %}    healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 3s
@@ -40,7 +46,13 @@ services:
       - mycelium-network
 {% endif %}
 
-{% if config.services.postgres.enabled %}
+{% if deploy_postgres %}
+{%   if deployment_plan %}
+{%     set postgres_plan = deployment_plan.get_service_plan('postgres') %}
+{%     set postgres_port = postgres_plan.port if postgres_plan else config.services.postgres.port %}
+{%   else %}
+{%     set postgres_port = config.services.postgres.port %}
+{%   endif %}
   postgres:
     image: postgres:{{ config.services.postgres.version or 'latest' }}
     container_name: {{ config.project_name }}-postgres
@@ -48,20 +60,20 @@ services:
       POSTGRES_DB: {{ config.services.postgres.database }}
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Please set POSTGRES_PASSWORD in .env file}
-      {% if config.services.postgres.max_connections %}
+{%     if config.services.postgres.max_connections %}
       POSTGRES_MAX_CONNECTIONS: {{ config.services.postgres.max_connections }}
-      {% endif %}
+{%     endif %}
     ports:
-      - "{{ config.services.postgres.port }}:5432"
+      - "{{ postgres_port }}:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
-    {% if config.services.postgres.custom_config %}
+{%     if config.services.postgres.custom_config %}
     command:
-      {% for key, value in config.services.postgres.custom_config.items() %}
+{%       for key, value in config.services.postgres.custom_config.items() %}
       - -c
       - {{ key }}={{ value }}
-      {% endfor %}
-    {% endif %}
+{%       endfor %}
+{%     endif %}
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d {{ config.services.postgres.database }}"]
       interval: 10s
@@ -73,36 +85,44 @@ services:
       - mycelium-network
 {% endif %}
 
-{% if config.services.temporal.enabled %}
+{% if deploy_temporal %}
+{%   if deployment_plan %}
+{%     set temporal_plan = deployment_plan.get_service_plan('temporal') %}
+{%     set temporal_frontend_port = temporal_plan.port if temporal_plan else config.services.temporal.frontend_port %}
+{%     set temporal_ui_port = temporal_plan.metadata.get('ui_port', config.services.temporal.ui_port) if temporal_plan and temporal_plan.metadata else config.services.temporal.ui_port %}
+{%   else %}
+{%     set temporal_frontend_port = config.services.temporal.frontend_port %}
+{%     set temporal_ui_port = config.services.temporal.ui_port %}
+{%   endif %}
   temporal:
     image: temporalio/auto-setup:{{ config.services.temporal.version or 'latest' }}
     container_name: {{ config.project_name }}-temporal
-    {% if config.services.postgres.enabled %}
+{%     if deploy_postgres %}
     depends_on:
       postgres:
         condition: service_healthy
-    {% endif %}
+{%     endif %}
     environment:
       - DB=postgresql
       - DB_PORT=5432
       - POSTGRES_USER=${POSTGRES_USER:-postgres}
       - POSTGRES_PWD=${POSTGRES_PASSWORD:?Please set POSTGRES_PASSWORD in .env file}
-      {% if config.services.postgres.enabled %}
+{%       if deploy_postgres %}
       - POSTGRES_SEEDS=postgres
-      {% else %}
+{%       else %}
       - POSTGRES_SEEDS=${TEMPORAL_POSTGRES_HOST:-localhost}
-      {% endif %}
+{%       endif %}
       - DYNAMIC_CONFIG_FILE_PATH=config/dynamicconfig/development-sql.yaml
       - ENABLE_ES=false
       - DEFAULT_NAMESPACE={{ config.services.temporal.namespace }}
-      - TEMPORAL_CLI_ADDRESS=temporal:{{ config.services.temporal.frontend_port }}
+      - TEMPORAL_CLI_ADDRESS=temporal:{{ temporal_frontend_port }}
     ports:
-      - "{{ config.services.temporal.frontend_port }}:7233"
-      - "{{ config.services.temporal.ui_port }}:8080"
-    {% if config.services.temporal.custom_config %}
+      - "{{ temporal_frontend_port }}:7233"
+      - "{{ temporal_ui_port }}:8080"
+{%     if config.services.temporal.custom_config %}
     volumes:
       - ./temporal-config.yaml:/etc/temporal/config/config.yaml:ro
-    {% endif %}
+{%     endif %}
     healthcheck:
       test: ["CMD", "tctl", "--address", "temporal:7233", "cluster", "health"]
       interval: 30s
@@ -119,14 +139,14 @@ networks:
     name: {{ config.project_name }}-network
     driver: bridge
 
-{% if config.services.redis.persistence or config.services.postgres.enabled %}
+{% if (deploy_redis and config.services.redis.persistence) or deploy_postgres %}
 volumes:
-  {% if config.services.redis.persistence %}
+{%   if deploy_redis and config.services.redis.persistence %}
   redis-data:
     name: {{ config.project_name }}-redis-data
-  {% endif %}
-  {% if config.services.postgres.enabled %}
+{%   endif %}
+{%   if deploy_postgres %}
   postgres-data:
     name: {{ config.project_name }}-postgres-data
-  {% endif %}
+{%   endif %}
 {% endif %}

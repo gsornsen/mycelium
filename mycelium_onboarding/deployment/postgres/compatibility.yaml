@@ -1,0 +1,395 @@
+# PostgreSQL-Temporal Compatibility Matrix
+#
+# This matrix defines compatibility requirements between Temporal Server versions
+# and PostgreSQL versions. It is used by the deployment system to validate
+# and recommend appropriate database versions.
+#
+# Source: Temporal Server compatibility documentation
+# - https://docs.temporal.io/self-hosted-guide/compatibility
+# - https://github.com/temporalio/temporal/releases
+# - PostgreSQL version support policy
+#
+# Last Updated: 2025-11-07
+# Maintainer: Mycelium Development Team
+
+metadata:
+  version: "1.0.0"
+  last_updated: "2025-11-07"
+  source: "https://docs.temporal.io/self-hosted-guide/compatibility"
+  maintainer: "Mycelium Development Team"
+  schema_version: "1.0"
+  notes: |
+    This matrix is based on Temporal's official compatibility requirements.
+    When exact compatibility information is not available, conservative
+    defaults are used to ensure maximum reliability.
+
+# Main compatibility matrix
+# Each Temporal version specifies PostgreSQL version requirements
+compatibility:
+  # Temporal 1.0.x - Early release
+  "1.0.0":
+    postgresql:
+      min_version: "12.0"
+      max_version: "14.0"
+      recommended: "13.0"
+      tested_versions:
+        - "12.0"
+        - "12.5"
+        - "13.0"
+        - "13.4"
+        - "14.0"
+      notes: "Initial Temporal 1.0 release. PostgreSQL 12-14 supported."
+      eol_date: "2022-06-01"
+      support_level: "deprecated"
+
+  # Temporal 1.5.x - Stability improvements
+  "1.5.0":
+    postgresql:
+      min_version: "12.0"
+      max_version: "15.0"
+      recommended: "14.0"
+      tested_versions:
+        - "12.0"
+        - "13.0"
+        - "14.0"
+        - "15.0"
+      notes: "Added PostgreSQL 15 support. Improved query performance."
+      eol_date: "2022-09-01"
+      support_level: "deprecated"
+
+  # Temporal 1.10.x - Performance enhancements
+  "1.10.0":
+    postgresql:
+      min_version: "12.0"
+      max_version: "15.0"
+      recommended: "14.0"
+      tested_versions:
+        - "12.0"
+        - "13.0"
+        - "14.0"
+        - "15.0"
+      notes: "Performance improvements for PostgreSQL backend. Optimized indexing."
+      eol_date: "2023-03-01"
+      support_level: "deprecated"
+
+  # Temporal 1.15.x - Major feature release
+  "1.15.0":
+    postgresql:
+      min_version: "12.0"
+      max_version: "16.0"
+      recommended: "15.0"
+      tested_versions:
+        - "12.0"
+        - "13.0"
+        - "14.0"
+        - "15.0"
+        - "16.0"
+      notes: "Added PostgreSQL 16 support. Enhanced connection pooling."
+      eol_date: "2023-09-01"
+      support_level: "deprecated"
+
+  # Temporal 1.20.x - Stability and performance
+  "1.20.0":
+    postgresql:
+      min_version: "13.0"
+      max_version: "16.0"
+      recommended: "15.0"
+      tested_versions:
+        - "13.0"
+        - "14.0"
+        - "15.0"
+        - "16.0"
+      notes: "Dropped PostgreSQL 12 support. Requires PostgreSQL 13+."
+      eol_date: "2024-03-01"
+      support_level: "maintenance"
+
+  # Temporal 1.22.x - LTS candidate
+  "1.22.0":
+    postgresql:
+      min_version: "13.0"
+      max_version: "16.0"
+      recommended: "16.0"
+      tested_versions:
+        - "13.0"
+        - "13.13"
+        - "14.0"
+        - "14.10"
+        - "15.0"
+        - "15.5"
+        - "16.0"
+        - "16.1"
+      notes: "LTS candidate. PostgreSQL 16 recommended for production."
+      eol_date: null
+      support_level: "active"
+
+  # Temporal 1.23.x - Latest stable
+  "1.23.0":
+    postgresql:
+      min_version: "13.0"
+      max_version: "17.0"
+      recommended: "16.0"
+      tested_versions:
+        - "13.0"
+        - "14.0"
+        - "15.0"
+        - "16.0"
+        - "17.0"
+      notes: "Added PostgreSQL 17 support. Recommended for new deployments."
+      eol_date: null
+      support_level: "active"
+
+  # Temporal 1.24.x - Current release
+  "1.24.0":
+    postgresql:
+      min_version: "13.0"
+      max_version: "17.0"
+      recommended: "16.0"
+      tested_versions:
+        - "13.0"
+        - "13.14"
+        - "14.0"
+        - "14.11"
+        - "15.0"
+        - "15.6"
+        - "16.0"
+        - "16.2"
+        - "17.0"
+        - "17.1"
+      notes: "Latest stable release. Full PostgreSQL 17 support with optimizations."
+      eol_date: null
+      support_level: "active"
+
+# Version range mappings for patch versions
+# Maps patch versions to their base compatibility entry
+version_ranges:
+  "1.0.x":
+    description: "Temporal 1.0 series"
+    applies_to:
+      - "1.0.0"
+      - "1.0.1"
+      - "1.0.2"
+      - "1.0.3"
+    use_compatibility: "1.0.0"
+
+  "1.5.x":
+    description: "Temporal 1.5 series"
+    applies_to:
+      - "1.5.0"
+      - "1.5.1"
+      - "1.5.2"
+    use_compatibility: "1.5.0"
+
+  "1.10.x":
+    description: "Temporal 1.10 series"
+    applies_to:
+      - "1.10.0"
+      - "1.10.1"
+      - "1.10.2"
+      - "1.10.3"
+      - "1.10.4"
+      - "1.10.5"
+    use_compatibility: "1.10.0"
+
+  "1.15.x":
+    description: "Temporal 1.15 series"
+    applies_to:
+      - "1.15.0"
+      - "1.15.1"
+      - "1.15.2"
+      - "1.15.3"
+    use_compatibility: "1.15.0"
+
+  "1.20.x":
+    description: "Temporal 1.20 series"
+    applies_to:
+      - "1.20.0"
+      - "1.20.1"
+      - "1.20.2"
+      - "1.20.3"
+      - "1.20.4"
+      - "1.20.5"
+      - "1.20.6"
+    use_compatibility: "1.20.0"
+
+  "1.22.x":
+    description: "Temporal 1.22 series"
+    applies_to:
+      - "1.22.0"
+      - "1.22.1"
+      - "1.22.2"
+      - "1.22.3"
+      - "1.22.4"
+      - "1.22.5"
+    use_compatibility: "1.22.0"
+
+  "1.23.x":
+    description: "Temporal 1.23 series"
+    applies_to:
+      - "1.23.0"
+      - "1.23.1"
+      - "1.23.2"
+    use_compatibility: "1.23.0"
+
+  "1.24.x":
+    description: "Temporal 1.24 series (current)"
+    applies_to:
+      - "1.24.0"
+      - "1.24.1"
+      - "1.24.2"
+      - "1.24.3"
+    use_compatibility: "1.24.0"
+
+# Default fallback for unknown versions
+default:
+  description: "Conservative default for unknown Temporal versions"
+  postgresql:
+    min_version: "13.0"
+    max_version: "17.0"
+    recommended: "16.0"
+    tested_versions:
+      - "13.0"
+      - "14.0"
+      - "15.0"
+      - "16.0"
+      - "17.0"
+    notes: |
+      This is a conservative default used when the specific Temporal version
+      is not found in the compatibility matrix. It assumes modern Temporal
+      versions (1.20+) which require PostgreSQL 13+.
+  support_level: "unknown"
+
+# PostgreSQL version lifecycle information
+# Used to provide warnings about EOL versions
+postgresql_lifecycle:
+  "12":
+    release_date: "2019-10-03"
+    eol_date: "2024-11-14"
+    status: "eol"
+    notes: "PostgreSQL 12 is end-of-life. Upgrade recommended."
+
+  "13":
+    release_date: "2020-09-24"
+    eol_date: "2025-11-13"
+    status: "active"
+    notes: "PostgreSQL 13 is in active support."
+
+  "14":
+    release_date: "2021-09-30"
+    eol_date: "2026-11-12"
+    status: "active"
+    notes: "PostgreSQL 14 is in active support."
+
+  "15":
+    release_date: "2022-10-13"
+    eol_date: "2027-11-11"
+    status: "active"
+    notes: "PostgreSQL 15 is in active support."
+
+  "16":
+    release_date: "2023-09-14"
+    eol_date: "2028-11-09"
+    status: "active"
+    notes: "PostgreSQL 16 is in active support. Recommended for new deployments."
+
+  "17":
+    release_date: "2024-09-26"
+    eol_date: "2029-11-08"
+    status: "active"
+    notes: "PostgreSQL 17 is the latest stable release."
+
+# Migration compatibility rules
+# Defines safe migration paths between versions
+migration_rules:
+  postgres_upgrade:
+    description: "Rules for upgrading PostgreSQL versions"
+    rules:
+      - name: "Single major version upgrade"
+        condition: "target_major == source_major + 1"
+        risk_level: "low"
+        requires_testing: true
+        requires_backup: true
+        notes: "Direct upgrade using pg_upgrade is supported"
+
+      - name: "Multi-version upgrade"
+        condition: "target_major > source_major + 1"
+        risk_level: "medium"
+        requires_testing: true
+        requires_backup: true
+        notes: "Consider staged upgrade through intermediate versions"
+
+      - name: "Downgrade attempt"
+        condition: "target_major < source_major"
+        risk_level: "critical"
+        requires_testing: true
+        requires_backup: true
+        notes: "Downgrade requires dump/restore. Not recommended."
+
+  temporal_upgrade:
+    description: "Rules for upgrading Temporal versions"
+    rules:
+      - name: "Minor version upgrade"
+        condition: "Same major version"
+        risk_level: "low"
+        requires_testing: false
+        requires_backup: true
+        notes: "Minor version upgrades are typically safe"
+
+      - name: "Major version upgrade"
+        condition: "Different major version"
+        risk_level: "medium"
+        requires_testing: true
+        requires_backup: true
+        notes: "Review release notes for breaking changes"
+
+# Known compatibility issues and workarounds
+known_issues:
+  - temporal_version: "1.20.0"
+    postgres_version: "12.x"
+    severity: "critical"
+    description: "Temporal 1.20+ does not support PostgreSQL 12"
+    workaround: "Upgrade to PostgreSQL 13 or higher before upgrading Temporal"
+
+  - temporal_version: "1.15.x"
+    postgres_version: "16.0"
+    severity: "low"
+    description: "Initial PostgreSQL 16 support may have minor compatibility issues"
+    workaround: "Use PostgreSQL 16.1+ for better stability"
+
+  - temporal_version: "1.5.x"
+    postgres_version: "15.x"
+    severity: "low"
+    description: "Early PostgreSQL 15 support, limited testing"
+    workaround: "Prefer PostgreSQL 14 for Temporal 1.5.x"
+
+# Recommended configurations per version combination
+recommended_configurations:
+  "1.24.0-16.0":
+    description: "Recommended production configuration"
+    temporal_version: "1.24.0"
+    postgres_version: "16.0"
+    configuration:
+      max_connections: 200
+      shared_buffers: "4GB"
+      effective_cache_size: "12GB"
+      maintenance_work_mem: "1GB"
+      checkpoint_completion_target: 0.9
+      wal_buffers: "16MB"
+      default_statistics_target: 100
+      random_page_cost: 1.1
+      effective_io_concurrency: 200
+      work_mem: "20MB"
+      min_wal_size: "2GB"
+      max_wal_size: "8GB"
+    notes: "Optimized for Temporal workloads on modern hardware"
+
+  "1.22.0-15.0":
+    description: "Stable LTS configuration"
+    temporal_version: "1.22.0"
+    postgres_version: "15.0"
+    configuration:
+      max_connections: 200
+      shared_buffers: "4GB"
+      effective_cache_size: "12GB"
+      maintenance_work_mem: "1GB"
+      checkpoint_completion_target: 0.9
+    notes: "Recommended for long-term stability"

@@ -31,21 +31,17 @@ spec:
         - containerPort: 6379
           name: redis
           protocol: TCP
-        {% if config.services.redis.custom_config or config.services.redis.max_memory %}
-        args:
-        {% if config.services.redis.max_memory %}
-        - --maxmemory
+        {% if config.services.redis.custom_config or config.services.redis.max_memory %}        args:
+        {% if config.services.redis.max_memory %}        - --maxmemory
         - "{{ config.services.redis.max_memory }}"
         - --maxmemory-policy
         - allkeys-lru
         {% endif %}
-        {% for key, value in config.services.redis.custom_config.items() %}
-        - --{{ key }}
+        {% for key, value in config.services.redis.custom_config.items() %}        - --{{ key }}
         - "{{ value }}"
         {% endfor %}
         {% endif %}
-        {% if config.services.redis.persistence %}
-        volumeMounts:
+        {% if config.services.redis.persistence %}        volumeMounts:
         - name: redis-data
           mountPath: /data
         {% endif %}
@@ -74,8 +70,7 @@ spec:
           limits:
             memory: "512Mi"
             cpu: "500m"
-      {% if config.services.redis.persistence %}
-      volumes:
+      {% if config.services.redis.persistence %}      volumes:
       - name: redis-data
         persistentVolumeClaim:
           claimName: redis-pvc

@@ -28,8 +28,7 @@ metadata:
     project: {{ config.project_name }}
 data:
   POSTGRES_MAX_CONNECTIONS: "{{ config.services.postgres.max_connections }}"
-{% for key, value in config.services.postgres.custom_config.items() %}
-  {{ key }}: "{{ value }}"
+{% for key, value in config.services.postgres.custom_config.items() %}  {{ key }}: "{{ value }}"
 {% endfor %}
 ---
 apiVersion: apps/v1
@@ -67,10 +66,8 @@ spec:
             name: postgres-secret
         - configMapRef:
             name: postgres-config
-        {% if config.services.postgres.custom_config %}
-        args:
-        {% for key, value in config.services.postgres.custom_config.items() %}
-        - -c
+        {% if config.services.postgres.custom_config %}        args:
+        {% for key, value in config.services.postgres.custom_config.items() %}        - -c
         - {{ key }}={{ value }}
         {% endfor %}
         {% endif %}

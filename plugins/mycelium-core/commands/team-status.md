@@ -1,211 +1,367 @@
 ---
-allowed-tools: Bash(redis-cli:*), Bash(npx:*), Bash(ls:*), Bash(cat:*), Read, Glob, mcp__RedisMCPServer__*, mcp__taskqueue__*
-description: Multi-agent coordination status check. Shows agent workload, active tasks, and team health. Uses Redis/TaskQueue when available, falls back to markdown coordination files.
-argument-hint: [agent-type] [--detailed]
+allowed-tools: Bash(redis-cli:*), Read, Glob, mcp__RedisMCPServer__*
+description: Multi-agent coordination status check. Shows agent workload, active tasks, and team health with formatted progress bars and statistics.
+argument-hint: [agent-type]
 ---
 
 # Multi-Agent Team Status
 
-Check current workload and coordination status of Claude Code subagents.
+Check current workload and coordination status of Claude Code subagents with formatted visualization.
 
 ## Context
 
 **Command arguments**: $ARGS
 
-**Coordination Methods** (auto-detect in order):
-
-1. Redis MCP (preferred) - Real-time distributed coordination
-1. TaskQueue MCP (preferred) - Task-centric coordination
-1. Markdown files (fallback) - Zero-dependency coordination in `.claude/coordination/`
+**Coordination Method**: Redis MCP with JSON serialization and datetime handling
 
 ## Your Task
 
-Provide agent status using the best available coordination method:
+Display formatted team status using Redis coordination data with proper JSON parsing:
 
-### Method 1: Redis MCP (Preferred)
+### Implementation
 
-If Redis is available, query agent metrics:
+1. **Parse command arguments** to determine display mode:
 
-```javascript
-// Check agent workload
-const agentWorkload = await mcp__RedisMCPServer__hgetall({
-  name: "agents:workload"
-});
+   - No arguments: Show overview of all agents
+   - Agent type specified: Show detailed view of that agent
 
-// Check active tasks per agent
-const agentTasks = await mcp__RedisMCPServer__hgetall({
-  name: "agents:active_tasks"
-});
+1. **Query Redis with JSON parsing**:
 
-// Check circuit breaker status
-const circuitBreakers = await mcp__RedisMCPServer__hgetall({
-  name: "agents:circuit-breaker"
-});
+   - Get all agent statuses from `agents:status` hash
+   - Get heartbeat data from `agents:heartbeat` hash
+   - Parse JSON values using the pattern from RedisCoordinationHelper
+   - Restore datetime fields (fields ending in `_at` or containing `timestamp`)
 
-// Check last heartbeat
-const heartbeats = await mcp__RedisMCPServer__hgetall({
-  name: "agents:heartbeat"
-});
-```
+1. **Display formatted output** matching these patterns:
 
-**Output format**:
+### Overview Mode (No Arguments)
 
 ```
 === Multi-Agent Team Status ===
 Coordination Method: Redis MCP
 
 Agent Workload:
-  ai-engineer         ████████░░ 85% | 2 active tasks
-  data-engineer       ███░░░░░░░ 30% | 1 active task
-  ml-engineer         ██████████ 100% | 3 active tasks (at capacity)
-  python-pro          ████░░░░░░ 40% | 1 active task
-  performance-eng     ░░░░░░░░░░ 0% | available
-
-Circuit Breakers:
-  ✅ All agents operational
+  project-manager      ██████████ 100% | 1 active task
+  platform-engineer    ██████████ 100% | 1 active task
+  ai-engineer          ████████░░ 80% | 2 active tasks
+  data-engineer        ████░░░░░░ 40% | 1 active task
+  python-pro           ░░░░░░░░░░ 0% | available
 
 Task Distribution:
-  Total Active: 7 tasks
-  Average Load: 51%
-  Load Variance: 23% (⚠️ unbalanced)
+  Total Active: 5 tasks
+  Average Load: 64%
+  Load Variance: 35% (⚠️ unbalanced)
 
-Last Updated: 2025-10-12 14:30:00
+Heartbeat Status:
+  ✅ All agents reporting healthy
+
+Last Updated: 2025-11-07 20:45:30
 ```
 
-### Method 2: TaskQueue MCP (Preferred)
+**Progress Bar Format**:
 
-If TaskQueue is available:
+- 10 blocks: `█` for used capacity, `░` for available
+- Calculate blocks: `Math.round(workload / 10)`
+- Show percentage and task count
+- Add "(at capacity)" warning if workload >= 100
+
+**Workload Indicators**:
+
+- 0%: "available"
+- 1-100%: "N active task(s)"
+- ≥100%: "N active tasks (at capacity)"
+
+**Balance Status**:
+
+- Variance \< 20%: "✅ balanced"
+- Variance ≥ 20%: "⚠️ unbalanced"
+
+**Heartbeat Freshness**:
+
+- Age ≤ 60 minutes: Healthy
+- Age > 60 minutes: Warn with specific age (Xh Ym or Ym format)
+
+### Detailed Mode (Agent Type Argument)
+
+When user specifies agent type (e.g., `/team-status project-manager`):
+
+```
+=== Agent Status: project-manager ===
+
+Current Status: BUSY (100% capacity)
+
+Active Tasks (1):
+  1. smart-onboarding-coordination
+     - Progress: 45%
+     - Duration: 2h 15m
+     - Description: Coordinating Smart Onboarding implementation
+
+Recent History (from status data):
+  - Current workload: 100%
+  - Task count: 1
+  - Last updated: 5m ago
+
+Circuit Breaker: ✅ CLOSED (healthy)
+Last Heartbeat: 5m ago
+```
+
+**Task Display**:
+
+- Show task ID or name
+- Display progress if available
+- Calculate duration from `started_at` if present
+- Show description if available
+
+**Heartbeat Age Calculation**:
+
+- Compare timestamp to current time
+- Format as "Xh Ym" (hours + minutes) or "Ym" (minutes only)
+- Warn if age > 60 minutes
+
+### JSON Parsing Logic
+
+Implement this parsing pattern (from RedisCoordinationHelper):
+
+```python
+def parse_redis_value(raw_value: str) -> dict:
+    """Parse Redis value with JSON deserialization and datetime restoration."""
+    try:
+        parsed = json.loads(raw_value)
+
+        # Handle non-dict values (wrap in dict)
+        if not isinstance(parsed, dict):
+            return {"value": parsed}
+
+        # Restore datetime fields
+        for key, value in parsed.items():
+            if isinstance(value, str) and (key.endswith("_at") or "timestamp" in key.lower()):
+                try:
+                    # Convert ISO format string to datetime
+                    parsed[key] = datetime.fromisoformat(value)
+                except ValueError:
+                    # Not a valid datetime, keep as string
+                    pass
+
+        return parsed
+
+    except json.JSONDecodeError:
+        # Not JSON, return as plain value
+        return {"value": raw_value}
+```
+
+### Statistics Calculations
+
+**Load Variance** (standard deviation):
+
+```python
+def calculate_variance(workload_values: list[int]) -> float:
+    """Calculate standard deviation of workload values."""
+    if not workload_values:
+        return 0.0
+
+    mean = sum(workload_values) / len(workload_values)
+    squared_diffs = [(val - mean) ** 2 for val in workload_values]
+    variance = sum(squared_diffs) / len(workload_values)
+
+    return variance ** 0.5  # Standard deviation
+```
+
+**Duration Formatting**:
+
+```python
+def format_duration(start_time: datetime) -> str:
+    """Format duration from start time to now."""
+    delta = datetime.now() - start_time
+
+    total_seconds = int(delta.total_seconds())
+    hours = total_seconds // 3600
+    minutes = (total_seconds % 3600) // 60
+
+    if hours > 0:
+        return f"{hours}h {minutes}m"
+    else:
+        return f"{minutes}m"
+```
+
+### Error Handling
+
+**No Redis Connection**:
+
+```
+⚠️  No coordination infrastructure detected
+
+To enable real-time agent coordination:
+
+Option 1 (Recommended): Deploy Redis Stack
+  mycelium deploy start --yes
+
+Option 2: Create coordination directory
+  mkdir -p .claude/coordination/
+  # Agents will create status files here
+```
+
+**Empty Redis Data**:
+
+```
+⚠️  No agents currently coordinating
+
+To enable real-time agent coordination:
+  Option 1: Deploy Redis Stack (recommended)
+    mycelium deploy start --yes
+
+  Option 2: Create coordination directory
+    mkdir -p .claude/coordination/
+```
+
+**Agent Not Found** (in detailed mode):
+
+```
+❌ Agent 'unknown-agent' not found
+
+Available agents:
+  - project-manager
+  - platform-engineer
+  - ai-engineer
+  - data-engineer
+  - python-pro
+```
+
+**Stale Heartbeats** (age > 60 minutes):
+
+```
+Heartbeat Status:
+  ⚠️  Stale heartbeats detected:
+    - ai-engineer: last seen 2h 15m ago
+    - ml-engineer: last seen 3h 42m ago
+    - python-pro: last seen 1h 5m ago
+```
+
+### MCP Tool Usage
+
+Use these MCP tools to query Redis:
 
 ```javascript
-// List all projects and tasks
-const projects = await mcp__taskqueue__list_projects();
+// Get all agent statuses
+const agentStatuses = await mcp__RedisMCPServer__hgetall({
+  name: "agents:status"
+});
 
-for (const project of projects) {
-  const tasks = await mcp__taskqueue__list_tasks({
-    projectId: project.id
-  });
+// Get specific agent status
+const status = await mcp__RedisMCPServer__hget({
+  name: "agents:status",
+  key: "ai-engineer"
+});
 
-  // Aggregate by agent type from toolRecommendations
-}
+// Get all heartbeats
+const heartbeats = await mcp__RedisMCPServer__hgetall({
+  name: "agents:heartbeat"
+});
+
+// Get specific heartbeat
+const heartbeat = await mcp__RedisMCPServer__hget({
+  name: "agents:heartbeat",
+  key: "ai-engineer"
+});
 ```
 
-**Output format**:
+### Display Requirements
 
-```
-=== Multi-Agent Team Status ===
-Coordination Method: TaskQueue MCP
+1. **Sort agents by workload** (highest to lowest) in overview mode
+1. **Calculate total statistics** (total tasks, average load, variance)
+1. **Format progress bars** with 10 blocks (█ and ░ characters)
+1. **Check heartbeat freshness** and warn if stale (>60 min)
+1. **Handle missing data gracefully** (show 0% workload, "available" status)
+1. **Parse JSON correctly** (handle both JSON strings and plain values)
+1. **Restore datetime fields** (fields ending in `_at` or containing `timestamp`)
+1. **Format timestamps** as human-readable durations (e.g., "2h 15m")
 
-Active Projects: 3
+### Integration Notes
 
-Project: proj-1 (Voice Clone Training)
-  - ai-engineer: Training model (in_progress, 4h 23m)
-  - data-engineer: Processing dataset (done)
+This command integrates with:
 
-Project: proj-2 (Multi-speaker Podcast)
-  - data-engineer: Processing speaker 1 (in_progress, 45m)
-  - data-engineer: Processing speaker 2 (in_progress, 38m)
-  - data-engineer: Processing speaker 3 (pending)
+- `RedisCoordinationHelper` library for JSON serialization patterns
+- `mycelium deploy` command for Redis Stack deployment
+- Agent heartbeat mechanisms for health monitoring
+- Workload management for task distribution
 
-Project: proj-3 (Model Evaluation)
-  - performance-eng: Running benchmarks (in_progress, 12m)
+### Expected Behavior
 
-Total Active Tasks: 5
-Queue Depth: 1 pending
-```
+**Query Redis MCP Server**:
 
-### Method 3: Markdown Coordination (Fallback)
+1. Check if MCP server is available
+1. Query `agents:status` hash for all agent data
+1. Query `agents:heartbeat` hash for heartbeat timestamps
+1. Parse JSON data with datetime restoration
+1. Display formatted output with statistics
 
-If no MCP servers available, check coordination files:
+**Handle Parsing Errors**:
 
-```bash
-# Check for agent status files
-ls -1 .claude/coordination/agent-*.md 2>/dev/null
+- If JSON parsing fails, wrap value in `{"value": raw_value}`
+- If datetime parsing fails, keep as string
+- If Redis query fails, show helpful error with deployment instructions
 
-# Read each agent status file
-for agent_file in .claude/coordination/agent-*.md; do
-  echo "Reading: $agent_file"
-  cat "$agent_file"
-done
+**Calculate Statistics**:
 
-# Check for task status files
-ls -1 .claude/coordination/task-*.md 2>/dev/null
+- Sort agents by workload (descending)
+- Sum total active tasks
+- Calculate average workload percentage
+- Calculate load variance (standard deviation)
+- Determine balance status (\< 20% = balanced)
 
-for task_file in .claude/coordination/task-*.md; do
-  echo "Reading: $task_file"
-  cat "$task_file"
-done
-```
+**Check Heartbeat Health**:
 
-**Markdown file format** (`.claude/coordination/agent-ai-engineer.md`):
+- Parse heartbeat timestamps
+- Calculate age in minutes
+- Warn if any heartbeat > 60 minutes old
+- Format age as "Xh Ym" or "Ym"
 
-```markdown
-# Agent: ai-engineer
+### Example Outputs
 
-**Status**: BUSY
-**Last Updated**: 2025-10-12T14:30:00Z
-
-## Active Tasks
-
-- Task: train-model (proj-1)
-  - Started: 2025-10-12T10:07:00Z
-  - Duration: 4h 23m
-  - Status: in_progress
-  - Progress: 35% (3500/10000 steps)
-
-## Recent Completions
-
-- Task: tune-hyperparameters (proj-3)
-  - Completed: 2025-10-12T09:45:00Z
-  - Duration: 2h 15m
-  - Success: true
-
-## Metrics
-
-- Workload: 85% (high)
-- Success Rate: 100%
-- Average Duration: 3h 30m
-```
-
-**Output format**:
+**Scenario 1: Active Team**
 
 ```
 === Multi-Agent Team Status ===
-Coordination Method: Markdown files (fallback)
+Coordination Method: Redis MCP
 
-⚠️  Warning: Markdown coordination is ephemeral and may be stale.
-   Consider setting up Redis or TaskQueue for real-time coordination.
+Agent Workload:
+  ai-engineer          ██████████ 100% | 3 active tasks (at capacity)
+  data-engineer        ████████░░ 80% | 2 active tasks
+  python-pro           ████░░░░░░ 40% | 1 active task
+  performance-eng      ░░░░░░░░░░ 0% | available
 
-Agent Status (from files):
+Task Distribution:
+  Total Active: 6 tasks
+  Average Load: 55%
+  Load Variance: 38% (⚠️ unbalanced)
 
-ai-engineer: BUSY (updated 5m ago)
-  - Active: train-model (4h 23m, 35% complete)
+Heartbeat Status:
+  ✅ All agents reporting healthy
 
-data-engineer: AVAILABLE (updated 15m ago)
-  - Last task: process-dataset (completed 15m ago)
-
-ml-engineer: BUSY (updated 2m ago)
-  - Active: implement-training-loop (1h 45m)
-
-⚠️  3 agents have no status files (may be idle or not reporting)
+Last Updated: 2025-11-07 20:45:30
 ```
 
-## Workload Level Indicators
+**Scenario 2: Stale Heartbeats**
 
-- **0-30%**: 🟢 AVAILABLE - Agent has capacity for new work
-- **31-70%**: 🟡 MODERATE - Agent is working but can handle more
-- **71-90%**: 🟠 HIGH - Agent is busy, consider routing to others
-- **91-100%**: 🔴 AT CAPACITY - No more work should be assigned
+```
+=== Multi-Agent Team Status ===
+Coordination Method: Redis MCP
 
-## Handling Specific Agent Queries
+Agent Workload:
+  project-manager      ██████████ 100% | 1 active task
 
-If user specifies an agent type (e.g., `/team-status ai-engineer`):
+Task Distribution:
+  Total Active: 1 task
+  Average Load: 100%
+  Load Variance: 0% (✅ balanced)
 
-1. Filter results to only show that agent
-1. Include detailed task breakdown
-1. Show historical performance metrics
-1. Display recent errors or warnings
+Heartbeat Status:
+  ⚠️  Stale heartbeats detected:
+    - project-manager: last seen 25 days ago
 
-Example:
+Last Updated: 2025-11-07 20:45:30
+```
+
+**Scenario 3: Detailed Agent View**
 
 ```
 === Agent Status: ai-engineer ===
@@ -213,92 +369,63 @@ Example:
 Current Status: BUSY (85% capacity)
 
 Active Tasks (2):
-  1. train-model (proj-1)
-     - Started: 4h 23m ago
-     - Progress: 35% (3500/10000 steps)
-     - Loss: 0.42
-     - ETA: 8h remaining
+  1. train-voice-model
+     - Progress: 35%
+     - Duration: 4h 23m
+     - Description: Training custom voice model
 
-  2. evaluate-checkpoint (proj-3)
-     - Started: 45m ago
-     - Progress: 70% (evaluation phase)
-     - ETA: 15m remaining
+  2. evaluate-checkpoint
+     - Progress: 70%
+     - Duration: 45m
+     - Description: Evaluating model checkpoint
 
-Recent History (24h):
-  - Completed: 3 tasks
-  - Failed: 0 tasks
-  - Success Rate: 100%
-  - Avg Duration: 3h 30m
+Recent History (from status data):
+  - Current workload: 85%
+  - Task count: 2
+  - Last updated: 2m ago
 
 Circuit Breaker: ✅ CLOSED (healthy)
 Last Heartbeat: 2m ago
 ```
 
-## Error Scenarios
-
-**No coordination infrastructure**:
+**Scenario 4: No Agents**
 
 ```
-⚠️  No coordination infrastructure detected
+=== Multi-Agent Team Status ===
+Coordination Method: Redis MCP
+
+⚠️  No agents currently coordinating
 
 To enable real-time agent coordination:
+  Option 1: Deploy Redis Stack (recommended)
+    mycelium deploy start --yes
 
-Option 1 (Recommended): Install Redis
-  docker run -d -p 6379:6379 redis:latest
-
-Option 2: Use TaskQueue MCP
-  npm install -g taskqueue-mcp
-
-Option 3 (Fallback): Create coordination directory
-  mkdir -p .claude/coordination/
-  # Agents will create status files here
+  Option 2: Create coordination directory
+    mkdir -p .claude/coordination/
 ```
 
-**Stale coordination data**:
+## Implementation Steps
 
-```
-⚠️  Warning: Some agent status files are stale (>1h old)
+When user runs `/team-status`:
 
-Stale agents:
-  - ai-engineer: last updated 2h 15m ago
-  - ml-engineer: last updated 3h 42m ago
+1. **Parse arguments**: Extract agent type from `$ARGS` if provided
+1. **Query Redis MCP**:
+   - Call `mcp__RedisMCPServer__hgetall` for `agents:status`
+   - Call `mcp__RedisMCPServer__hgetall` for `agents:heartbeat`
+1. **Parse JSON data**:
+   - Use `parse_redis_value()` logic for each value
+   - Restore datetime fields
+1. **Determine display mode**:
+   - If agent type specified: Show detailed view
+   - Otherwise: Show overview with all agents
+1. **Format output**:
+   - Create progress bars (10 blocks)
+   - Calculate statistics (total, average, variance)
+   - Check heartbeat freshness (warn if >60 min)
+   - Display timestamp
+1. **Handle errors**:
+   - Show helpful message if Redis unavailable
+   - Show empty state if no agents
+   - Show agent not found if invalid agent type
 
-This may indicate:
-  - Agents are idle and not updating status
-  - Coordination files need manual cleanup
-  - Agents terminated unexpectedly
-
-Recommendation: Clear stale files or verify agent health
-```
-
-## Coordination File Management
-
-If using markdown fallback, implement cleanup:
-
-```bash
-# Remove stale coordination files (>1 hour old)
-find .claude/coordination/ -name "*.md" -type f -mmin +60 -delete
-
-# Archive completed task files
-mkdir -p .claude/coordination/archive/
-find .claude/coordination/ -name "task-*.md" -type f -mtime +1 \
-  -exec mv {} .claude/coordination/archive/ \;
-```
-
-## Integration with Other Commands
-
-This command integrates with:
-
-- `/infra-check` - Validates coordination infrastructure health
-- `/workflow-status` - Shows Temporal workflow progress
-- Project-specific commands - Can query task status
-
-## Best Practices
-
-1. **Prefer Redis/TaskQueue over markdown** for real-time coordination
-1. **Update agent status regularly** (every 5-10 minutes during active work)
-1. **Clean up stale coordination files** to avoid confusion
-1. **Use structured formats** (JSON in Redis, YAML in markdown) for consistency
-1. **Implement heartbeat mechanisms** to detect silent agent failures
-1. **Set TTLs on Redis keys** to auto-expire old status data
-1. **Version coordination schemas** to enable evolution over time
+Now implement this formatted team status display with proper JSON parsing and error handling.

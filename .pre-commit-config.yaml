@@ -3,8 +3,12 @@ repos:
     rev: v0.14.0
     hooks:
       - id: ruff
-        args: [--fix, --exit-non-zero-on-fix]  # Fail if fixes needed
+        # Match CI: check all directories, fail on any issues
+        args: [--fix, --exit-non-zero-on-fix]
+        files: ^(plugins/|mycelium_onboarding/|tests/)
       - id: ruff-format
+        # Match CI: format check all directories
+        files: ^(plugins/|mycelium_onboarding/|tests/)
 
   - repo: https://github.com/executablebooks/mdformat
     rev: 0.7.17
@@ -32,18 +36,58 @@ repos:
   - repo: local
     hooks:
       - id: mypy
-        name: Type check with mypy
+        name: Type check with mypy (STRICT - matches CI)
         entry: uv run mypy
         language: system
         types: [python]
+        # Match CI exactly: check both plugins/ and mycelium_onboarding/
         files: ^(plugins/|mycelium_onboarding/)
         pass_filenames: false
-        args: [plugins/mycelium-core, mycelium_onboarding]
+        args: [plugins/, mycelium_onboarding/]
         stages: [pre-push]  # Only on push, not every commit
 
-      - id: pytest-quick
-        name: Quick unit tests
-        entry: uv run pytest tests/unit/ -x --tb=short
+      - id: pytest-unit
+        name: Unit tests only (fast, no external services)
+        entry: bash -c
         language: system
         pass_filenames: false
-        stages: [pre-push]  # Only on push, not every commit
+        stages: [pre-push]
+        args:
+          - |
+            uv run pytest tests/unit/ -v \
+              -m "not integration and not benchmark and not slow" \
+              --tb=short \
+              --cov=plugins \
+              --cov=mycelium_onboarding \
+              --cov-report=term \
+              --cov-fail-under=80
+
+      - id: ruff-all-check
+        name: Ruff check all files (matches CI lint job)
+        entry: bash -c
+        language: system
+        pass_filenames: false
+        stages: [pre-push]
+        args:
+          - |
+            uv run ruff check plugins/ mycelium_onboarding/ tests/ && \
+            uv run ruff format --check plugins/ mycelium_onboarding/ tests/
+
+      - id: integration-test-check
+        name: Integration test validation
+        entry: bash -c
+        language: system
+        pass_filenames: false
+        stages: [pre-push]
+        args:
+          - |
+            # Check if PostgreSQL is available for integration tests
+            if command -v psql >/dev/null 2>&1 && pg_isready -h localhost -p 5432 >/dev/null 2>&1; then
+              echo "PostgreSQL available, running integration tests..."
+              uv run pytest tests/integration/ -v -m "integration" --tb=short --maxfail=3
+            else
+              echo "PostgreSQL not available locally, skipping integration tests"
+              echo "WARNING: Integration tests will run in CI - ensure they pass there!"
+              # Still validate that integration test markers are properly set
+              uv run pytest tests/integration/ --collect-only -q
+            fi
