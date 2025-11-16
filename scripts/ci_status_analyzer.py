@@ -1,19 +1,21 @@
 #!/usr/bin/env python3
-"""
-CI Status Analyzer for PR #15
-Multi-Agent Coordinator: Structured CI analysis and failure categorization
+"""CI Status Analyzer for PR #15.
+
+Multi-Agent Coordinator: Structured CI analysis and failure categorization.
 """
 
 import json
 import subprocess
 import sys
+from dataclasses import asdict, dataclass
 from datetime import datetime
-from typing import Dict, List, Optional, Tuple
-from dataclasses import dataclass, asdict
 from enum import Enum
+from pathlib import Path
 
 
 class CheckStatus(Enum):
+    """Enumeration of CI check statuses."""
+
     SUCCESS = "success"
     FAILURE = "failure"
     PENDING = "pending"
@@ -22,6 +24,8 @@ class CheckStatus(Enum):
 
 
 class FailureCategory(Enum):
+    """Enumeration of failure categories for CI checks."""
+
     LINTING = "linting"
     TYPE_CHECK = "type_check"
     UNIT_TEST = "unit_test"
@@ -36,16 +40,20 @@ class FailureCategory(Enum):
 
 @dataclass
 class CheckResult:
+    """Result of a CI check execution."""
+
     name: str
     status: CheckStatus
-    conclusion: Optional[str]
-    started_at: Optional[str]
-    completed_at: Optional[str]
-    details_url: Optional[str]
+    conclusion: str | None
+    started_at: str | None
+    completed_at: str | None
+    details_url: str | None
 
 
 @dataclass
 class FailureAnalysis:
+    """Analysis of a failed CI check with recommendations."""
+
     check_name: str
     category: FailureCategory
     error_message: str
@@ -56,17 +64,19 @@ class FailureAnalysis:
 
 @dataclass
 class CIStatusReport:
+    """Comprehensive CI status report for a pull request."""
+
     pr_number: int
     branch: str
     timestamp: str
     overall_status: str
-    checks: List[CheckResult]
-    failures: List[FailureAnalysis]
+    checks: list[CheckResult]
+    failures: list[FailureAnalysis]
     merge_ready: bool
-    recommendations: List[str]
+    recommendations: list[str]
 
 
-def run_gh_command(args: List[str]) -> Tuple[int, str, str]:
+def run_gh_command(args: list[str]) -> tuple[int, str, str]:
     """Run a gh CLI command and return exit code, stdout, stderr."""
     try:
         result = subprocess.run(
@@ -82,7 +92,7 @@ def run_gh_command(args: List[str]) -> Tuple[int, str, str]:
         return 1, "", str(e)
 
 
-def get_pr_checks(pr_number: int) -> List[CheckResult]:
+def get_pr_checks(pr_number: int) -> list[CheckResult]:
     """Get all checks for a PR."""
     returncode, stdout, stderr = run_gh_command([
         "pr", "view", str(pr_number),
@@ -130,7 +140,7 @@ def get_pr_checks(pr_number: int) -> List[CheckResult]:
         return []
 
 
-def get_workflow_logs(branch: str) -> Optional[str]:
+def get_workflow_logs(branch: str) -> str | None:
     """Get logs from the latest workflow run."""
     # Get latest run ID
     returncode, stdout, stderr = run_gh_command([
@@ -161,21 +171,21 @@ def get_workflow_logs(branch: str) -> Optional[str]:
         return None
 
 
-def categorize_failure(check_name: str, logs: Optional[str] = None) -> FailureCategory:
+def categorize_failure(check_name: str, logs: str | None = None) -> FailureCategory:
     """Categorize a failure based on check name and logs."""
     name_lower = check_name.lower()
 
     if "lint" in name_lower or "ruff" in name_lower:
         return FailureCategory.LINTING
-    elif "type" in name_lower or "mypy" in name_lower:
+    if "type" in name_lower or "mypy" in name_lower:
         return FailureCategory.TYPE_CHECK
-    elif "unit test" in name_lower:
+    if "unit test" in name_lower:
         return FailureCategory.UNIT_TEST
-    elif "integration test" in name_lower:
+    if "integration test" in name_lower:
         return FailureCategory.INTEGRATION_TEST
-    elif "migration" in name_lower:
+    if "migration" in name_lower:
         return FailureCategory.MIGRATION
-    elif "build" in name_lower or "install" in name_lower:
+    if "build" in name_lower or "install" in name_lower:
         return FailureCategory.BUILD
 
     # Check logs for more context
@@ -183,15 +193,15 @@ def categorize_failure(check_name: str, logs: Optional[str] = None) -> FailureCa
         logs_lower = logs.lower()
         if "timeout" in logs_lower or "timed out" in logs_lower:
             return FailureCategory.TIMEOUT
-        elif "connection" in logs_lower or "network" in logs_lower:
+        if "connection" in logs_lower or "network" in logs_lower:
             return FailureCategory.INFRASTRUCTURE
-        elif "import" in logs_lower or "module" in logs_lower:
+        if "import" in logs_lower or "module" in logs_lower:
             return FailureCategory.DEPENDENCY
 
     return FailureCategory.UNKNOWN
 
 
-def analyze_failure(check: CheckResult, logs: Optional[str] = None) -> FailureAnalysis:
+def analyze_failure(check: CheckResult, logs: str | None = None) -> FailureAnalysis:
     """Analyze a failed check and provide recommendations."""
     category = categorize_failure(check.name, logs)
 
@@ -200,7 +210,7 @@ def analyze_failure(check: CheckResult, logs: Optional[str] = None) -> FailureAn
     if logs:
         lines = logs.split("\n")
         # Get last 20 lines or lines with "error" in them
-        error_lines = [l for l in lines if "error" in l.lower()]
+        error_lines = [line for line in lines if "error" in line.lower()]
         log_excerpt = "\n".join(error_lines[-10:] if error_lines else lines[-20:])
 
     # Generate recommendation based on category
@@ -289,7 +299,7 @@ def generate_report(pr_number: int, branch: str) -> CIStatusReport:
     recommendations = []
     if failures:
         # Group by agent
-        agent_groups: Dict[str, List[str]] = {}
+        agent_groups: dict[str, list[str]] = {}
         for failure in failures:
             agent = failure.agent_to_coordinate
             if agent not in agent_groups:
@@ -353,7 +363,7 @@ def print_report(report: CIStatusReport):
             print(f"   Agent: {failure.agent_to_coordinate}")
             print(f"   Recommendation: {failure.recommendation}")
             if failure.log_excerpt:
-                print(f"   Log excerpt:")
+                print("   Log excerpt:")
                 for line in failure.log_excerpt.split("\n")[:5]:
                     print(f"     {line}")
         print()
@@ -379,13 +389,14 @@ def save_report_json(report: CIStatusReport, output_file: str):
     for failure in report_dict["failures"]:
         failure["category"] = failure["category"]
 
-    with open(output_file, "w") as f:
+    with Path(output_file).open("w") as f:
         json.dump(report_dict, f, indent=2)
 
     print(f"JSON report saved to: {output_file}")
 
 
 def main():
+    """Analyze CI status for PR #15 and generate structured report."""
     pr_number = 15
     branch = "feat/phase2-smart-onboarding-unified"
 

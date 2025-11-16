@@ -47,6 +47,7 @@ class MockRedisClient:
     """
 
     def __init__(self):
+        """Initialize the mock Redis client."""
         self.data = {}
         self.logger = logging.getLogger(f"{__name__}.MockRedisClient")
 
@@ -86,6 +87,16 @@ class AgentSimulator:
         work_duration: int,
         redis_helper: RedisCoordinationHelper,
     ):
+        """Initialize the agent simulator.
+
+        Args:
+            agent_type: Type of agent (e.g., 'code-reviewer').
+            task_id: Unique identifier for the task.
+            task_description: Human-readable task description.
+            workload: Workload percentage (0-100).
+            work_duration: Duration of work in seconds.
+            redis_helper: Redis coordination helper instance.
+        """
         self.agent_type = agent_type
         self.task_id = task_id
         self.task_description = task_description
@@ -191,6 +202,11 @@ class CoordinationTestOrchestrator:
     """Orchestrates multi-agent coordination test."""
 
     def __init__(self, use_mock: bool = False):
+        """Initialize the coordination test orchestrator.
+
+        Args:
+            use_mock: Whether to use mock Redis client instead of real MCP.
+        """
         self.use_mock = use_mock
         self.redis_client = None
         self.logger = logging.getLogger(f"{__name__}.Orchestrator")
