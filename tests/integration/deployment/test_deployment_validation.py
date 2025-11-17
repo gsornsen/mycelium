@@ -53,7 +53,7 @@ def is_temporal_available() -> bool:
 requires_temporal = pytest.mark.skipif(
     not is_temporal_available(),
     reason=f"Temporal server not available at {TEMPORAL_HOST}:{TEMPORAL_PORT}. "
-           "This is expected in CI until Tier 2 Temporal setup is implemented."
+    "This is expected in CI until Tier 2 Temporal setup is implemented.",
 )
 
 
