@@ -78,7 +78,7 @@ jobs:
             --tb=short \
             --maxfail=5
 
-  # Database integration tests (PostgreSQL + pgvector)
+  # Database integration tests (PostgreSQL + pgvector + Temporal)
   integration-postgres:
     name: Integration Tests (PostgreSQL)
     runs-on: ubuntu-latest
@@ -96,6 +96,18 @@ jobs:
           --health-retries 5
         ports:
           - 5432:5432
+
+      temporal:
+        image: temporalio/auto-setup:latest
+        env:
+          DB: postgresql
+          DB_PORT: 5432
+          POSTGRES_USER: mycelium
+          POSTGRES_PWD: mycelium_test
+          POSTGRES_SEEDS: postgres
+        ports:
+          - 7233:7233
+          - 8080:8080
 
     steps:
       - name: Checkout code
@@ -176,6 +188,9 @@ jobs:
           POSTGRES_PASSWORD: mycelium_test
           POSTGRES_DB: mycelium_test
           DATABASE_URL: postgresql://mycelium:mycelium_test@localhost:5432/mycelium_test
+          TEMPORAL_HOST: localhost
+          TEMPORAL_PORT: "7233"
+          TEMPORAL_NAMESPACE: default
         run: |
           uv run pytest tests/integration/ -v \
             -m "integration" \

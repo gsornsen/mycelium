@@ -9,6 +9,7 @@ These tests validate actual Temporal + PostgreSQL deployments, checking:
 
 import asyncio
 import os
+import socket
 
 import pytest
 
@@ -32,11 +33,36 @@ TEMPORAL_UI_PORT = int(os.getenv("TEMPORAL_UI_PORT", "8080"))
 TEMPORAL_NAMESPACE = os.getenv("TEMPORAL_NAMESPACE", "default")
 
 
+def is_temporal_available() -> bool:
+    """Check if Temporal server is accessible on configured host/port.
+
+    Returns True if can connect to Temporal gRPC port, False otherwise.
+    This allows tests to gracefully skip when Temporal is not available.
+    """
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(2)
+        result = sock.connect_ex((TEMPORAL_HOST, TEMPORAL_PORT))
+        sock.close()
+        return result == 0
+    except Exception:
+        return False
+
+
+# Skip marker for tests that require Temporal
+requires_temporal = pytest.mark.skipif(
+    not is_temporal_available(),
+    reason=f"Temporal server not available at {TEMPORAL_HOST}:{TEMPORAL_PORT}. "
+    "This is expected in CI until Tier 2 Temporal setup is implemented.",
+)
+
+
 @pytest.mark.integration
 @pytest.mark.asyncio
 class TestDeploymentValidation:
     """Integration tests for deployment validation."""
 
+    @requires_temporal
     async def test_validate_deployment_basic(self):
         """Test basic deployment validation."""
         validator = DeploymentValidator()
@@ -168,6 +194,7 @@ class TestDeploymentValidation:
         assert health.response_time_ms > 0
         assert health.response_time_ms < 10000  # Less than 10 seconds
 
+    @requires_temporal
     async def test_temporal_health(self):
         """Test Temporal service health check."""
         validator = DeploymentValidator()
@@ -184,6 +211,7 @@ class TestDeploymentValidation:
         assert health.can_operate()
         assert len(health.checks_passed) > 0
 
+    @requires_temporal
     async def test_temporal_port_connectivity(self):
         """Test Temporal gRPC port connectivity."""
         validator = DeploymentValidator()
@@ -196,6 +224,7 @@ class TestDeploymentValidation:
         # gRPC port connectivity check should pass
         assert any("gRPC Port Connectivity" in check for check in health.checks_passed)
 
+    @requires_temporal
     async def test_temporal_cluster_health(self):
         """Test Temporal cluster health check."""
         validator = DeploymentValidator()
@@ -208,6 +237,7 @@ class TestDeploymentValidation:
         # Cluster health check should exist
         assert any("Cluster Health" in check for check in health.checks_passed)
 
+    @requires_temporal
     async def test_temporal_namespace_check(self):
         """Test Temporal namespace existence check."""
         validator = DeploymentValidator()
@@ -221,6 +251,7 @@ class TestDeploymentValidation:
         namespace_checks = [c for c in health.checks_passed + health.checks_failed if "Namespace Exists" in c]
         assert len(namespace_checks) > 0
 
+    @requires_temporal
     async def test_temporal_frontend_service(self):
         """Test Temporal frontend service check."""
         validator = DeploymentValidator()
@@ -233,6 +264,7 @@ class TestDeploymentValidation:
         # Frontend service check should pass
         assert any("Frontend Service" in check for check in health.checks_passed)
 
+    @requires_temporal
     async def test_temporal_response_time(self):
         """Test Temporal response time measurement."""
         validator = DeploymentValidator()
@@ -247,6 +279,7 @@ class TestDeploymentValidation:
         assert health.response_time_ms > 0
         assert health.response_time_ms < 5000  # Less than 5 seconds
 
+    @requires_temporal
     async def test_temporal_ui_health(self):
         """Test Temporal UI health check."""
         validator = DeploymentValidator()
@@ -261,6 +294,7 @@ class TestDeploymentValidation:
         # UI may be degraded but still functional
         assert health.status in [HealthStatus.HEALTHY, HealthStatus.DEGRADED]
 
+    @requires_temporal
     async def test_temporal_ui_port_connectivity(self):
         """Test Temporal UI HTTP port connectivity."""
         validator = DeploymentValidator()
@@ -273,6 +307,7 @@ class TestDeploymentValidation:
         port_checks = [c for c in health.checks_passed + health.checks_failed if "HTTP Port Connectivity" in c]
         assert len(port_checks) > 0
 
+    @requires_temporal
     async def test_integration_checks_in_full_validation(self):
         """Test that integration checks run in full validation."""
         validator = DeploymentValidator()
@@ -377,6 +412,7 @@ class TestDeploymentValidation:
         assert report.passed_checks >= 0
         assert report.failed_checks >= 0
 
+    @requires_temporal
     async def test_validate_deployment_convenience_function(self):
         """Test convenience function for deployment validation."""
         report = await validate_deployment(
@@ -394,6 +430,7 @@ class TestDeploymentValidation:
         assert report is not None
         assert report.can_proceed()
 
+    @requires_temporal
     async def test_service_restart_recovery(self):
         """Test that validator can detect and handle service restart scenarios."""
         validator = DeploymentValidator(retry_attempts=2, retry_delay=1.0)
@@ -435,6 +472,7 @@ class TestDeploymentValidation:
 class TestDeploymentValidationSync:
     """Synchronous wrapper tests for deployment validation."""
 
+    @requires_temporal
     def test_deployment_validation_sync(self):
         """Test synchronous execution of deployment validation."""
 

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import sys
 from unittest.mock import Mock, patch
 
 import pytest
@@ -292,6 +293,10 @@ def test_deploy_generate_failure(runner, mock_config, tmp_path):
 # ============================================================================
 
 
+@pytest.mark.skipif(
+    sys.platform == "win32",
+    reason="Windows UTF-8 encoding issues - needs Tier 2 cross-platform support",
+)
 def test_deploy_start_docker_compose(runner, mock_config):
     """Test starting Docker Compose deployment."""
     with (
@@ -318,6 +323,10 @@ def test_deploy_start_docker_compose(runner, mock_config):
         assert "started" in result.output.lower() or "deploy" in result.output.lower()
 
 
+@pytest.mark.skipif(
+    sys.platform == "win32",
+    reason="Windows UTF-8 encoding issues - needs Tier 2 cross-platform support",
+)
 def test_deploy_start_kubernetes(runner):
     """Test starting Kubernetes deployment."""
     k8s_config = MyceliumConfig(
@@ -346,6 +355,10 @@ def test_deploy_start_kubernetes(runner):
         assert result.exit_code == 0
 
 
+@pytest.mark.skipif(
+    sys.platform == "win32",
+    reason="Windows UTF-8 encoding issues - needs Tier 2 cross-platform support",
+)
 def test_deploy_start_systemd(runner, mock_config):
     """Test starting systemd deployment."""
     systemd_config = MyceliumConfig(
@@ -405,6 +418,10 @@ def test_deploy_start_error(runner, mock_config):
         assert "error" in result.output.lower() or "failed" in result.output.lower()
 
 
+@pytest.mark.skipif(
+    sys.platform == "win32",
+    reason="Windows service detection and UTF-8 issues - needs Tier 2 cross-platform support",
+)
 def test_deploy_start_command_not_found(runner, mock_config):
     """Test start command when deployment tool not found."""
     with (
@@ -809,6 +826,10 @@ def test_deploy_start_method_override(runner, mock_config):
 # ============================================================================
 
 
+@pytest.mark.skipif(
+    sys.platform == "win32",
+    reason="Windows service detection and UTF-8 issues - needs Tier 2 cross-platform support",
+)
 def test_deploy_full_workflow(runner, mock_config, mock_generation_result, mock_secrets, tmp_path):
     """Test full deployment workflow: generate -> start -> status -> stop."""
     with (

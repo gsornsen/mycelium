@@ -71,7 +71,8 @@ class TestWhereCommand:
             assert result.exit_code == 0
             assert "GLOBAL" in result.output
             assert "PROJECT" in result.output
-            assert ".config/mycelium/config.yaml" in result.output
+            # Normalize path separators for cross-platform compatibility
+            assert ".config" in result.output and "mycelium" in result.output and "config.yaml" in result.output
 
     def test_where_global_only(self, runner):
         """Test that '--global' flag shows only global config path."""
@@ -82,7 +83,8 @@ class TestWhereCommand:
 
             assert result.exit_code == 0
             assert "Global Configuration" in result.output
-            assert ".config/mycelium/config.yaml" in result.output
+            # Normalize path separators for cross-platform compatibility
+            assert ".config" in result.output and "mycelium" in result.output and "config.yaml" in result.output
 
     def test_where_project_only(self, runner):
         """Test that '--project' flag shows only project config path."""
@@ -93,7 +95,8 @@ class TestWhereCommand:
 
             assert result.exit_code == 0
             assert "Project Configuration" in result.output
-            assert ".mycelium/config.yaml" in result.output
+            # Normalize path separators for cross-platform compatibility
+            assert ".mycelium" in result.output and "config.yaml" in result.output
 
     def test_where_shows_file_status(self, runner, temp_config_dir):
         """Test that 'where' command shows whether files exist."""
