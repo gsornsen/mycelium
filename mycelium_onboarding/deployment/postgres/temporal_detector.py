@@ -12,12 +12,14 @@ import re
 import sys
 from dataclasses import dataclass
 from pathlib import Path
+from types import ModuleType  # noqa: F401
 from typing import Any
 
 from packaging.specifiers import InvalidSpecifier, SpecifierSet
 from packaging.version import InvalidVersion, parse
 
 # Use tomllib for Python 3.11+, fallback to toml for earlier versions
+tomllib: ModuleType | None  # noqa: F842
 if sys.version_info >= (3, 11):
     import tomllib
 else:
