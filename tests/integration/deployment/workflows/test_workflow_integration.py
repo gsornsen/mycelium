@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import contextlib
 import logging
+import socket
 import uuid
 from datetime import timedelta
 
@@ -28,6 +29,30 @@ TEMPORAL_PORT = 7233
 TEMPORAL_NAMESPACE = "default"
 TEST_TASK_QUEUE = "test-integration-queue"
 WORKFLOW_TIMEOUT = 60
+
+
+def is_temporal_available() -> bool:
+    """Check if Temporal server is accessible.
+
+    Returns True if can connect to Temporal gRPC port, False otherwise.
+    This allows tests to gracefully skip when Temporal is not available.
+    """
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(2)
+        result = sock.connect_ex((TEMPORAL_HOST, TEMPORAL_PORT))
+        sock.close()
+        return result == 0
+    except Exception:
+        return False
+
+
+# Skip marker for tests that require Temporal
+requires_temporal = pytest.mark.skipif(
+    not is_temporal_available(),
+    reason=f"Temporal server not available at {TEMPORAL_HOST}:{TEMPORAL_PORT}. "
+           "This is expected in CI until Tier 2 Temporal setup is implemented."
+)
 
 
 @pytest.fixture
@@ -73,6 +98,7 @@ class TestTemporalConnection:
 
     @pytest.mark.integration
     @pytest.mark.asyncio
+    @requires_temporal
     async def test_can_connect_to_temporal(self) -> None:
         """Test that we can connect to Temporal at localhost:7233."""
         client = await Client.connect(
@@ -85,6 +111,7 @@ class TestTemporalConnection:
 
     @pytest.mark.integration
     @pytest.mark.asyncio
+    @requires_temporal
     async def test_namespace_accessible(self, temporal_client: Client) -> None:
         """Test that default namespace is accessible."""
         assert temporal_client.namespace == TEMPORAL_NAMESPACE
@@ -96,6 +123,7 @@ class TestWorkflowExecution:
 
     @pytest.mark.integration
     @pytest.mark.asyncio
+    @requires_temporal
     async def test_workflow_execution_end_to_end(self, temporal_client: Client, temporal_worker: Worker) -> None:
         """Test complete workflow execution with all 5 stages."""
         workflow_id = f"test-integration-{uuid.uuid4()}"
