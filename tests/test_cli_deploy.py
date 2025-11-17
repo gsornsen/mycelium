@@ -826,6 +826,10 @@ def test_deploy_start_method_override(runner, mock_config):
 # ============================================================================
 
 
+@pytest.mark.skipif(
+    sys.platform == "win32",
+    reason="Windows service detection and UTF-8 issues - needs Tier 2 cross-platform support",
+)
 def test_deploy_full_workflow(runner, mock_config, mock_generation_result, mock_secrets, tmp_path):
     """Test full deployment workflow: generate -> start -> status -> stop."""
     with (
