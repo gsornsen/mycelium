@@ -1,6 +1,6 @@
 {
   "name": "mycelium",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Mycelium: A distributed intelligence network for Claude Code - expert subagents that collaborate through durable workflows, real-time pub/sub, and intelligent task distribution. Includes plugin marketplace.",
   "main": "plugins/mycelium-core/lib/index.js",
   "type": "module",
