@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
-  "generated": "2025-10-18T03:36:29.985071+00:00",
-  "agent_count": 119,
+  "generated": "2025-11-19T05:52:23.863974+00:00",
+  "agent_count": 120,
   "categories": [
     "Business & Product",
     "Claude Code",
@@ -22,7 +22,7 @@
       "name": "api-designer",
       "display_name": "Api Designer",
       "category": "Core Development",
-      "description": "API architecture Designs scalable, developer-friendly interfaces.",
+      "description": "API architecture expert designing scalable, developer-friendly interfaces. Creates REST and GraphQL APIs with comprehensive documentation, focusing on consistency, performance, and developer experience.",
       "tools": [
         "Bash",
         "MultiEdit",
@@ -59,7 +59,7 @@
       "name": "backend-developer",
       "display_name": "Backend Developer",
       "category": "Core Development",
-      "description": "Senior backend engineer scalable API development and microservices architecture.",
+      "description": "Senior backend engineer specializing in scalable API development and microservices architecture. Builds robust server-side solutions with focus on performance, security, and maintainability.",
       "tools": [
         "Bash",
         "Docker",
@@ -95,7 +95,7 @@
       "name": "electron-pro",
       "display_name": "Electron Pro",
       "category": "Core Development",
-      "description": "Desktop app specialist Builds secure cross-platform solutions.",
+      "description": "Desktop application specialist building secure cross-platform solutions. Develops Electron apps with native OS integration, focusing on security, performance, and seamless user experience.",
       "tools": [
         "Bash",
         "MultiEdit",
@@ -132,7 +132,7 @@
       "name": "frontend-developer",
       "display_name": "Frontend Developer",
       "category": "Core Development",
-      "description": "UI engineer focused on crafting scalable frontend solutions.",
+      "description": "Expert UI engineer focused on crafting robust, scalable frontend solutions. Builds high-quality React components prioritizing maintainability, user experience, and web standards compliance.",
       "tools": [
         "Bash",
         "MultiEdit",
@@ -167,7 +167,7 @@
       "name": "fullstack-developer",
       "display_name": "Fullstack Developer",
       "category": "Core Development",
-      "description": "End-to-end feature owner with expertise across the entire stack.",
+      "description": "End-to-end feature owner with expertise across the entire stack. Delivers complete solutions from database to UI with focus on seamless integration and optimal user experience.",
       "tools": [
         "Bash",
         "Docker",
@@ -206,7 +206,7 @@
       "name": "graphql-architect",
       "display_name": "Graphql Architect",
       "category": "Core Development",
-      "description": "GraphQL schema architect Designs efficient, scalable API graphs.",
+      "description": "GraphQL schema architect designing efficient, scalable API graphs. Masters federation, subscriptions, and query optimization while ensuring type safety and developer experience.",
       "tools": [
         "Bash",
         "MultiEdit",
@@ -243,7 +243,7 @@
       "name": "microservices-architect",
       "display_name": "Microservices Architect",
       "category": "Core Development",
-      "description": "Distributed systems architect Designs scalable microservice ecosystems.",
+      "description": "Distributed systems architect designing scalable microservice ecosystems. Masters service boundaries, communication patterns, and operational excellence in cloud-native environments.",
       "tools": [
         "Bash",
         "MultiEdit",
@@ -280,7 +280,7 @@
       "name": "mobile-developer",
       "display_name": "Mobile Developer",
       "category": "Core Development",
-      "description": "Cross-platform mobile specialist Builds performant native experiences.",
+      "description": "Cross-platform mobile specialist building performant native experiences. Creates optimized mobile applications with React Native and Flutter, focusing on platform-specific excellence and battery efficiency.",
       "tools": [
         "Bash",
         "MultiEdit",
@@ -317,7 +317,7 @@
       "name": "ui-designer",
       "display_name": "Ui Designer",
       "category": "Core Development",
-      "description": "visual designer Creates intuitive, beautiful, accessible user interfaces.",
+      "description": "Expert visual designer specializing in creating intuitive, beautiful, and accessible user interfaces. Masters design systems, interaction patterns, and visual hierarchy to craft exceptional user experiences that balance aesthetics with functionality.",
       "tools": [
         "Bash",
         "MultiEdit",
@@ -355,7 +355,7 @@
       "name": "websocket-engineer",
       "display_name": "Websocket Engineer",
       "category": "Core Development",
-      "description": "Real-time communication specialist Implements scalable WebSocket architectures.",
+      "description": "Real-time communication specialist implementing scalable WebSocket architectures. Masters bidirectional protocols, event-driven systems, and low-latency messaging for interactive applications.",
       "tools": [
         "Bash",
         "MultiEdit",
@@ -392,7 +392,7 @@
       "name": "wordpress-master",
       "display_name": "Wordpress Master",
       "category": "Core Development",
-      "description": "WordPress developer theme development, plugin architecture, performance optimization.",
+      "description": "Expert WordPress developer specializing in theme development, plugin architecture, and performance optimization. Masters both classic PHP development and modern block-based solutions, delivering scalable WordPress sites from simple blogs to enterprise platforms.",
       "tools": [
         "Bash",
         "MultiEdit",
@@ -430,7 +430,7 @@
       "name": "angular-architect",
       "display_name": "Angular Architect",
       "category": "Language Specialists",
-      "description": "Angular architect mastering Angular 15+ with enterprise patterns.",
+      "description": "Expert Angular architect mastering Angular 15+ with enterprise patterns. Specializes in RxJS, NgRx state management, micro-frontend architecture, and performance optimization with focus on building scalable enterprise applications.",
       "tools": [
         "angular-cli",
         "cypress",
@@ -466,7 +466,7 @@
       "name": "cpp-pro",
       "display_name": "Cpp Pro",
       "category": "Language Specialists",
-      "description": "C++ developer modern C++20/23, systems programming, high-performance computing.",
+      "description": "Expert C++ developer specializing in modern C++20/23, systems programming, and high-performance computing. Masters template metaprogramming, zero-overhead abstractions, and low-level optimization with emphasis on safety and efficiency.",
       "tools": [
         "Bash",
         "MultiEdit",
@@ -505,7 +505,7 @@
       "name": "csharp-developer",
       "display_name": "Csharp Developer",
       "category": "Language Specialists",
-      "description": "C# developer modern .NET development, ASP.NET Core, cloud-native apps.",
+      "description": "Expert C# developer specializing in modern .NET development, ASP.NET Core, and cloud-native applications. Masters C# 12 features, Blazor, and cross-platform development with emphasis on performance and clean architecture.",
       "tools": [
         "Bash",
         "MultiEdit",
@@ -543,7 +543,7 @@
       "name": "django-developer",
       "display_name": "Django Developer",
       "category": "Language Specialists",
-      "description": "Django developer mastering Django 4+ with modern Python practices.",
+      "description": "Expert Django developer mastering Django 4+ with modern Python practices. Specializes in scalable web applications, REST API development, async views, and enterprise patterns with focus on rapid development and security best practices.",
       "tools": [
         "celery",
         "django-admin",
@@ -579,7 +579,7 @@
       "name": "dotnet-core-expert",
       "display_name": "Dotnet Core Expert",
       "category": "Language Specialists",
-      "description": ".NET Core specialist mastering .NET 8 with modern C# features.",
+      "description": "Expert .NET Core specialist mastering .NET 8 with modern C# features. Specializes in cross-platform development, minimal APIs, cloud-native applications, and microservices with focus on building high-performance, scalable solutions.",
       "tools": [
         "azure-cli",
         "docker",
@@ -615,7 +615,7 @@
       "name": "dotnet-framework-4.8-expert",
       "display_name": "Dotnet Framework 4.8 Expert",
       "category": "Language Specialists",
-      "description": ".NET Framework 4.8 specialist mastering legacy enterprise apps.",
+      "description": "Expert .NET Framework 4.8 specialist mastering legacy enterprise applications. Specializes in Windows-based development, Web Forms, WCF services, and Windows services with focus on maintaining and modernizing existing enterprise solutions.",
       "tools": [
         "entity-framework",
         "git",
@@ -636,7 +636,7 @@
         "context",
         "dependencies",
         "development",
-        "enterpri",
+        "enterpr",
         "enterprise",
         "existing",
         "expertise",
@@ -651,7 +651,7 @@
       "name": "flutter-expert",
       "display_name": "Flutter Expert",
       "category": "Language Specialists",
-      "description": "Flutter specialist mastering Flutter 3+ with modern architecture patterns.",
+      "description": "Expert Flutter specialist mastering Flutter 3+ with modern architecture patterns. Specializes in cross-platform development, custom animations, native integrations, and performance optimization with focus on creating beautiful, native-performance applications.",
       "tools": [
         "android-studio",
         "dart",
@@ -687,7 +687,7 @@
       "name": "golang-pro",
       "display_name": "Golang Pro",
       "category": "Language Specialists",
-      "description": "Go developer high-performance systems, concurrent programming, cloud-native microservices.",
+      "description": "Expert Go developer specializing in high-performance systems, concurrent programming, and cloud-native microservices. Masters idiomatic Go patterns with emphasis on simplicity, efficiency, and reliability.",
       "tools": [
         "Bash",
         "MultiEdit",
@@ -724,7 +724,7 @@
       "name": "java-architect",
       "display_name": "Java Architect",
       "category": "Language Specialists",
-      "description": "Senior Java architect enterprise-grade apps, Spring ecosystem, cloud-native development.",
+      "description": "Senior Java architect specializing in enterprise-grade applications, Spring ecosystem, and cloud-native development. Masters modern Java features, reactive programming, and microservices patterns with focus on scalability and maintainability.",
       "tools": [
         "Bash",
         "MultiEdit",
@@ -763,7 +763,7 @@
       "name": "javascript-pro",
       "display_name": "Javascript Pro",
       "category": "Language Specialists",
-      "description": "JavaScript developer modern ES2023+ features, asynchronous programming, full-stack development.",
+      "description": "Expert JavaScript developer specializing in modern ES2023+ features, asynchronous programming, and full-stack development. Masters both browser APIs and Node.js ecosystem with emphasis on performance and clean code patterns.",
       "tools": [
         "Bash",
         "MultiEdit",
@@ -802,7 +802,7 @@
       "name": "kotlin-specialist",
       "display_name": "Kotlin Specialist",
       "category": "Language Specialists",
-      "description": "Kotlin developer coroutines, multiplatform development, Android apps.",
+      "description": "Expert Kotlin developer specializing in coroutines, multiplatform development, and Android applications. Masters functional programming patterns, DSL design, and modern Kotlin features with emphasis on conciseness and safety.",
       "tools": [
         "Bash",
         "MultiEdit",
@@ -840,7 +840,7 @@
       "name": "laravel-specialist",
       "display_name": "Laravel Specialist",
       "category": "Language Specialists",
-      "description": "Laravel specialist mastering Laravel 10+ with modern PHP practices.",
+      "description": "Expert Laravel specialist mastering Laravel 10+ with modern PHP practices. Specializes in elegant syntax, Eloquent ORM, queue systems, and enterprise features with focus on building scalable web applications and APIs.",
       "tools": [
         "artisan",
         "composer",
@@ -876,7 +876,7 @@
       "name": "nextjs-developer",
       "display_name": "Nextjs Developer",
       "category": "Language Specialists",
-      "description": "Next.js developer mastering Next.js 14+ with App Router and full-stack features.",
+      "description": "Expert Next.js developer mastering Next.js 14+ with App Router and full-stack features. Specializes in server components, server actions, performance optimization, and production deployment with focus on building fast, SEO-friendly applications.",
       "tools": [
         "next",
         "npm",
@@ -905,14 +905,14 @@
         "edge"
       ],
       "file_path": "plugins/mycelium-core/agents/02-language-nextjs-developer.md",
-      "estimated_tokens": 3860
+      "estimated_tokens": 3943
     },
     {
       "id": "02-language-php-pro",
       "name": "php-pro",
       "display_name": "Php Pro",
       "category": "Language Specialists",
-      "description": "PHP developer modern PHP 8.3+ with strong typing, async programming, enterprise frameworks.",
+      "description": "Expert PHP developer specializing in modern PHP 8.3+ with strong typing, async programming, and enterprise frameworks. Masters Laravel, Symfony, and modern PHP patterns with emphasis on performance and clean architecture.",
       "tools": [
         "Bash",
         "MultiEdit",
@@ -950,7 +950,7 @@
       "name": "python-pro",
       "display_name": "Python Pro",
       "category": "Language Specialists",
-      "description": "Python developer modern Python 3.",
+      "description": "Expert Python developer specializing in modern Python 3.13+ development with deep expertise in type safety, async programming, data science, and web frameworks. Masters Pythonic patterns while ensuring production-ready code quality.",
       "tools": [
         "Bash",
         "MultiEdit",
@@ -987,7 +987,7 @@
       "name": "rails-expert",
       "display_name": "Rails Expert",
       "category": "Language Specialists",
-      "description": "Rails specialist mastering Rails 7+ with modern conventions.",
+      "description": "Expert Rails specialist mastering Rails 7+ with modern conventions. Specializes in convention over configuration, Hotwire/Turbo, Action Cable, and rapid application development with focus on building elegant, maintainable web applications.",
       "tools": [
         "bundler",
         "git",
@@ -1023,7 +1023,7 @@
       "name": "react-specialist",
       "display_name": "React Specialist",
       "category": "Language Specialists",
-      "description": "React specialist mastering React 18+ with modern patterns and ecosystem.",
+      "description": "Expert React specialist mastering React 18+ with modern patterns and ecosystem. Specializes in performance optimization, advanced hooks, server components, and production-ready architectures with focus on creating scalable, maintainable applications.",
       "tools": [
         "cypress",
         "jest",
@@ -1059,7 +1059,7 @@
       "name": "react-tanstack-developer",
       "display_name": "React Tanstack Developer",
       "category": "Language Specialists",
-      "description": "React developer TanStack ecosystem (Query, Table, Router, Form) and clean abstractions for complex i...",
+      "description": "Expert React developer specializing in TanStack ecosystem (Query, Table, Router, Form) and clean abstractions for complex implementations. Masters modern component libraries and design systems with focus on maintainable, production-ready code.",
       "tools": [
         "eslint",
         "npm",
@@ -1087,14 +1087,14 @@
         "features"
       ],
       "file_path": "plugins/mycelium-core/agents/02-language-react-tanstack-developer.md",
-      "estimated_tokens": 5080
+      "estimated_tokens": 5191
     },
     {
       "id": "02-language-rust-engineer",
       "name": "rust-engineer",
       "display_name": "Rust Engineer",
       "category": "Language Specialists",
-      "description": "Rust developer systems programming, memory safety, zero-cost abstractions.",
+      "description": "Expert Rust developer specializing in systems programming, memory safety, and zero-cost abstractions. Masters ownership patterns, async programming, and performance optimization for mission-critical applications.",
       "tools": [
         "Bash",
         "MultiEdit",
@@ -1132,7 +1132,7 @@
       "name": "spring-boot-engineer",
       "display_name": "Spring Boot Engineer",
       "category": "Language Specialists",
-      "description": "Spring Boot engineer mastering Spring Boot 3+ with cloud-native patterns.",
+      "description": "Expert Spring Boot engineer mastering Spring Boot 3+ with cloud-native patterns. Specializes in microservices, reactive programming, Spring Cloud integration, and enterprise solutions with focus on building scalable, production-ready applications.",
       "tools": [
         "docker",
         "git",
@@ -1168,7 +1168,7 @@
       "name": "sql-pro",
       "display_name": "Sql Pro",
       "category": "Language Specialists",
-      "description": "SQL developer complex query optimization, database design, performance tuning across PostgreSQL, MyS...",
+      "description": "Expert SQL developer specializing in complex query optimization, database design, and performance tuning across PostgreSQL, MySQL, SQL Server, and Oracle. Masters advanced SQL features, indexing strategies, and data warehousing patterns.",
       "tools": [
         "Bash",
         "MultiEdit",
@@ -1206,7 +1206,7 @@
       "name": "swift-expert",
       "display_name": "Swift Expert",
       "category": "Language Specialists",
-      "description": "Swift developer Swift 5.9+ with async/await, SwiftUI, protocol-oriented programming.",
+      "description": "Expert Swift developer specializing in Swift 5.9+ with async/await, SwiftUI, and protocol-oriented programming. Masters Apple platforms development, server-side Swift, and modern concurrency with emphasis on safety and expressiveness.",
       "tools": [
         "Bash",
         "MultiEdit",
@@ -1244,7 +1244,7 @@
       "name": "typescript-pro",
       "display_name": "Typescript Pro",
       "category": "Language Specialists",
-      "description": "TypeScript developer advanced type system usage, full-stack development, build optimization.",
+      "description": "Expert TypeScript developer specializing in advanced type system usage, full-stack development, and build optimization. Masters type-safe patterns for both frontend and backend with emphasis on developer experience and runtime safety.",
       "tools": [
         "Bash",
         "MultiEdit",
@@ -1283,7 +1283,7 @@
       "name": "vue-expert",
       "display_name": "Vue Expert",
       "category": "Language Specialists",
-      "description": "Vue specialist mastering Vue 3 with Composition API and ecosystem.",
+      "description": "Expert Vue specialist mastering Vue 3 with Composition API and ecosystem. Specializes in reactivity system, performance optimization, Nuxt 3 development, and enterprise patterns with focus on building elegant, reactive applications.",
       "tools": [
         "cypress",
         "npm",
@@ -1319,7 +1319,7 @@
       "name": "cloud-architect",
       "display_name": "Cloud Architect",
       "category": "Infrastructure",
-      "description": "cloud architect multi-cloud strategies, scalable architectures, cost-effective solutions.",
+      "description": "Expert cloud architect specializing in multi-cloud strategies, scalable architectures, and cost-effective solutions. Masters AWS, Azure, and GCP with focus on security, performance, and compliance while designing resilient cloud-native systems.",
       "tools": [
         "Bash",
         "MultiEdit",
@@ -1357,7 +1357,7 @@
       "name": "database-administrator",
       "display_name": "Database Administrator",
       "category": "Infrastructure",
-      "description": "database administrator high-availability systems, performance optimization, disaster recovery.",
+      "description": "Expert database administrator specializing in high-availability systems, performance optimization, and disaster recovery. Masters PostgreSQL, MySQL, MongoDB, and Redis with focus on reliability, scalability, and operational excellence.",
       "tools": [
         "Bash",
         "MultiEdit",
@@ -1396,7 +1396,7 @@
       "name": "deployment-engineer",
       "display_name": "Deployment Engineer",
       "category": "Infrastructure",
-      "description": "deployment engineer CI/CD pipelines, release automation, deployment strategies.",
+      "description": "Expert deployment engineer specializing in CI/CD pipelines, release automation, and deployment strategies. Masters blue-green, canary, and rolling deployments with focus on zero-downtime releases and rapid rollback capabilities.",
       "tools": [
         "Bash",
         "MultiEdit",
@@ -1434,7 +1434,7 @@
       "name": "devops-engineer",
       "display_name": "Devops Engineer",
       "category": "Infrastructure",
-      "description": "DevOps engineer bridging development and operations with comprehensive automation, monitoring, infra...",
+      "description": "Expert DevOps engineer bridging development and operations with comprehensive automation, monitoring, and infrastructure management. Masters CI/CD, containerization, kubernetes, ArgoCD, and local development with focus on culture, collaboration, and continuous improvement.",
       "tools": [
         "Bash",
         "MultiEdit",
@@ -1470,7 +1470,7 @@
       "name": "devops-incident-responder",
       "display_name": "Devops Incident Responder",
       "category": "Infrastructure",
-      "description": "incident responder rapid detection, diagnosis, resolution of production issues.",
+      "description": "Expert incident responder specializing in rapid detection, diagnosis, and resolution of production issues. Masters observability tools, root cause analysis, and automated remediation with focus on minimizing downtime and preventing recurrence.",
       "tools": [
         "Bash",
         "MultiEdit",
@@ -1509,7 +1509,7 @@
       "name": "incident-responder",
       "display_name": "Incident Responder",
       "category": "Infrastructure",
-      "description": "incident responder security and operational incident management.",
+      "description": "Expert incident responder specializing in security and operational incident management. Masters evidence collection, forensic analysis, and coordinated response with focus on minimizing impact and preventing future incidents.",
       "tools": [
         "Bash",
         "MultiEdit",
@@ -1547,7 +1547,7 @@
       "name": "kubernetes-specialist",
       "display_name": "Kubernetes Specialist",
       "category": "Infrastructure",
-      "description": "Kubernetes specialist mastering container orchestration, cluster management, cloud-native architectu...",
+      "description": "Expert Kubernetes specialist mastering container orchestration, cluster management, and cloud-native architectures. Specializes in production-grade deployments, security hardening, and performance optimization with focus on scalability and reliability.",
       "tools": [
         "Bash",
         "MultiEdit",
@@ -1586,7 +1586,7 @@
       "name": "network-engineer",
       "display_name": "Network Engineer",
       "category": "Infrastructure",
-      "description": "network engineer cloud and hybrid network architectures, security, performance optimization.",
+      "description": "Expert network engineer specializing in cloud and hybrid network architectures, security, and performance optimization. Masters network design, troubleshooting, and automation with focus on reliability, scalability, and zero-trust principles.",
       "tools": [
         "Bash",
         "MultiEdit",
@@ -1625,7 +1625,7 @@
       "name": "platform-engineer",
       "display_name": "Platform Engineer",
       "category": "Infrastructure",
-      "description": "platform engineer internal developer platforms, self-service infrastructure, developer experience.",
+      "description": "Expert platform engineer specializing in internal developer platforms, self-service infrastructure, and developer experience. Masters platform APIs, GitOps workflows, and golden path templates with focus on empowering developers and accelerating delivery.",
       "tools": [
         "Bash",
         "MultiEdit",
@@ -1662,7 +1662,7 @@
       "name": "security-engineer",
       "display_name": "Security Engineer",
       "category": "Infrastructure",
-      "description": "infrastructure security engineer DevSecOps, cloud security, compliance frameworks.",
+      "description": "Expert infrastructure security engineer specializing in DevSecOps, cloud security, and compliance frameworks. Masters security automation, vulnerability management, and zero-trust architecture with emphasis on shift-left security practices.",
       "tools": [
         "Bash",
         "MultiEdit",
@@ -1701,7 +1701,7 @@
       "name": "sre-engineer",
       "display_name": "Sre Engineer",
       "category": "Infrastructure",
-      "description": "Site Reliability Engineer balancing feature velocity with system stability through SLOs, automation,...",
+      "description": "Expert Site Reliability Engineer balancing feature velocity with system stability through SLOs, automation, and operational excellence. Masters reliability engineering, chaos testing, and toil reduction with focus on building resilient, self-healing systems.",
       "tools": [
         "Bash",
         "MultiEdit",
@@ -1740,7 +1740,7 @@
       "name": "terraform-engineer",
       "display_name": "Terraform Engineer",
       "category": "Infrastructure",
-      "description": "Terraform engineer infrastructure as code, multi-cloud provisioning, modular architecture.",
+      "description": "Expert Terraform engineer specializing in infrastructure as code, multi-cloud provisioning, and modular architecture. Masters Terraform best practices, state management, and enterprise patterns with focus on reusability, security, and automation.",
       "tools": [
         "Bash",
         "MultiEdit",
@@ -1778,7 +1778,7 @@
       "name": "voice-chat-frontend-architect",
       "display_name": "Voice Chat Frontend Architect",
       "category": "Project Management",
-      "description": "web client architect for full-duplex voice chat apps.",
+      "description": "Expert web client architect for full-duplex voice chat applications. Specializes in LiveKit WebRTC integration, real-time audio handling, voice-first UX patterns, and polished interactive voice interfaces with deep backend integration.",
       "tools": [
         "livekit",
         "npm",
@@ -1814,7 +1814,7 @@
       "name": "accessibility-tester",
       "display_name": "Accessibility Tester",
       "category": "Quality & Security",
-      "description": "accessibility tester WCAG compliance, inclusive design, universal access.",
+      "description": "Expert accessibility tester specializing in WCAG compliance, inclusive design, and universal access. Masters screen reader compatibility, keyboard navigation, and assistive technology integration with focus on creating barrier-free digital experiences.",
       "tools": [
         "Bash",
         "MultiEdit",
@@ -1853,7 +1853,7 @@
       "name": "architect-reviewer",
       "display_name": "Architect Reviewer",
       "category": "Quality & Security",
-      "description": "architecture reviewer system design validation, architectural patterns, technical decision assessmen...",
+      "description": "Expert architecture reviewer specializing in system design validation, architectural patterns, and technical decision assessment. Masters scalability analysis, technology stack evaluation, and evolutionary architecture with focus on maintainability and long-term viability.",
       "tools": [
         "Read",
         "archunit",
@@ -1886,7 +1886,7 @@
       "name": "chaos-engineer",
       "display_name": "Chaos Engineer",
       "category": "Quality & Security",
-      "description": "chaos engineer controlled failure injection, resilience testing, Builds antifragile systems.",
+      "description": "Expert chaos engineer specializing in controlled failure injection, resilience testing, and building antifragile systems. Masters chaos experiments, game day planning, and continuous resilience improvement with focus on learning from failure.",
       "tools": [
         "Bash",
         "MultiEdit",
@@ -1924,7 +1924,7 @@
       "name": "code-reviewer",
       "display_name": "Code Reviewer",
       "category": "Quality & Security",
-      "description": "code reviewer code quality, security vulnerabilities, best practices across multiple languages.",
+      "description": "Expert code reviewer specializing in code quality, security vulnerabilities, and best practices across multiple languages. Masters static analysis, design patterns, and performance optimization with focus on maintainability and technical debt reduction.",
       "tools": [
         "Glob",
         "Grep",
@@ -1959,7 +1959,7 @@
       "name": "compliance-auditor",
       "display_name": "Compliance Auditor",
       "category": "Quality & Security",
-      "description": "compliance auditor regulatory frameworks, data privacy laws, security standards.",
+      "description": "Expert compliance auditor specializing in regulatory frameworks, data privacy laws, and security standards. Masters GDPR, HIPAA, PCI DSS, SOC 2, and ISO certifications with focus on automated compliance validation and continuous monitoring.",
       "tools": [
         "Bash",
         "MultiEdit",
@@ -1997,7 +1997,7 @@
       "name": "debugger",
       "display_name": "Debugger",
       "category": "Quality & Security",
-      "description": "debugger complex issue diagnosis, root cause analysis, systematic problem-solving.",
+      "description": "Expert debugger specializing in complex issue diagnosis, root cause analysis, and systematic problem-solving. Masters debugging tools, techniques, and methodologies across multiple languages and environments with focus on efficient issue resolution.",
       "tools": [
         "Glob",
         "Grep",
@@ -2034,7 +2034,7 @@
       "name": "error-detective",
       "display_name": "Error Detective",
       "category": "Quality & Security",
-      "description": "error detective complex error pattern analysis, correlation, root cause discovery.",
+      "description": "Expert error detective specializing in complex error pattern analysis, correlation, and root cause discovery. Masters distributed system debugging, error tracking, and anomaly detection with focus on finding hidden connections and preventing error cascades.",
       "tools": [
         "Glob",
         "Grep",
@@ -2070,7 +2070,7 @@
       "name": "penetration-tester",
       "display_name": "Penetration Tester",
       "category": "Quality & Security",
-      "description": "penetration tester ethical hacking, vulnerability assessment, security testing.",
+      "description": "Expert penetration tester specializing in ethical hacking, vulnerability assessment, and security testing. Masters offensive security techniques, exploit development, and comprehensive security assessments with focus on identifying and validating security weaknesses.",
       "tools": [
         "Grep",
         "Read",
@@ -2107,7 +2107,7 @@
       "name": "performance-engineer",
       "display_name": "Performance Engineer",
       "category": "Quality & Security",
-      "description": "performance engineer system optimization, bottleneck identification, scalability engineering.",
+      "description": "Expert performance engineer specializing in system optimization, bottleneck identification, and scalability engineering. Masters performance testing, profiling, and tuning across applications, databases, and infrastructure with focus on achieving optimal response times and resource efficiency.",
       "tools": [
         "Grep",
         "Read",
@@ -2145,7 +2145,7 @@
       "name": "qa-expert",
       "display_name": "Qa Expert",
       "category": "Quality & Security",
-      "description": "QA engineer comprehensive quality assurance, test strategy, quality metrics.",
+      "description": "Expert QA engineer specializing in comprehensive quality assurance, test strategy, and quality metrics. Masters manual and automated testing, test planning, and quality processes with focus on delivering high-quality software through systematic testing.",
       "tools": [
         "Grep",
         "Read",
@@ -2182,7 +2182,7 @@
       "name": "security-auditor",
       "display_name": "Security Auditor",
       "category": "Quality & Security",
-      "description": "security auditor comprehensive security assessments, compliance validation, risk management.",
+      "description": "Expert security auditor specializing in comprehensive security assessments, compliance validation, and risk management. Masters security frameworks, audit methodologies, and compliance standards with focus on identifying vulnerabilities and ensuring regulatory adherence.",
       "tools": [
         "Grep",
         "Read",
@@ -2220,7 +2220,7 @@
       "name": "test-automator",
       "display_name": "Test Automator",
       "category": "Quality & Security",
-      "description": "test automation engineer Builds robust test frameworks, CI/CD integration, comprehensive test covera...",
+      "description": "Expert test automation engineer specializing in building robust test frameworks, CI/CD integration, and comprehensive test coverage. Masters multiple automation tools and frameworks with focus on maintainable, scalable, and efficient automated testing solutions.",
       "tools": [
         "Read",
         "Write",
@@ -2258,7 +2258,7 @@
       "name": "ai-engineer",
       "display_name": "Ai Engineer",
       "category": "Data & AI",
-      "description": "AI engineer AI system design, model implementation, production deployment.",
+      "description": "Expert AI engineer specializing in AI system design, model implementation, and production deployment. Masters multiple AI frameworks and tools with focus on building scalable, efficient, and ethical AI solutions from research to production.",
       "tools": [
         "huggingface",
         "jupyter",
@@ -2292,7 +2292,7 @@
       "name": "data-analyst",
       "display_name": "Data Analyst",
       "category": "Data & AI",
-      "description": "data analyst business intelligence, data visualization, statistical analysis.",
+      "description": "Expert data analyst specializing in business intelligence, data visualization, and statistical analysis. Masters SQL, Python, and BI tools to transform raw data into actionable insights with focus on stakeholder communication and business impact.",
       "tools": [
         "Bash",
         "MultiEdit",
@@ -2331,7 +2331,7 @@
       "name": "data-engineer",
       "display_name": "Data Engineer",
       "category": "Data & AI",
-      "description": "data engineer Builds scalable data pipelines, ETL/ELT processes, data infrastructure.",
+      "description": "Expert data engineer specializing in building scalable data pipelines, ETL/ELT processes, and data infrastructure. Masters big data technologies and cloud platforms with focus on reliable, efficient, and cost-optimized data platforms.",
       "tools": [
         "airflow",
         "databricks",
@@ -2365,7 +2365,7 @@
       "name": "data-scientist",
       "display_name": "Data Scientist",
       "category": "Data & AI",
-      "description": "data scientist statistical analysis, machine learning, business insights.",
+      "description": "Expert data scientist specializing in statistical analysis, machine learning, and business insights. Masters exploratory data analysis, predictive modeling, and data storytelling with focus on delivering actionable insights that drive business value.",
       "tools": [
         "jupyter",
         "matplotlib",
@@ -2399,7 +2399,7 @@
       "name": "database-optimizer",
       "display_name": "Database Optimizer",
       "category": "Data & AI",
-      "description": "database optimizer query optimization, performance tuning, scalability across multiple database syst...",
+      "description": "Expert database optimizer specializing in query optimization, performance tuning, and scalability across multiple database systems. Masters execution plan analysis, index strategies, and system-level optimizations with focus on achieving peak database performance.",
       "tools": [
         "analyze",
         "explain",
@@ -2428,11 +2428,53 @@
       "estimated_tokens": 1307
     },
     {
+      "id": "05-data-langgraph-application-engineer",
+      "name": "langgraph-application-engineer",
+      "display_name": "Langgraph Application Engineer",
+      "category": "Data & AI",
+      "description": "Expert LangChain/LangGraph application engineer specializing in intelligent full-stack applications. Masters when to use AI/agents vs traditional software, integrating LLMs, RAG, and agentic workflows where they provide clear value. Fluent in Python/TypeScript SDKs, LLM observability, evals, and multi-provider orchestration.",
+      "tools": [
+        "Bash",
+        "MultiEdit",
+        "Read",
+        "Write",
+        "anthropic",
+        "docker",
+        "langchain",
+        "langgraph",
+        "langsmith",
+        "mypy",
+        "openai",
+        "pytest",
+        "ruff",
+        "uv"
+      ],
+      "keywords": [
+        "agentic",
+        "agents",
+        "analyze",
+        "application",
+        "applications",
+        "approaches",
+        "architecture",
+        "augmented",
+        "both",
+        "building",
+        "clear",
+        "context",
+        "deep",
+        "development",
+        "ecosystem"
+      ],
+      "file_path": "plugins/mycelium-core/agents/05-data-langgraph-application-engineer.md",
+      "estimated_tokens": 2644
+    },
+    {
       "id": "05-data-llm-architect",
       "name": "llm-architect",
       "display_name": "Llm Architect",
       "category": "Data & AI",
-      "description": "LLM architect large language model architecture, deployment, optimization.",
+      "description": "Expert LLM architect specializing in large language model architecture, deployment, and optimization. Masters LLM system design, fine-tuning strategies, and production serving with focus on building scalable, efficient, and safe LLM applications.",
       "tools": [
         "langchain",
         "llamaindex",
@@ -2465,7 +2507,7 @@
       "name": "machine-learning-engineer",
       "display_name": "Machine Learning Engineer",
       "category": "Data & AI",
-      "description": "ML engineer production model deployment, serving infrastructure, scalable ML systems.",
+      "description": "Expert ML engineer specializing in production model deployment, serving infrastructure, and scalable ML systems. Masters model optimization, real-time inference, and edge deployment with focus on reliability and performance at scale.",
       "tools": [
         "Bash",
         "MultiEdit",
@@ -2504,7 +2546,7 @@
       "name": "ml-engineer",
       "display_name": "Ml Engineer",
       "category": "Data & AI",
-      "description": "ML engineer machine learning model lifecycle, production deployment, ML system optimization.",
+      "description": "Expert ML engineer specializing in machine learning model lifecycle, production deployment, and ML system optimization. Masters both traditional ML and deep learning with focus on building scalable, reliable ML systems from training to serving.",
       "tools": [
         "kubeflow",
         "mlflow",
@@ -2537,7 +2579,7 @@
       "name": "mlops-engineer",
       "display_name": "Mlops Engineer",
       "category": "Data & AI",
-      "description": "MLOps engineer ML infrastructure, platform engineering, operational excellence for machine learning...",
+      "description": "Expert MLOps engineer specializing in ML infrastructure, platform engineering, and operational excellence for machine learning systems. Masters CI/CD for ML, model versioning, and scalable ML platforms with focus on reliability and automation.",
       "tools": [
         "airflow",
         "docker",
@@ -2571,7 +2613,7 @@
       "name": "nlp-engineer",
       "display_name": "Nlp Engineer",
       "category": "Data & AI",
-      "description": "NLP engineer natural language processing, understanding, generation.",
+      "description": "Expert NLP engineer specializing in natural language processing, understanding, and generation. Masters transformer models, text processing pipelines, and production NLP systems with focus on multilingual support and real-time performance.",
       "tools": [
         "Bash",
         "MultiEdit",
@@ -2609,7 +2651,7 @@
       "name": "postgres-pro",
       "display_name": "Postgres Pro",
       "category": "Data & AI",
-      "description": "PostgreSQL specialist mastering database administration, performance optimization, high availability...",
+      "description": "Expert PostgreSQL specialist mastering database administration, performance optimization, and high availability. Deep expertise in PostgreSQL internals, advanced features, and enterprise deployment with focus on reliability and peak performance.",
       "tools": [
         "pg_dump",
         "pg_stat_statements",
@@ -2642,7 +2684,7 @@
       "name": "prompt-engineer",
       "display_name": "Prompt Engineer",
       "category": "Data & AI",
-      "description": "prompt engineer designing, optimizing, managing prompts for large language models.",
+      "description": "Expert prompt engineer specializing in designing, optimizing, and managing prompts for large language models. Masters prompt architecture, evaluation frameworks, and production prompt systems with focus on reliability, efficiency, and measurable outcomes.",
       "tools": [
         "anthropic",
         "jupyter",
@@ -2675,7 +2717,7 @@
       "name": "build-engineer",
       "display_name": "Build Engineer",
       "category": "Developer Experience",
-      "description": "build engineer build system optimization, compilation strategies, developer productivity.",
+      "description": "Expert build engineer specializing in build system optimization, compilation strategies, and developer productivity. Masters modern build tools, caching mechanisms, and creating fast, reliable build pipelines that scale with team growth.",
       "tools": [
         "Bash",
         "MultiEdit",
@@ -2714,7 +2756,7 @@
       "name": "cli-developer",
       "display_name": "Cli Developer",
       "category": "Developer Experience",
-      "description": "CLI developer command-line interface design, developer tools, terminal apps.",
+      "description": "Expert CLI developer specializing in command-line interface design, developer tools, and terminal applications. Masters user experience, cross-platform compatibility, and building efficient CLI tools that developers love to use.",
       "tools": [
         "Bash",
         "MultiEdit",
@@ -2752,7 +2794,7 @@
       "name": "dependency-manager",
       "display_name": "Dependency Manager",
       "category": "Developer Experience",
-      "description": "dependency manager package management, security auditing, version conflict resolution across multipl...",
+      "description": "Expert dependency manager specializing in package management, security auditing, and version conflict resolution across multiple ecosystems. Masters dependency optimization, supply chain security, and automated updates with focus on maintaining stable, secure, and efficient dependency trees.",
       "tools": [
         "bundler",
         "cargo",
@@ -2788,7 +2830,7 @@
       "name": "documentation-engineer",
       "display_name": "Documentation Engineer",
       "category": "Developer Experience",
-      "description": "documentation engineer technical documentation systems, API documentation, developer-friendly conten...",
+      "description": "Expert documentation engineer specializing in technical documentation systems, API documentation, and developer-friendly content. Masters documentation-as-code, automated generation, and creating maintainable documentation that developers actually use.",
       "tools": [
         "Bash",
         "MultiEdit",
@@ -2826,7 +2868,7 @@
       "name": "dx-optimizer",
       "display_name": "Dx Optimizer",
       "category": "Developer Experience",
-      "description": "developer experience optimizer build performance, tooling efficiency, workflow automation.",
+      "description": "Expert developer experience optimizer specializing in build performance, tooling efficiency, and workflow automation. Masters development environment optimization with focus on reducing friction, accelerating feedback loops, and maximizing developer productivity and satisfaction.",
       "tools": [
         "bazel",
         "lerna",
@@ -2861,7 +2903,7 @@
       "name": "git-workflow-manager",
       "display_name": "Git Workflow Manager",
       "category": "Developer Experience",
-      "description": "Git workflow manager branching strategies, automation, team collaboration.",
+      "description": "Expert Git workflow manager specializing in branching strategies, automation, and team collaboration. Masters Git workflows, merge conflict resolution, and repository management with focus on enabling efficient, clear, and scalable version control practices.",
       "tools": [
         "git",
         "gitflow",
@@ -2894,7 +2936,7 @@
       "name": "legacy-modernizer",
       "display_name": "Legacy Modernizer",
       "category": "Developer Experience",
-      "description": "legacy system modernizer incremental migration strategies and risk-free modernization.",
+      "description": "Expert legacy system modernizer specializing in incremental migration strategies and risk-free modernization. Masters refactoring patterns, technology updates, and business continuity with focus on transforming legacy systems into modern, maintainable architectures without disrupting operations.",
       "tools": [
         "ast-grep",
         "jscodeshift",
@@ -2927,7 +2969,7 @@
       "name": "mcp-developer",
       "display_name": "Mcp Developer",
       "category": "Developer Experience",
-      "description": "MCP developer Model Context Protocol server and client development.",
+      "description": "Expert MCP developer specializing in Model Context Protocol server and client development. Masters protocol specification, SDK implementation, and building production-ready integrations between AI systems and external tools/data sources.",
       "tools": [
         "Bash",
         "MultiEdit",
@@ -2966,7 +3008,7 @@
       "name": "refactoring-specialist",
       "display_name": "Refactoring Specialist",
       "category": "Developer Experience",
-      "description": "refactoring specialist mastering safe code transformation techniques and design pattern app.",
+      "description": "Expert refactoring specialist mastering safe code transformation techniques and design pattern application. Specializes in improving code structure, reducing complexity, and enhancing maintainability while preserving behavior with focus on systematic, test-driven refactoring.",
       "tools": [
         "ast-grep",
         "eslint",
@@ -2999,7 +3041,7 @@
       "name": "tooling-engineer",
       "display_name": "Tooling Engineer",
       "category": "Developer Experience",
-      "description": "tooling engineer developer tool creation, CLI development, productivity enhancement.",
+      "description": "Expert tooling engineer specializing in developer tool creation, CLI development, and productivity enhancement. Masters tool architecture, plugin systems, and user experience design with focus on building efficient, extensible tools that significantly improve developer workflows.",
       "tools": [
         "esbuild",
         "go",
@@ -3034,7 +3076,7 @@
       "name": "api-documenter",
       "display_name": "Api Documenter",
       "category": "Specialized Domains",
-      "description": "API documenter Creates comprehensive, developer-friendly API documentation.",
+      "description": "Expert API documenter specializing in creating comprehensive, developer-friendly API documentation. Masters OpenAPI/Swagger specifications, interactive documentation portals, and documentation automation with focus on clarity, completeness, and exceptional developer experience.",
       "tools": [
         "insomnia",
         "openapi",
@@ -3068,7 +3110,7 @@
       "name": "blockchain-developer",
       "display_name": "Blockchain Developer",
       "category": "Specialized Domains",
-      "description": "blockchain developer smart contract development, DApp architecture, DeFi protocols.",
+      "description": "Expert blockchain developer specializing in smart contract development, DApp architecture, and DeFi protocols. Masters Solidity, Web3 integration, and blockchain security with focus on building secure, gas-efficient, and innovative decentralized applications.",
       "tools": [
         "ethers",
         "foundry",
@@ -3102,7 +3144,7 @@
       "name": "embedded-systems",
       "display_name": "Embedded Systems",
       "category": "Specialized Domains",
-      "description": "embedded systems engineer microcontroller programming, RTOS development, hardware optimization.",
+      "description": "Expert embedded systems engineer specializing in microcontroller programming, RTOS development, and hardware optimization. Masters low-level programming, real-time constraints, and resource-limited environments with focus on reliability, efficiency, and hardware-software integration.",
       "tools": [
         "arduino",
         "esp-idf",
@@ -3135,7 +3177,7 @@
       "name": "fintech-engineer",
       "display_name": "Fintech Engineer",
       "category": "Specialized Domains",
-      "description": "fintech engineer financial systems, regulatory compliance, secure transaction processing.",
+      "description": "Expert fintech engineer specializing in financial systems, regulatory compliance, and secure transaction processing. Masters banking integrations, payment systems, and building scalable financial technology that meets stringent regulatory requirements.",
       "tools": [
         "Bash",
         "MultiEdit",
@@ -3173,7 +3215,7 @@
       "name": "game-developer",
       "display_name": "Game Developer",
       "category": "Specialized Domains",
-      "description": "game developer game engine programming, graphics optimization, multiplayer systems.",
+      "description": "Expert game developer specializing in game engine programming, graphics optimization, and multiplayer systems. Masters game design patterns, performance optimization, and cross-platform development with focus on creating engaging, performant gaming experiences.",
       "tools": [
         "godot",
         "phaser",
@@ -3207,7 +3249,7 @@
       "name": "iot-engineer",
       "display_name": "Iot Engineer",
       "category": "Specialized Domains",
-      "description": "IoT engineer connected device architectures, edge computing, IoT platform development.",
+      "description": "Expert IoT engineer specializing in connected device architectures, edge computing, and IoT platform development. Masters IoT protocols, device management, and data pipelines with focus on building scalable, secure, and reliable IoT solutions.",
       "tools": [
         "aws-iot",
         "azure-iot",
@@ -3240,7 +3282,7 @@
       "name": "mobile-app-developer",
       "display_name": "Mobile App Developer",
       "category": "Specialized Domains",
-      "description": "mobile app developer native and cross-platform development for iOS and Android.",
+      "description": "Expert mobile app developer specializing in native and cross-platform development for iOS and Android. Masters performance optimization, platform guidelines, and creating exceptional mobile experiences that users love.",
       "tools": [
         "Bash",
         "MultiEdit",
@@ -3277,7 +3319,7 @@
       "name": "payment-integration",
       "display_name": "Payment Integration",
       "category": "Specialized Domains",
-      "description": "payment integration specialist mastering payment gateway integration, PCI compliance, financial tran...",
+      "description": "Expert payment integration specialist mastering payment gateway integration, PCI compliance, and financial transaction processing. Specializes in secure payment flows, multi-currency support, and fraud prevention with focus on reliability, compliance, and seamless user experience.",
       "tools": [
         "braintree",
         "paypal",
@@ -3310,7 +3352,7 @@
       "name": "quant-analyst",
       "display_name": "Quant Analyst",
       "category": "Specialized Domains",
-      "description": "quantitative analyst financial modeling, algorithmic trading, risk analytics.",
+      "description": "Expert quantitative analyst specializing in financial modeling, algorithmic trading, and risk analytics. Masters statistical methods, derivatives pricing, and high-frequency trading with focus on mathematical rigor, performance optimization, and profitable strategy development.",
       "tools": [
         "backtrader",
         "numpy",
@@ -3344,7 +3386,7 @@
       "name": "risk-manager",
       "display_name": "Risk Manager",
       "category": "Specialized Domains",
-      "description": "risk manager comprehensive risk assessment, mitigation strategies, compliance frameworks.",
+      "description": "Expert risk manager specializing in comprehensive risk assessment, mitigation strategies, and compliance frameworks. Masters risk modeling, stress testing, and regulatory compliance with focus on protecting organizations from financial, operational, and strategic risks.",
       "tools": [
         "R",
         "excel",
@@ -3379,7 +3421,7 @@
       "name": "seo-specialist",
       "display_name": "Seo Specialist",
       "category": "Specialized Domains",
-      "description": "SEO strategist technical SEO, content optimization, search engine rankings.",
+      "description": "Expert SEO strategist specializing in technical SEO, content optimization, and search engine rankings. Masters both on-page and off-page optimization, structured data implementation, and performance metrics to drive organic traffic and improve search visibility.",
       "tools": [
         "Bash",
         "MultiEdit",
@@ -3398,8 +3440,8 @@
         "capabilities",
         "console",
         "content",
+        "crawl",
         "crawlability",
-        "crawli",
         "data",
         "deep",
         "digital",
@@ -3417,7 +3459,7 @@
       "name": "business-analyst",
       "display_name": "Business Analyst",
       "category": "Business & Product",
-      "description": "business analyst requirements gathering, process improvement, data-driven decision making.",
+      "description": "Expert business analyst specializing in requirements gathering, process improvement, and data-driven decision making. Masters stakeholder management, business process modeling, and solution design with focus on delivering measurable business value.",
       "tools": [
         "confluence",
         "excel",
@@ -3452,7 +3494,7 @@
       "name": "content-marketer",
       "display_name": "Content Marketer",
       "category": "Business & Product",
-      "description": "content marketer content strategy, SEO optimization, engagement-driven marketing.",
+      "description": "Expert content marketer specializing in content strategy, SEO optimization, and engagement-driven marketing. Masters multi-channel content creation, analytics, and conversion optimization with focus on building brand authority and driving measurable business results.",
       "tools": [
         "analytics",
         "buffer",
@@ -3486,7 +3528,7 @@
       "name": "customer-success-manager",
       "display_name": "Customer Success Manager",
       "category": "Business & Product",
-      "description": "customer success manager customer retention, growth, advocacy.",
+      "description": "Expert customer success manager specializing in customer retention, growth, and advocacy. Masters account health monitoring, strategic relationship building, and driving customer value realization to maximize satisfaction and revenue growth.",
       "tools": [
         "Bash",
         "MultiEdit",
@@ -3523,7 +3565,7 @@
       "name": "legal-advisor",
       "display_name": "Legal Advisor",
       "category": "Business & Product",
-      "description": "legal advisor technology law, compliance, risk mitigation.",
+      "description": "Expert legal advisor specializing in technology law, compliance, and risk mitigation. Masters contract drafting, intellectual property, data privacy, and regulatory compliance with focus on protecting business interests while enabling innovation and growth.",
       "tools": [
         "contract-tools",
         "docusign",
@@ -3555,7 +3597,7 @@
       "name": "product-manager",
       "display_name": "Product Manager",
       "category": "Business & Product",
-      "description": "product manager product strategy, user-centric development, business outcomes.",
+      "description": "Expert product manager specializing in product strategy, user-centric development, and business outcomes. Masters roadmap planning, feature prioritization, and cross-functional leadership with focus on delivering products that users love and drive business growth.",
       "tools": [
         "amplitude",
         "figma",
@@ -3589,7 +3631,7 @@
       "name": "project-manager",
       "display_name": "Project Manager",
       "category": "Business & Product",
-      "description": "project manager project planning, execution, delivery.",
+      "description": "Expert project manager specializing in project planning, execution, and delivery. Masters resource management, risk mitigation, and stakeholder communication with focus on delivering projects on time, within budget, and exceeding expectations.",
       "tools": [
         "asana",
         "jira",
@@ -3623,7 +3665,7 @@
       "name": "sales-engineer",
       "display_name": "Sales Engineer",
       "category": "Business & Product",
-      "description": "sales engineer technical pre-sales, solution architecture, proof of concepts.",
+      "description": "Expert sales engineer specializing in technical pre-sales, solution architecture, and proof of concepts. Masters technical demonstrations, competitive positioning, and translating complex technology into business value for prospects and customers.",
       "tools": [
         "Bash",
         "MultiEdit",
@@ -3660,7 +3702,7 @@
       "name": "scrum-master",
       "display_name": "Scrum Master",
       "category": "Business & Product",
-      "description": "Scrum Master agile transformation, team facilitation, continuous improvement.",
+      "description": "Expert Scrum Master specializing in agile transformation, team facilitation, and continuous improvement. Masters Scrum framework implementation, impediment removal, and fostering high-performing, self-organizing teams that deliver value consistently.",
       "tools": [
         "Bash",
         "MultiEdit",
@@ -3698,7 +3740,7 @@
       "name": "technical-writer",
       "display_name": "Technical Writer",
       "category": "Business & Product",
-      "description": "technical writer clear, accurate documentation and content creation.",
+      "description": "Expert technical writer specializing in clear, accurate documentation and content creation. Masters API documentation, user guides, and technical content with focus on making complex information accessible and actionable for diverse audiences.",
       "tools": [
         "asciidoc",
         "confluence",
@@ -3731,7 +3773,7 @@
       "name": "ux-researcher",
       "display_name": "Ux Researcher",
       "category": "Business & Product",
-      "description": "UX researcher user insights, usability testing, data-driven design decisions.",
+      "description": "Expert UX researcher specializing in user insights, usability testing, and data-driven design decisions. Masters qualitative and quantitative research methods to uncover user needs, validate designs, and drive product improvements through actionable insights.",
       "tools": [
         "Bash",
         "MultiEdit",
@@ -3769,7 +3811,7 @@
       "name": "wordpress-master",
       "display_name": "Wordpress Master",
       "category": "Business & Product",
-      "description": "Elite WordPress architect full-stack development, performance optimization, enterprise solutions.",
+      "description": "Elite WordPress architect specializing in full-stack development, performance optimization, and enterprise solutions. Masters custom theme/plugin development, multisite management, security hardening, and scaling WordPress from small sites to enterprise platforms handling millions of visitors.",
       "tools": [
         "cloudflare",
         "docker",
@@ -3804,7 +3846,7 @@
       "name": "agent-organizer",
       "display_name": "Agent Organizer",
       "category": "Meta-Orchestration",
-      "description": "agent organizer multi-agent orchestration, team assembly, workflow optimization.",
+      "description": "Expert agent organizer specializing in multi-agent orchestration, team assembly, and workflow optimization. Masters task decomposition, agent selection, and coordination strategies with focus on achieving optimal team performance and resource utilization.",
       "tools": [
         "Read",
         "Write",
@@ -3837,13 +3879,23 @@
       "name": "context-manager",
       "display_name": "Context Manager",
       "category": "Meta-Orchestration",
-      "description": "context manager information storage, retrieval, synchronization across multi-agent systems.",
+      "description": "Expert context manager specializing in information storage, retrieval, and synchronization across multi-agent systems. Masters state management, version control, and data lifecycle with focus on ensuring consistency, accessibility, and performance at scale.",
       "tools": [
         "Read",
+        "Task",
         "Write",
-        "elasticsearch",
-        "redis",
-        "vector-db"
+        "mcp__RedisMCPServer__expire",
+        "mcp__RedisMCPServer__get",
+        "mcp__RedisMCPServer__hdel",
+        "mcp__RedisMCPServer__hget",
+        "mcp__RedisMCPServer__hgetall",
+        "mcp__RedisMCPServer__hset",
+        "mcp__RedisMCPServer__json_del",
+        "mcp__RedisMCPServer__json_get",
+        "mcp__RedisMCPServer__json_set",
+        "mcp__RedisMCPServer__scan_all_keys",
+        "mcp__RedisMCPServer__set",
+        "mcp__RedisMCPServer__type"
       ],
       "keywords": [
         "access",
@@ -3863,23 +3915,30 @@
         "fast"
       ],
       "file_path": "plugins/mycelium-core/agents/09-meta-context-manager.md",
-      "estimated_tokens": 3220
+      "estimated_tokens": 1582
     },
     {
       "id": "09-meta-error-coordinator",
       "name": "error-coordinator",
       "display_name": "Error Coordinator",
       "category": "Meta-Orchestration",
-      "description": "error coordinator distributed error handling, failure recovery, system resilience.",
+      "description": "Expert error coordinator specializing in distributed error handling, failure recovery, and system resilience. Masters error correlation, cascade prevention, and automated recovery strategies across multi-agent systems with focus on minimizing impact and learning from failures.",
       "tools": [
         "Bash",
         "MultiEdit",
         "Read",
+        "Task",
         "Write",
-        "circuit-breaker",
-        "error-tracking",
-        "pagerduty",
-        "sentry"
+        "mcp__RedisMCPServer__hget",
+        "mcp__RedisMCPServer__hgetall",
+        "mcp__RedisMCPServer__hset",
+        "mcp__RedisMCPServer__json_get",
+        "mcp__RedisMCPServer__json_set",
+        "mcp__RedisMCPServer__lpush",
+        "mcp__RedisMCPServer__lrange",
+        "mcp__RedisMCPServer__publish",
+        "mcp__RedisMCPServer__scan_all_keys",
+        "mcp__RedisMCPServer__subscribe"
       ],
       "keywords": [
         "across",
@@ -3899,14 +3958,14 @@
         "downtime"
       ],
       "file_path": "plugins/mycelium-core/agents/09-meta-error-coordinator.md",
-      "estimated_tokens": 5196
+      "estimated_tokens": 1624
     },
     {
       "id": "09-meta-knowledge-synthesizer",
       "name": "knowledge-synthesizer",
       "display_name": "Knowledge Synthesizer",
       "category": "Meta-Orchestration",
-      "description": "knowledge synthesizer extracting insights from multi-agent interactions, identifying patterns, Build...",
+      "description": "Expert knowledge synthesizer specializing in extracting insights from multi-agent interactions, identifying patterns, and building collective intelligence. Masters cross-agent learning, best practice extraction, and continuous system improvement through knowledge management.",
       "tools": [
         "Bash",
         "MultiEdit",
@@ -3942,13 +4001,26 @@
       "name": "multi-agent-coordinator",
       "display_name": "Multi Agent Coordinator",
       "category": "Meta-Orchestration",
-      "description": "multi-agent coordinator complex workflow orchestration, inter-agent communication, distributed syste...",
+      "description": "Expert multi-agent coordinator specializing in complex workflow orchestration, inter-agent communication, and distributed system coordination. Masters parallel execution, dependency management, and fault tolerance with focus on achieving seamless collaboration at scale.",
       "tools": [
         "Read",
+        "Task",
         "Write",
-        "message-queue",
-        "pubsub",
-        "workflow-engine"
+        "mcp__RedisMCPServer__hget",
+        "mcp__RedisMCPServer__hgetall",
+        "mcp__RedisMCPServer__hset",
+        "mcp__RedisMCPServer__json_get",
+        "mcp__RedisMCPServer__json_set",
+        "mcp__RedisMCPServer__lpop",
+        "mcp__RedisMCPServer__lpush",
+        "mcp__RedisMCPServer__lrange",
+        "mcp__RedisMCPServer__publish",
+        "mcp__RedisMCPServer__rpush",
+        "mcp__RedisMCPServer__scan_all_keys",
+        "mcp__RedisMCPServer__subscribe",
+        "mcp__taskqueue__create_task",
+        "mcp__taskqueue__get_task",
+        "mcp__taskqueue__list_tasks"
       ],
       "keywords": [
         "achieving",
@@ -3968,14 +4040,14 @@
         "distributed"
       ],
       "file_path": "plugins/mycelium-core/agents/09-meta-multi-agent-coordinator.md",
-      "estimated_tokens": 1240
+      "estimated_tokens": 1612
     },
     {
       "id": "09-meta-performance-monitor",
       "name": "performance-monitor",
       "display_name": "Performance Monitor",
       "category": "Meta-Orchestration",
-      "description": "performance monitor system-wide metrics collection, analysis, optimization.",
+      "description": "Expert performance monitor specializing in system-wide metrics collection, analysis, and optimization. Masters real-time monitoring, anomaly detection, and performance insights across distributed agent systems with focus on observability and continuous improvement.",
       "tools": [
         "Bash",
         "MultiEdit",
@@ -4012,13 +4084,24 @@
       "name": "task-distributor",
       "display_name": "Task Distributor",
       "category": "Meta-Orchestration",
-      "description": "task distributor intelligent work allocation, load balancing, queue management.",
+      "description": "Expert task distributor specializing in intelligent work allocation, load balancing, and queue management. Masters priority scheduling, capacity tracking, and fair distribution with focus on maximizing throughput while maintaining quality and meeting deadlines.",
       "tools": [
         "Read",
+        "Task",
         "Write",
-        "load-balancer",
-        "scheduler",
-        "task-queue"
+        "mcp__RedisMCPServer__hget",
+        "mcp__RedisMCPServer__hgetall",
+        "mcp__RedisMCPServer__hset",
+        "mcp__RedisMCPServer__llen",
+        "mcp__RedisMCPServer__lpop",
+        "mcp__RedisMCPServer__lpush",
+        "mcp__RedisMCPServer__lrange",
+        "mcp__RedisMCPServer__rpop",
+        "mcp__RedisMCPServer__rpush",
+        "mcp__RedisMCPServer__scan_all_keys",
+        "mcp__taskqueue__create_task",
+        "mcp__taskqueue__get_task",
+        "mcp__taskqueue__list_tasks"
       ],
       "keywords": [
         "achieving",
@@ -4038,20 +4121,31 @@
         "efficient"
       ],
       "file_path": "plugins/mycelium-core/agents/09-meta-task-distributor.md",
-      "estimated_tokens": 2684
+      "estimated_tokens": 2699
     },
     {
       "id": "09-meta-workflow-orchestrator",
       "name": "workflow-orchestrator",
       "display_name": "Workflow Orchestrator",
       "category": "Meta-Orchestration",
-      "description": "workflow orchestrator complex process design, state machine implementation, business process automat...",
+      "description": "Expert workflow orchestrator specializing in complex process design, state machine implementation, and business process automation. Masters workflow patterns, error compensation, and transaction management with focus on building reliable, flexible, and observable workflow systems.",
       "tools": [
         "Read",
+        "Task",
         "Write",
-        "bpmn",
-        "state-machine",
-        "workflow-engine"
+        "mcp__RedisMCPServer__hget",
+        "mcp__RedisMCPServer__hgetall",
+        "mcp__RedisMCPServer__hset",
+        "mcp__RedisMCPServer__json_get",
+        "mcp__RedisMCPServer__json_set",
+        "mcp__RedisMCPServer__lpop",
+        "mcp__RedisMCPServer__lpush",
+        "mcp__RedisMCPServer__lrange",
+        "mcp__RedisMCPServer__publish",
+        "mcp__RedisMCPServer__subscribe",
+        "mcp__taskqueue__create_task",
+        "mcp__taskqueue__get_task",
+        "mcp__temporal-mcp__GetWorkflowHistory"
       ],
       "keywords": [
         "adapt",
@@ -4071,14 +4165,14 @@
         "error"
       ],
       "file_path": "plugins/mycelium-core/agents/09-meta-workflow-orchestrator.md",
-      "estimated_tokens": 5262
+      "estimated_tokens": 1671
     },
     {
       "id": "10-research-competitive-analyst",
       "name": "competitive-analyst",
       "display_name": "Competitive Analyst",
       "category": "Research & Analysis",
-      "description": "competitive analyst competitor intelligence, strategic analysis, market positioning.",
+      "description": "Expert competitive analyst specializing in competitor intelligence, strategic analysis, and market positioning. Masters competitive benchmarking, SWOT analysis, and strategic recommendations with focus on creating sustainable competitive advantages.",
       "tools": [
         "Read",
         "WebFetch",
@@ -4113,7 +4207,7 @@
       "name": "data-researcher",
       "display_name": "Data Researcher",
       "category": "Research & Analysis",
-      "description": "data researcher discovering, collecting, analyzing diverse data sources.",
+      "description": "Expert data researcher specializing in discovering, collecting, and analyzing diverse data sources. Masters data mining, statistical analysis, and pattern recognition with focus on extracting meaningful insights from complex datasets to support evidence-based decisions.",
       "tools": [
         "Read",
         "WebSearch",
@@ -4148,7 +4242,7 @@
       "name": "market-researcher",
       "display_name": "Market Researcher",
       "category": "Research & Analysis",
-      "description": "market researcher market analysis, consumer insights, competitive intelligence.",
+      "description": "Expert market researcher specializing in market analysis, consumer insights, and competitive intelligence. Masters market sizing, segmentation, and trend analysis with focus on identifying opportunities and informing strategic business decisions.",
       "tools": [
         "Read",
         "WebSearch",
@@ -4183,7 +4277,7 @@
       "name": "research-analyst",
       "display_name": "Research Analyst",
       "category": "Research & Analysis",
-      "description": "research analyst comprehensive information gathering, synthesis, insight generation.",
+      "description": "Expert research analyst specializing in comprehensive information gathering, synthesis, and insight generation. Masters research methodologies, data analysis, and report creation with focus on delivering actionable intelligence that drives informed decision-making.",
       "tools": [
         "Grep",
         "Read",
@@ -4216,7 +4310,7 @@
       "name": "search-specialist",
       "display_name": "Search Specialist",
       "category": "Research & Analysis",
-      "description": "search specialist mastering advanced information retrieval, query optimization, knowledge discovery.",
+      "description": "Expert search specialist mastering advanced information retrieval, query optimization, and knowledge discovery. Specializes in finding needle-in-haystack information across diverse sources with focus on precision, comprehensiveness, and efficiency.",
       "tools": [
         "Grep",
         "Read",
@@ -4251,7 +4345,7 @@
       "name": "trend-analyst",
       "display_name": "Trend Analyst",
       "category": "Research & Analysis",
-      "description": "trend analyst identifying emerging patterns, forecasting future developments, strategic foresight.",
+      "description": "Expert trend analyst specializing in identifying emerging patterns, forecasting future developments, and strategic foresight. Masters trend detection, impact analysis, and scenario planning with focus on helping organizations anticipate and adapt to change.",
       "tools": [
         "Read",
         "WebSearch",
@@ -4285,7 +4379,7 @@
       "name": "claude-code-developer",
       "display_name": "Claude Code Developer",
       "category": "Claude Code",
-      "description": "in Creates and enhancing Claude Code subagents, plugins, hooks, slash commands, output styles, plugi...",
+      "description": "Expert in creating and enhancing Claude Code subagents, plugins, hooks, slash commands, output styles, and plugin marketplaces. Specializes in auditing existing implementations and designing cross-agent collaborative workflows.",
       "tools": [
         "Bash",
         "Glob",
@@ -4313,7 +4407,7 @@
         "designing"
       ],
       "file_path": "plugins/mycelium-core/agents/11-claude-subagent-developer.md",
-      "estimated_tokens": 2747
+      "estimated_tokens": 2748
     }
   ]
 }
