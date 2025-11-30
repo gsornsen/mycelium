@@ -4,6 +4,9 @@ Provides beautiful, colorful terminal output using the Rich library.
 Handles tables, status indicators, panels, spinners, and progress bars.
 """
 
+import time
+from contextlib import contextmanager
+from typing import Generator
 
 from rich import box
 from rich.console import Console
@@ -11,8 +14,10 @@ from rich.live import Live
 from rich.panel import Panel
 from rich.spinner import Spinner
 from rich.table import Table
+from rich.text import Text
 
 from mycelium.discovery.scanner import DiscoveredAgent
+from mycelium.errors import MyceliumError
 from mycelium.registry.client import AgentInfo
 
 # Create console instance for consistent output
@@ -36,6 +41,25 @@ def get_status_indicator(status: str) -> str:
     if status_lower in ("unhealthy", "stopped"):
         return "[red]○[/red]"
     return "[dim]?[/dim]"
+
+
+def get_status_color(status: str) -> str:
+    """Get color for agent status.
+
+    Args:
+        status: Agent status
+
+    Returns:
+        Color name for Rich formatting
+    """
+    status_lower = status.lower()
+    if status_lower == "healthy":
+        return "green"
+    if status_lower in ("starting", "stopping"):
+        return "yellow"
+    if status_lower in ("unhealthy", "stopped"):
+        return "red"
+    return "dim"
 
 
 def create_agent_table(agents: list[AgentInfo], category_filter: str | None = None) -> Table:
@@ -130,6 +154,118 @@ def create_registry_status_panel(
     )
 
 
+def create_error_panel(
+    error: MyceliumError | Exception,
+    title: str = "Error",
+) -> Panel:
+    """Create a Rich panel for error display.
+
+    Args:
+        error: Exception object (MyceliumError or standard Exception)
+        title: Panel title
+
+    Returns:
+        Rich Panel object ready to display
+    """
+    # Build content lines
+    content_lines = []
+
+    # Main error message
+    if isinstance(error, MyceliumError):
+        content_lines.append(f"[bold red]{error.message}[/bold red]")
+    else:
+        content_lines.append(f"[bold red]{str(error)}[/bold red]")
+
+    # Add suggestion if available
+    if isinstance(error, MyceliumError) and error.suggestion:
+        content_lines.append("")
+        content_lines.append(f"[yellow]💡 Suggestion:[/yellow] {error.suggestion}")
+
+    # Add debug info if available
+    if isinstance(error, MyceliumError) and error.debug_info:
+        content_lines.append("")
+        content_lines.append("[dim]🔍 Debug Info:[/dim]")
+        for key, value in error.debug_info.items():
+            content_lines.append(f"[dim]  {key}: {value}[/dim]")
+
+    # Add docs link if available
+    if isinstance(error, MyceliumError) and error.docs_url:
+        content_lines.append("")
+        content_lines.append(f"[cyan]📖 Docs:[/cyan] {error.docs_url}")
+
+    content = "\n".join(content_lines)
+
+    return Panel(
+        content,
+        title=f"[bold red]{title}[/bold red]",
+        border_style="red",
+        box=box.ROUNDED,
+        padding=(1, 2),
+    )
+
+
+def create_warning_panel(
+    message: str,
+    suggestion: str | None = None,
+    title: str = "Warning",
+) -> Panel:
+    """Create a Rich panel for warning display.
+
+    Args:
+        message: Warning message
+        suggestion: Optional suggestion for resolution
+        title: Panel title
+
+    Returns:
+        Rich Panel object ready to display
+    """
+    content_lines = [f"[bold yellow]{message}[/bold yellow]"]
+
+    if suggestion:
+        content_lines.append("")
+        content_lines.append(f"[cyan]💡 Suggestion:[/cyan] {suggestion}")
+
+    content = "\n".join(content_lines)
+
+    return Panel(
+        content,
+        title=f"[bold yellow]{title}[/bold yellow]",
+        border_style="yellow",
+        box=box.ROUNDED,
+        padding=(1, 2),
+    )
+
+
+@contextmanager
+def spinner(text: str, success_text: str | None = None) -> Generator[None, None, None]:
+    """Context manager for spinner with elapsed time display.
+
+    Args:
+        text: Text to display next to spinner
+        success_text: Optional success message to display when done
+
+    Yields:
+        None
+
+    Example:
+        with spinner("Starting agent...", "Agent started"):
+            # Do work
+            time.sleep(2)
+    """
+    start_time = time.time()
+    spinner_obj = Spinner("dots", text=text, style="cyan")
+
+    with Live(spinner_obj, console=console, transient=True) as live:
+        try:
+            yield
+        finally:
+            elapsed = time.time() - start_time
+            live.stop()
+
+            if success_text:
+                console.print(f"[green]✓[/green] {success_text} [dim]({elapsed:.2f}s)[/dim]")
+
+
 def print_agent_table(agents: list[AgentInfo], category_filter: str | None = None) -> None:
     """Print agent table to console.
 
@@ -156,6 +292,40 @@ def print_registry_status(
         plugin_dir: Optional plugin directory path
     """
     panel = create_registry_status_panel(is_healthy, stats, plugin_dir)
+    console.print()
+    console.print(panel)
+    console.print()
+
+
+def print_error_panel(
+    error: MyceliumError | Exception,
+    title: str = "Error",
+) -> None:
+    """Print error panel to console.
+
+    Args:
+        error: Exception object
+        title: Panel title
+    """
+    panel = create_error_panel(error, title)
+    console.print()
+    console.print(panel)
+    console.print()
+
+
+def print_warning_panel(
+    message: str,
+    suggestion: str | None = None,
+    title: str = "Warning",
+) -> None:
+    """Print warning panel to console.
+
+    Args:
+        message: Warning message
+        suggestion: Optional suggestion
+        title: Panel title
+    """
+    panel = create_warning_panel(message, suggestion, title)
     console.print()
     console.print(panel)
     console.print()
@@ -200,6 +370,9 @@ def print_error(message: str) -> None:
 def create_spinner(text: str) -> Live:
     """Create a Rich spinner for long operations.
 
+    Note: Consider using the `spinner()` context manager instead for automatic
+    elapsed time display and success messages.
+
     Args:
         text: Text to display next to spinner
 
@@ -211,8 +384,8 @@ def create_spinner(text: str) -> Live:
             # Do work
             pass
     """
-    spinner = Spinner("dots", text=text, style="cyan")
-    return Live(spinner, console=console, transient=True)
+    spinner_obj = Spinner("dots", text=text, style="cyan")
+    return Live(spinner_obj, console=console, transient=True)
 
 
 def print_discovery_summary(
