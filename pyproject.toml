@@ -38,6 +38,8 @@ dependencies = [
     "sentence-transformers>=2.2.0", # NLP matching (Task 1.3)
     "jsonschema>=4.20.0", # JSON schema validation (Task 1.6)
     "temporalio>=1.18.2",
+    "slowapi>=0.1.9",
+    "redis>=7.0.1",
 ]
 
 [project.optional-dependencies]
@@ -70,12 +72,15 @@ api = [
     "python-multipart>=0.0.6",  # For form data support
 ]
 
+[project.scripts]
+mycelium = "mycelium.cli.main:main"
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["mycelium_onboarding"]
+packages = ["mycelium_onboarding", "src/mycelium"]
 
 # Ruff configuration
 [tool.ruff]
@@ -113,9 +118,20 @@ ignore = [
     "ARG",    # Allow unused args in tests
     "S101",   # Allow asserts in tests
     "D",      # Don't require docstrings in tests
+    "SIM117", # Allow nested with statements for clearer test mocking
+    "SIM105", # Allow try-except-pass pattern in tests
+    "F841",   # Allow unused variables in tests (common for side effects)
 ]
 "plugins/**/*.py" = [
     "D",      # Don't require docstrings in plugins (for now)
+]
+"src/mycelium/api/**/*.py" = [
+    "ARG001",  # Allow unused request arg (required by FastAPI/slowapi)
+    "D417",    # Missing argument descriptions (FastAPI decorators)
+]
+"src/mycelium/cli/**/*.py" = [
+    "B904",   # Allow exception conversion in CLI without from clause
+    "F841",   # Allow unused local variables (scanner for future use)
 ]
 
 [tool.ruff.lint.pydocstyle]
@@ -252,3 +268,24 @@ dev = [
     "psycopg2-binary>=2.9.11",
     "types-redis>=4.6.0.20241004",
 ]
+
+[[tool.mypy.overrides]]
+module = "fastapi.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "slowapi.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "pydantic.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "limits.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "mycelium.api.*"
+disallow_untyped_defs = false
+disallow_untyped_decorators = false
