@@ -6,9 +6,14 @@ Includes shell completion support for bash, zsh, and fish.
 Uses Rich library for beautiful terminal output.
 """
 
+import json
+import os
+import subprocess
 from pathlib import Path
 
 import click
+from rich.panel import Panel
+from rich.syntax import Syntax
 
 from mycelium.cli.completion import (
     complete_agent_names,
@@ -18,18 +23,20 @@ from mycelium.cli.completion import (
 )
 from mycelium.cli.output import (
     console,
-    create_spinner,
     print_agent_started,
     print_agent_stopped,
     print_agent_table,
     print_discovery_summary,
     print_error,
+    print_error_panel,
     print_info,
     print_registry_status,
     print_success,
     print_warning,
+    spinner,
 )
 from mycelium.cli.selector import select_agent_interactive
+from mycelium.config.manager import ConfigManager
 from mycelium.discovery.scanner import AgentScanner
 from mycelium.errors import MyceliumError
 from mycelium.registry.client import RegistryClient
@@ -51,6 +58,7 @@ def cli(ctx: click.Context) -> None:
         mycelium agent start NAME   # Start an agent
         mycelium agent stop NAME    # Stop an agent
         mycelium api start          # Start the REST API server
+        mycelium config show        # Show current configuration
 
     For help on any command:
         mycelium COMMAND --help
@@ -108,14 +116,15 @@ def list(ctx: click.Context, category: str | None, output_json: bool, discover: 
         if discover:
             plugin_dir = DEFAULT_PLUGIN_DIR
             if plugin_dir.exists():
-                with create_spinner(f"Scanning {plugin_dir} for agents..."):
+                with spinner(
+                    f"Scanning {plugin_dir} for agents...",
+                    f"Discovered agents from {plugin_dir.name}"
+                ):
                     discovered = scanner.scan_directory(plugin_dir)
-                    discovered_count = len(discovered)
                     # Register discovered agents
                     scanner.register_discovered_agents()
 
                 if not output_json:
-                    print_info(f"Discovered {discovered_count} agent(s) from {plugin_dir}")
                     console.print()
             else:
                 if not output_json:
@@ -126,7 +135,6 @@ def list(ctx: click.Context, category: str | None, output_json: bool, discover: 
         agents = registry.list_agents(category=category)
 
         if output_json:
-            import json
             click.echo(json.dumps([a.to_dict() for a in agents], indent=2))
         else:
             if not agents:
@@ -273,11 +281,17 @@ def start(ctx: click.Context, name: str, config: Path | None) -> None:
                 docs_url="https://docs.mycelium.dev/agents/overview"
             )
 
-        # Start process with spinner
-        with create_spinner(f"Starting agent '{name}'..."):
+        # Start process with spinner showing elapsed time
+        with spinner(f"Starting agent '{name}'...", f"Agent '{name}' started"):
             process_id = supervisor.start_agent(name, config=config)
 
-        print_agent_started(name, process_id)
+        # Print detailed start confirmation
+        console.print()
+        console.print(f"  Process ID: [cyan]{process_id}[/cyan]")
+        console.print()
+        console.print("[dim]Monitor logs:[/dim]")
+        console.print(f"  [bold]mycelium agent logs {name}[/bold]")
+        console.print()
 
     except MyceliumError:
         raise
@@ -316,10 +330,11 @@ def stop(ctx: click.Context, name: str, force: bool) -> None:
                 abort=True
             )
 
-        with create_spinner(f"Stopping agent '{name}'..."):
+        # Use spinner with elapsed time for stop operation
+        with spinner(f"Stopping agent '{name}'...", f"Agent '{name}' stopped"):
             supervisor.stop_agent(name, graceful=not force)
 
-        print_agent_stopped(name)
+        console.print()
 
     except click.Abort:
         console.print()
@@ -407,8 +422,8 @@ def discover(ctx: click.Context, plugin_dir: Path) -> None:
     try:
         scanner: AgentScanner = ctx.obj["scanner"]
 
-        # Scan with spinner
-        with create_spinner(f"Scanning {plugin_dir} for agents..."):
+        # Scan with spinner showing elapsed time
+        with spinner(f"Scanning {plugin_dir} for agents...", "Discovery complete"):
             discovered = scanner.scan_directory(plugin_dir)
 
         if not discovered:
@@ -557,6 +572,228 @@ def start(port: int, redis_url: str, reload: bool, log_level: str) -> None:
 
 
 @cli.group()
+def config() -> None:
+    """Manage Mycelium configuration."""
+    pass
+
+
+@config.command()
+@click.option(
+    "--format",
+    "-f",
+    type=click.Choice(["yaml", "json"], case_sensitive=False),
+    default="yaml",
+    help="Output format",
+)
+def show(format: str) -> None:
+    """Show current configuration.
+
+    Displays the merged configuration from all .env files and environment variables.
+
+    Examples:
+        mycelium config show
+        mycelium config show --format json
+    """
+    try:
+        manager = ConfigManager()
+        config = manager.load()
+
+        console.print()
+
+        if format.lower() == "json":
+            # JSON output
+            config_dict = config.to_dict()
+            json_str = json.dumps(config_dict, indent=2)
+            syntax = Syntax(json_str, "json", theme="monokai", line_numbers=False)
+            console.print(Panel(
+                syntax,
+                title="Mycelium Configuration (JSON)",
+                border_style="cyan"
+            ))
+        else:
+            # YAML output (default)
+            import yaml
+            config_dict = config.to_dict()
+            yaml_str = yaml.dump(config_dict, default_flow_style=False, sort_keys=False)
+            syntax = Syntax(yaml_str, "yaml", theme="monokai", line_numbers=False)
+            console.print(Panel(
+                syntax,
+                title="Mycelium Configuration (YAML)",
+                border_style="cyan"
+            ))
+
+        console.print()
+        console.print("[dim]Configuration loaded from:[/dim]")
+        console.print("  [dim]• .env.defaults[/dim]")
+        console.print("  [dim]• .env[/dim]")
+        console.print("  [dim]• .env.local[/dim]")
+        console.print("  [dim]• Environment variables (MYCELIUM_* or direct)[/dim]")
+        console.print()
+
+    except MyceliumError:
+        raise
+    except Exception as e:
+        raise MyceliumError(
+            f"Failed to show configuration: {str(e)}",
+            suggestion="Check if configuration files are valid YAML",
+            docs_url="https://docs.mycelium.dev/config/overview",
+            debug_info={"error": str(e)}
+        )
+
+
+@config.command()
+@click.option(
+    "--global",
+    "use_global",
+    is_flag=True,
+    help="Edit global config at ~/.config/mycelium/.env",
+)
+def edit(use_global: bool) -> None:
+    """Edit configuration in default editor.
+
+    Opens the configuration file in your $EDITOR (defaults to nano).
+
+    Examples:
+        mycelium config edit             # Edit project .env
+        mycelium config edit --global    # Edit user ~/.config/mycelium/.env
+    """
+    try:
+        # Determine which config file to edit
+        if use_global:
+            config_dir = Path.home() / ".config" / "mycelium"
+            config_file = config_dir / ".env"
+            config_type = "global"
+        else:
+            config_dir = Path.cwd()
+            config_file = config_dir / ".env"
+            config_type = "project"
+
+        # Create directory if it doesn't exist
+        config_dir.mkdir(parents=True, exist_ok=True)
+
+        # Create file with defaults if it doesn't exist
+        if not config_file.exists():
+            console.print()
+            print_info(f"Creating new {config_type} configuration file...")
+
+            # Write default .env content
+            default_content = """# Mycelium Configuration
+# See: https://docs.mycelium.dev/config/overview
+
+# Redis connection URL for agent registry
+# MYCELIUM_REDIS_URL=redis://localhost:6379
+
+# Development server port
+# MYCELIUM_DEV_SERVER_PORT=15850
+
+# API server port
+# MYCELIUM_API_PORT=15900
+
+# Starting port for agent processes
+# MYCELIUM_AGENT_PORT_START=17000
+
+# Plugin directory containing agent definitions
+# MYCELIUM_PLUGIN_DIR=~/git/mycelium/plugins/mycelium-core/agents
+
+# Log directory for agent logs
+# MYCELIUM_LOG_DIR=~/.local/share/mycelium/logs
+
+# Auto-discover agents on startup (true/false)
+# MYCELIUM_AUTO_DISCOVER=true
+
+# Logging level (DEBUG, INFO, WARNING, ERROR)
+# MYCELIUM_LOG_LEVEL=INFO
+"""
+            config_file.write_text(default_content)
+            console.print()
+
+        # Get editor from environment
+        editor = os.environ.get("EDITOR", "nano")
+
+        console.print()
+        print_info(f"Opening {config_type} config in {editor}...")
+        console.print(f"  [dim]{config_file}[/dim]")
+        console.print()
+
+        # Open editor
+        result = subprocess.run([editor, str(config_file)])
+
+        if result.returncode == 0:
+            console.print()
+            print_success("Configuration file saved.")
+            console.print()
+            console.print("[dim]Tip: Validate your changes with:[/dim]")
+            console.print("  [bold]mycelium config validate[/bold]")
+            console.print()
+        else:
+            console.print()
+            print_warning("Editor exited with non-zero status.")
+            console.print()
+
+    except MyceliumError:
+        raise
+    except Exception as e:
+        raise MyceliumError(
+            f"Failed to edit configuration: {str(e)}",
+            suggestion="Check if $EDITOR is set or try: EDITOR=nano mycelium config edit",
+            docs_url="https://docs.mycelium.dev/config/editing",
+            debug_info={"editor": os.environ.get("EDITOR", "nano"), "error": str(e)}
+        )
+
+
+@config.command()
+def validate() -> None:
+    """Validate configuration.
+
+    Checks configuration files for errors and validates all settings.
+
+    Example:
+        mycelium config validate
+    """
+    try:
+        manager = ConfigManager()
+        config = manager.load()
+        errors = manager.validate()
+
+        console.print()
+
+        if not errors:
+            print_success("Configuration is valid")
+            console.print()
+            console.print("[dim]Configuration summary:[/dim]")
+            console.print(f"  Redis URL: [cyan]{config.redis_url}[/cyan]")
+            console.print(f"  Dev Server Port: [cyan]{config.dev_server_port}[/cyan]")
+            console.print(f"  API Port: [cyan]{config.api_port}[/cyan]")
+            console.print(f"  Agent Port Start: [cyan]{config.agent_port_start}[/cyan]")
+            console.print(f"  Plugin Dir: [cyan]{config.plugin_dir}[/cyan]")
+            console.print(f"  Log Dir: [cyan]{config.log_dir}[/cyan]")
+            console.print(f"  Auto Discover: [cyan]{config.auto_discover}[/cyan]")
+            console.print(f"  Log Level: [cyan]{config.log_level}[/cyan]")
+            console.print()
+        else:
+            print_error("Configuration has errors:")
+            console.print()
+            for error in errors:
+                console.print(f"  [red]✗[/red] {error}")
+            console.print()
+            console.print("[dim]Fix these errors and run validate again.[/dim]")
+            console.print()
+            raise SystemExit(1)
+
+    except MyceliumError:
+        raise
+    except SystemExit:
+        raise
+    except Exception as e:
+        raise MyceliumError(
+            f"Failed to validate configuration: {str(e)}",
+            suggestion="Check configuration file syntax and values",
+            docs_url="https://docs.mycelium.dev/config/validation",
+            debug_info={"error": str(e)}
+        )
+
+
+@cli.group()
 def completion() -> None:
     """Shell completion management."""
     pass
@@ -582,7 +819,6 @@ def install(shell: str | None) -> None:
     """
     if not shell:
         # Auto-detect shell from environment
-        import os
         shell_path = os.environ.get("SHELL", "")
         if "bash" in shell_path:
             shell = "bash"
@@ -656,9 +892,8 @@ def main() -> None:
     try:
         cli(obj={})
     except MyceliumError as e:
-        console.print()
-        print_error(str(e))
-        console.print()
+        # Use Rich error panel for MyceliumError
+        print_error_panel(e)
         raise SystemExit(1)
     except Exception as e:
         console.print()
