@@ -16,6 +16,7 @@ from mycelium.errors import SupervisorError
 from mycelium.logging import LogManager
 from mycelium.registry.client import RegistryClient
 from mycelium.config.agent_loader import AgentLoader, AgentConfig
+from mycelium.mcp.isolation import EnvironmentIsolation, OutputSanitizer
 
 # Default plugin directory for agent definitions
 DEFAULT_PLUGIN_DIR = Path.home() / "git" / "mycelium" / "plugins" / "mycelium-core" / "agents"
@@ -42,6 +43,8 @@ class ProcessManager:
     - Graceful shutdown
     - Log streaming
     - Auto-restart on failure
+    - Environment isolation
+    - Output sanitization
     """
 
     def __init__(
@@ -61,6 +64,8 @@ class ProcessManager:
         self.registry = RegistryClient()
         self.log_manager = log_manager or LogManager()
         self.agent_loader = AgentLoader(plugin_dir or DEFAULT_PLUGIN_DIR)
+        self.isolation = EnvironmentIsolation()
+        self.sanitizer = OutputSanitizer()
 
     def start_agent(
         self,
@@ -115,11 +120,16 @@ class ProcessManager:
             workdir = Path.cwd()
 
         try:
+            # Create isolated environment
+            clean_env = self.isolation.filter_environment(os.environ.copy())
+
+            # Start process with isolated environment
             process = subprocess.Popen(
                 command,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 cwd=workdir,
+                env=clean_env,  # Use filtered environment
                 start_new_session=True,
             )
 
@@ -307,14 +317,14 @@ class ProcessManager:
         return self.start_agent(name)
 
     def get_logs(self, name: str, lines: int = 50) -> str:
-        """Get agent logs.
+        """Get agent logs with sanitization.
 
         Args:
             name: Agent name
             lines: Number of lines to retrieve
 
         Returns:
-            Log output (formatted)
+            Sanitized log output
         """
         # Read log entries from log manager
         entries = self.log_manager.read(agent_name=name, lines=lines)
@@ -322,10 +332,12 @@ class ProcessManager:
         if not entries:
             return f"No logs found for agent '{name}'\n"
 
-        # Format entries for display
+        # Format and sanitize entries
         output_lines = []
         for entry in entries:
-            output_lines.append(entry.format(include_timestamp=True))
+            formatted = entry.format(include_timestamp=True)
+            sanitized = self.sanitizer.sanitize(formatted)
+            output_lines.append(sanitized)
 
         return "\n".join(output_lines) + "\n"
 
@@ -338,8 +350,10 @@ class ProcessManager:
         try:
             # Stream log entries from log manager
             for entry in self.log_manager.stream(agent_name=name, follow=True):
-                # Print formatted entry
-                print(entry.format(include_timestamp=True))
+                # Print formatted and sanitized entry
+                formatted = entry.format(include_timestamp=True)
+                sanitized = self.sanitizer.sanitize(formatted)
+                print(sanitized)
         except KeyboardInterrupt:
             # Clean exit on Ctrl+C
             pass

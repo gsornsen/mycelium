@@ -5,10 +5,11 @@ in agent definitions, identifying potentially dangerous patterns and
 providing risk assessments.
 """
 
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
-import re
+
 import yaml
 
 
@@ -118,7 +119,7 @@ def parse_agent_tools(agent_path: Path) -> list[str]:
     try:
         frontmatter = yaml.safe_load(frontmatter_text)
     except yaml.YAMLError as e:
-        raise ValueError(f"Invalid YAML frontmatter in {agent_path}: {e}")
+        raise ValueError(f"Invalid YAML frontmatter in {agent_path}: {e}") from e
 
     # Extract tools field
     tools_field = frontmatter.get("tools", "")
@@ -228,7 +229,7 @@ def generate_permissions_report(plugin_dir: Path) -> dict[str, Any]:
         }
 
     agent_files = sorted(agents_dir.glob("*.md"))
-    report = {
+    report: dict[str, Any] = {
         "plugin_dir": str(plugin_dir),
         "total_agents": len(agent_files),
         "agents": [],
@@ -253,7 +254,7 @@ def generate_permissions_report(plugin_dir: Path) -> dict[str, Any]:
                 except yaml.YAMLError:
                     pass
 
-            agent_data = {
+            agent_data: dict[str, Any] = {
                 "name": agent_name,
                 "file": agent_file.name,
                 "risk_level": risk_level,
@@ -341,12 +342,8 @@ def get_agent_permissions(agent_path: Path) -> dict[str, Any]:
                 }
                 for p in permissions
             ],
-            "high_risk_tools": [
-                p.tool_name for p in permissions if p.risk_level == "high"
-            ],
-            "medium_risk_tools": [
-                p.tool_name for p in permissions if p.risk_level == "medium"
-            ],
+            "high_risk_tools": [p.tool_name for p in permissions if p.risk_level == "high"],
+            "medium_risk_tools": [p.tool_name for p in permissions if p.risk_level == "medium"],
         }
     except Exception as e:
         return {
