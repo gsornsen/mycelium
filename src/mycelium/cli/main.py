@@ -14,6 +14,7 @@ from pathlib import Path
 import click
 from rich.panel import Panel
 from rich.syntax import Syntax
+from rich.table import Table
 
 from mycelium.cli.completion import (
     complete_agent_names,
@@ -39,11 +40,19 @@ from mycelium.cli.selector import select_agent_interactive
 from mycelium.config.manager import ConfigManager
 from mycelium.discovery.scanner import AgentScanner
 from mycelium.errors import MyceliumError
+from mycelium.mcp.permissions import (
+    generate_permissions_report,
+    get_agent_permissions,
+    get_high_risk_agents,
+)
 from mycelium.registry.client import RegistryClient
 from mycelium.supervisor.manager import ProcessManager
 
 # Default plugin directory
 DEFAULT_PLUGIN_DIR = Path.home() / "git" / "mycelium" / "plugins" / "mycelium-core" / "agents"
+DEFAULT_PLUGIN_DIR_STR = str(DEFAULT_PLUGIN_DIR)
+DEFAULT_PERMISSIONS_PLUGIN_DIR_STR = str(DEFAULT_PLUGIN_DIR.parent)
+
 
 
 @click.group()
@@ -408,7 +417,7 @@ def logs(ctx: click.Context, name: str, follow: bool, lines: int) -> None:
     "--plugin-dir",
     "-p",
     type=click.Path(exists=True, path_type=Path),
-    default=DEFAULT_PLUGIN_DIR,
+    default=DEFAULT_PLUGIN_DIR_STR,
     help="Plugin directory to scan",
 )
 @click.pass_context
@@ -446,6 +455,439 @@ def discover(ctx: click.Context, plugin_dir: Path) -> None:
             suggestion="Check plugin directory path and permissions",
             docs_url="https://docs.mycelium.dev/plugins/discovery",
             debug_info={"plugin_dir": str(plugin_dir)}
+        )
+
+
+# Checksum subcommand group
+@agent.group()
+def checksum() -> None:
+    """Manage agent checksums for integrity verification."""
+    pass
+
+
+@checksum.command(name="generate")
+@click.option(
+    "--plugin-dir",
+    "-p",
+    type=click.Path(exists=True, path_type=Path),
+    default=DEFAULT_PLUGIN_DIR_STR,
+    help="Plugin directory containing agent .md files",
+)
+@click.option(
+    "--output",
+    "-o",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="Output path for checksums file (default: ~/.mycelium/agent_checksums.json)",
+)
+def generate_checksums_cmd(plugin_dir: Path, output: Path | None) -> None:
+    """Generate checksums for all agents.
+
+    Creates a checksums file that can be used to verify agent file integrity.
+
+    Examples:
+        mycelium agent checksum generate
+        mycelium agent checksum generate --plugin-dir /path/to/agents
+        mycelium agent checksum generate --output /custom/path/checksums.json
+    """
+    try:
+        from mycelium.mcp.checksums import generate_all_checksums, save_checksums
+
+        # Default output path
+        if output is None:
+            output = Path.home() / ".mycelium" / "agent_checksums.json"
+
+        console.print()
+        with spinner(f"Generating checksums for agents in {plugin_dir}...", "Checksums generated"):
+            checksums = generate_all_checksums(plugin_dir)
+            save_checksums(checksums, output)
+
+        console.print()
+        print_success(f"Generated {len(checksums)} agent checksums")
+        console.print()
+        console.print(f"  Saved to: [cyan]{output}[/cyan]")
+        console.print(f"  Agents: [cyan]{len(checksums)}[/cyan]")
+        console.print()
+        console.print("[dim]Next steps:[/dim]")
+        console.print("  [bold]mycelium agent checksum verify[/bold]   # Verify checksums")
+        console.print("  [bold]mycelium agent checksum show[/bold]     # Show checksums")
+        console.print()
+
+    except FileNotFoundError as e:
+        raise MyceliumError(
+            str(e),
+            suggestion="Ensure the plugin directory exists and contains agent .md files",
+            docs_url="https://docs.mycelium.dev/security/checksums",
+        )
+    except Exception as e:
+        raise MyceliumError(
+            f"Failed to generate checksums: {str(e)}",
+            suggestion="Check plugin directory path and write permissions",
+            docs_url="https://docs.mycelium.dev/security/checksums",
+            debug_info={"plugin_dir": str(plugin_dir), "output": str(output)},
+        )
+
+
+@checksum.command(name="verify")
+@click.option(
+    "--plugin-dir",
+    "-p",
+    type=click.Path(exists=True, path_type=Path),
+    default=DEFAULT_PLUGIN_DIR_STR,
+    help="Plugin directory containing agent .md files",
+)
+@click.option(
+    "--checksums",
+    "-c",
+    type=click.Path(exists=True, path_type=Path),
+    default=None,
+    help="Path to checksums file (default: ~/.mycelium/agent_checksums.json)",
+)
+def verify_checksums_cmd(plugin_dir: Path, checksums: Path | None) -> None:
+    """Verify all agents against stored checksums.
+
+    Checks for:
+    - Modified agent files (checksum mismatch)
+    - Missing agent files
+    - New agents not in checksums
+
+    Examples:
+        mycelium agent checksum verify
+        mycelium agent checksum verify --plugin-dir /path/to/agents
+        mycelium agent checksum verify --checksums /custom/checksums.json
+    """
+    try:
+        from mycelium.mcp.checksums import verify_all_checksums
+
+        # Default checksums path
+        if checksums is None:
+            checksums = Path.home() / ".mycelium" / "agent_checksums.json"
+
+        console.print()
+        with spinner(f"Verifying agent checksums from {checksums.name}...", "Verification complete"):
+            failed = verify_all_checksums(plugin_dir, checksums)
+
+        console.print()
+
+        if not failed:
+            print_success("All agent checksums verified successfully")
+            console.print()
+            console.print("  [green]✓[/green] No integrity issues detected")
+            console.print()
+        else:
+            print_warning(f"Agent integrity check failed for {len(failed)} agent(s)")
+            console.print()
+            console.print("[yellow]Failed agents:[/yellow]")
+            for agent_name in failed:
+                console.print(f"  [red]✗[/red] {agent_name}")
+            console.print()
+            console.print("[dim]Possible causes:[/dim]")
+            console.print("  • Agent file modified")
+            console.print("  • Agent file missing")
+            console.print("  • New agent not in checksums")
+            console.print()
+            console.print("[dim]Next steps:[/dim]")
+            console.print("  [bold]mycelium agent checksum generate[/bold]  # Regenerate checksums")
+            console.print()
+            raise SystemExit(1)
+
+    except FileNotFoundError as e:
+        raise MyceliumError(
+            str(e),
+            suggestion="Generate checksums first: mycelium agent checksum generate",
+            docs_url="https://docs.mycelium.dev/security/checksums",
+        )
+    except ValueError as e:
+        raise MyceliumError(
+            str(e),
+            suggestion="Checksums file may be corrupted. Regenerate with: mycelium agent checksum generate",
+            docs_url="https://docs.mycelium.dev/security/checksums",
+        )
+    except Exception as e:
+        raise MyceliumError(
+            f"Failed to verify checksums: {str(e)}",
+            suggestion="Check plugin directory and checksums file paths",
+            docs_url="https://docs.mycelium.dev/security/checksums",
+            debug_info={"plugin_dir": str(plugin_dir), "checksums": str(checksums)},
+        )
+
+
+@checksum.command(name="show")
+@click.option(
+    "--checksums",
+    "-c",
+    type=click.Path(exists=True, path_type=Path),
+    default=None,
+    help="Path to checksums file (default: ~/.mycelium/agent_checksums.json)",
+)
+@click.option(
+    "--json",
+    "output_json",
+    is_flag=True,
+    help="Output as JSON",
+)
+def show_checksums_cmd(checksums: Path | None, output_json: bool) -> None:
+    """Show stored agent checksums.
+
+    Displays checksums from the stored checksums file.
+
+    Examples:
+        mycelium agent checksum show
+        mycelium agent checksum show --json
+        mycelium agent checksum show --checksums /custom/checksums.json
+    """
+    try:
+        from mycelium.mcp.checksums import load_checksums
+
+        # Default checksums path
+        if checksums is None:
+            checksums = Path.home() / ".mycelium" / "agent_checksums.json"
+
+        # Load checksums
+        agent_checksums = load_checksums(checksums)
+
+        if output_json:
+            # JSON output
+            output_data = {
+                "file": str(checksums),
+                "count": len(agent_checksums),
+                "agents": agent_checksums,
+            }
+            click.echo(json.dumps(output_data, indent=2))
+        else:
+            # Human-readable output
+            console.print()
+            console.print(Panel(
+                f"Agent Checksums\n\n"
+                f"File: [cyan]{checksums}[/cyan]\n"
+                f"Total agents: [cyan]{len(agent_checksums)}[/cyan]",
+                border_style="cyan",
+            ))
+            console.print()
+
+            # Display checksums in a table format
+            from rich.table import Table
+
+            table = Table(show_header=True, header_style="bold cyan")
+            table.add_column("Agent Name", style="white")
+            table.add_column("Checksum", style="dim")
+
+            for agent_name, checksum in sorted(agent_checksums.items()):
+                # Truncate checksum for display
+                display_checksum = checksum[:20] + "..." if len(checksum) > 20 else checksum
+                table.add_row(agent_name, display_checksum)
+
+            console.print(table)
+            console.print()
+
+    except FileNotFoundError as e:
+        raise MyceliumError(
+            str(e),
+            suggestion="Generate checksums first: mycelium agent checksum generate",
+            docs_url="https://docs.mycelium.dev/security/checksums",
+        )
+    except ValueError as e:
+        raise MyceliumError(
+            str(e),
+            suggestion="Checksums file may be corrupted. Regenerate with: mycelium agent checksum generate",
+            docs_url="https://docs.mycelium.dev/security/checksums",
+        )
+    except Exception as e:
+        raise MyceliumError(
+            f"Failed to show checksums: {str(e)}",
+            suggestion="Check checksums file path and permissions",
+            docs_url="https://docs.mycelium.dev/security/checksums",
+            debug_info={"checksums": str(checksums)},
+        )
+
+
+
+
+
+@agent.command()
+@click.argument("name", required=False, shell_complete=complete_agent_names)
+@click.option(
+    "--plugin-dir",
+    "-p",
+    type=click.Path(exists=True, path_type=Path),
+    default=DEFAULT_PERMISSIONS_PLUGIN_DIR_STR,
+    help="Plugin directory to scan",
+)
+@click.option(
+    "--high-risk",
+    is_flag=True,
+    help="Show only high-risk agents",
+)
+@click.option(
+    "--json",
+    "output_json",
+    is_flag=True,
+    help="Output as JSON for scripting",
+)
+def permissions(name: str | None, plugin_dir: Path, high_risk: bool, output_json: bool) -> None:
+    """Show tool permissions for agents.
+
+    Analyzes agent tool permissions and identifies potentially dangerous patterns
+    like unrestricted shell access, file writes, or container management.
+
+    Examples:
+        mycelium agent permissions                    # Show all agents
+        mycelium agent permissions backend-engineer   # Show specific agent
+        mycelium agent permissions --high-risk        # Show only high-risk agents
+        mycelium agent permissions --json             # JSON output
+    """
+    try:
+        if name:
+            # Show permissions for specific agent
+            agents_dir = plugin_dir / "agents"
+            agent_files = list(agents_dir.glob(f"*{name}*.md"))
+
+            if not agent_files:
+                raise MyceliumError(
+                    f"Agent '{name}' not found in {agents_dir}",
+                    suggestion=f"Check available agents: mycelium agent list",
+                )
+
+            agent_path = agent_files[0]
+            perm_data = get_agent_permissions(agent_path)
+
+            if output_json:
+                click.echo(json.dumps(perm_data, indent=2))
+                return
+
+            # Display detailed permissions for single agent
+            console.print()
+            console.print(Panel(
+                f"[bold]{perm_data['name']}[/bold]\n\n{perm_data.get('description', '')}",
+                title="Agent Permissions",
+                border_style="cyan"
+            ))
+            console.print()
+
+            # Risk level badge
+            risk_level = perm_data.get("risk_level", "unknown")
+            risk_color = {"high": "red", "medium": "yellow", "low": "green", "unknown": "dim"}.get(risk_level, "dim")
+            console.print(f"Overall Risk: [{risk_color}]{risk_level.upper()}[/{risk_color}]")
+            console.print()
+
+            # Create permissions table
+            table = Table(show_header=True, header_style="bold cyan")
+            table.add_column("Tool", style="white", no_wrap=True)
+            table.add_column("Risk", style="white")
+            table.add_column("Description", style="dim")
+
+            for perm in perm_data.get("permissions", []):
+                risk_color = {"high": "red", "medium": "yellow", "low": "green"}.get(perm["risk"], "dim")
+                table.add_row(
+                    perm["tool"],
+                    f"[{risk_color}]{perm['risk'].upper()}[/{risk_color}]",
+                    perm["description"]
+                )
+
+            console.print(table)
+            console.print()
+
+            # Show high-risk tools summary if any
+            if perm_data.get("high_risk_tools"):
+                console.print("[red]High-risk tools detected:[/red]")
+                for tool in perm_data["high_risk_tools"]:
+                    console.print(f"  [red]•[/red] {tool}")
+                console.print()
+
+        else:
+            # Show permissions report for all agents
+            if high_risk:
+                # Show only high-risk agents
+                high_risk_agents = get_high_risk_agents(plugin_dir)
+
+                if output_json:
+                    click.echo(json.dumps(high_risk_agents, indent=2))
+                    return
+
+                console.print()
+                if not high_risk_agents:
+                    print_success("No high-risk agents found")
+                    console.print()
+                    return
+
+                print_warning(f"Found {len(high_risk_agents)} high-risk agents")
+                console.print()
+
+                # Create table of high-risk agents
+                table = Table(show_header=True, header_style="bold red")
+                table.add_column("Agent", style="white")
+                table.add_column("High-Risk Tools", style="red")
+
+                for agent in high_risk_agents:
+                    high_risk_tools = [
+                        p["tool"] for p in agent.get("permissions", [])
+                        if p.get("risk") == "high"
+                    ]
+                    table.add_row(
+                        agent["name"],
+                        ", ".join(high_risk_tools)
+                    )
+
+                console.print(table)
+                console.print()
+
+            else:
+                # Show full report
+                report = generate_permissions_report(plugin_dir)
+
+                if output_json:
+                    click.echo(json.dumps(report, indent=2))
+                    return
+
+                console.print()
+                console.print(Panel(
+                    f"Total Agents: [bold]{report['total_agents']}[/bold]\n\n"
+                    f"[red]High Risk:[/red] {report['summary'].get('high', 0)}\n"
+                    f"[yellow]Medium Risk:[/yellow] {report['summary'].get('medium', 0)}\n"
+                    f"[green]Low Risk:[/green] {report['summary'].get('low', 0)}",
+                    title="Agent Permissions Summary",
+                    border_style="cyan"
+                ))
+                console.print()
+
+                # Create summary table
+                table = Table(show_header=True, header_style="bold cyan")
+                table.add_column("Agent", style="white")
+                table.add_column("Risk", style="white")
+                table.add_column("Tools", style="dim")
+
+                for agent in sorted(report["agents"], key=lambda x: (
+                    {"high": 0, "medium": 1, "low": 2, "unknown": 3}.get(x.get("risk_level", "unknown"), 4),
+                    x.get("name", "")
+                )):
+                    risk_level = agent.get("risk_level", "unknown")
+                    risk_color = {"high": "red", "medium": "yellow", "low": "green", "unknown": "dim"}.get(risk_level, "dim")
+
+                    tools = agent.get("tools", [])
+                    tool_count = f"{len(tools)} tools"
+
+                    table.add_row(
+                        agent.get("name", "unknown"),
+                        f"[{risk_color}]{risk_level.upper()}[/{risk_color}]",
+                        tool_count
+                    )
+
+                console.print(table)
+                console.print()
+
+        # Show documentation link
+        console.print("[dim]For more information:[/dim]")
+        console.print("  [bold]docs/security/TOOL_PERMISSIONS.md[/bold]")
+        console.print()
+
+    except MyceliumError:
+        raise
+    except Exception as e:
+        raise MyceliumError(
+            f"Failed to analyze permissions: {str(e)}",
+            suggestion="Check plugin directory path and agent files",
+            docs_url="https://docs.mycelium.dev/security/permissions",
+            debug_info={"name": name, "plugin_dir": str(plugin_dir)}
         )
 
 

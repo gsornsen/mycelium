@@ -74,6 +74,7 @@ api = [
 
 [project.scripts]
 mycelium = "mycelium.cli.main:main"
+mycelium-mcp = "mycelium.mcp.server:main"
 
 [build-system]
 requires = ["hatchling"]
@@ -288,4 +289,12 @@ ignore_missing_imports = true
 [[tool.mypy.overrides]]
 module = "mycelium.api.*"
 disallow_untyped_defs = false
+disallow_untyped_decorators = false
+
+[[tool.mypy.overrides]]
+module = "fastmcp.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "mycelium.mcp.server"
 disallow_untyped_decorators = false
