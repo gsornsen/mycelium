@@ -268,6 +268,7 @@ class RegistryClient:
 
     def _redis_store_hash(self, key: str, data: dict[str, str | int | None]) -> None:
         """Store hash data in Redis."""
+        self._ensure_connection()
         if not self._redis_client:
             return
         # Convert None values to empty strings for Redis
@@ -284,6 +285,7 @@ class RegistryClient:
 
     def _redis_get_hash(self, key: str) -> dict[str, str | int | None]:
         """Get hash from Redis."""
+        self._ensure_connection()
         if not self._redis_client:
             return {}
         data = self._redis_client.hgetall(key)

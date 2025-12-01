@@ -207,6 +207,10 @@ ignore_missing_imports = true
 module = "temporalio.*"
 ignore_missing_imports = true
 
+[[tool.mypy.overrides]]
+module = "yaml.*"
+ignore_missing_imports = true
+
 # Pytest configuration
 [tool.pytest.ini_options]
 minversion = "7.0"

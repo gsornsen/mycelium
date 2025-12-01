@@ -1,9 +1,11 @@
-"""FastMCP server for Mycelium agent discovery.
+"""FastMCP server for Mycelium agent discovery and execution.
 
-Exposes three tools via MCP:
+Exposes tools via MCP:
 - discover_agents: Natural language search
 - get_agent_details: Get full agent metadata
 - list_categories: List agent categories
+- invoke_agent: Execute an agent on a task
+- get_workflow_status: Check workflow execution status
 
 Uses stdio transport (standard for MCP).
 """
@@ -77,6 +79,64 @@ def list_categories() -> list[dict[str, Any]]:
         List of categories with agent counts
     """
     return _tools.list_categories()
+
+
+@mcp.tool()
+def invoke_agent(agent_name: str, task_description: str, context: dict[str, Any] | None = None) -> dict[str, Any]:
+    """Invoke an agent to execute a task via MCP.
+
+    This tool delegates work to specialist agents. For high-risk
+    agents (those with Bash(*) or Write(*) permissions), the user
+    will be prompted for consent via CLI.
+
+    Security features:
+    - User consent required for dangerous tools
+    - Environment isolation (sensitive vars blocked)
+    - Output sanitization (credentials redacted)
+    - Checksum-based re-consent on agent changes
+
+    Args:
+        agent_name: Name of the agent to invoke (e.g., "python-pro")
+        task_description: Description of the task to execute
+        context: Optional context dict (files, project info, etc.)
+
+    Returns:
+        Dictionary with workflow_id, status, and details
+
+    Examples:
+        >>> invoke_agent("python-pro", "Implement user authentication")
+        {
+            "workflow_id": "wf_abc123",
+            "status": "started",
+            "agent_name": "python-pro",
+            "message": "Agent started successfully"
+        }
+    """
+    return _tools.invoke_agent(agent_name, task_description, context)
+
+
+@mcp.tool()
+def get_workflow_status(workflow_id: str) -> dict[str, Any]:
+    """Get the status of a running agent workflow.
+
+    Use this to check on agent execution progress and get results.
+
+    Args:
+        workflow_id: Workflow identifier from invoke_agent
+
+    Returns:
+        Dictionary with status, agent info, and results
+
+    Examples:
+        >>> get_workflow_status("wf_abc123")
+        {
+            "workflow_id": "wf_abc123",
+            "status": "running",
+            "agent_name": "python-pro",
+            "started_at": "2025-11-30T12:00:00Z"
+        }
+    """
+    return _tools.get_workflow_status(workflow_id)
 
 
 def main() -> None:
